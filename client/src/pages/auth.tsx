@@ -3,10 +3,36 @@ import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useMutation } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Auth() {
   const { isAuthenticated, login, isLoading } = useAuth();
   const [, navigate] = useLocation();
+  const { toast } = useToast();
+
+  const demoLogin = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('POST', '/api/auth/demo-login');
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Welcome!",
+        description: "You're now logged in as a demo user.",
+      });
+      navigate('/dashboard');
+      window.location.reload(); // Refresh to update auth state
+    },
+    onError: () => {
+      toast({
+        title: "Login Failed",
+        description: "Could not log you in. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -39,6 +65,19 @@ export default function Auth() {
           >
             <i className="fab fa-google text-red-500"></i>
             <span className="font-medium">Continue with Google</span>
+          </Button>
+
+          <div className="text-center text-sm text-slate-500 my-3">
+            or
+          </div>
+          
+          <Button 
+            onClick={() => demoLogin.mutate()}
+            disabled={demoLogin.isPending}
+            variant="secondary"
+            className="w-full"
+          >
+            {demoLogin.isPending ? 'Signing in...' : 'Try Demo Account'}
           </Button>
           
           <div className="text-center mt-4">

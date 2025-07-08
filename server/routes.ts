@@ -72,15 +72,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Auth routes
-  app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-  
-  app.get('/api/auth/google/callback', 
-    passport.authenticate('google', { failureRedirect: '/auth' }),
-    (req, res) => {
-      res.redirect('/dashboard');
+  // Auth routes (only if Google OAuth is configured)
+  if (hasGoogleAuth) {
+    app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+    
+    app.get('/api/auth/google/callback', 
+      passport.authenticate('google', { failureRedirect: '/auth' }),
+      (req, res) => {
+        res.redirect('/dashboard');
+      }
+    );
+  }
+
+  // Demo login for testing without Google OAuth
+  app.post('/api/auth/demo-login', async (req, res) => {
+    try {
+      let user = await storage.getUserByEmail('demo@josudo.com');
+      
+      if (!user) {
+        user = await storage.createUser({
+          email: 'demo@josudo.com',
+          username: 'Demo User',
+          subscriptionStatus: 'trial'
+        });
+        
+        await storage.createBilling({
+          userId: user.id,
+          monthlyBalance: "25.00",
+          overageAmount: "0.00"
+        });
+      }
+      
+      (req as any).session.userId = user.id;
+      res.json({ success: true, user });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to create demo user' });
     }
-  );
+  });
 
   app.post('/api/auth/logout', (req, res) => {
     req.logout(() => {
@@ -88,12 +116,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  app.get('/api/auth/user', (req, res) => {
+  app.get('/api/auth/user', async (req, res) => {
+    const session = req as any;
+    
+    // Check for Google OAuth authentication
     if (req.isAuthenticated()) {
-      res.json(req.user);
-    } else {
-      res.status(401).json({ error: 'Not authenticated' });
+      return res.json(req.user);
     }
+    
+    // Check for session-based authentication
+    if (session.session?.userId) {
+      try {
+        const user = await storage.getUser(session.session.userId);
+        if (user) {
+          return res.json(user);
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    }
+    
+    res.status(401).json({ error: 'Not authenticated' });
   });
 
   // Chat routes

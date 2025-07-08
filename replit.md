@@ -115,6 +115,10 @@ The application follows a microservices-inspired pattern with distinct service l
 ## Changelog
 
 - July 08, 2025. Initial setup
+- July 08, 2025. Added secure admin backend for API key management
+  - Created admin panel at `/admin/login` (Username: admin, Password: josudo2025!)
+  - Updated services to use admin-managed keys instead of environment variables
+  - Added demo login functionality for testing without Google OAuth
 
 ## User Preferences
 
