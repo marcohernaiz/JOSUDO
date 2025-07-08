@@ -54,8 +54,8 @@ export default function Auth() {
         <CardContent className="pt-8 p-8">
           <div className="text-center mb-6">
             <i className="fas fa-robot text-primary text-4xl mb-4"></i>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome to AI Assistant Platform</h2>
-            <p className="text-slate-600">Connect your AI accounts and storage to get started</p>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome to Josudo</h2>
+            <p className="text-slate-600">Your AI assistant platform - start chatting instantly with free AI</p>
           </div>
           
           <Button 

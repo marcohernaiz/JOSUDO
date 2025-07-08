@@ -37,7 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <i className="fas fa-robot text-primary text-xl"></i>
-              <span className="font-bold text-slate-900">AI Assistant</span>
+              <span className="font-bold text-slate-900">Josudo</span>
             </div>
             <Button
               variant="ghost"

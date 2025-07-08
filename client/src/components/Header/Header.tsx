@@ -21,7 +21,7 @@ export const Header: React.FC = () => {
     <div className="bg-white border-b border-slate-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h1 className="text-lg font-semibold text-slate-900">AI Assistant Platform</h1>
+          <h1 className="text-lg font-semibold text-slate-900">Josudo</h1>
           <Badge variant="secondary" className="bg-green-100 text-green-800">
             <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></div>
             Connected

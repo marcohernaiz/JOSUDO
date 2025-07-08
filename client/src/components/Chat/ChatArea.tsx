@@ -29,33 +29,8 @@ export const ChatArea: React.FC = () => {
       <div className="flex-1 flex items-center justify-center px-6 py-4">
         <div className="max-w-4xl mx-auto text-center">
           <i className="fas fa-robot text-primary text-4xl mb-4"></i>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome to AI Assistant Platform</h2>
-          <p className="text-slate-600 mb-6">Your smart middleware for AI models. Start a conversation or select a model to begin.</p>
-          
-          {/* Quick Model Selection */}
-          <div className="flex flex-wrap justify-center gap-3">
-            <Button 
-              variant="outline"
-              onClick={() => selectModel('openai')}
-              className="border-slate-300 hover:border-primary hover:text-primary"
-            >
-              <i className="fas fa-brain mr-2"></i>OpenAI GPT-4
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => selectModel('claude')}
-              className="border-slate-300 hover:border-primary hover:text-primary"
-            >
-              <i className="fas fa-robot mr-2"></i>Claude 3
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => selectModel('gemini')}
-              className="border-slate-300 hover:border-primary hover:text-primary"
-            >
-              <i className="fas fa-star mr-2"></i>Gemini Pro
-            </Button>
-          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome to Josudo</h2>
+          <p className="text-slate-600 mb-6">Start chatting with DeepSeek AI - completely free and ready to help!</p>
         </div>
       </div>
     );

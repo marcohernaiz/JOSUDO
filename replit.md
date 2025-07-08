@@ -124,6 +124,10 @@ The application follows a microservices-inspired pattern with distinct service l
   - DeepSeek provides free AI responses with zero cost to users
   - Graceful fallback to DeepSeek when premium models fail
   - Platform displays "DeepSeek (Free)" as default model in UI
+- July 08, 2025. Updated branding and UI improvements
+  - Rebranded platform from "AI Assistant" to "Josudo" across all components
+  - Simplified welcome screen without popup, streamlined chat experience
+  - Updated page title, headers, and sidebar branding
 
 ## User Preferences
 
