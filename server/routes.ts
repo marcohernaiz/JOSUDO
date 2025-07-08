@@ -201,7 +201,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json({
         response: response.choices[0].message.content,
-        sessionId: chatSession.id,
+        sessionId: chatSession?.id,
+        tokens: tokensUsed,
         tokensUsed,
         cost: cost.toString()
       });

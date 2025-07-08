@@ -10,6 +10,8 @@ export const ChatArea: React.FC = () => {
   const { messages } = useChat();
   const { integrations } = useAppContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  console.log('ChatArea render, messages:', messages);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -77,7 +79,7 @@ export const ChatArea: React.FC = () => {
               {message.role === 'assistant' && (
                 <div className="flex items-center space-x-2 mb-2">
                   <i className="fas fa-robot text-primary"></i>
-                  <span className="text-xs font-medium text-slate-600">GPT-4</span>
+                  <span className="text-xs font-medium text-slate-600">DeepSeek (Free)</span>
                   <span className="text-xs text-slate-400">•</span>
                   <Badge variant="secondary" className="text-xs">
                     {integrations.find(i => i.serviceType === 'ai_model' && i.isActive) 
