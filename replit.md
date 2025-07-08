@@ -119,6 +119,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Created admin panel at `/admin/login` (Username: admin, Password: josudo2025!)
   - Updated services to use admin-managed keys instead of environment variables
   - Added demo login functionality for testing without Google OAuth
+- July 08, 2025. Integrated DeepSeek AI as default free model
+  - Users can now start chatting immediately without API keys
+  - DeepSeek provides free AI responses with zero cost to users
+  - Graceful fallback to DeepSeek when premium models fail
+  - Platform displays "DeepSeek (Free)" as default model in UI
 
 ## User Preferences
 

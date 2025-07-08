@@ -63,7 +63,7 @@ export const MessageInput: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <i className="fas fa-robot text-primary text-sm"></i>
                   <span className="text-sm text-slate-600">
-                    {activeModel?.serviceName || 'No model connected'}
+                    {activeModel?.serviceName || 'DeepSeek (Free)'}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">

@@ -17,7 +17,7 @@ export const useChat = () => {
       const response = await apiRequest('POST', '/api/chat/send', {
         message,
         sessionId,
-        model: model || 'gpt-4o'
+        model: model || 'deepseek-chat'
       });
       return response.json();
     },

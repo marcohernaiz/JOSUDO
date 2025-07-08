@@ -7,6 +7,7 @@ import { storage } from "./storage";
 import { openaiService } from "./services/openai";
 import { googleDriveService } from "./services/googleDrive";
 import { billingService } from "./services/billing";
+import { deepseekService } from "./services/deepseek";
 import { authenticateUser } from "./middleware/auth";
 import { insertChatSessionSchema, insertIntegrationSchema, insertUsageLogSchema } from "@shared/schema";
 import { z } from "zod";
@@ -153,7 +154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         chatSession = await storage.createChatSession({
           userId,
           title: message.substring(0, 50) + "...",
-          modelUsed: model || "gpt-4o"
+          modelUsed: model || "deepseek-chat"
         });
       }
 
@@ -170,24 +171,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         response = await openaiService.sendMessage(message, integration.credentialsEncrypted);
         tokensUsed = response.usage?.total_tokens || 0;
       } else {
-        // Use platform routing and deduct from balance
-        const billing = await storage.getBilling(userId);
-        if (!billing || parseFloat(billing.monthlyBalance) < 0.10) {
-          return res.status(402).json({ error: 'Insufficient balance' });
-        }
-
-        response = await openaiService.sendMessage(message);
-        tokensUsed = response.usage?.total_tokens || 0;
-        cost = tokensUsed * 0.00003; // Approximate cost
-
-        await storage.deductBalance(userId, cost.toString());
+        // Use DeepSeek as default free option
+        const deepseekResponse = await deepseekService.sendMessage(message);
+        response = { choices: [{ message: { content: deepseekResponse.response } }] };
+        tokensUsed = deepseekResponse.tokens;
+        cost = deepseekResponse.cost; // Free
       }
 
       // Log usage
       await storage.createUsageLog({
         userId,
         chatSessionId: chatSession.id,
-        modelUsed: model || "gpt-4o",
+        modelUsed: model || "deepseek-chat",
         tokensConsumed: tokensUsed,
         cost: cost.toString(),
         isPremiumAccount: isPremium
