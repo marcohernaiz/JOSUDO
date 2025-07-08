@@ -1,0 +1,201 @@
+AI Assistant Platform MVP - Refined Development Prompt
+🎯 Core Vision
+Build a B2B2C AI assistant platform that acts as a smart middleware - users bring their own AI accounts and storage, we provide the unified interface and routing logic. Think "Zapier for AI models" with integrated cloud storage.
+🏗️ Technical Architecture
+Stack Requirements
+
+Backend: Node.js + Express.js
+Database: PostgreSQL (metadata only)
+Frontend: React + Tailwind CSS
+Authentication: OAuth 2.0 (Google primary)
+Deployment: Docker containers ready
+
+Core Services (Microservices Pattern)
+
+Auth Service - Google OAuth + session management
+Integration Service - AI model & cloud storage connections
+Routing Service - Smart AI request routing
+Billing Service - Usage tracking & subscription management
+Storage Service - External cloud storage operations
+
+🔧 MVP Feature Set (Week 1)
+Phase 1: Foundation (Days 1-2)
+
+ Google OAuth implementation
+ Basic React UI with Tailwind
+ PostgreSQL setup with essential tables
+ Docker containerization
+
+Phase 2: Core Integration (Days 3-4)
+
+ OpenAI API integration (priority #1)
+ Google Drive integration (priority #1)
+ Basic chat interface with history sidebar
+ Chat session management (create/load/delete)
+ Request routing logic (premium vs. paid)
+
+Phase 3: Business Logic (Days 5-6)
+
+ Usage tracking system
+ Billing logic ($9.99 base + overages)
+ Balance notifications
+ Model switching UI
+
+Phase 4: Polish & API (Day 7)
+
+ B2B API endpoints
+ Error handling & validation
+ Basic documentation
+ Testing & bug fixes
+
+📊 Database Schema (Minimal)
+sql-- Users table
+users (id, google_id, email, created_at, subscription_status)
+
+-- Chat sessions table
+chat_sessions (id, user_id, title, model_used, storage_location, created_at, updated_at)
+
+-- Integrations table
+integrations (id, user_id, service_type, service_name, credentials_encrypted, is_active)
+
+-- Usage logs table
+usage_logs (id, user_id, chat_session_id, model_used, tokens_consumed, cost, timestamp, is_premium_account)
+
+-- Billing table
+billing (id, user_id, monthly_balance, last_billing_date, overage_amount)
+🔌 Integration Priority Matrix
+AI Models (Priority Order)
+
+OpenAI GPT - Most common, best documentation
+Anthropic Claude - Growing adoption
+Google Gemini - Good free tier
+Grok - Premium users
+DeepSeek - Cost-effective option
+
+Cloud Storage (Priority Order)
+
+Google Drive - Easiest OAuth integration
+Dropbox - Simple API
+Notion - Growing popularity
+OneDrive - Enterprise users
+
+🎨 UI/UX Requirements
+Main Interface Components
+
+Header: Active AI model + storage provider indicators
+Chat Area: Clean, familiar chat interface
+Sidebar: Chat history, model switcher, balance display, settings
+Settings Modal: Account linking, preferences
+Billing Panel: Usage stats, top-up options
+
+Key UI States
+
+Onboarding: Step-by-step account linking
+Chat History: Collapsible sidebar with past conversations
+Active Chat: Real-time model/storage indicators
+New Chat: Quick start with model selection
+Low Balance: Prominent notification with top-up CTA
+No Premium: Clear upgrade/link account prompts
+
+💰 Billing Logic (Simplified)
+Revenue Model
+
+Base: $9.99/month platform fee
+Premium Routing: Free (uses user's accounts)
+Standard Routing: Deducted from monthly balance
+Overages: Pay-per-use above $9.99
+
+Implementation
+javascript// Pseudo-code for billing logic
+if (user.hasLinkedPremiumAccount(modelType)) {
+  routeToUserAccount(request, user.credentials);
+} else {
+  const cost = calculateAPIcost(request);
+  if (user.monthlyBalance >= cost) {
+    routeToOurAPI(request);
+    deductFromBalance(user.id, cost);
+  } else {
+    showTopUpPrompt();
+  }
+}
+🔗 B2B2C API Design
+Core Endpoints
+POST /api/chat - Send message to AI
+GET /api/chat/sessions - Get user's chat history
+POST /api/chat/sessions - Create new chat session
+DELETE /api/chat/sessions/:id - Delete chat session
+GET /api/models - List available models
+POST /api/integrations - Link new service
+GET /api/usage - Get usage statistics
+POST /api/billing/topup - Add funds
+Partner Integration
+
+Single API key per partner
+End-user authentication handled by us
+Partner never stores user data
+Revenue sharing on subscription fees
+
+🚀 Success Metrics (Week 1)
+Technical Goals
+
+ 100% uptime during testing
+ <2s response time for chat
+ Successful OAuth flow completion
+ Accurate billing calculations
+
+User Experience Goals
+
+ Complete onboarding in <5 minutes
+ Successful model switching
+ Files saved to external storage
+ Clear balance/usage visibility
+
+🔐 Security & Privacy
+Data Handling
+
+Zero retention: No chat data stored locally (only session metadata)
+Chat history: Retrieved from user's cloud storage on demand
+Encrypted credentials: All API keys encrypted at rest
+Secure routing: Direct API calls, no data interception
+Audit logs: Track all API usage for billing
+
+Compliance Prep
+
+GDPR-ready (no personal data stored)
+SOC 2 considerations
+API rate limiting
+Input validation & sanitization
+
+📈 Post-MVP Roadmap
+Week 2+
+
+Advanced model selection (temperature, tokens)
+Team/organization features
+Advanced analytics dashboard
+Custom model fine-tuning support
+Mobile app development
+
+Month 2+
+
+Enterprise features
+Advanced integrations (Slack, Teams)
+Workflow automation
+Custom AI model hosting
+Multi-language support
+
+🎯 Development Focus
+Core Principles
+
+Speed over perfection - Get to market fast
+Modular design - Easy to extend later
+User-owned data - Zero platform lock-in
+Transparent billing - Clear cost breakdown
+API-first - B2B2C from day one
+
+Risk Mitigation
+
+Start with 1-2 AI models, expand later
+Use battle-tested libraries (Passport.js, Stripe)
+Implement comprehensive error handling
+Set up monitoring from day one
+Plan for usage spikes
