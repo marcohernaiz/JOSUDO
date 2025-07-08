@@ -22,8 +22,6 @@ export const useChat = () => {
       return response.json();
     },
     onSuccess: (data) => {
-      console.log('Chat response received:', data);
-      
       // Add user message
       const userMessage: ChatMessage = {
         id: Date.now().toString(),
@@ -42,12 +40,7 @@ export const useChat = () => {
         cost: data.cost,
       };
 
-      console.log('Adding messages:', { userMessage, aiMessage });
-      setMessages(prev => {
-        const newMessages = [...prev, userMessage, aiMessage];
-        console.log('New messages state:', newMessages);
-        return newMessages;
-      });
+      setMessages(prev => [...prev, userMessage, aiMessage]);
       setCurrentMessage('');
 
       // Update active session if new session created

@@ -181,7 +181,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Log usage
       await storage.createUsageLog({
         userId,
-        chatSessionId: chatSession.id,
+        chatSessionId: chatSession?.id || 0,
         modelUsed: model || "deepseek-chat",
         tokensConsumed: tokensUsed,
         cost: cost.toString(),
@@ -191,12 +191,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save to Google Drive if configured
       const driveIntegration = await storage.getIntegration(userId, "google_drive");
       if (driveIntegration) {
-        await googleDriveService.saveChatMessage(
-          chatSession.id.toString(),
-          message,
-          response.choices[0].message.content,
-          driveIntegration.credentialsEncrypted
-        );
+        if (chatSession) {
+          await googleDriveService.saveChatMessage(
+            chatSession.id.toString(),
+            message,
+            response.choices[0].message.content || '',
+            driveIntegration.credentialsEncrypted || ''
+          );
+        }
       }
 
       res.json({

@@ -10,8 +10,6 @@ export const ChatArea: React.FC = () => {
   const { messages } = useChat();
   const { integrations } = useAppContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
-  console.log('ChatArea render, messages:', messages);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

@@ -16,7 +16,7 @@ import {
   type InsertBilling
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -146,27 +146,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getBilling(userId: number): Promise<Billing | undefined> {
-    const [billing] = await db.select().from(billing).where(eq(billing.userId, userId));
-    return billing || undefined;
+    const [userBilling] = await db.select().from(billing).where(eq(billing.userId, userId));
+    return userBilling || undefined;
   }
 
   async createBilling(billingData: InsertBilling): Promise<Billing> {
-    const [created] = await db.insert(billing).values(billingData).returning();
-    return created;
+    const [createdBilling] = await db.insert(billing).values(billingData).returning();
+    return createdBilling;
   }
 
   async updateBilling(userId: number, updates: Partial<Billing>): Promise<Billing> {
-    const [updated] = await db.update(billing)
+    const [updatedBilling] = await db.update(billing)
       .set(updates)
       .where(eq(billing.userId, userId))
       .returning();
-    return updated;
+    return updatedBilling;
   }
 
   async deductBalance(userId: number, amount: string): Promise<void> {
     await db.update(billing)
       .set({ 
-        monthlyBalance: db.raw(`monthly_balance - ${amount}`)
+        monthlyBalance: sql`monthly_balance - ${amount}`
       })
       .where(eq(billing.userId, userId));
   }
@@ -174,7 +174,7 @@ export class DatabaseStorage implements IStorage {
   async addBalance(userId: number, amount: string): Promise<void> {
     await db.update(billing)
       .set({ 
-        monthlyBalance: db.raw(`monthly_balance + ${amount}`)
+        monthlyBalance: sql`monthly_balance + ${amount}`
       })
       .where(eq(billing.userId, userId));
   }
