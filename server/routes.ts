@@ -8,6 +8,10 @@ import { openaiService } from "./services/openai";
 import { googleDriveService } from "./services/googleDrive";
 import { billingService } from "./services/billing";
 import { deepseekService } from "./services/deepseek";
+import { claudeService } from "./services/claude";
+import { geminiService } from "./services/gemini";
+import { grokService } from "./services/grok";
+import { llamaService } from "./services/llama";
 import { authenticateUser } from "./middleware/auth";
 import { insertChatSessionSchema, insertIntegrationSchema, insertUsageLogSchema } from "@shared/schema";
 import { z } from "zod";
@@ -158,24 +162,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Check if user has premium account for this model
-      const integration = await storage.getIntegration(userId, model || "openai");
-      const isPremium = integration && integration.isActive;
-
       let response;
       let cost = 0;
       let tokensUsed = 0;
+      let serviceResponse;
 
-      if (isPremium) {
-        // Use user's API key
-        response = await openaiService.sendMessage(message, integration.credentialsEncrypted);
-        tokensUsed = response.usage?.total_tokens || 0;
-      } else {
-        // Use DeepSeek as default free option
-        const deepseekResponse = await deepseekService.sendMessage(message);
-        response = { choices: [{ message: { content: deepseekResponse.response } }] };
-        tokensUsed = deepseekResponse.tokens;
-        cost = deepseekResponse.cost; // Free
+      // Route to appropriate AI service based on model
+      try {
+        switch (model) {
+          case 'deepseek-chat':
+            serviceResponse = await deepseekService.sendMessage(message);
+            response = { choices: [{ message: { content: serviceResponse.response } }] };
+            tokensUsed = serviceResponse.tokens;
+            cost = serviceResponse.cost;
+            break;
+          
+          case 'gpt-4':
+            // Check if user has OpenAI integration
+            const openaiIntegration = await storage.getIntegration(userId, "openai");
+            if (openaiIntegration && openaiIntegration.isActive) {
+              response = await openaiService.sendMessage(message, openaiIntegration.credentialsEncrypted);
+              tokensUsed = response.usage?.total_tokens || 0;
+              cost = openaiService.calculateCost(tokensUsed);
+            } else {
+              // Fallback to DeepSeek if no API key
+              serviceResponse = await deepseekService.sendMessage(message);
+              response = { choices: [{ message: { content: `[Using DeepSeek - No OpenAI API key configured]\n\n${serviceResponse.response}` } }] };
+              tokensUsed = serviceResponse.tokens;
+              cost = serviceResponse.cost;
+            }
+            break;
+
+          case 'claude-3-5-sonnet':
+            serviceResponse = await claudeService.sendMessage(message);
+            response = { choices: [{ message: { content: serviceResponse.response } }] };
+            tokensUsed = serviceResponse.tokens;
+            cost = serviceResponse.cost;
+            break;
+
+          case 'gemini-pro':
+            serviceResponse = await geminiService.sendMessage(message);
+            response = { choices: [{ message: { content: serviceResponse.response } }] };
+            tokensUsed = serviceResponse.tokens;
+            cost = serviceResponse.cost;
+            break;
+
+          case 'grok-beta':
+            serviceResponse = await grokService.sendMessage(message);
+            response = { choices: [{ message: { content: serviceResponse.response } }] };
+            tokensUsed = serviceResponse.tokens;
+            cost = serviceResponse.cost;
+            break;
+
+          case 'llama-3':
+            serviceResponse = await llamaService.sendMessage(message);
+            response = { choices: [{ message: { content: serviceResponse.response } }] };
+            tokensUsed = serviceResponse.tokens;
+            cost = serviceResponse.cost;
+            break;
+
+          default:
+            // Default to DeepSeek for any unknown model
+            serviceResponse = await deepseekService.sendMessage(message);
+            response = { choices: [{ message: { content: serviceResponse.response } }] };
+            tokensUsed = serviceResponse.tokens;
+            cost = serviceResponse.cost;
+            break;
+        }
+      } catch (error) {
+        console.error(`Error with ${model}:`, error);
+        // Fallback to DeepSeek on any error
+        serviceResponse = await deepseekService.sendMessage(message);
+        response = { choices: [{ message: { content: `[Fallback to DeepSeek - ${model} unavailable]\n\n${serviceResponse.response}` } }] };
+        tokensUsed = serviceResponse.tokens;
+        cost = serviceResponse.cost;
       }
 
       // Log usage

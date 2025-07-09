@@ -3,10 +3,27 @@ import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+const AI_MODELS = [
+  { id: 'deepseek-chat', name: 'DeepSeek', description: 'Free AI model', icon: 'fas fa-robot', isFree: true },
+  { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: 'fas fa-brain', isFree: false },
+  { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude', icon: 'fas fa-sparkles', isFree: false },
+  { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: 'fas fa-star', isFree: false },
+  { id: 'llama-3', name: 'Llama', description: 'Meta Llama 3', icon: 'fas fa-mountain', isFree: false },
+  { id: 'grok-beta', name: 'Grok', description: 'xAI Grok', icon: 'fas fa-lightning', isFree: false },
+];
 
 export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading } = useChat();
   const { integrations } = useAppContext();
+  const [selectedModel, setSelectedModel] = useState('deepseek-chat');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -18,11 +35,12 @@ export const MessageInput: React.FC = () => {
 
   const handleSendMessage = () => {
     if (!currentMessage.trim() || isLoading) return;
-    sendMessage();
+    sendMessage(selectedModel);
   };
 
   const activeModel = integrations.find(i => i.serviceType === 'ai_model' && i.isActive);
   const activeStorage = integrations.find(i => i.serviceType === 'storage' && i.isActive);
+  const currentModelInfo = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[0];
 
   return (
     <div className="border-t border-slate-200 bg-white px-6 py-4">
@@ -60,12 +78,56 @@ export const MessageInput: React.FC = () => {
             {/* Input Footer */}
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <i className="fas fa-robot text-primary text-sm"></i>
-                  <span className="text-sm text-slate-600">
-                    {activeModel?.serviceName || 'DeepSeek (Free)'}
-                  </span>
-                </div>
+                {/* AI Model Selector */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="flex items-center space-x-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-2 py-1 h-auto"
+                    >
+                      <i className={`${currentModelInfo.icon} text-primary text-sm`}></i>
+                      <span>{currentModelInfo.name}</span>
+                      {currentModelInfo.isFree && (
+                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 px-1.5 py-0.5">
+                          Free
+                        </Badge>
+                      )}
+                      <i className="fas fa-chevron-down text-xs text-slate-400"></i>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    {AI_MODELS.map((model) => (
+                      <DropdownMenuItem
+                        key={model.id}
+                        onClick={() => setSelectedModel(model.id)}
+                        className="flex items-center space-x-3 p-3 cursor-pointer"
+                      >
+                        <i className={`${model.icon} text-primary text-sm`}></i>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium text-sm">{model.name}</span>
+                            {model.isFree && (
+                              <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 px-1.5 py-0.5">
+                                Free
+                              </Badge>
+                            )}
+                            {!model.isFree && (
+                              <Badge variant="outline" className="text-xs text-slate-500 px-1.5 py-0.5">
+                                Premium
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-500 mt-0.5">{model.description}</p>
+                        </div>
+                        {selectedModel === model.id && (
+                          <i className="fas fa-check text-primary text-sm"></i>
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
                 <div className="flex items-center space-x-2">
                   <i className="fas fa-cloud text-blue-500 text-sm"></i>
                   <span className="text-sm text-slate-600">
