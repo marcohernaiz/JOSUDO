@@ -229,6 +229,20 @@ export const MessageInput: React.FC = () => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* MCP Integrations */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center space-x-2 text-sm bg-white border-2 border-emerald-200 text-emerald-800 hover:text-emerald-900 hover:bg-emerald-50 hover:border-emerald-300 px-3 py-2 h-auto font-medium shadow-sm"
+              title="MCP Integrations"
+            >
+              <i className="fas fa-plug text-emerald-600 text-sm"></i>
+              <span className="font-semibold">MCP</span>
+              <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 font-medium">
+                Beta
+              </Badge>
+            </Button>
           </div>
 
           <div className="flex items-center space-x-2">
