@@ -54,14 +54,37 @@ export const MessageInput: React.FC = () => {
     <div className="border-t border-slate-200 bg-white px-6 py-4">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-end space-x-3">
+          {/* Left side icons */}
+          <div className="flex items-center space-x-2 pb-3">
+            {/* File Upload */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2 h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full"
+              title="Attach files"
+            >
+              <i className="fas fa-plus text-sm"></i>
+            </Button>
+
+            {/* Tools */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2 h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full"
+              title="Tools"
+            >
+              <i className="fas fa-wrench text-sm"></i>
+            </Button>
+          </div>
+
           <div className="flex-1">
             <div className="relative">
               <Textarea
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Type your message..."
-                className="resize-none border-slate-300 focus:ring-primary focus:border-primary pr-12"
+                placeholder="Ask anything or type '/' for tools..."
+                className="resize-none border-slate-300 focus:ring-primary focus:border-primary pl-4 pr-20"
                 rows={1}
                 style={{ 
                   minHeight: '44px',
@@ -69,18 +92,43 @@ export const MessageInput: React.FC = () => {
                   height: 'auto'
                 }}
               />
-              <Button
-                onClick={handleSendMessage}
-                disabled={!currentMessage.trim() || isLoading}
-                className="absolute right-3 bottom-3 p-2 h-8 w-8"
-                size="sm"
-              >
-                {isLoading ? (
-                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                ) : (
-                  <i className="fas fa-paper-plane text-sm"></i>
-                )}
-              </Button>
+              
+              {/* Right side icons inside input */}
+              <div className="absolute right-3 bottom-3 flex items-center space-x-1">
+                {/* Voice input */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-1.5 h-6 w-6 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full"
+                  title="Voice input"
+                >
+                  <i className="fas fa-microphone text-xs"></i>
+                </Button>
+
+                {/* Audio conversation */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-1.5 h-6 w-6 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full"
+                  title="Audio conversation"
+                >
+                  <i className="fas fa-headphones text-xs"></i>
+                </Button>
+
+                {/* Send button */}
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={!currentMessage.trim() || isLoading}
+                  className="p-1.5 h-6 w-6 ml-1"
+                  size="sm"
+                >
+                  {isLoading ? (
+                    <div className="animate-spin w-3 h-3 border-2 border-white border-t-transparent rounded-full" />
+                  ) : (
+                    <i className="fas fa-paper-plane text-xs"></i>
+                  )}
+                </Button>
+              </div>
             </div>
             
             {/* Input Footer */}
