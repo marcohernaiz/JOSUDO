@@ -129,6 +129,7 @@ The application follows a microservices-inspired pattern with distinct service l
   - Simplified welcome screen without popup, streamlined chat experience
   - Updated page title, headers, and sidebar branding
   - Removed authentication page - app now auto-logs in with demo account and goes directly to chat
+  - Made sidebar dynamic - auto-hides on desktop and only appears on hover, maintaining mobile toggle functionality
 
 ## User Preferences
 

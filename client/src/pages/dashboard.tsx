@@ -13,7 +13,8 @@ export default function Dashboard() {
   const { isAuthenticated, isLoading } = useAuth();
   const [, navigate] = useLocation();
   const isMobile = useIsMobile();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -33,8 +34,18 @@ export default function Dashboard() {
     return null;
   }
 
+  const showSidebar = isMobile ? isSidebarOpen : isHovering;
+
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">
+      {/* Hover trigger area - invisible strip on the left for desktop */}
+      {!isMobile && (
+        <div
+          className="fixed left-0 top-0 w-4 h-full z-50 bg-transparent"
+          onMouseEnter={() => setIsHovering(true)}
+        />
+      )}
+
       {/* Mobile Menu Toggle */}
       {isMobile && (
         <Button
@@ -48,7 +59,15 @@ export default function Dashboard() {
       )}
 
       {/* Sidebar */}
-      <div className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} ${isMobile ? 'fixed inset-y-0 left-0 z-40' : 'relative'} w-80 transition-transform duration-300 ease-in-out`}>
+      <div 
+        className={`
+          ${showSidebar ? 'translate-x-0' : '-translate-x-full'} 
+          ${isMobile ? 'fixed inset-y-0 left-0 z-40' : 'fixed inset-y-0 left-0 z-40'} 
+          w-80 transition-transform duration-300 ease-in-out
+        `}
+        onMouseEnter={() => !isMobile && setIsHovering(true)}
+        onMouseLeave={() => !isMobile && setIsHovering(false)}
+      >
         <Sidebar onClose={() => setIsSidebarOpen(false)} />
       </div>
 
@@ -58,6 +77,11 @@ export default function Dashboard() {
           className="fixed inset-0 bg-black bg-opacity-50 z-30"
           onClick={() => setIsSidebarOpen(false)}
         />
+      )}
+
+      {/* Desktop Overlay - subtle background when sidebar is open */}
+      {!isMobile && showSidebar && (
+        <div className="fixed inset-0 bg-black bg-opacity-10 z-30" />
       )}
 
       {/* Main Content */}
