@@ -86,6 +86,9 @@ export default function Dashboard() {
         <div className="fixed inset-0 bg-black bg-opacity-10 z-30" />
       )}
 
+      {/* Dynamic Neural Particles */}
+      <div className="neural-particles"></div>
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         <Header />
