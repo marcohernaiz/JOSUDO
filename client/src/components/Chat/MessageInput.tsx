@@ -92,48 +92,55 @@ export const MessageInput: React.FC = () => {
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center space-x-3 flex-1">
             {/* File Upload */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center"
-              title="Attach files"
-            >
-              <i className="fas fa-plus text-sm" style={{ fontSize: '12px' }}></i>
-            </Button>
+            <div className="group relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden"
+                title="Attach files"
+              >
+                <i className="fas fa-plus text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Add files</span>
+              </Button>
+            </div>
 
             {/* Tools */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center"
-              title="Tools"
-            >
-              <i className="fas fa-wrench text-sm" style={{ fontSize: '12px' }}></i>
-            </Button>
+            <div className="group relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-16 group-hover:px-3 overflow-hidden"
+                title="Tools"
+              >
+                <i className="fas fa-wrench text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Tools</span>
+              </Button>
+            </div>
 
             {/* AI Model Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="ai-control-button flex items-center space-x-2 text-sm px-3 py-2 h-auto font-medium shadow-sm"
-                >
-                  <i className={`${currentModelInfo.icon} text-sky-400 text-sm`}></i>
-                  <span className="font-semibold">{currentModelInfo.name}</span>
-                  {currentModelInfo.isFree && (
-                    <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                      Free
-                    </Badge>
-                  )}
-                  {!currentModelInfo.isFree && (
-                    <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
-                      Premium
-                    </Badge>
-                  )}
-                  <i className="fas fa-chevron-down text-xs text-sky-400"></i>
-                </Button>
-              </DropdownMenuTrigger>
+            <div className="group relative">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="ai-control-button flex items-center space-x-2 text-sm px-3 py-2 h-auto font-medium shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg"
+                  >
+                    <i className={`${currentModelInfo.icon} text-sky-400 text-sm`}></i>
+                    <span className="font-semibold">{currentModelInfo.name}</span>
+                    {currentModelInfo.isFree && (
+                      <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
+                        Free
+                      </Badge>
+                    )}
+                    {!currentModelInfo.isFree && (
+                      <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
+                        Premium
+                      </Badge>
+                    )}
+                    <i className="fas fa-chevron-down text-xs text-sky-400"></i>
+                  </Button>
+                </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="ai-dropdown w-64">
                 {AI_MODELS.map((model) => (
                   <DropdownMenuItem
@@ -166,30 +173,32 @@ export const MessageInput: React.FC = () => {
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
-            </DropdownMenu>
+              </DropdownMenu>
+            </div>
 
             {/* Storage Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="ai-control-button flex items-center space-x-2 text-sm px-3 py-2 h-auto font-medium shadow-sm"
-                >
-                  <i className={`${currentStorageInfo.icon} text-purple-400 text-sm`}></i>
-                  <span className="font-semibold">{currentStorageInfo.name}</span>
-                  {currentStorageInfo.isConnected ? (
-                    <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                      Connected
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-xs bg-red-900/20 text-red-300 border border-red-500/30 px-2 py-0.5 font-medium">
-                      Disconnected
-                    </Badge>
-                  )}
-                  <i className="fas fa-chevron-down text-xs text-purple-400"></i>
-                </Button>
-              </DropdownMenuTrigger>
+            <div className="group relative">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="ai-control-button flex items-center space-x-2 text-sm px-3 py-2 h-auto font-medium shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg"
+                  >
+                    <i className={`${currentStorageInfo.icon} text-purple-400 text-sm`}></i>
+                    <span className="font-semibold">{currentStorageInfo.name}</span>
+                    {currentStorageInfo.isConnected ? (
+                      <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
+                        Connected
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-xs bg-red-900/20 text-red-300 border border-red-500/30 px-2 py-0.5 font-medium">
+                        Disconnected
+                      </Badge>
+                    )}
+                    <i className="fas fa-chevron-down text-xs text-purple-400"></i>
+                  </Button>
+                </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="ai-dropdown w-64">
                 {STORAGE_OPTIONS.map((storage) => (
                   <DropdownMenuItem
@@ -221,31 +230,33 @@ export const MessageInput: React.FC = () => {
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
-            </DropdownMenu>
+              </DropdownMenu>
+            </div>
 
             {/* Processing Provider Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="ai-control-button flex items-center space-x-2 text-sm px-3 py-2 h-auto font-medium shadow-sm"
-                >
-                  <i className={`${currentProcessingInfo.icon} text-orange-400 text-sm`}></i>
-                  <span className="font-semibold">{currentProcessingInfo.name}</span>
-                  {currentProcessingInfo.isFree && (
-                    <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                      Free
-                    </Badge>
-                  )}
-                  {!currentProcessingInfo.isFree && (
-                    <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
-                      Premium
-                    </Badge>
-                  )}
-                  <i className="fas fa-chevron-down text-xs text-orange-400"></i>
-                </Button>
-              </DropdownMenuTrigger>
+            <div className="group relative">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="ai-control-button flex items-center space-x-2 text-sm px-3 py-2 h-auto font-medium shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg"
+                  >
+                    <i className={`${currentProcessingInfo.icon} text-orange-400 text-sm`}></i>
+                    <span className="font-semibold">{currentProcessingInfo.name}</span>
+                    {currentProcessingInfo.isFree && (
+                      <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
+                        Free
+                      </Badge>
+                    )}
+                    {!currentProcessingInfo.isFree && (
+                      <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
+                        Premium
+                      </Badge>
+                    )}
+                    <i className="fas fa-chevron-down text-xs text-orange-400"></i>
+                  </Button>
+                </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="ai-dropdown w-64">
                 {PROCESSING_PROVIDERS.map((provider) => (
                   <DropdownMenuItem
@@ -278,49 +289,62 @@ export const MessageInput: React.FC = () => {
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
-            </DropdownMenu>
+              </DropdownMenu>
+            </div>
           </div>
           
           <div className="flex items-center space-x-2 flex-shrink-0">
             {/* Voice input */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center"
-              title="Voice input"
-            >
-              <i className="fas fa-microphone text-sm" style={{ fontSize: '12px' }}></i>
-            </Button>
+            <div className="group relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
+                title="Voice input"
+              >
+                <i className="fas fa-microphone text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Voice</span>
+              </Button>
+            </div>
 
             {/* Audio conversation */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center"
-              title="Audio conversation"
-            >
-              <i className="fas fa-headphones text-sm" style={{ fontSize: '12px' }}></i>
-            </Button>
+            <div className="group relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
+                title="Audio conversation"
+              >
+                <i className="fas fa-headphones text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Audio</span>
+              </Button>
+            </div>
 
             {/* Video conferencing */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center"
-              title="Video conferencing"
-            >
-              <i className="fas fa-video text-sm" style={{ fontSize: '12px' }}></i>
-            </Button>
+            <div className="group relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
+                title="Video conferencing"
+              >
+                <i className="fas fa-video text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Video</span>
+              </Button>
+            </div>
 
             {/* Settings */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center"
-              title="Settings"
-            >
-              <i className="fas fa-cog text-sm" style={{ fontSize: '12px' }}></i>
-            </Button>
+            <div className="group relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden"
+                title="Settings"
+              >
+                <i className="fas fa-cog text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Settings</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
