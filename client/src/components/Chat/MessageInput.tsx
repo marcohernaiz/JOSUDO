@@ -10,27 +10,47 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { 
+  Plus, 
+  Wrench, 
+  Mic, 
+  Headphones, 
+  Video, 
+  Settings, 
+  Send,
+  Bot,
+  Brain,
+  Sparkles,
+  Star,
+  Mountain,
+  Zap,
+  XCircle,
+  HardDrive,
+  Wifi,
+  Bolt,
+  Check
+} from 'lucide-react';
 
 const AI_MODELS = [
-  { id: 'deepseek-chat', name: 'DeepSeek', description: 'Free AI model', icon: 'fas fa-robot', isFree: true },
-  { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: 'fas fa-brain', isFree: false },
-  { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude', icon: 'fas fa-sparkles', isFree: false },
-  { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: 'fas fa-star', isFree: false },
-  { id: 'llama-3', name: 'Llama', description: 'Meta Llama 3', icon: 'fas fa-mountain', isFree: false },
-  { id: 'grok-beta', name: 'Grok', description: 'xAI Grok', icon: 'fas fa-lightning', isFree: false },
+  { id: 'deepseek-chat', name: 'DeepSeek', description: 'Free AI model', icon: Bot, isFree: true },
+  { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: Brain, isFree: false },
+  { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude', icon: Sparkles, isFree: false },
+  { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: Star, isFree: false },
+  { id: 'llama-3', name: 'Llama', description: 'Meta Llama 3', icon: Mountain, isFree: false },
+  { id: 'grok-beta', name: 'Grok', description: 'xAI Grok', icon: Zap, isFree: false },
 ];
 
 const STORAGE_OPTIONS = [
-  { id: 'none', name: 'No Storage', description: 'Chat not saved', icon: 'fas fa-times-circle', isConnected: false },
-  { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: 'fab fa-google-drive', isConnected: false },
-  { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: 'fas fa-network-wired', isConnected: false },
+  { id: 'none', name: 'No Storage', description: 'Chat not saved', icon: XCircle, isConnected: false },
+  { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: HardDrive, isConnected: false },
+  { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: Wifi, isConnected: false },
 ];
 
 const PROCESSING_PROVIDERS = [
-  { id: 'josudo', name: 'Josudo', description: 'Free processing', icon: 'fas fa-bolt', isFree: true },
-  { id: 'aws', name: 'AWS', description: 'Amazon Web Services', icon: 'fab fa-aws', isFree: false },
-  { id: 'gcp', name: 'Google Cloud', description: 'Google Cloud Platform', icon: 'fab fa-google', isFree: false },
-  { id: 'azure', name: 'Azure', description: 'Microsoft Azure', icon: 'fab fa-microsoft', isFree: false },
+  { id: 'josudo', name: 'Josudo', description: 'Free processing', icon: Bolt, isFree: true },
+  { id: 'aws', name: 'AWS', description: 'Amazon Web Services', icon: Bolt, isFree: false },
+  { id: 'gcp', name: 'Google Cloud', description: 'Google Cloud Platform', icon: Bolt, isFree: false },
+  { id: 'azure', name: 'Azure', description: 'Microsoft Azure', icon: Bolt, isFree: false },
 ];
 
 export const MessageInput: React.FC = () => {
@@ -83,7 +103,7 @@ export const MessageInput: React.FC = () => {
             {isLoading ? (
               <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
             ) : (
-              <i className="fas fa-paper-plane text-sm text-white"></i>
+              <Send className="w-4 h-4 text-white" />
             )}
           </Button>
         </div>
@@ -99,7 +119,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden"
                 title="Attach files"
               >
-                <i className="fas fa-plus text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
+                <Plus className="w-3 h-3 text-slate-300 flex-shrink-0" />
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Add files</span>
               </Button>
             </div>
@@ -112,7 +132,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-16 group-hover:px-3 overflow-hidden"
                 title="Tools"
               >
-                <i className="fas fa-wrench text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
+                <Wrench className="w-3 h-3 text-slate-300 flex-shrink-0" />
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Tools</span>
               </Button>
             </div>
@@ -127,7 +147,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-28 group-hover:px-3 overflow-hidden"
                     title={`AI Model: ${currentModelInfo.name}`}
                   >
-                    <i className={`${currentModelInfo.icon} text-sky-400 text-sm flex-shrink-0`} style={{ fontSize: '12px' }}></i>
+                    <currentModelInfo.icon className="w-3 h-3 text-sky-400 flex-shrink-0" />
                     <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">AI Model</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -139,7 +159,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
                   >
                     <div className="flex items-center space-x-3">
-                      <i className={`${model.icon} text-sky-400 text-sm`}></i>
+                      <model.icon className="w-4 h-4 text-sky-400" />
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
                           <span className="font-semibold text-white">{model.name}</span>
@@ -158,7 +178,7 @@ export const MessageInput: React.FC = () => {
                       </div>
                     </div>
                     {selectedModel === model.id && (
-                      <i className="fas fa-check text-sky-400 text-sm bg-sky-400/20 p-1.5 rounded-full"></i>
+                      <Check className="w-4 h-4 text-sky-400 bg-sky-400/20 p-1 rounded-full" />
                     )}
                   </DropdownMenuItem>
                 ))}
@@ -176,7 +196,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
                     title={`Storage: ${currentStorageInfo.name}`}
                   >
-                    <i className={`${currentStorageInfo.icon} text-purple-400 text-sm flex-shrink-0`} style={{ fontSize: '12px' }}></i>
+                    <currentStorageInfo.icon className="w-3 h-3 text-purple-400 flex-shrink-0" />
                     <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Storage</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -188,7 +208,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
                   >
                     <div className="flex items-center space-x-3">
-                      <i className={`${storage.icon} text-purple-400 text-sm`}></i>
+                      <storage.icon className="w-4 h-4 text-purple-400" />
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
                           <span className="font-semibold text-white">{storage.name}</span>
@@ -206,7 +226,7 @@ export const MessageInput: React.FC = () => {
                       </div>
                     </div>
                     {selectedStorage === storage.id && (
-                      <i className="fas fa-check text-purple-400 text-sm bg-purple-400/20 p-1.5 rounded-full"></i>
+                      <Check className="w-4 h-4 text-purple-400 bg-purple-400/20 p-1 rounded-full" />
                     )}
                   </DropdownMenuItem>
                 ))}
@@ -224,7 +244,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-28 group-hover:px-3 overflow-hidden"
                     title={`Processing: ${currentProcessingInfo.name}`}
                   >
-                    <i className={`${currentProcessingInfo.icon} text-orange-400 text-sm flex-shrink-0`} style={{ fontSize: '12px' }}></i>
+                    <currentProcessingInfo.icon className="w-3 h-3 text-orange-400 flex-shrink-0" />
                     <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Processing</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -236,7 +256,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
                   >
                     <div className="flex items-center space-x-3">
-                      <i className={`${provider.icon} text-orange-400 text-sm`}></i>
+                      <provider.icon className="w-4 h-4 text-orange-400" />
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
                           <span className="font-semibold text-white">{provider.name}</span>
@@ -255,7 +275,7 @@ export const MessageInput: React.FC = () => {
                       </div>
                     </div>
                     {selectedProcessing === provider.id && (
-                      <i className="fas fa-check text-orange-400 text-sm bg-orange-400/20 p-1.5 rounded-full"></i>
+                      <Check className="w-4 h-4 text-orange-400 bg-orange-400/20 p-1 rounded-full" />
                     )}
                   </DropdownMenuItem>
                 ))}
@@ -273,7 +293,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
                 title="Voice input"
               >
-                <i className="fas fa-microphone text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
+                <Mic className="w-3 h-3 text-slate-300 flex-shrink-0" />
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Voice</span>
               </Button>
             </div>
@@ -286,7 +306,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
                 title="Audio conversation"
               >
-                <i className="fas fa-headphones text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
+                <Headphones className="w-3 h-3 text-slate-300 flex-shrink-0" />
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Audio</span>
               </Button>
             </div>
@@ -299,7 +319,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
                 title="Video conferencing"
               >
-                <i className="fas fa-video text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
+                <Video className="w-3 h-3 text-slate-300 flex-shrink-0" />
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Video</span>
               </Button>
             </div>
@@ -312,7 +332,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden"
                 title="Settings"
               >
-                <i className="fas fa-cog text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
+                <Settings className="w-3 h-3 text-slate-300 flex-shrink-0" />
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Settings</span>
               </Button>
             </div>
