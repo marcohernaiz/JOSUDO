@@ -37,7 +37,7 @@ export default function Dashboard() {
   const showSidebar = isMobile ? isSidebarOpen : isHovering;
 
   return (
-    <div className="flex h-screen overflow-hidden ai-background">
+    <div className="h-screen w-full ai-background">
       {/* Hover trigger area - invisible strip on the left for desktop */}
       {!isMobile && (
         <div
@@ -90,9 +90,9 @@ export default function Dashboard() {
       <div className="neural-particles"></div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex flex-col h-full relative z-10">
         <Header />
-        <div className="flex-1 flex flex-col ai-chat-container">
+        <div className="flex-1 ai-chat-container">
           <ChatArea />
           <MessageInput />
         </div>
