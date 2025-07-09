@@ -138,6 +138,9 @@ The application follows a microservices-inspired pattern with distinct service l
   - Updated placeholder text to include tool suggestions
   - Improved input layout with proper spacing and hover effects
   - All icons are positioned exactly like ChatGPT's interface for familiar user experience
+  - Restructured into two-line layout: input box on first line, all controls on second line
+  - Added video conferencing and MCP integrations buttons
+  - Created processing provider selector (AWS, Google Cloud, Azure, Josudo) with Josudo selected by default
 
 ## User Preferences
 

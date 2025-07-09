@@ -26,11 +26,19 @@ const STORAGE_OPTIONS = [
   { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: 'fas fa-network-wired', isConnected: false },
 ];
 
+const PROCESSING_PROVIDERS = [
+  { id: 'josudo', name: 'Josudo', description: 'Free processing', icon: 'fas fa-bolt', isFree: true },
+  { id: 'aws', name: 'AWS', description: 'Amazon Web Services', icon: 'fab fa-aws', isFree: false },
+  { id: 'gcp', name: 'Google Cloud', description: 'Google Cloud Platform', icon: 'fab fa-google', isFree: false },
+  { id: 'azure', name: 'Azure', description: 'Microsoft Azure', icon: 'fab fa-microsoft', isFree: false },
+];
+
 export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading } = useChat();
   const { integrations } = useAppContext();
   const [selectedModel, setSelectedModel] = useState('deepseek-chat');
   const [selectedStorage, setSelectedStorage] = useState('none');
+  const [selectedProcessing, setSelectedProcessing] = useState('josudo');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -49,6 +57,7 @@ export const MessageInput: React.FC = () => {
   const activeStorage = integrations.find(i => i.serviceType === 'storage' && i.isActive);
   const currentModelInfo = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[0];
   const currentStorageInfo = STORAGE_OPTIONS.find(s => s.id === selectedStorage) || STORAGE_OPTIONS[0];
+  const currentProcessingInfo = PROCESSING_PROVIDERS.find(p => p.id === selectedProcessing) || PROCESSING_PROVIDERS[0];
 
   return (
     <div className="border-t border-slate-200 bg-white px-6 py-4">
@@ -243,6 +252,67 @@ export const MessageInput: React.FC = () => {
                 Beta
               </Badge>
             </Button>
+
+            {/* Processing Provider Selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center space-x-2 text-sm bg-white border-2 border-orange-200 text-orange-800 hover:text-orange-900 hover:bg-orange-50 hover:border-orange-300 px-3 py-2 h-auto font-medium shadow-sm"
+                >
+                  <i className={`${currentProcessingInfo.icon} text-orange-600 text-sm`}></i>
+                  <span className="font-semibold">{currentProcessingInfo.name}</span>
+                  {currentProcessingInfo.isFree && (
+                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border border-green-200 px-2 py-0.5 font-medium">
+                      Free
+                    </Badge>
+                  )}
+                  {!currentProcessingInfo.isFree && (
+                    <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 font-medium">
+                      Premium
+                    </Badge>
+                  )}
+                  <i className="fas fa-chevron-down text-xs text-orange-500"></i>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64 border-2 border-orange-100 shadow-lg">
+                {PROCESSING_PROVIDERS.map((provider) => (
+                  <DropdownMenuItem
+                    key={provider.id}
+                    onClick={() => setSelectedProcessing(provider.id)}
+                    className={`flex items-center space-x-3 p-4 cursor-pointer transition-colors ${
+                      selectedProcessing === provider.id 
+                        ? 'bg-orange-50 border-l-4 border-l-orange-500' 
+                        : 'hover:bg-slate-50'
+                    }`}
+                  >
+                    <i className={`${provider.icon} ${
+                      provider.isFree ? 'text-green-600' : 'text-orange-600'
+                    } text-base`}></i>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-semibold text-sm text-slate-800">{provider.name}</span>
+                        {provider.isFree && (
+                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border border-green-200 px-2 py-0.5 font-medium">
+                            Free
+                          </Badge>
+                        )}
+                        {!provider.isFree && (
+                          <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 font-medium">
+                            Premium
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">{provider.description}</p>
+                    </div>
+                    {selectedProcessing === provider.id && (
+                      <i className="fas fa-check text-orange-600 text-sm bg-orange-100 p-1.5 rounded-full"></i>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div className="flex items-center space-x-2">
