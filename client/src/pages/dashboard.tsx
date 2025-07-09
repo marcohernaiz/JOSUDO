@@ -92,9 +92,13 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex flex-col h-full relative z-10">
         <Header />
-        <div className="flex-1 ai-chat-container">
-          <ChatArea />
-          <MessageInput />
+        <div className="flex-1 flex flex-col ai-chat-container">
+          <div className="flex-1 overflow-hidden">
+            <ChatArea />
+          </div>
+          <div className="flex-shrink-0">
+            <MessageInput />
+          </div>
         </div>
       </div>
     </div>

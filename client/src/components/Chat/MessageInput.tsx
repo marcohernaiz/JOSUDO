@@ -60,7 +60,7 @@ export const MessageInput: React.FC = () => {
   const currentProcessingInfo = PROCESSING_PROVIDERS.find(p => p.id === selectedProcessing) || PROCESSING_PROVIDERS[0];
 
   return (
-    <div className="px-6 py-4">
+    <div className="px-6 py-4 bg-slate-900/50 border-t border-slate-700/50">
       <div className="max-w-4xl mx-auto">
         <div className="ai-input-container space-y-3 rounded-xl p-4">
           {/* First Line - Input Box Only */}
