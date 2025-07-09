@@ -28,11 +28,25 @@ export const ChatArea: React.FC = () => {
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center px-6 py-4">
+      <div className="flex-1 flex items-start justify-center px-6 pt-20">
         <div className="max-w-4xl mx-auto text-center">
-          <i className="fas fa-robot text-primary text-4xl mb-4"></i>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome to Josudo</h2>
-          <p className="text-slate-600 mb-6">Start chatting with DeepSeek AI - completely free and ready to help!</p>
+          <div className="relative">
+            <i className="fas fa-robot text-slate-300 text-5xl mb-6 opacity-80"></i>
+            <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-400 rounded-full animate-pulse"></div>
+          </div>
+          <h2 className="text-3xl font-light text-slate-200 mb-3 tracking-wide">Welcome to Josudo</h2>
+          <p className="text-slate-400 mb-8 text-lg font-light leading-relaxed">Your intelligent AI companion is ready to assist</p>
+          <div className="flex items-center justify-center space-x-4 text-sm text-slate-500">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span>DeepSeek AI Ready</span>
+            </div>
+            <span>•</span>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+              <span>Free Forever</span>
+            </div>
+          </div>
         </div>
       </div>
     );
