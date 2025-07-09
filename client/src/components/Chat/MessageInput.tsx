@@ -82,46 +82,57 @@ export const MessageInput: React.FC = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
-                      variant="ghost" 
+                      variant="outline" 
                       size="sm"
-                      className="flex items-center space-x-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-2 py-1 h-auto"
+                      className="flex items-center space-x-2 text-sm bg-white border-2 border-blue-200 text-blue-800 hover:text-blue-900 hover:bg-blue-50 hover:border-blue-300 px-3 py-2 h-auto font-medium shadow-sm"
                     >
-                      <i className={`${currentModelInfo.icon} text-primary text-sm`}></i>
-                      <span>{currentModelInfo.name}</span>
+                      <i className={`${currentModelInfo.icon} text-blue-600 text-sm`}></i>
+                      <span className="font-semibold">{currentModelInfo.name}</span>
                       {currentModelInfo.isFree && (
-                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 px-1.5 py-0.5">
+                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border border-green-200 px-2 py-0.5 font-medium">
                           Free
                         </Badge>
                       )}
-                      <i className="fas fa-chevron-down text-xs text-slate-400"></i>
+                      {!currentModelInfo.isFree && (
+                        <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 font-medium">
+                          Premium
+                        </Badge>
+                      )}
+                      <i className="fas fa-chevron-down text-xs text-blue-500"></i>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuContent align="start" className="w-64 border-2 border-blue-100 shadow-lg">
                     {AI_MODELS.map((model) => (
                       <DropdownMenuItem
                         key={model.id}
                         onClick={() => setSelectedModel(model.id)}
-                        className="flex items-center space-x-3 p-3 cursor-pointer"
+                        className={`flex items-center space-x-3 p-4 cursor-pointer transition-colors ${
+                          selectedModel === model.id 
+                            ? 'bg-blue-50 border-l-4 border-l-blue-500' 
+                            : 'hover:bg-slate-50'
+                        }`}
                       >
-                        <i className={`${model.icon} text-primary text-sm`}></i>
+                        <i className={`${model.icon} ${
+                          model.isFree ? 'text-green-600' : 'text-blue-600'
+                        } text-base`}></i>
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
-                            <span className="font-medium text-sm">{model.name}</span>
+                            <span className="font-semibold text-sm text-slate-800">{model.name}</span>
                             {model.isFree && (
-                              <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 px-1.5 py-0.5">
+                              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border border-green-200 px-2 py-0.5 font-medium">
                                 Free
                               </Badge>
                             )}
                             {!model.isFree && (
-                              <Badge variant="outline" className="text-xs text-slate-500 px-1.5 py-0.5">
+                              <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 font-medium">
                                 Premium
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-slate-500 mt-0.5">{model.description}</p>
+                          <p className="text-xs text-slate-600 mt-1 leading-relaxed">{model.description}</p>
                         </div>
                         {selectedModel === model.id && (
-                          <i className="fas fa-check text-primary text-sm"></i>
+                          <i className="fas fa-check text-blue-600 text-sm bg-blue-100 p-1.5 rounded-full"></i>
                         )}
                       </DropdownMenuItem>
                     ))}
