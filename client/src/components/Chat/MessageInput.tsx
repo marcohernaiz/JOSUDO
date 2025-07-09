@@ -60,20 +60,20 @@ export const MessageInput: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="p-2 h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full"
+              className="p-2 h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full flex items-center justify-center"
               title="Attach files"
             >
-              <i className="fas fa-plus text-sm"></i>
+              <i className="fas fa-plus text-sm" style={{ fontSize: '12px' }}></i>
             </Button>
 
             {/* Tools */}
             <Button
               variant="ghost"
               size="sm"
-              className="p-2 h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full"
+              className="p-2 h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full flex items-center justify-center"
               title="Tools"
             >
-              <i className="fas fa-wrench text-sm"></i>
+              <i className="fas fa-wrench text-sm" style={{ fontSize: '12px' }}></i>
             </Button>
           </div>
 
@@ -99,20 +99,20 @@ export const MessageInput: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="p-1.5 h-6 w-6 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full"
+                  className="p-1.5 h-6 w-6 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full flex items-center justify-center"
                   title="Voice input"
                 >
-                  <i className="fas fa-microphone text-xs"></i>
+                  <i className="fas fa-microphone text-xs" style={{ fontSize: '10px' }}></i>
                 </Button>
 
                 {/* Audio conversation */}
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="p-1.5 h-6 w-6 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full"
+                  className="p-1.5 h-6 w-6 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full flex items-center justify-center"
                   title="Audio conversation"
                 >
-                  <i className="fas fa-headphones text-xs"></i>
+                  <i className="fas fa-headphones text-xs" style={{ fontSize: '10px' }}></i>
                 </Button>
 
                 {/* Send button */}
