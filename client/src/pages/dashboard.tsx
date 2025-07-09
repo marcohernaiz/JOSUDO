@@ -37,7 +37,7 @@ export default function Dashboard() {
   const showSidebar = isMobile ? isSidebarOpen : isHovering;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden ai-background">
       {/* Hover trigger area - invisible strip on the left for desktop */}
       {!isMobile && (
         <div
@@ -68,7 +68,9 @@ export default function Dashboard() {
         onMouseEnter={() => !isMobile && setIsHovering(true)}
         onMouseLeave={() => !isMobile && setIsHovering(false)}
       >
-        <Sidebar onClose={() => setIsSidebarOpen(false)} />
+        <div className="h-full bg-slate-900/90 backdrop-blur-md border-r border-slate-700/50 shadow-xl">
+          <Sidebar onClose={() => setIsSidebarOpen(false)} />
+        </div>
       </div>
 
       {/* Mobile Overlay */}
@@ -87,7 +89,7 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         <Header />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col ai-chat-container">
           <ChatArea />
           <MessageInput />
         </div>
