@@ -99,7 +99,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden"
                 title="Attach files"
               >
-                <i className="fas fa-plus text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <i className="fas fa-plus text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Add files</span>
               </Button>
             </div>
@@ -112,7 +112,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-16 group-hover:px-3 overflow-hidden"
                 title="Tools"
               >
-                <i className="fas fa-wrench text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <i className="fas fa-wrench text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Tools</span>
               </Button>
             </div>
@@ -273,7 +273,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
                 title="Voice input"
               >
-                <i className="fas fa-microphone text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <i className="fas fa-microphone text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Voice</span>
               </Button>
             </div>
@@ -286,7 +286,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
                 title="Audio conversation"
               >
-                <i className="fas fa-headphones text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <i className="fas fa-headphones text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Audio</span>
               </Button>
             </div>
@@ -299,7 +299,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
                 title="Video conferencing"
               >
-                <i className="fas fa-video text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <i className="fas fa-video text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Video</span>
               </Button>
             </div>
@@ -312,7 +312,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden"
                 title="Settings"
               >
-                <i className="fas fa-cog text-sm flex-shrink-0" style={{ fontSize: '12px' }}></i>
+                <i className="fas fa-cog text-sm flex-shrink-0 text-slate-300" style={{ fontSize: '12px' }}></i>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Settings</span>
               </Button>
             </div>
