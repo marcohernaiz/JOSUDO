@@ -130,6 +130,8 @@ The application follows a microservices-inspired pattern with distinct service l
   - Updated page title, headers, and sidebar branding
   - Removed authentication page - app now auto-logs in with demo account and goes directly to chat
   - Made sidebar dynamic - auto-hides on desktop and only appears on hover, maintaining mobile toggle functionality
+  - Created comprehensive AI model selector with all providers (DeepSeek, ChatGPT, Claude, Gemini, Grok, Llama)
+  - Added storage selector for Google Drive and IPFS integration with visual status indicators
 
 ## User Preferences
 

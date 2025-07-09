@@ -20,10 +20,17 @@ const AI_MODELS = [
   { id: 'grok-beta', name: 'Grok', description: 'xAI Grok', icon: 'fas fa-lightning', isFree: false },
 ];
 
+const STORAGE_OPTIONS = [
+  { id: 'none', name: 'No Storage', description: 'Chat not saved', icon: 'fas fa-times-circle', isConnected: false },
+  { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: 'fab fa-google-drive', isConnected: false },
+  { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: 'fas fa-network-wired', isConnected: false },
+];
+
 export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading } = useChat();
   const { integrations } = useAppContext();
   const [selectedModel, setSelectedModel] = useState('deepseek-chat');
+  const [selectedStorage, setSelectedStorage] = useState('none');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -41,6 +48,7 @@ export const MessageInput: React.FC = () => {
   const activeModel = integrations.find(i => i.serviceType === 'ai_model' && i.isActive);
   const activeStorage = integrations.find(i => i.serviceType === 'storage' && i.isActive);
   const currentModelInfo = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[0];
+  const currentStorageInfo = STORAGE_OPTIONS.find(s => s.id === selectedStorage) || STORAGE_OPTIONS[0];
 
   return (
     <div className="border-t border-slate-200 bg-white px-6 py-4">
@@ -139,12 +147,67 @@ export const MessageInput: React.FC = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <div className="flex items-center space-x-2">
-                  <i className="fas fa-cloud text-blue-500 text-sm"></i>
-                  <span className="text-sm text-slate-600">
-                    {activeStorage?.serviceName || 'No storage connected'}
-                  </span>
-                </div>
+                {/* Storage Selector */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="flex items-center space-x-2 text-sm bg-white border-2 border-purple-200 text-purple-800 hover:text-purple-900 hover:bg-purple-50 hover:border-purple-300 px-3 py-2 h-auto font-medium shadow-sm"
+                    >
+                      <i className={`${currentStorageInfo.icon} text-purple-600 text-sm`}></i>
+                      <span className="font-semibold">{currentStorageInfo.name}</span>
+                      {currentStorageInfo.isConnected && (
+                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border border-green-200 px-2 py-0.5 font-medium">
+                          Connected
+                        </Badge>
+                      )}
+                      {!currentStorageInfo.isConnected && selectedStorage !== 'none' && (
+                        <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 font-medium">
+                          Setup Required
+                        </Badge>
+                      )}
+                      <i className="fas fa-chevron-down text-xs text-purple-500"></i>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-64 border-2 border-purple-100 shadow-lg">
+                    {STORAGE_OPTIONS.map((storage) => (
+                      <DropdownMenuItem
+                        key={storage.id}
+                        onClick={() => setSelectedStorage(storage.id)}
+                        className={`flex items-center space-x-3 p-4 cursor-pointer transition-colors ${
+                          selectedStorage === storage.id 
+                            ? 'bg-purple-50 border-l-4 border-l-purple-500' 
+                            : 'hover:bg-slate-50'
+                        }`}
+                      >
+                        <i className={`${storage.icon} ${
+                          storage.id === 'none' ? 'text-slate-500' : 
+                          storage.isConnected ? 'text-green-600' : 'text-purple-600'
+                        } text-base`}></i>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-semibold text-sm text-slate-800">{storage.name}</span>
+                            {storage.isConnected && (
+                              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border border-green-200 px-2 py-0.5 font-medium">
+                                Connected
+                              </Badge>
+                            )}
+                            {!storage.isConnected && storage.id !== 'none' && (
+                              <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border border-orange-200 px-2 py-0.5 font-medium">
+                                Setup Required
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-600 mt-1 leading-relaxed">{storage.description}</p>
+                        </div>
+                        {selectedStorage === storage.id && (
+                          <i className="fas fa-check text-purple-600 text-sm bg-purple-100 p-1.5 rounded-full"></i>
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <div className="flex items-center space-x-2">
                 <Button 
