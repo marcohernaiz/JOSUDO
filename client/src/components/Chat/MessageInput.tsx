@@ -61,7 +61,7 @@ export const MessageInput: React.FC = () => {
 
   return (
     <div className="w-full">
-      <div className="space-y-3 bg-slate-800/60 rounded-xl p-4 border border-slate-700/30 backdrop-blur-sm shadow-2xl">
+      <div className="ai-input-lines bg-slate-800/60 rounded-xl p-4 border border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
         {/* First Line - Input Box Only */}
         <div className="relative">
           <input
@@ -89,8 +89,8 @@ export const MessageInput: React.FC = () => {
         </div>
 
         {/* Second Line - All Controls */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center space-x-3 flex-1">
             {/* File Upload */}
             <Button
               variant="ghost"
@@ -281,7 +281,7 @@ export const MessageInput: React.FC = () => {
             </DropdownMenu>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-shrink-0">
             {/* Voice input */}
             <Button
               variant="ghost"

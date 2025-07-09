@@ -255,6 +255,18 @@ html {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
 }
 
+/* Ensure consistent input widths */
+.ai-input-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.ai-input-lines > div {
+  width: 100%;
+}
+
 /* AI Input Field */
 .ai-input-field {
   background: rgba(51, 65, 85, 0.9) !important;
