@@ -15,72 +15,37 @@ html {
 
 /* AI Background with Neural Network Animation */
 .ai-background {
-  background: url('/attached_assets/image_1752068819601.png') center/cover no-repeat fixed;
+  background: url('/attached_assets/image_1752068819601.png') center/cover no-repeat;
   position: relative;
-  overflow: hidden;
   min-height: 100vh;
+  width: 100%;
 }
 
-/* Animated Neural Network Particles */
+/* Animated Neural Network Overlay */
 .ai-background::before {
   content: '';
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(2px 2px at 20px 30px, rgba(14, 165, 233, 0.8), transparent),
-    radial-gradient(2px 2px at 40px 70px, rgba(59, 130, 246, 0.6), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(147, 51, 234, 0.5), transparent),
-    radial-gradient(1px 1px at 130px 80px, rgba(14, 165, 233, 0.4), transparent),
-    radial-gradient(2px 2px at 160px 30px, rgba(59, 130, 246, 0.6), transparent),
-    radial-gradient(1px 1px at 200px 60px, rgba(147, 51, 234, 0.3), transparent),
-    radial-gradient(1px 1px at 240px 90px, rgba(14, 165, 233, 0.7), transparent),
-    radial-gradient(2px 2px at 280px 20px, rgba(59, 130, 246, 0.4), transparent),
-    radial-gradient(1px 1px at 320px 50px, rgba(147, 51, 234, 0.6), transparent),
-    radial-gradient(1px 1px at 360px 80px, rgba(14, 165, 233, 0.3), transparent),
-    radial-gradient(2px 2px at 400px 40px, rgba(59, 130, 246, 0.5), transparent),
-    radial-gradient(1px 1px at 440px 70px, rgba(147, 51, 234, 0.4), transparent),
-    linear-gradient(45deg, transparent 48%, rgba(14, 165, 233, 0.05) 49%, rgba(14, 165, 233, 0.05) 51%, transparent 52%),
-    linear-gradient(-45deg, transparent 48%, rgba(59, 130, 246, 0.05) 49%, rgba(59, 130, 246, 0.05) 51%, transparent 52%),
-    linear-gradient(90deg, transparent 48%, rgba(147, 51, 234, 0.03) 49%, rgba(147, 51, 234, 0.03) 51%, transparent 52%);
-  background-size: 
-    500px 300px, 500px 300px, 500px 300px, 500px 300px, 500px 300px, 500px 300px,
-    500px 300px, 500px 300px, 500px 300px, 500px 300px, 500px 300px, 500px 300px,
-    200px 200px, 180px 180px, 160px 160px;
-  animation: neuralFlow 25s linear infinite;
+    radial-gradient(2px 2px at 20px 30px, rgba(14, 165, 233, 0.4), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(59, 130, 246, 0.3), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(147, 51, 234, 0.2), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(14, 165, 233, 0.3), transparent),
+    radial-gradient(2px 2px at 160px 30px, rgba(59, 130, 246, 0.4), transparent),
+    radial-gradient(1px 1px at 200px 60px, rgba(147, 51, 234, 0.2), transparent);
+  background-size: 400px 300px, 400px 300px, 400px 300px, 400px 300px, 400px 300px, 400px 300px;
+  animation: neuralFlow 20s linear infinite;
   z-index: 1;
   pointer-events: none;
 }
 
-.ai-background > * {
-  position: relative;
-  z-index: 3;
-}
-
 /* Animation Keyframes */
 @keyframes neuralFlow {
-  0% { transform: translateX(0px) translateY(0px) rotate(0deg); }
-  100% { transform: translateX(-300px) translateY(-300px) rotate(360deg); }
-}
-
-@keyframes energyPulse {
-  0%, 100% { opacity: 0.2; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.05); }
-}
-
-/* Additional Neural Network Elements */
-.ai-background::after {
-  animation: energyPulse 12s ease-in-out infinite, neuralFlow 25s linear infinite;
-}
-
-/* Dynamic Neural Connections */
-.ai-background:before {
-  box-shadow: 
-    0 0 100px rgba(14, 165, 233, 0.2),
-    0 0 200px rgba(59, 130, 246, 0.1),
-    0 0 300px rgba(147, 51, 234, 0.05);
+  0% { transform: translateX(0px) translateY(0px); }
+  100% { transform: translateX(-100px) translateY(-100px); }
 }
 
 /* Enhanced chat container with animated border */
