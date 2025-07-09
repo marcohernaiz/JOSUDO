@@ -252,6 +252,16 @@ export const MessageInput: React.FC = () => {
               <i className="fas fa-headphones text-sm" style={{ fontSize: '12px' }}></i>
             </Button>
 
+            {/* Video conferencing */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2 h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full flex items-center justify-center"
+              title="Video conferencing"
+            >
+              <i className="fas fa-video text-sm" style={{ fontSize: '12px' }}></i>
+            </Button>
+
             {/* Settings */}
             <Button
               variant="ghost"
