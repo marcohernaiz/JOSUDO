@@ -141,6 +141,13 @@ The application follows a microservices-inspired pattern with distinct service l
   - Restructured into two-line layout: input box on first line, all controls on second line
   - Added video conferencing and MCP integrations buttons
   - Created processing provider selector (AWS, Google Cloud, Azure, Josudo) with Josudo selected by default
+- July 09, 2025. Integrated futuristic wave & particles background animation
+  - Removed welcome message and repositioned input to lower center screen
+  - Replaced static background with animated wave patterns and floating particles
+  - Implemented CSS-based animation inspired by futuristic wave video (YouTube: H41fuhz_gvw)
+  - Added turquoise, purple, and blue color scheme with flowing gradients
+  - Created multi-layered particle effects with rotation and scaling animations
+  - Enhanced visual depth with wave flow and particle flow animations running at different speeds
 
 ## User Preferences
 
