@@ -90,10 +90,10 @@ export default function Dashboard() {
       <div className="neural-particles"></div>
 
       {/* Main Content */}
-      <div className="flex flex-col h-full relative z-10">
+      <div className="flex flex-col h-full relative z-20">
         <Header />
-        <div className="flex-1 flex flex-col ai-chat-container">
-          <div className="flex-1 overflow-hidden">
+        <div className="flex-1 flex flex-col">
+          <div className="flex-1 overflow-hidden bg-slate-900/60 backdrop-blur-sm border border-slate-700/30 rounded-xl m-4 p-4">
             <ChatArea />
           </div>
           <div className="flex-shrink-0">

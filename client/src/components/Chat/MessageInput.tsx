@@ -60,36 +60,31 @@ export const MessageInput: React.FC = () => {
   const currentProcessingInfo = PROCESSING_PROVIDERS.find(p => p.id === selectedProcessing) || PROCESSING_PROVIDERS[0];
 
   return (
-    <div className="px-6 py-4 bg-slate-900/50 border-t border-slate-700/50">
+    <div className="px-6 py-4 bg-slate-900/70 border-t border-slate-700/50">
       <div className="max-w-4xl mx-auto">
-        <div className="ai-input-container space-y-3 rounded-xl p-4">
+        <div className="space-y-3 bg-slate-800/50 rounded-xl p-4 border border-slate-700/30">
           {/* First Line - Input Box Only */}
           <div className="relative">
-            <Textarea
+            <input
+              type="text"
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask me anything..."
-              className="ai-input-field resize-none pl-4 pr-12 w-full"
-              rows={1}
-              style={{ 
-                minHeight: '44px',
-                maxHeight: '120px',
-                height: 'auto'
-              }}
+              className="w-full h-12 px-4 pr-12 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             
             {/* Send button */}
             <Button
               onClick={handleSendMessage}
               disabled={!currentMessage.trim() || isLoading}
-              className="ai-send-button absolute right-3 bottom-3 p-2 h-8 w-8"
+              className="absolute right-2 top-2 p-2 h-8 w-8 bg-blue-600 hover:bg-blue-700 rounded-md"
               size="sm"
             >
               {isLoading ? (
                 <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
               ) : (
-                <i className="fas fa-paper-plane text-sm"></i>
+                <i className="fas fa-paper-plane text-sm text-white"></i>
               )}
             </Button>
           </div>
