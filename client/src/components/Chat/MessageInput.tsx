@@ -122,23 +122,13 @@ export const MessageInput: React.FC = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     size="sm"
-                    className="ai-control-button flex items-center space-x-2 text-sm px-3 py-2 h-auto font-medium shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg"
+                    className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-28 group-hover:px-3 overflow-hidden"
+                    title={`AI Model: ${currentModelInfo.name}`}
                   >
-                    <i className={`${currentModelInfo.icon} text-sky-400 text-sm`}></i>
-                    <span className="font-semibold">{currentModelInfo.name}</span>
-                    {currentModelInfo.isFree && (
-                      <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                        Free
-                      </Badge>
-                    )}
-                    {!currentModelInfo.isFree && (
-                      <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
-                        Premium
-                      </Badge>
-                    )}
-                    <i className="fas fa-chevron-down text-xs text-sky-400"></i>
+                    <i className={`${currentModelInfo.icon} text-sky-400 text-sm flex-shrink-0`} style={{ fontSize: '12px' }}></i>
+                    <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">AI Model</span>
                   </Button>
                 </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="ai-dropdown w-64">
@@ -181,22 +171,13 @@ export const MessageInput: React.FC = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     size="sm"
-                    className="ai-control-button flex items-center space-x-2 text-sm px-3 py-2 h-auto font-medium shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg"
+                    className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
+                    title={`Storage: ${currentStorageInfo.name}`}
                   >
-                    <i className={`${currentStorageInfo.icon} text-purple-400 text-sm`}></i>
-                    <span className="font-semibold">{currentStorageInfo.name}</span>
-                    {currentStorageInfo.isConnected ? (
-                      <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                        Connected
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-xs bg-red-900/20 text-red-300 border border-red-500/30 px-2 py-0.5 font-medium">
-                        Disconnected
-                      </Badge>
-                    )}
-                    <i className="fas fa-chevron-down text-xs text-purple-400"></i>
+                    <i className={`${currentStorageInfo.icon} text-purple-400 text-sm flex-shrink-0`} style={{ fontSize: '12px' }}></i>
+                    <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Storage</span>
                   </Button>
                 </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="ai-dropdown w-64">
@@ -238,23 +219,13 @@ export const MessageInput: React.FC = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     size="sm"
-                    className="ai-control-button flex items-center space-x-2 text-sm px-3 py-2 h-auto font-medium shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg"
+                    className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-28 group-hover:px-3 overflow-hidden"
+                    title={`Processing: ${currentProcessingInfo.name}`}
                   >
-                    <i className={`${currentProcessingInfo.icon} text-orange-400 text-sm`}></i>
-                    <span className="font-semibold">{currentProcessingInfo.name}</span>
-                    {currentProcessingInfo.isFree && (
-                      <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                        Free
-                      </Badge>
-                    )}
-                    {!currentProcessingInfo.isFree && (
-                      <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
-                        Premium
-                      </Badge>
-                    )}
-                    <i className="fas fa-chevron-down text-xs text-orange-400"></i>
+                    <i className={`${currentProcessingInfo.icon} text-orange-400 text-sm flex-shrink-0`} style={{ fontSize: '12px' }}></i>
+                    <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Processing</span>
                   </Button>
                 </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="ai-dropdown w-64">

@@ -155,6 +155,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added scale and shadow effects for dropdown selectors (AI model, storage, processing provider)
   - Created group hover states with opacity transitions for text labels
   - Enhanced user experience with intuitive visual feedback on all control elements
+- July 09, 2025. Updated selectors to icons and fixed header branding
+  - Collapsed AI model, storage, and processing provider selectors into circular icons with hover expansion
+  - Replaced "Josudo" text in header with official brand logo image
+  - Fixed icon display consistency across all UI elements
+  - Maintained tooltip functionality for better user experience
 
 ## User Preferences
 
