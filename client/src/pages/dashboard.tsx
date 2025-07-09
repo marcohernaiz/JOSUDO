@@ -41,7 +41,7 @@ export default function Dashboard() {
       {/* Hover trigger area - invisible strip on the left for desktop */}
       {!isMobile && (
         <div
-          className="fixed left-0 top-0 w-4 h-full z-50 bg-transparent"
+          className="fixed left-0 top-0 w-8 h-full z-50 bg-transparent"
           onMouseEnter={() => setIsHovering(true)}
         />
       )}
@@ -50,7 +50,7 @@ export default function Dashboard() {
       {isMobile && (
         <Button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="fixed top-4 left-4 z-50 bg-white shadow-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+          className="fixed top-4 left-4 z-50 bg-slate-800/80 backdrop-blur-sm shadow-lg border border-slate-600 text-slate-200 hover:bg-slate-700/80"
           variant="outline"
           size="sm"
         >

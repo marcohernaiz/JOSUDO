@@ -18,35 +18,35 @@ export const Header: React.FC = () => {
   const activeModel = integrations.find(i => i.serviceType === 'ai_model' && i.isActive);
 
   return (
-    <div className="bg-white border-b border-slate-200 px-6 py-4">
+    <div className="bg-slate-800/60 backdrop-blur-sm border-b border-slate-600/30 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h1 className="text-lg font-semibold text-slate-900">Josudo</h1>
-          <Badge variant="secondary" className="bg-green-100 text-green-800">
-            <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></div>
+          <h1 className="text-lg font-semibold text-slate-100">Josudo</h1>
+          <Badge variant="secondary" className="bg-green-600/20 text-green-300 border border-green-500/30">
+            <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-1"></div>
             Connected
           </Badge>
         </div>
         
         <div className="flex items-center space-x-4">
           {/* Usage Indicator */}
-          <div className="flex items-center space-x-2 text-sm text-slate-600">
+          <div className="flex items-center space-x-2 text-sm text-slate-300">
             <i className="fas fa-chart-line text-slate-400"></i>
             <span>{totalTokens.toLocaleString()} tokens</span>
-            <span className="text-slate-400">•</span>
+            <span className="text-slate-500">•</span>
             <span>${totalCost.toFixed(2)} used</span>
           </div>
           
           {/* Quick Actions */}
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" title="Usage Details">
-              <i className="fas fa-chart-bar text-slate-500"></i>
+            <Button variant="ghost" size="sm" title="Usage Details" className="text-slate-300 hover:text-slate-100 hover:bg-slate-700/50">
+              <i className="fas fa-chart-bar"></i>
             </Button>
-            <Button variant="ghost" size="sm" title="API Documentation">
-              <i className="fas fa-code text-slate-500"></i>
+            <Button variant="ghost" size="sm" title="API Documentation" className="text-slate-300 hover:text-slate-100 hover:bg-slate-700/50">
+              <i className="fas fa-code"></i>
             </Button>
-            <Button variant="ghost" size="sm" title="Notifications">
-              <i className="fas fa-bell text-slate-500"></i>
+            <Button variant="ghost" size="sm" title="Notifications" className="text-slate-300 hover:text-slate-100 hover:bg-slate-700/50">
+              <i className="fas fa-bell"></i>
             </Button>
           </div>
         </div>
