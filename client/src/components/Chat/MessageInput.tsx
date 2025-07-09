@@ -116,11 +116,11 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden"
+                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden bg-gray-700 border border-gray-600"
                 title="Attach files"
               >
-                <Plus className="w-4 h-4 text-slate-300 flex-shrink-0" />
-                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Add files</span>
+                <span className="text-white text-sm">+</span>
+                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap text-white">Add files</span>
               </Button>
             </div>
 
@@ -132,7 +132,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-16 group-hover:px-3 overflow-hidden"
                 title="Tools"
               >
-                <Wrench className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                <span className="text-white text-sm">🔧</span>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Tools</span>
               </Button>
             </div>
@@ -147,7 +147,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-28 group-hover:px-3 overflow-hidden"
                     title={`AI Model: ${currentModelInfo.name}`}
                   >
-                    <currentModelInfo.icon className="w-4 h-4 text-sky-400 flex-shrink-0" />
+                    <span className="text-sky-400 text-sm">🤖</span>
                     <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">AI Model</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -159,7 +159,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
                   >
                     <div className="flex items-center space-x-3">
-                      <model.icon className="w-4 h-4 text-sky-400" />
+                      <span className="text-sky-400 text-sm">🤖</span>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
                           <span className="font-semibold text-white">{model.name}</span>
@@ -178,7 +178,7 @@ export const MessageInput: React.FC = () => {
                       </div>
                     </div>
                     {selectedModel === model.id && (
-                      <Check className="w-4 h-4 text-sky-400 bg-sky-400/20 p-1 rounded-full" />
+                      <span className="text-sky-400 text-sm">✓</span>
                     )}
                   </DropdownMenuItem>
                 ))}
@@ -196,7 +196,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
                     title={`Storage: ${currentStorageInfo.name}`}
                   >
-                    <currentStorageInfo.icon className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                    <span className="text-purple-400 text-sm">💾</span>
                     <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Storage</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -208,7 +208,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
                   >
                     <div className="flex items-center space-x-3">
-                      <storage.icon className="w-4 h-4 text-purple-400" />
+                      <span className="text-purple-400 text-sm">💾</span>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
                           <span className="font-semibold text-white">{storage.name}</span>
@@ -226,7 +226,7 @@ export const MessageInput: React.FC = () => {
                       </div>
                     </div>
                     {selectedStorage === storage.id && (
-                      <Check className="w-4 h-4 text-purple-400 bg-purple-400/20 p-1 rounded-full" />
+                      <span className="text-purple-400 text-sm">✓</span>
                     )}
                   </DropdownMenuItem>
                 ))}
@@ -244,7 +244,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-28 group-hover:px-3 overflow-hidden"
                     title={`Processing: ${currentProcessingInfo.name}`}
                   >
-                    <currentProcessingInfo.icon className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                    <span className="text-orange-400 text-sm">⚡</span>
                     <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Processing</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -256,7 +256,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
                   >
                     <div className="flex items-center space-x-3">
-                      <provider.icon className="w-4 h-4 text-orange-400" />
+                      <span className="text-orange-400 text-sm">⚡</span>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
                           <span className="font-semibold text-white">{provider.name}</span>
@@ -275,7 +275,7 @@ export const MessageInput: React.FC = () => {
                       </div>
                     </div>
                     {selectedProcessing === provider.id && (
-                      <Check className="w-4 h-4 text-orange-400 bg-orange-400/20 p-1 rounded-full" />
+                      <span className="text-orange-400 text-sm">✓</span>
                     )}
                   </DropdownMenuItem>
                 ))}
@@ -293,7 +293,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
                 title="Voice input"
               >
-                <Mic className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                <span className="text-white text-sm">🎤</span>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Voice</span>
               </Button>
             </div>
@@ -306,7 +306,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
                 title="Audio conversation"
               >
-                <Headphones className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                <span className="text-white text-sm">🎧</span>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Audio</span>
               </Button>
             </div>
@@ -319,7 +319,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
                 title="Video conferencing"
               >
-                <Video className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                <span className="text-white text-sm">📹</span>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Video</span>
               </Button>
             </div>
@@ -332,7 +332,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden"
                 title="Settings"
               >
-                <Settings className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                <span className="text-white text-sm">⚙️</span>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Settings</span>
               </Button>
             </div>
