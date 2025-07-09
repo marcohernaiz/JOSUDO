@@ -128,6 +128,7 @@ The application follows a microservices-inspired pattern with distinct service l
   - Rebranded platform from "AI Assistant" to "Josudo" across all components
   - Simplified welcome screen without popup, streamlined chat experience
   - Updated page title, headers, and sidebar branding
+  - Removed authentication page - app now auto-logs in with demo account and goes directly to chat
 
 ## User Preferences
 
