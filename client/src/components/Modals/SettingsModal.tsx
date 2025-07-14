@@ -86,9 +86,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
             <h4 className="text-sm font-medium text-white">{title}</h4>
           </div>
           {isExpanded ? (
-            <ChevronDown className="w-4 h-4 text-slate-300" />
+            <ChevronDown className="w-4 h-4 text-white" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-slate-300" />
+            <ChevronRight className="w-4 h-4 text-white" />
           )}
         </button>
         {isExpanded && (
@@ -104,7 +104,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                     <i className={`${item.icon} ${integration ? 'text-green-500' : item.color}`}></i>
                     <div>
                       <div className="font-medium text-white">{item.label}</div>
-                      <div className="text-sm text-slate-300">
+                      <div className="text-sm text-white">
                         {integration ? 'Connected and active' : 'Not connected'}
                       </div>
                     </div>
@@ -225,22 +225,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
 
               {activeTab === 'billing' && (
                 <div className="text-center py-8">
-                  <i className="fas fa-credit-card text-slate-300 text-4xl mb-4"></i>
-                  <p className="text-slate-300">Billing settings will be implemented here</p>
+                  <i className="fas fa-credit-card text-white text-4xl mb-4"></i>
+                  <p className="text-white">Billing settings will be implemented here</p>
                 </div>
               )}
 
               {activeTab === 'usage' && (
                 <div className="text-center py-8">
-                  <i className="fas fa-chart-line text-slate-300 text-4xl mb-4"></i>
-                  <p className="text-slate-300">Usage analytics will be implemented here</p>
+                  <i className="fas fa-chart-line text-white text-4xl mb-4"></i>
+                  <p className="text-white">Usage analytics will be implemented here</p>
                 </div>
               )}
 
               {activeTab === 'api' && (
                 <div className="text-center py-8">
-                  <i className="fas fa-key text-slate-300 text-4xl mb-4"></i>
-                  <p className="text-slate-300">API key management will be implemented here</p>
+                  <i className="fas fa-key text-white text-4xl mb-4"></i>
+                  <p className="text-white">API key management will be implemented here</p>
                 </div>
               )}
             </div>
