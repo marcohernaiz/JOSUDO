@@ -51,7 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                 <img 
                   src={josudoText} 
                   alt="Josudo" 
-                  className="h-10 object-contain flex-shrink-0 josudo-text-light"
+                  className="h-8 object-contain flex-shrink-0 josudo-text-light"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling.style.display = 'inline';

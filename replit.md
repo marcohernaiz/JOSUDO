@@ -469,6 +469,9 @@ The application follows a microservices-inspired pattern with distinct service l
   - Changed both icon and text logos to completely black in light mode using CSS filters
   - Added custom CSS classes (.josudo-logo-light, .josudo-text-light) with brightness(0) filter
   - Dark mode maintains original unchanged golden appearance without filters
+- July 14, 2025. Reduced Josudo text logo size in sidebar
+  - Changed text logo height from h-10 to h-8 for better proportions
+  - Maintains icon size at 40x40 pixels while making text more compact
 
 ## User Preferences
 
