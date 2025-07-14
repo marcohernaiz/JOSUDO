@@ -11,21 +11,21 @@
   background-color: rgba(226, 232, 240, 0.9);
 }
 
-/* Josudo logo color filters */
+/* Josudo logo color filters - only apply in light mode */
 .josudo-logo-light {
   filter: brightness(0);
 }
 
-.josudo-logo-dark {
-  filter: brightness(1.2);
+.dark .josudo-logo-light {
+  filter: none;
 }
 
 .josudo-text-light {
   filter: brightness(0);
 }
 
-.josudo-text-dark {
-  filter: brightness(1.1);
+.dark .josudo-text-light {
+  filter: none;
 }
 
 @layer base {

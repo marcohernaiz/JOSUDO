@@ -467,8 +467,8 @@ The application follows a microservices-inspired pattern with distinct service l
   - Enhanced brand consistency across all sidebar branding elements
 - July 14, 2025. Updated Josudo logo colors for light mode
   - Changed both icon and text logos to completely black in light mode using CSS filters
-  - Added custom CSS classes for proper light/dark mode theme handling
-  - Dark mode maintains original golden appearance with brightness enhancement
+  - Added custom CSS classes (.josudo-logo-light, .josudo-text-light) with brightness(0) filter
+  - Dark mode maintains original unchanged golden appearance without filters
 
 ## User Preferences
 
