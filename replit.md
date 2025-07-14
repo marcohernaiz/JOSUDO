@@ -491,6 +491,12 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added both GET and POST logout routes for complete sign-out functionality
   - Authentication status now properly tracked across the entire application
   - Users can sign in with Google directly from the main interface
+- July 14, 2025. Enhanced header with repositioned authentication and theme controls
+  - Changed Google Sign-In button text from "Sign in with Google" to "Sign in"
+  - Updated sign-in button styling to match input box background with theme-aware colors
+  - Moved theme toggle button to header, positioned to the right of sign-in button
+  - Removed duplicate theme toggle from dashboard page to avoid conflicts
+  - Enhanced button layout with proper spacing and consistent styling across light/dark themes
 
 ## User Preferences
 
