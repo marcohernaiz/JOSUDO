@@ -370,6 +370,18 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added Discord, Trello, and Asana to MCP servers
   - Improved icon display consistency across all integration sections
   - Fixed section header icons to use emoji symbols for better visibility
+- July 14, 2025. Implemented comprehensive light/dark theme toggle system
+  - Created ThemeContext with useState and localStorage persistence
+  - Added theme toggle button in upper right corner with sun/moon emoji icons
+  - Updated all components (sidebar, settings modal, dashboard) to support both themes
+  - Enhanced CSS with proper theme variable system using HSL colors
+  - Configured Tailwind with darkMode class support and theme-aware styling
+  - Made all text, backgrounds, and borders theme-aware with conditional classes
+  - Added theme overlay adjustments for both light and dark modes
+- July 14, 2025. Applied light grey background to main page
+  - Changed main page background from white to slate-50 for subtle light grey in light mode
+  - Updated theme overlay to use white/30 opacity in light mode vs black/20 in dark mode
+  - Enhanced visual comfort with softer background color while maintaining dark mode aesthetics
 
 ## User Preferences
 
