@@ -137,17 +137,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-slate-300 dark:border-slate-700">
-          <div className="flex space-x-2">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setShowSettings(true)}
-              className={`${isExpanded ? 'flex-1 justify-start' : 'w-10 h-10 p-0 justify-center'} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
-              title={!isExpanded ? "Settings" : ""}
-            >
-              <span className="text-slate-400 text-2xl">⚙️</span>
-              {isExpanded && <span className="ml-2">Settings</span>}
-            </Button>
+          <div className={`${isExpanded ? 'space-y-2' : 'space-y-2'}`}>
+            <div className="flex space-x-2">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowSettings(true)}
+                className={`${isExpanded ? 'flex-1 justify-start' : 'w-10 h-10 p-0 justify-center'} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
+                title={!isExpanded ? "Settings" : ""}
+              >
+                <span className="text-slate-400 text-2xl">⚙️</span>
+                {isExpanded && <span className="ml-2">Settings</span>}
+              </Button>
+            </div>
+            {isAuthenticated && (
+              <div className="flex space-x-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => window.location.href = '/api/auth/logout'}
+                  className={`${isExpanded ? 'flex-1 justify-start' : 'w-10 h-10 p-0 justify-center'} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
+                  title={!isExpanded ? "Sign Out" : ""}
+                >
+                  <span className="text-slate-400 text-2xl">🚪</span>
+                  {isExpanded && <span className="ml-2">Sign Out</span>}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

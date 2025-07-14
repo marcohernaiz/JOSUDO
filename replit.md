@@ -510,6 +510,12 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added dynamic storage options based on authentication state
   - Enhanced storage selection logic to handle authenticated Google Drive connections
   - Both storage button and sidebar now accurately reflect Google Drive connection status
+- July 14, 2025. Updated sign out functionality and styling
+  - Changed header sign out button background from red to slate (bg-slate-500 hover:bg-slate-600)
+  - Added sign out option to sidebar footer that appears when user is authenticated
+  - Sidebar sign out button uses door emoji (🚪) and follows consistent styling patterns
+  - Both sign out buttons redirect to '/api/auth/logout' for proper session termination
+  - Enhanced sidebar footer with conditional sign out display based on authentication status
 
 ## User Preferences
 
