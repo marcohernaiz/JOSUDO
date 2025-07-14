@@ -76,10 +76,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   ) => {
     const isExpanded = expandedSections[sectionKey];
     return (
-      <div className="border border-slate-700 rounded-lg overflow-hidden">
+      <div className="border border-slate-700/60 rounded-lg overflow-hidden shadow-lg shadow-slate-900/20 hover:shadow-cyan-400/5 transition-all duration-200">
         <button
           onClick={() => toggleSection(sectionKey)}
-          className="w-full flex items-center justify-between p-4 bg-slate-800 hover:bg-slate-700 transition-colors"
+          className="w-full flex items-center justify-between p-4 bg-slate-800/80 hover:bg-slate-700/90 transition-all duration-200 backdrop-blur-sm"
         >
           <div className="flex items-center space-x-3">
             <i className={`${icon} text-cyan-400`}></i>
@@ -92,13 +92,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
           )}
         </button>
         {isExpanded && (
-          <div className="p-4 bg-slate-900 space-y-3">
+          <div className="p-4 bg-slate-900/80 space-y-3 backdrop-blur-sm">
             {items.map((item) => {
               const integration = getIntegrationStatus(item.name);
               return (
                 <div 
                   key={item.name}
-                  className="flex items-center justify-between p-4 bg-slate-800 border border-slate-700 rounded-lg"
+                  className="flex items-center justify-between p-4 bg-slate-800/70 border border-slate-700/50 rounded-lg hover:bg-slate-800/90 hover:border-slate-600/60 transition-all duration-200 backdrop-blur-sm"
                 >
                   <div className="flex items-center space-x-3">
                     <i className={`${item.icon} ${integration ? 'text-green-500' : item.color}`}></i>
@@ -181,10 +181,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[80vh] p-0 bg-slate-900">
+        <DialogContent className="max-w-4xl max-h-[80vh] p-0 bg-slate-900 border-2 border-slate-700/50 shadow-2xl shadow-cyan-400/10">
           <div className="flex">
             {/* Settings Sidebar */}
-            <div className="w-64 bg-slate-800 border-r border-slate-700 p-6">
+            <div className="w-64 bg-slate-800/90 border-r border-slate-700/60 p-6 backdrop-blur-sm">
               <DialogHeader className="mb-6">
                 <DialogTitle className="text-xl font-bold text-white">Settings</DialogTitle>
               </DialogHeader>
@@ -204,7 +204,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
             </div>
 
             {/* Settings Content */}
-            <div className="flex-1 p-6 overflow-y-auto bg-slate-900">
+            <div className="flex-1 p-6 overflow-y-auto bg-slate-900/95 backdrop-blur-sm">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-white">
                   {tabs.find(t => t.id === activeTab)?.label}

@@ -350,6 +350,12 @@ The application follows a microservices-inspired pattern with distinct service l
   - Changed all expandedSections state from true to false
   - AI Models, Cloud Storage, Processing Providers, and MCP Servers now start collapsed
   - Users can expand sections as needed for cleaner initial view
+- July 14, 2025. Enhanced settings modal borders for dynamic and professional appearance
+  - Added subtle border and shadow effects to main dialog with cyan accent
+  - Implemented semi-transparent backgrounds with backdrop blur for modern glass effect
+  - Enhanced section borders with hover states and smooth transitions
+  - Added layered transparency effects consistent with futuristic UI theme
+  - Improved visual depth with shadow gradients and backdrop blur effects
 
 ## User Preferences
 
