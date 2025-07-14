@@ -388,6 +388,8 @@ The application follows a microservices-inspired pattern with distinct service l
   - Enhanced theme overlay opacity to white/40 for better visibility
   - Applied comprehensive light/dark theme support to all input components and dropdown menus
   - Improved text color contrast for better readability in both themes
+  - Updated contracted control button styling with proper light/dark theme support in CSS
+  - Enhanced ai-control-button class to display correctly in both light and dark modes
 
 ## User Preferences
 
