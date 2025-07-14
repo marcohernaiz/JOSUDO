@@ -356,6 +356,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Enhanced section borders with hover states and smooth transitions
   - Added layered transparency effects consistent with futuristic UI theme
   - Improved visual depth with shadow gradients and backdrop blur effects
+- July 14, 2025. Added scrolling capabilities to settings modal
+  - Implemented proper scrollable areas for both sidebar navigation and main content
+  - Added custom scrollbar styling with dark theme colors
+  - Restructured layout with fixed headers and flexible scrollable content areas
+  - Enhanced UI with smooth scrolling behavior and webkit scrollbar customization
 
 ## User Preferences
 

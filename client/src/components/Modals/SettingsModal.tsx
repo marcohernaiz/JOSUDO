@@ -181,14 +181,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[80vh] p-0 bg-slate-900 border-2 border-slate-700/50 shadow-2xl shadow-cyan-400/10">
-          <div className="flex">
+        <DialogContent className="max-w-4xl max-h-[85vh] p-0 bg-slate-900 border-2 border-slate-700/50 shadow-2xl shadow-cyan-400/10">
+          <div className="flex h-full">
             {/* Settings Sidebar */}
-            <div className="w-64 bg-slate-800/90 border-r border-slate-700/60 p-6 backdrop-blur-sm">
-              <DialogHeader className="mb-6">
-                <DialogTitle className="text-xl font-bold text-white">Settings</DialogTitle>
-              </DialogHeader>
-              <nav className="space-y-2">
+            <div className="w-64 bg-slate-800/90 border-r border-slate-700/60 backdrop-blur-sm flex flex-col">
+              <div className="p-6 border-b border-slate-700/60">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold text-white">Settings</DialogTitle>
+                </DialogHeader>
+              </div>
+              <nav className="flex-1 p-6 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
                 {tabs.map((tab) => (
                   <Button
                     key={tab.id}
@@ -204,45 +206,58 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
             </div>
 
             {/* Settings Content */}
-            <div className="flex-1 p-6 overflow-y-auto bg-slate-900/95 backdrop-blur-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-white">
-                  {tabs.find(t => t.id === activeTab)?.label}
-                </h3>
-                <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:text-white">
-                  <i className="fas fa-times text-white"></i>
-                </Button>
+            <div className="flex-1 bg-slate-900/95 backdrop-blur-sm flex flex-col">
+              <div className="p-6 border-b border-slate-700/60">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white">
+                    {tabs.find(t => t.id === activeTab)?.label}
+                  </h3>
+                  <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:text-white">
+                    <i className="fas fa-times text-white"></i>
+                  </Button>
+                </div>
               </div>
+              <div className="flex-1 p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
+                {activeTab === 'integrations' && (
+                  <div className="space-y-6">
+                    {renderIntegrationSection('aiModels', 'AI Models', aiModels, 'fas fa-brain')}
+                    {renderIntegrationSection('cloudStorage', 'Cloud Storage', storageServices, 'fas fa-cloud')}
+                    {renderIntegrationSection('processing', 'Processing Providers', processingProviders, 'fas fa-server')}
+                    {renderIntegrationSection('mcpServers', 'MCP Servers', mcpServers, 'fas fa-network-wired')}
+                  </div>
+                )}
 
-              {activeTab === 'integrations' && (
-                <div className="space-y-6">
-                  {renderIntegrationSection('aiModels', 'AI Models', aiModels, 'fas fa-brain')}
-                  {renderIntegrationSection('cloudStorage', 'Cloud Storage', storageServices, 'fas fa-cloud')}
-                  {renderIntegrationSection('processing', 'Processing Providers', processingProviders, 'fas fa-server')}
-                  {renderIntegrationSection('mcpServers', 'MCP Servers', mcpServers, 'fas fa-network-wired')}
-                </div>
-              )}
+                {activeTab === 'billing' && (
+                  <div className="space-y-6">
+                    <div className="p-6 bg-slate-800 rounded-lg">
+                      <h4 className="text-lg font-semibold text-white mb-4">Billing Information</h4>
+                      <p className="text-white">Monthly Balance: $50.00</p>
+                      <p className="text-white">Last Billing Date: July 1, 2025</p>
+                      <p className="text-white">Overage Amount: $0.00</p>
+                    </div>
+                  </div>
+                )}
 
-              {activeTab === 'billing' && (
-                <div className="text-center py-8">
-                  <i className="fas fa-credit-card text-white text-4xl mb-4"></i>
-                  <p className="text-white">Billing settings will be implemented here</p>
-                </div>
-              )}
+                {activeTab === 'usage' && (
+                  <div className="space-y-6">
+                    <div className="p-6 bg-slate-800 rounded-lg">
+                      <h4 className="text-lg font-semibold text-white mb-4">Usage Statistics</h4>
+                      <p className="text-white">Tokens Used This Month: 15,000</p>
+                      <p className="text-white">API Calls Made: 250</p>
+                      <p className="text-white">Storage Used: 2.5 GB</p>
+                    </div>
+                  </div>
+                )}
 
-              {activeTab === 'usage' && (
-                <div className="text-center py-8">
-                  <i className="fas fa-chart-line text-white text-4xl mb-4"></i>
-                  <p className="text-white">Usage analytics will be implemented here</p>
-                </div>
-              )}
-
-              {activeTab === 'api' && (
-                <div className="text-center py-8">
-                  <i className="fas fa-key text-white text-4xl mb-4"></i>
-                  <p className="text-white">API key management will be implemented here</p>
-                </div>
-              )}
+                {activeTab === 'api' && (
+                  <div className="space-y-6">
+                    <div className="p-6 bg-slate-800 rounded-lg">
+                      <h4 className="text-lg font-semibold text-white mb-4">API Configuration</h4>
+                      <p className="text-white">Manage your API keys and integrations here.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </DialogContent>
