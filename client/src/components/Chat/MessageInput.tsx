@@ -30,14 +30,21 @@ import {
   Bolt,
   Check
 } from 'lucide-react';
+import { 
+  SiOpenai, 
+  SiAnthropic, 
+  SiGoogle, 
+  SiMeta,
+  SiX
+} from 'react-icons/si';
 
 const AI_MODELS = [
   { id: 'deepseek-chat', name: 'DeepSeek', description: 'Free AI model', icon: Bot, isFree: true },
-  { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: Brain, isFree: false },
-  { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude', icon: Sparkles, isFree: false },
-  { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: Star, isFree: false },
-  { id: 'llama-3', name: 'Llama', description: 'Meta Llama 3', icon: Mountain, isFree: false },
-  { id: 'grok-beta', name: 'Grok', description: 'xAI Grok', icon: Zap, isFree: false },
+  { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: SiOpenai, isFree: false },
+  { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude', icon: SiAnthropic, isFree: false },
+  { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: SiGoogle, isFree: false },
+  { id: 'llama-3', name: 'Llama', description: 'Meta Llama 3', icon: SiMeta, isFree: false },
+  { id: 'grok-beta', name: 'Grok', description: 'xAI Grok', icon: SiX, isFree: false },
 ];
 
 const STORAGE_OPTIONS = [
@@ -153,7 +160,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                     title={`AI Model: ${currentModelInfo.name}`}
                   >
-                    <span className="text-sky-400 text-sm mr-2">🤖</span>
+                    <currentModelInfo.icon className="text-sky-400 text-sm mr-2" />
                     <span className="text-xs text-white whitespace-nowrap">{currentModelInfo.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -165,7 +172,7 @@ export const MessageInput: React.FC = () => {
                       className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">
-                        <span className="text-sky-400 text-sm">🤖</span>
+                        <model.icon className="text-sky-400 text-sm" />
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
                             <span className="font-semibold text-white">{model.name}</span>
