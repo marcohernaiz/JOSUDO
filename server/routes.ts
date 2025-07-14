@@ -33,10 +33,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Passport configuration (only if Google OAuth is available)
   if (hasGoogleAuth) {
+    // Get the current domain for the callback URL
+    const getCallbackURL = (req: any) => {
+      const protocol = req.secure ? 'https' : 'http';
+      const host = req.get('host');
+      return `${protocol}://${host}/api/auth/google/callback`;
+    };
+
     passport.use(new GoogleStrategy({
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: "/api/auth/google/callback"
+      callbackURL: "https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev/api/auth/google/callback"
     }, async (accessToken: any, refreshToken: any, profile: any, done: any) => {
     try {
       let user = await storage.getUserByGoogleId(profile.id);
