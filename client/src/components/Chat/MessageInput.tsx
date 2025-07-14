@@ -42,7 +42,8 @@ import {
 
   SiGoogledrive,
   SiIpfs,
-  SiIcloud
+  SiIcloud,
+  SiDropbox
 } from 'react-icons/si';
 
 const AI_MODELS = [
@@ -58,6 +59,7 @@ const STORAGE_OPTIONS = [
   { id: 'none', name: 'No Storage', description: 'Chat not saved', icon: XCircle, isConnected: false },
   { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: SiGoogledrive, isConnected: false },
   { id: 'icloud', name: 'iCloud', description: 'Save to Apple iCloud', icon: SiIcloud, isConnected: false },
+  { id: 'dropbox', name: 'Dropbox', description: 'Save to Dropbox', icon: SiDropbox, isConnected: false },
   { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: SiIpfs, isConnected: false },
 ];
 

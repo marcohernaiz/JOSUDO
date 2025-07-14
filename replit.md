@@ -296,6 +296,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added Apple iCloud icon (SiIcloud) with proper purple theming
   - Enhanced storage provider selection with major cloud provider coverage
   - Maintains consistent disconnected status for all storage options
+- July 14, 2025. Added Dropbox to storage options
+  - Integrated Dropbox as a storage option between iCloud and IPFS
+  - Added official Dropbox icon (SiDropbox) with consistent purple theming
+  - Enhanced storage provider selection with comprehensive cloud coverage
+  - Maintains consistent disconnected status for all storage options
 
 ## User Preferences
 
