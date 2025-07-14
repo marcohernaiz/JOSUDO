@@ -24,12 +24,12 @@ export default function Dashboard() {
   return (
     <div className="h-screen w-full bg-black">
       <div className="h-full w-full ai-background">
-        {/* Compressed Sidebar - Always visible */}
+        {/* Compressed Sidebar - Always visible, sole indicator */}
         {!isMobile && (
-          <div className="fixed left-0 top-0 h-full w-12 bg-slate-900/80 backdrop-blur-sm border-r border-slate-700/50 z-40 flex flex-col items-center py-4 space-y-3">
-            {/* Sidebar indicator/trigger */}
+          <div className="fixed left-0 top-0 h-full w-12 bg-slate-900/90 backdrop-blur-sm border-r border-slate-700/60 z-40 flex flex-col items-center py-4 space-y-3 shadow-lg">
+            {/* Sidebar indicator/trigger - Primary visual cue */}
             <div 
-              className="w-8 h-8 bg-slate-700/60 rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-600/60 transition-colors"
+              className="w-8 h-8 bg-slate-700/70 rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-600/70 transition-all duration-200 hover:shadow-md"
               onMouseEnter={() => setIsHovering(true)}
               title="Open sidebar"
             >
@@ -41,7 +41,7 @@ export default function Dashboard() {
             
             {/* New chat button */}
             <div 
-              className="w-8 h-8 bg-green-700/60 rounded-lg flex items-center justify-center cursor-pointer hover:bg-green-600/60 transition-colors"
+              className="w-8 h-8 bg-green-700/70 rounded-lg flex items-center justify-center cursor-pointer hover:bg-green-600/70 transition-all duration-200 hover:shadow-md"
               title="New chat"
               onClick={createNewChat}
             >
@@ -54,24 +54,27 @@ export default function Dashboard() {
               
               {/* AI Model - Grok */}
               <div 
-                className="w-8 h-8 bg-purple-700/60 rounded-lg flex items-center justify-center cursor-pointer hover:bg-purple-600/60 transition-colors"
+                className="w-8 h-8 bg-purple-700/70 rounded-lg flex items-center justify-center cursor-pointer hover:bg-purple-600/70 transition-all duration-200 hover:shadow-md"
                 title="AI Model: Grok"
+                onMouseEnter={() => setIsHovering(true)}
               >
                 <span className="text-white text-sm">🤖</span>
               </div>
               
               {/* Storage */}
               <div 
-                className="w-8 h-8 bg-slate-700/60 rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-600/60 transition-colors"
+                className="w-8 h-8 bg-slate-700/70 rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-600/70 transition-all duration-200 hover:shadow-md"
                 title="Storage: No Storage"
+                onMouseEnter={() => setIsHovering(true)}
               >
                 <span className="text-white text-sm">💾</span>
               </div>
               
               {/* Processing Provider - Josudo */}
               <div 
-                className="w-8 h-8 bg-blue-700/60 rounded-lg flex items-center justify-center cursor-pointer hover:bg-blue-600/60 transition-colors"
+                className="w-8 h-8 bg-blue-700/70 rounded-lg flex items-center justify-center cursor-pointer hover:bg-blue-600/70 transition-all duration-200 hover:shadow-md"
                 title="Processing: Josudo"
+                onMouseEnter={() => setIsHovering(true)}
               >
                 <span className="text-white text-sm">⚡</span>
               </div>
@@ -82,7 +85,7 @@ export default function Dashboard() {
             
             {/* Settings button */}
             <div 
-              className="w-8 h-8 bg-slate-700/60 rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-600/60 transition-colors mt-auto"
+              className="w-8 h-8 bg-slate-700/70 rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-600/70 transition-all duration-200 hover:shadow-md mt-auto"
               title="Settings"
               onClick={() => setShowSettings(true)}
             >
@@ -91,15 +94,9 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Hover trigger area - invisible strip on the left for desktop */}
-        {!isMobile && (
-          <div
-            className="fixed left-12 top-0 w-8 h-full z-50 bg-transparent"
-            onMouseEnter={() => setIsHovering(true)}
-          />
-        )}
 
-        {/* Mobile Menu Toggle */}
+
+        {/* Mobile Menu Toggle - Only show if compressed sidebar is not visible */}
         {isMobile && (
           <Button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}

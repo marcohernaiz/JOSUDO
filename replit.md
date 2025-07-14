@@ -199,6 +199,13 @@ The application follows a microservices-inspired pattern with distinct service l
   - Updated sidebar and message input to show Grok as default AI model instead of DeepSeek
   - Added Josudo Processing to active configuration display in both compressed and expanded sidebar
   - Positioned settings button at bottom with mt-auto for better layout
+- July 14, 2025. Streamlined sidebar discovery to single visual indicator
+  - Made compressed sidebar the sole visual cue for sidebar functionality
+  - Removed invisible hover trigger area that competed with compressed sidebar
+  - Enhanced compressed sidebar styling with better shadows and hover effects
+  - Ensured compressed sidebar (48px width) is the only way users discover sidebar options
+  - Added hover triggers to configuration icons to expand full sidebar
+  - Improved visual prominence of compressed sidebar as primary discovery mechanism
 
 ## User Preferences
 
