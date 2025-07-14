@@ -1,4 +1,4 @@
-import josudoLogo from "@assets/WhatsApp Image 2025-07-09 at 17.09.39_1752073917749.jpeg";
+import josudoLogo from "@assets/JOSUDO LOGO_1752483099099.png";
 
 export const Header: React.FC = () => {
   return (
