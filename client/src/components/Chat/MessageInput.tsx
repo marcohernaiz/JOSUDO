@@ -117,11 +117,11 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden bg-gray-700 border border-gray-600"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300 bg-gray-700 border border-gray-600"
                 title="Attach files"
               >
-                <span className="text-white text-sm">+</span>
-                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap text-white">Add files</span>
+                <span className="text-white text-base">+</span>
+                <span className="ml-2 text-xs text-white whitespace-nowrap">Add files</span>
               </Button>
             </div>
 
@@ -130,11 +130,11 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-16 group-hover:px-3 overflow-hidden"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300"
                 title="Tools"
               >
-                <span className="text-white text-sm">🔧</span>
-                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Tools</span>
+                <span className="text-white text-base">🔧</span>
+                <span className="ml-2 text-xs text-white whitespace-nowrap">Tools</span>
               </Button>
             </div>
           </div>
@@ -295,11 +295,11 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300"
                 title="Voice input"
               >
-                <span className="text-white text-sm">🎤</span>
-                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Voice</span>
+                <span className="text-white text-base">🎤</span>
+                <span className="ml-2 text-xs text-white whitespace-nowrap">Voice</span>
               </Button>
             </div>
 
@@ -308,11 +308,11 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300"
                 title="Audio conversation"
               >
-                <span className="text-white text-sm">🎧</span>
-                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Audio</span>
+                <span className="text-white text-base">🎧</span>
+                <span className="ml-2 text-xs text-white whitespace-nowrap">Audio</span>
               </Button>
             </div>
 
@@ -321,11 +321,11 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300"
                 title="Video conferencing"
               >
-                <span className="text-white text-sm">📹</span>
-                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Video</span>
+                <span className="text-white text-base">📹</span>
+                <span className="ml-2 text-xs text-white whitespace-nowrap">Video</span>
               </Button>
             </div>
 
@@ -334,11 +334,11 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300"
                 title="Settings"
               >
-                <span className="text-white text-sm font-medium select-none">⚙️</span>
-                <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Settings</span>
+                <span className="text-white text-base font-medium select-none">⚙️</span>
+                <span className="ml-2 text-xs text-white whitespace-nowrap">Settings</span>
               </Button>
             </div>
           </div>
