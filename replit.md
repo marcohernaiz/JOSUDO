@@ -214,6 +214,14 @@ The application follows a microservices-inspired pattern with distinct service l
   - Reduced spacing between logo and new chat button for tighter layout
   - Included fallback text option if image fails to load
   - Complete brand identity now uses official logo images for both symbol and text
+- July 14, 2025. Implemented always-visible contracted sidebar with hover expansion
+  - Sidebar now always visible at 64px width (w-16) showing icons only
+  - Hover expansion to 256px width (w-64) reveals full text and functionality
+  - Smooth transition animations with duration-300 for fluid user experience
+  - Main content automatically offset by sidebar width (ml-16) on desktop
+  - Icons displayed: Josudo logo, + (new chat), 🤖 (AI), 💾 (storage), ⚡ (processing), ⚙️ (settings)
+  - Expanded view shows: full text labels, configuration details, chat history, and settings
+  - Mobile behavior unchanged with toggle-based sidebar overlay
 
 ## User Preferences
 
