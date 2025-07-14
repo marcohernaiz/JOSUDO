@@ -184,6 +184,14 @@ The application follows a microservices-inspired pattern with distinct service l
   - Reorganized layout: tools (left), AI model/storage/processing (center), voice/audio/video/settings (right)
   - All center selectors now show text by default instead of icon-only hover expansion
   - Maintained futuristic design with animated background and consistent styling
+- July 14, 2025. Enhanced sidebar with dark theme
+  - Changed sidebar background from white to dark slate (slate-900)
+  - Updated all borders to use dark slate colors (slate-700)
+  - Modified text colors to white and light slate tones for better contrast
+  - Updated active configuration section with darker background (slate-800)
+  - Enhanced button styling with dark hover states
+  - Improved settings icon visibility with enhanced styling
+  - Chat history section now uses darker text colors to match overall theme
 
 ## User Preferences
 

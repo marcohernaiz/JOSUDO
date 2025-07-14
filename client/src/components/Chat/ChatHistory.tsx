@@ -47,9 +47,9 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({ onChatSelect }) => {
   // Always show empty state since no user accounts
   return (
     <div className="px-4 py-8 text-center">
-      <i className="fas fa-comments text-slate-300 text-3xl mb-3"></i>
-      <p className="text-sm text-slate-500">Chat history disabled</p>
-      <p className="text-xs text-slate-400 mt-1">Start a new conversation above</p>
+      <i className="fas fa-comments text-slate-600 text-3xl mb-3"></i>
+      <p className="text-sm text-slate-400">Chat history disabled</p>
+      <p className="text-xs text-slate-500 mt-1">Start a new conversation above</p>
     </div>
   );
 };

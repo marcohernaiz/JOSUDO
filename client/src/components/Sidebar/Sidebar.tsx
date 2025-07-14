@@ -21,19 +21,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 
   return (
     <>
-      <div className="w-full h-full bg-white border-r border-slate-200 flex flex-col">
+      <div className="w-full h-full bg-slate-900 border-r border-slate-700 flex flex-col">
         {/* Header */}
-        <div className="p-4 border-b border-slate-200">
+        <div className="p-4 border-b border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <i className="fas fa-robot text-primary text-xl"></i>
-              <span className="font-bold text-slate-900">Josudo</span>
+              <i className="fas fa-robot text-blue-400 text-xl"></i>
+              <span className="font-bold text-white">Josudo</span>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="md:hidden"
+              className="md:hidden text-slate-400 hover:text-white hover:bg-slate-800"
             >
               <i className="fas fa-times"></i>
             </Button>
@@ -41,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           
           <Button 
             onClick={createNewChat}
-            className="w-full bg-primary text-white hover:bg-primary/90"
+            className="w-full bg-blue-600 text-white hover:bg-blue-700"
           >
             <i className="fas fa-plus mr-2"></i>
             New Chat
@@ -49,18 +49,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </div>
 
         {/* Active Configuration */}
-        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
-          <div className="text-xs font-medium text-slate-500 mb-2">ACTIVE CONFIGURATION</div>
+        <div className="px-4 py-3 bg-slate-800 border-b border-slate-700">
+          <div className="text-xs font-medium text-slate-400 mb-2">ACTIVE CONFIGURATION</div>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              <span className="text-sm text-slate-700">
+              <span className="text-sm text-slate-300">
                 DeepSeek (Free)
               </span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-              <span className="text-sm text-slate-700">
+              <div className="w-2 h-2 rounded-full bg-slate-500"></div>
+              <span className="text-sm text-slate-300">
                 No storage connected
               </span>
             </div>
@@ -73,13 +73,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-slate-200">
+        <div className="p-4 border-t border-slate-700">
           <div className="flex space-x-2">
             <Button 
               variant="ghost" 
               size="sm"
               onClick={() => setShowSettings(true)}
-              className="flex-1 text-xs text-slate-600 hover:text-slate-900"
+              className="flex-1 text-xs text-slate-400 hover:text-white hover:bg-slate-800"
             >
               <i className="fas fa-cog mr-1"></i>Settings
             </Button>
