@@ -504,6 +504,12 @@ The application follows a microservices-inspired pattern with distinct service l
   - Enhanced visual consistency with minimal, clean design approach
   - Updated button to match page background color (white/black) with no borders
   - Applied ghost variant for seamless integration with header design
+- July 14, 2025. Enhanced Google Drive integration with authentication status
+  - Updated storage selector to show Google Drive as connected when user is authenticated
+  - Modified sidebar to display Google Drive with green status indicator when signed in
+  - Added dynamic storage options based on authentication state
+  - Enhanced storage selection logic to handle authenticated Google Drive connections
+  - Both storage button and sidebar now accurately reflect Google Drive connection status
 
 ## User Preferences
 
