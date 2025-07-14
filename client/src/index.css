@@ -11,6 +11,23 @@
   background-color: rgba(226, 232, 240, 0.9);
 }
 
+/* Josudo logo color filters */
+.josudo-logo-light {
+  filter: brightness(0);
+}
+
+.josudo-logo-dark {
+  filter: brightness(1.2);
+}
+
+.josudo-text-light {
+  filter: brightness(0);
+}
+
+.josudo-text-dark {
+  filter: brightness(1.1);
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

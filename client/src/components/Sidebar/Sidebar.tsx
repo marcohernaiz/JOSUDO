@@ -39,8 +39,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                 <img 
                   src={josudoLogo} 
                   alt="Josudo Logo" 
-                  className="w-10 h-10 object-contain flex-shrink-0"
-                  style={{ filter: 'brightness(1.2)' }}
+                  className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light dark:josudo-logo-dark"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling.style.display = 'block';
@@ -52,8 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                 <img 
                   src={josudoText} 
                   alt="Josudo" 
-                  className="h-10 object-contain flex-shrink-0"
-                  style={{ filter: 'brightness(1.1)' }}
+                  className="h-10 object-contain flex-shrink-0 josudo-text-light dark:josudo-text-dark"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling.style.display = 'inline';
