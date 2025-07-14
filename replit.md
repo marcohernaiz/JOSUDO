@@ -390,6 +390,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Improved text color contrast for better readability in both themes
   - Updated contracted control button styling with proper light/dark theme support in CSS
   - Enhanced ai-control-button class to display correctly in both light and dark modes
+- July 14, 2025. Made backgrounds even lighter in light mode
+  - Changed main page background from slate-100 to slate-50 for an even lighter appearance
+  - Updated sidebar background to match main page (slate-50) for consistent light theme
+  - Increased theme overlay opacity to white/50 for better visibility
+  - Achieved uniform light grey aesthetic across all interface elements
 
 ## User Preferences
 
