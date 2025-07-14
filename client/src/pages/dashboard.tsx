@@ -40,7 +40,7 @@ export default function Dashboard() {
         {/* Desktop Sidebar - Always visible */}
         {!isMobile && (
           <div className="fixed inset-y-0 left-0 z-40">
-            <div className="h-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-r border-slate-300/50 dark:border-slate-700/50 shadow-xl">
+            <div className="h-full bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-md border-r border-slate-200/50 dark:border-slate-700/50 shadow-xl">
               <Sidebar onClose={() => setIsSidebarOpen(false)} />
             </div>
           </div>
@@ -54,7 +54,7 @@ export default function Dashboard() {
               fixed inset-y-0 left-0 z-40 transition-transform duration-300 ease-in-out
             `}
           >
-            <div className="h-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-r border-slate-300/50 dark:border-slate-700/50 shadow-xl">
+            <div className="h-full bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-md border-r border-slate-200/50 dark:border-slate-700/50 shadow-xl">
               <Sidebar onClose={() => setIsSidebarOpen(false)} />
             </div>
           </div>
