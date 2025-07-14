@@ -519,6 +519,7 @@ The application follows a microservices-inspired pattern with distinct service l
   - Updated header sign out button for light mode: white background, icon on right side, no border
   - Light mode styling matches page background with slate text and door emoji positioned after text
   - Removed sign out button from header upper right corner - users now sign out only through sidebar
+  - Moved welcome message from upper right corner to left of theme toggle button for better layout
 
 ## User Preferences
 

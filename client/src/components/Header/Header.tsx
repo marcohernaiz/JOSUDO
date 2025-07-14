@@ -34,6 +34,9 @@ export const Header: React.FC = () => {
               <span className="font-medium">Sign in</span>
             </Button>
           )}
+          {isAuthenticated && (
+            <span className="text-slate-600 dark:text-white text-sm">Welcome, {user?.username}</span>
+          )}
           <Button
             onClick={toggleTheme}
             className="p-2 bg-white dark:bg-black hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors border-none"
@@ -41,11 +44,6 @@ export const Header: React.FC = () => {
           >
             {theme === 'dark' ? '🌙' : '☀️'}
           </Button>
-          {isAuthenticated && (
-            <div className="flex items-center space-x-3">
-              <span className="text-white text-sm">Welcome, {user?.username}</span>
-            </div>
-          )}
         </div>
       </div>
     </div>
