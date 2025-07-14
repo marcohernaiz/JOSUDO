@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { SettingsModal } from '@/components/Modals/SettingsModal';
 import { BillingModal } from '@/components/Modals/BillingModal';
 import { ChatHistory } from '@/components/Chat/ChatHistory';
-import josudoIcon from '@assets/JOSUDO ICON_1752512760308.png';
+import josudoLogo from '@assets/image_1752482001299.png';
 import josudoText from '@assets/image_1752482551893.png';
 
 interface SidebarProps {
