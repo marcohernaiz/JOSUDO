@@ -117,7 +117,7 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300 bg-gray-700 border border-gray-600"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                 title="Attach files"
               >
                 <span className="text-white text-base">+</span>
@@ -130,7 +130,7 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                 title="Tools"
               >
                 <span className="text-white text-base">🔧</span>
@@ -295,7 +295,7 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                 title="Voice input"
               >
                 <span className="text-white text-base">🎤</span>
@@ -308,7 +308,7 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                 title="Audio conversation"
               >
                 <span className="text-white text-base">🎧</span>
@@ -321,7 +321,7 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                 title="Video conferencing"
               >
                 <span className="text-white text-base">📹</span>
@@ -334,7 +334,7 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center transition-all duration-300"
+                className="ai-control-button px-3 h-8 w-auto rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                 title="Settings"
               >
                 <span className="text-white text-base font-medium select-none">⚙️</span>
