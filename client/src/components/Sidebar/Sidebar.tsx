@@ -53,21 +53,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           <div className="text-xs font-medium text-slate-500 mb-2">ACTIVE CONFIGURATION</div>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
               <span className="text-sm text-slate-700">
-                Grok
+                DeepSeek (Free)
               </span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 rounded-full bg-slate-400"></div>
               <span className="text-sm text-slate-700">
                 No storage connected
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-              <span className="text-sm text-slate-700">
-                Josudo Processing
               </span>
             </div>
           </div>

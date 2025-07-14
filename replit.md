@@ -192,20 +192,6 @@ The application follows a microservices-inspired pattern with distinct service l
   - Maintained existing hover-to-expand full sidebar functionality
   - Adjusted main content area to accommodate compressed sidebar (ml-12 on desktop)
   - Integrated SettingsModal directly into dashboard for cleaner architecture
-- July 14, 2025. Enhanced compressed sidebar with active configuration display
-  - Added active configuration section showing AI model, storage, and processing icons
-  - Implemented color-coded icons: purple for AI model (🤖), gray for storage (💾), blue for processing (⚡)
-  - Created visual hierarchy with dividers and "ACTIVE" label
-  - Updated sidebar and message input to show Grok as default AI model instead of DeepSeek
-  - Added Josudo Processing to active configuration display in both compressed and expanded sidebar
-  - Positioned settings button at bottom with mt-auto for better layout
-- July 14, 2025. Streamlined sidebar discovery to single visual indicator
-  - Made compressed sidebar the sole visual cue for sidebar functionality
-  - Removed invisible hover trigger area that competed with compressed sidebar
-  - Enhanced compressed sidebar styling with better shadows and hover effects
-  - Ensured compressed sidebar (48px width) is the only way users discover sidebar options
-  - Added hover triggers to configuration icons to expand full sidebar
-  - Improved visual prominence of compressed sidebar as primary discovery mechanism
 
 ## User Preferences
 
