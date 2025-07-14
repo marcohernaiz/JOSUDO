@@ -522,6 +522,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Moved welcome message from upper right corner to left of theme toggle button for better layout
   - Enhanced light mode styling: welcome message uses slate-700 text, theme toggle uses slate-50 background
   - Updated welcome message text color to white in light mode for better contrast
+- July 14, 2025. Set application to default to dark mode on startup
+  - Modified ThemeContext to default to dark mode when no saved preference exists
+  - Updated sign-in button styling with custom hex color (#d7dce4) for light mode
+  - Updated theme toggle button styling with custom hex color (#626567) for light mode
+  - Application now provides consistent dark mode experience by default
 
 ## User Preferences
 
