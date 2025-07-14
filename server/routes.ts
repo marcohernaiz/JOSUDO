@@ -20,12 +20,18 @@ import { z } from "zod";
 const hasGoogleAuth = process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET;
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Trust proxy for HTTPS detection
+  app.set('trust proxy', 1);
+  
   // Session configuration
   app.use(session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+    cookie: { 
+      secure: process.env.NODE_ENV === 'production', 
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
   }));
 
   app.use(passport.initialize());
