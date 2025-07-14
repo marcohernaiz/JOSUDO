@@ -25,7 +25,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   return (
     <>
       <div 
-        className={`h-full bg-slate-900 border-r border-slate-700 flex flex-col ${
+        className={`h-full bg-slate-900/80 border-r border-slate-700 flex flex-col ${
           isExpanded ? 'w-64' : 'w-16'
         }`}
         onMouseEnter={() => setIsExpanded(true)}
@@ -33,8 +33,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       >
         {/* Header */}
         <div className="p-4 border-b border-slate-700">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
+          <div className={`flex items-center ${isExpanded ? 'justify-between' : 'justify-center'} mb-4`}>
+            <div className={`flex items-center ${isExpanded ? 'space-x-3' : 'justify-center'}`}>
               <div className="relative w-10 h-10 flex items-center justify-center flex-shrink-0">
                 <img 
                   src={josudoLogo} 
@@ -74,14 +74,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             )}
           </div>
           
-          <Button 
-            onClick={createNewChat}
-            className={`${isExpanded ? 'w-full' : 'w-10 h-10 p-0'} bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center`}
-            title={!isExpanded ? "New Chat" : ""}
-          >
-            <span className="text-white text-lg">+</span>
-            {isExpanded && <span className="ml-2">New Chat</span>}
-          </Button>
+          <div className={`${isExpanded ? '' : 'flex justify-center'}`}>
+            <Button 
+              onClick={createNewChat}
+              className={`${isExpanded ? 'w-full' : 'w-10 h-10 p-0'} bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center`}
+              title={!isExpanded ? "New Chat" : ""}
+            >
+              <span className="text-white text-lg">+</span>
+              {isExpanded && <span className="ml-2">New Chat</span>}
+            </Button>
+          </div>
         </div>
 
         {/* Active Configuration */}
@@ -90,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             <div className="text-xs font-medium text-slate-400 mb-2">ACTIVE CONFIGURATION</div>
           )}
           <div className="space-y-2">
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'}`}>
               <span className="text-blue-400 text-2xl flex-shrink-0">🤖</span>
               {isExpanded && (
                 <>
@@ -101,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                 </>
               )}
             </div>
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'}`}>
               <span className="text-purple-400 text-2xl flex-shrink-0">💾</span>
               {isExpanded && (
                 <>
@@ -112,7 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                 </>
               )}
             </div>
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'}`}>
               <span className="text-orange-400 text-2xl flex-shrink-0">⚡</span>
               {isExpanded && (
                 <>
