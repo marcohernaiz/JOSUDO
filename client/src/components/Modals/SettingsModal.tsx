@@ -97,7 +97,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
           )}
         </button>
         {isExpanded && (
-          <div className="p-4 bg-slate-900/80 space-y-3 backdrop-blur-sm max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
+          <div className="p-4 bg-slate-900/80 space-y-3 backdrop-blur-sm">
             {items.map((item) => {
               const integration = getIntegrationStatus(item.name);
               return (
@@ -234,7 +234,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                   </Button>
                 </div>
               </div>
-              <div className="flex-1 p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 max-h-0">
+              <div className="flex-1 p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
                 {activeTab === 'integrations' && (
                   <div className="space-y-6">
                     {renderIntegrationSection('aiModels', 'AI Models', aiModels, 'fas fa-brain')}
