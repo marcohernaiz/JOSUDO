@@ -315,6 +315,12 @@ The application follows a microservices-inspired pattern with distinct service l
   - Changed model from "DeepSeek" to "DeepSeek R1" with updated description
   - Updated model ID from 'deepseek-chat' to 'deepseek-r1'
   - Maintained free status and Bot icon for consistency
+- July 14, 2025. Updated settings modal to match dark theme
+  - Changed settings modal background from light (slate-50) to dark (slate-900)
+  - Updated sidebar background to slate-800 with slate-700 borders
+  - Changed all text colors to white and slate-400 for better contrast
+  - Updated integration cards to use slate-800 background with slate-700 borders
+  - Enhanced visual consistency with rest of the dark-themed UI
 
 ## User Preferences
 

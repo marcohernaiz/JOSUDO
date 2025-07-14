@@ -75,12 +75,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[80vh] p-0">
+        <DialogContent className="max-w-4xl max-h-[80vh] p-0 bg-slate-900">
           <div className="flex">
             {/* Settings Sidebar */}
-            <div className="w-64 bg-slate-50 border-r border-slate-200 p-6">
+            <div className="w-64 bg-slate-800 border-r border-slate-700 p-6">
               <DialogHeader className="mb-6">
-                <DialogTitle className="text-xl font-bold text-slate-900">Settings</DialogTitle>
+                <DialogTitle className="text-xl font-bold text-white">Settings</DialogTitle>
               </DialogHeader>
               <nav className="space-y-2">
                 {tabs.map((tab) => (
@@ -98,9 +98,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
             </div>
 
             {/* Settings Content */}
-            <div className="flex-1 p-6 overflow-y-auto">
+            <div className="flex-1 p-6 overflow-y-auto bg-slate-900">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-slate-900">
+                <h3 className="text-lg font-semibold text-white">
                   {tabs.find(t => t.id === activeTab)?.label}
                 </h3>
                 <Button variant="ghost" size="sm" onClick={onClose}>
@@ -112,20 +112,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                 <div className="space-y-8">
                   {/* AI Models Section */}
                   <div>
-                    <h4 className="text-sm font-medium text-slate-900 mb-4">AI Models</h4>
+                    <h4 className="text-sm font-medium text-white mb-4">AI Models</h4>
                     <div className="space-y-3">
                       {aiModels.map((model) => {
                         const integration = getIntegrationStatus(model.name);
                         return (
                           <div 
                             key={model.name}
-                            className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-lg"
+                            className="flex items-center justify-between p-4 bg-slate-800 border border-slate-700 rounded-lg"
                           >
                             <div className="flex items-center space-x-3">
                               <i className={`${model.icon} ${integration ? 'text-green-500' : model.color}`}></i>
                               <div>
-                                <div className="font-medium text-slate-900">{model.label}</div>
-                                <div className="text-sm text-slate-500">
+                                <div className="font-medium text-white">{model.label}</div>
+                                <div className="text-sm text-slate-400">
                                   {integration ? 'Connected with your API key' : 'Not connected'}
                                 </div>
                               </div>
@@ -162,20 +162,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
 
                   {/* Storage Section */}
                   <div>
-                    <h4 className="text-sm font-medium text-slate-900 mb-4">Cloud Storage</h4>
+                    <h4 className="text-sm font-medium text-white mb-4">Cloud Storage</h4>
                     <div className="space-y-3">
                       {storageServices.map((service) => {
                         const integration = getIntegrationStatus(service.name);
                         return (
                           <div 
                             key={service.name}
-                            className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-lg"
+                            className="flex items-center justify-between p-4 bg-slate-800 border border-slate-700 rounded-lg"
                           >
                             <div className="flex items-center space-x-3">
                               <i className={`${service.icon} ${integration ? 'text-blue-500' : service.color}`}></i>
                               <div>
-                                <div className="font-medium text-slate-900">{service.label}</div>
-                                <div className="text-sm text-slate-500">
+                                <div className="font-medium text-white">{service.label}</div>
+                                <div className="text-sm text-slate-400">
                                   {integration ? 'Connected and syncing' : 'Not connected'}
                                 </div>
                               </div>
@@ -214,22 +214,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
 
               {activeTab === 'billing' && (
                 <div className="text-center py-8">
-                  <i className="fas fa-credit-card text-slate-300 text-4xl mb-4"></i>
-                  <p className="text-slate-600">Billing settings will be implemented here</p>
+                  <i className="fas fa-credit-card text-slate-500 text-4xl mb-4"></i>
+                  <p className="text-slate-400">Billing settings will be implemented here</p>
                 </div>
               )}
 
               {activeTab === 'usage' && (
                 <div className="text-center py-8">
-                  <i className="fas fa-chart-line text-slate-300 text-4xl mb-4"></i>
-                  <p className="text-slate-600">Usage analytics will be implemented here</p>
+                  <i className="fas fa-chart-line text-slate-500 text-4xl mb-4"></i>
+                  <p className="text-slate-400">Usage analytics will be implemented here</p>
                 </div>
               )}
 
               {activeTab === 'api' && (
                 <div className="text-center py-8">
-                  <i className="fas fa-key text-slate-300 text-4xl mb-4"></i>
-                  <p className="text-slate-600">API key management will be implemented here</p>
+                  <i className="fas fa-key text-slate-500 text-4xl mb-4"></i>
+                  <p className="text-slate-400">API key management will be implemented here</p>
                 </div>
               )}
             </div>
