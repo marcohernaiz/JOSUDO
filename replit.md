@@ -491,17 +491,6 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added both GET and POST logout routes for complete sign-out functionality
   - Authentication status now properly tracked across the entire application
   - Users can sign in with Google directly from the main interface
-  - Updated button text to "Sign in" and added dark mode styling to match input text box
-- July 14, 2025. Enhanced Google Drive connection status display
-  - Storage button now shows "Google Drive" when connected, "No Storage" when not
-  - Sidebar displays Google Drive connection status with green indicator when connected
-  - Automatic selection of Google Drive storage when user authenticates
-  - Dynamic connection status updates based on authentication state
-  - Connected status properly reflects in both storage dropdown and sidebar configuration
-- July 14, 2025. Repositioned Josudo logo to absolute top of screen
-  - Moved header with Josudo logo to fixed position at top-0 left-0 right-0
-  - Updated main content area with pt-48 to prevent overlap with header
-  - Logo now appears at the very top edge of the screen for maximum visibility
 
 ## User Preferences
 

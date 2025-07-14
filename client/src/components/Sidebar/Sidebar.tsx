@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { SettingsModal } from '@/components/Modals/SettingsModal';
@@ -12,28 +12,10 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
-  const { setActiveSession, user, isAuthenticated } = useAppContext();
+  const { setActiveSession } = useAppContext();
   const [showSettings, setShowSettings] = useState(false);
   const [showBilling, setShowBilling] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isGoogleDriveConnected, setIsGoogleDriveConnected] = useState(false);
-
-  // Check if user is authenticated (indicates Google Drive connection)
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      setIsGoogleDriveConnected(true);
-    } else {
-      setIsGoogleDriveConnected(false);
-    }
-  }, [isAuthenticated, user]);
-
-  // Check URL for storage connection status
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('storage') === 'connected') {
-      setIsGoogleDriveConnected(true);
-    }
-  }, []);
 
   const createNewChat = () => {
     setActiveSession(null);
@@ -123,9 +105,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               <span className="text-purple-400 text-2xl flex-shrink-0">💾</span>
               {isExpanded && (
                 <>
-                  <div className={`w-2 h-2 rounded-full ${isGoogleDriveConnected ? 'bg-green-500' : 'bg-slate-500'}`}></div>
+                  <div className="w-2 h-2 rounded-full bg-slate-500"></div>
                   <span className="text-sm text-slate-700 dark:text-slate-300">
-                    {isGoogleDriveConnected ? 'Google Drive' : 'No Storage'}
+                    No Storage
                   </span>
                 </>
               )}

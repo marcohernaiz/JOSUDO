@@ -74,44 +74,29 @@ const PROCESSING_PROVIDERS = [
 
 export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading } = useChat();
-  const { user, isAuthenticated, integrations } = useAppContext();
+  const { integrations } = useAppContext();
   const [selectedModel, setSelectedModel] = useState('grok-beta');
   const [selectedStorage, setSelectedStorage] = useState('none');
   const [selectedProcessing, setSelectedProcessing] = useState('josudo');
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [isGoogleDriveConnected, setIsGoogleDriveConnected] = useState(false);
 
   // Check if user just connected storage
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('storage') === 'connected') {
       setSelectedStorage('google-drive');
-      setIsGoogleDriveConnected(true);
+      // Update storage status in the array
+      const driveStorage = STORAGE_OPTIONS.find(s => s.id === 'google-drive');
+      if (driveStorage) {
+        driveStorage.isConnected = true;
+      }
       // Clean up URL
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
 
-  // Check if user is authenticated (indicates Google Drive connection)
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      setIsGoogleDriveConnected(true);
-      if (selectedStorage === 'none') {
-        setSelectedStorage('google-drive');
-      }
-    }
-  }, [isAuthenticated, user, selectedStorage]);
-
-  // Create dynamic storage options based on connection status
-  const getStorageOptions = () => {
-    return STORAGE_OPTIONS.map(storage => ({
-      ...storage,
-      isConnected: storage.id === 'google-drive' ? isGoogleDriveConnected : storage.isConnected
-    }));
-  };
-
   const handleStorageSelection = (storage: any) => {
-    if (storage.id === 'google-drive' && !isGoogleDriveConnected) {
+    if (storage.id === 'google-drive' && !storage.isConnected) {
       // Trigger Google Sign-In for Google Drive
       window.location.href = '/api/auth/google?service=storage';
     } else if (storage.id === 'none') {
@@ -138,8 +123,7 @@ export const MessageInput: React.FC = () => {
   const activeModel = integrations.find(i => i.serviceType === 'ai_model' && i.isActive);
   const activeStorage = integrations.find(i => i.serviceType === 'storage' && i.isActive);
   const currentModelInfo = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[5]; // Default to Grok
-  const storageOptions = getStorageOptions();
-  const currentStorageInfo = storageOptions.find(s => s.id === selectedStorage) || storageOptions[0];
+  const currentStorageInfo = STORAGE_OPTIONS.find(s => s.id === selectedStorage) || STORAGE_OPTIONS[0];
   const currentProcessingInfo = PROCESSING_PROVIDERS.find(p => p.id === selectedProcessing) || PROCESSING_PROVIDERS[0];
 
   return (
@@ -270,7 +254,7 @@ export const MessageInput: React.FC = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="ai-dropdown w-64">
-                  {storageOptions.map((storage) => (
+                  {STORAGE_OPTIONS.map((storage) => (
                     <DropdownMenuItem
                       key={storage.id}
                       onClick={() => handleStorageSelection(storage)}
