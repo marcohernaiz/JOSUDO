@@ -25,14 +25,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   return (
     <>
       <div 
-        className={`h-full bg-slate-900/80 border-r border-slate-700 flex flex-col transition-all duration-75 ${
+        className={`h-full bg-white/80 dark:bg-slate-900/80 border-r border-slate-300 dark:border-slate-700 flex flex-col transition-all duration-75 ${
           isExpanded ? 'w-64' : 'w-16'
         }`}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
       >
         {/* Header */}
-        <div className="p-4 border-b border-slate-700">
+        <div className="p-4 border-b border-slate-300 dark:border-slate-700">
           <div className={`flex items-center ${isExpanded ? 'justify-between' : 'justify-center'} mb-4`}>
             <div className={`flex items-center ${isExpanded ? 'space-x-3' : 'justify-center'}`}>
               <div className="relative w-10 h-10 flex items-center justify-center flex-shrink-0">
@@ -60,14 +60,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                   }}
                 />
               )}
-              <span className="font-bold text-white hidden">Josudo</span>
+              <span className="font-bold text-black dark:text-white hidden">Josudo</span>
             </div>
             {isExpanded && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                className="md:hidden text-slate-400 hover:text-white hover:bg-slate-800"
+                className="md:hidden text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800"
               >
                 <i className="fas fa-times"></i>
               </Button>
@@ -77,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           <div className={`${isExpanded ? '' : 'flex justify-center'}`}>
             <Button 
               onClick={createNewChat}
-              className={`${isExpanded ? 'w-full' : 'w-10 h-10 p-0'} bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center`}
+              className={`${isExpanded ? 'w-full' : 'w-10 h-10 p-0'} bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 flex items-center justify-center`}
               title={!isExpanded ? "New Chat" : ""}
             >
               <span className="text-white text-lg">+</span>
@@ -87,9 +87,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </div>
 
         {/* Active Configuration */}
-        <div className="px-4 py-3 bg-slate-800 border-b border-slate-700">
+        <div className="px-4 py-3 bg-slate-200 dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700">
           {isExpanded && (
-            <div className="text-xs font-medium text-slate-400 mb-2">ACTIVE CONFIGURATION</div>
+            <div className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">ACTIVE CONFIGURATION</div>
           )}
           <div className="space-y-2">
             <div className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'}`}>
@@ -97,7 +97,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               {isExpanded && (
                 <>
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm text-slate-300">
+                  <span className="text-sm text-slate-700 dark:text-slate-300">
                     Grok (Free)
                   </span>
                 </>
@@ -108,7 +108,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               {isExpanded && (
                 <>
                   <div className="w-2 h-2 rounded-full bg-slate-500"></div>
-                  <span className="text-sm text-slate-300">
+                  <span className="text-sm text-slate-700 dark:text-slate-300">
                     No Storage
                   </span>
                 </>
@@ -119,7 +119,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               {isExpanded && (
                 <>
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm text-slate-300">
+                  <span className="text-sm text-slate-700 dark:text-slate-300">
                     Josudo Processing
                   </span>
                 </>
@@ -136,13 +136,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         )}
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-slate-700">
+        <div className="p-4 border-t border-slate-300 dark:border-slate-700">
           <div className="flex space-x-2">
             <Button 
               variant="ghost" 
               size="sm"
               onClick={() => setShowSettings(true)}
-              className={`${isExpanded ? 'flex-1 justify-start' : 'w-10 h-10 p-0 justify-center'} text-sm text-slate-400 hover:text-white hover:bg-slate-800 flex items-center`}
+              className={`${isExpanded ? 'flex-1 justify-start' : 'w-10 h-10 p-0 justify-center'} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
               title={!isExpanded ? "Settings" : ""}
             >
               <span className="text-slate-400 text-2xl">⚙️</span>

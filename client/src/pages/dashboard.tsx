@@ -3,6 +3,7 @@ import { Sidebar } from '@/components/Sidebar/Sidebar';
 import { Header } from '@/components/Header/Header';
 import { ChatArea } from '@/components/Chat/ChatArea';
 import { MessageInput } from '@/components/Chat/MessageInput';
+import { ThemeToggle } from '@/components/ThemeToggle/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import sophiaBackground from '@assets/Sophia background_1752487018233.png';
@@ -11,7 +12,8 @@ export default function Dashboard() {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
-    <div className="h-screen w-full bg-black">
+    <div className="h-screen w-full bg-white dark:bg-black">
+      <ThemeToggle />
       <div 
         className="h-full w-full flex relative"
         style={{
@@ -21,6 +23,8 @@ export default function Dashboard() {
           backgroundRepeat: 'no-repeat'
         }}
       >
+        {/* Theme overlay */}
+        <div className="absolute inset-0 bg-black/20 dark:bg-black/20"></div>
         {/* Mobile Menu Toggle */}
         {isMobile && (
           <Button
@@ -36,7 +40,7 @@ export default function Dashboard() {
         {/* Desktop Sidebar - Always visible */}
         {!isMobile && (
           <div className="fixed inset-y-0 left-0 z-40">
-            <div className="h-full bg-slate-900/90 backdrop-blur-md border-r border-slate-700/50 shadow-xl">
+            <div className="h-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-r border-slate-300/50 dark:border-slate-700/50 shadow-xl">
               <Sidebar onClose={() => setIsSidebarOpen(false)} />
             </div>
           </div>
@@ -50,7 +54,7 @@ export default function Dashboard() {
               fixed inset-y-0 left-0 z-40 transition-transform duration-300 ease-in-out
             `}
           >
-            <div className="h-full bg-slate-900/90 backdrop-blur-md border-r border-slate-700/50 shadow-xl">
+            <div className="h-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-r border-slate-300/50 dark:border-slate-700/50 shadow-xl">
               <Sidebar onClose={() => setIsSidebarOpen(false)} />
             </div>
           </div>

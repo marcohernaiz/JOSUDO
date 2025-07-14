@@ -198,13 +198,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[85vh] p-0 bg-slate-900 border-2 border-slate-700/50 shadow-2xl shadow-cyan-400/10 overflow-hidden">
+        <DialogContent className="max-w-4xl max-h-[85vh] p-0 bg-white dark:bg-slate-900 border-2 border-slate-300/50 dark:border-slate-700/50 shadow-2xl shadow-cyan-400/10 overflow-hidden">
           <div className="flex h-full">
             {/* Settings Sidebar */}
-            <div className="w-64 bg-slate-800/90 border-r border-slate-700/60 backdrop-blur-sm flex flex-col">
-              <div className="p-6 border-b border-slate-700/60">
+            <div className="w-64 bg-slate-200/90 dark:bg-slate-800/90 border-r border-slate-300/60 dark:border-slate-700/60 backdrop-blur-sm flex flex-col">
+              <div className="p-6 border-b border-slate-300/60 dark:border-slate-700/60">
                 <DialogHeader>
-                  <DialogTitle className="text-xl font-bold text-white">Settings</DialogTitle>
+                  <DialogTitle className="text-xl font-bold text-black dark:text-white">Settings</DialogTitle>
                 </DialogHeader>
               </div>
               <nav className="flex-1 p-6 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
@@ -212,10 +212,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                   <Button
                     key={tab.id}
                     variant={activeTab === tab.id ? 'default' : 'ghost'}
-                    className="w-full justify-start text-white hover:text-white"
+                    className="w-full justify-start text-black dark:text-white hover:text-black dark:hover:text-white"
                     onClick={() => setActiveTab(tab.id)}
                   >
-                    <i className={`${tab.icon} mr-2 text-white`}></i>
+                    <i className={`${tab.icon} mr-2 text-black dark:text-white`}></i>
                     {tab.label}
                   </Button>
                 ))}
@@ -223,14 +223,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
             </div>
 
             {/* Settings Content */}
-            <div className="flex-1 bg-slate-900/95 backdrop-blur-sm flex flex-col">
-              <div className="p-6 border-b border-slate-700/60">
+            <div className="flex-1 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm flex flex-col">
+              <div className="p-6 border-b border-slate-300/60 dark:border-slate-700/60">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-white">
+                  <h3 className="text-lg font-semibold text-black dark:text-white">
                     {tabs.find(t => t.id === activeTab)?.label}
                   </h3>
-                  <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:text-white">
-                    <i className="fas fa-times text-white"></i>
+                  <Button variant="ghost" size="sm" onClick={onClose} className="text-black dark:text-white hover:text-black dark:hover:text-white">
+                    <i className="fas fa-times text-black dark:text-white"></i>
                   </Button>
                 </div>
               </div>
@@ -246,31 +246,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
 
                 {activeTab === 'billing' && (
                   <div className="space-y-6">
-                    <div className="p-6 bg-slate-800 rounded-lg">
-                      <h4 className="text-lg font-semibold text-white mb-4">Billing Information</h4>
-                      <p className="text-white">Monthly Balance: $50.00</p>
-                      <p className="text-white">Last Billing Date: July 1, 2025</p>
-                      <p className="text-white">Overage Amount: $0.00</p>
+                    <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
+                      <h4 className="text-lg font-semibold text-black dark:text-white mb-4">Billing Information</h4>
+                      <p className="text-black dark:text-white">Monthly Balance: $50.00</p>
+                      <p className="text-black dark:text-white">Last Billing Date: July 1, 2025</p>
+                      <p className="text-black dark:text-white">Overage Amount: $0.00</p>
                     </div>
                   </div>
                 )}
 
                 {activeTab === 'usage' && (
                   <div className="space-y-6">
-                    <div className="p-6 bg-slate-800 rounded-lg">
-                      <h4 className="text-lg font-semibold text-white mb-4">Usage Statistics</h4>
-                      <p className="text-white">Tokens Used This Month: 15,000</p>
-                      <p className="text-white">API Calls Made: 250</p>
-                      <p className="text-white">Storage Used: 2.5 GB</p>
+                    <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
+                      <h4 className="text-lg font-semibold text-black dark:text-white mb-4">Usage Statistics</h4>
+                      <p className="text-black dark:text-white">Tokens Used This Month: 15,000</p>
+                      <p className="text-black dark:text-white">API Calls Made: 250</p>
+                      <p className="text-black dark:text-white">Storage Used: 2.5 GB</p>
                     </div>
                   </div>
                 )}
 
                 {activeTab === 'api' && (
                   <div className="space-y-6">
-                    <div className="p-6 bg-slate-800 rounded-lg">
-                      <h4 className="text-lg font-semibold text-white mb-4">API Configuration</h4>
-                      <p className="text-white">Manage your API keys and integrations here.</p>
+                    <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
+                      <h4 className="text-lg font-semibold text-black dark:text-white mb-4">API Configuration</h4>
+                      <p className="text-black dark:text-white">Manage your API keys and integrations here.</p>
                     </div>
                   </div>
                 )}
