@@ -16,46 +16,31 @@ export const useAppContext = () => {
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeSession, setActiveSession] = useState<ChatSession | null>(null);
 
-  const { data: user, isLoading: userLoading } = useQuery<User | null>({
-    queryKey: ['/api/auth/user'],
-    retry: false,
-  });
-
-  const { data: integrations = [], refetch: refetchIntegrations } = useQuery<Integration[]>({
-    queryKey: ['/api/integrations'],
-    enabled: !!user,
-  });
-
-  const { data: chatSessions = [], refetch: refetchChatSessions } = useQuery<ChatSession[]>({
-    queryKey: ['/api/chat/sessions'],
-    enabled: !!user,
-  });
-
-  const { data: billingData, refetch: refetchBilling } = useQuery<{ billing: Billing }>({
-    queryKey: ['/api/billing'],
-    enabled: !!user,
-  });
+  // No authentication required - provide default values
+  const integrations: Integration[] = [];
+  const chatSessions: ChatSession[] = [];
+  const billing: Billing | null = null;
 
   const refreshIntegrations = async () => {
-    await refetchIntegrations();
+    // No-op since we don't have user-specific data
   };
 
   const refreshChatSessions = async () => {
-    await refetchChatSessions();
+    // No-op since we don't have user-specific data
   };
 
   const refreshBilling = async () => {
-    await refetchBilling();
+    // No-op since we don't have user-specific data
   };
 
   const contextValue: AppContextType = {
-    user: user || null,
-    isAuthenticated: !!user,
+    user: null,
+    isAuthenticated: false,
     integrations,
     chatSessions,
     activeSession,
-    billing: billingData?.billing || null,
-    isLoading: userLoading,
+    billing,
+    isLoading: false,
     setActiveSession,
     refreshIntegrations,
     refreshChatSessions,

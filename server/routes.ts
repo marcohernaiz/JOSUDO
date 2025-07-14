@@ -144,23 +144,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(401).json({ error: 'Not authenticated' });
   });
 
-  // Chat routes
-  app.post('/api/chat/send', authenticateUser, async (req, res) => {
+  // Chat routes - No authentication required
+  app.post('/api/chat/send', async (req, res) => {
     try {
-      const { message, sessionId, model } = req.body;
-      const userId = (req.user as any).id;
-
-      // Get or create chat session
-      let chatSession;
-      if (sessionId) {
-        chatSession = await storage.getChatSession(sessionId);
-      } else {
-        chatSession = await storage.createChatSession({
-          userId,
-          title: message.substring(0, 50) + "...",
-          modelUsed: model || "deepseek-chat"
-        });
-      }
+      const { message, model } = req.body;
 
       let response;
       let cost = 0;
@@ -178,19 +165,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
           
           case 'gpt-4':
-            // Check if user has OpenAI integration
-            const openaiIntegration = await storage.getIntegration(userId, "openai");
-            if (openaiIntegration && openaiIntegration.isActive) {
-              response = await openaiService.sendMessage(message, openaiIntegration.credentialsEncrypted);
-              tokensUsed = response.usage?.total_tokens || 0;
-              cost = openaiService.calculateCost(tokensUsed);
-            } else {
-              // Fallback to DeepSeek if no API key
-              serviceResponse = await deepseekService.sendMessage(message);
-              response = { choices: [{ message: { content: `[Using DeepSeek - No OpenAI API key configured]\n\n${serviceResponse.response}` } }] };
-              tokensUsed = serviceResponse.tokens;
-              cost = serviceResponse.cost;
-            }
+          case 'gpt-4o':
+            // Fallback to DeepSeek since no user API keys
+            serviceResponse = await deepseekService.sendMessage(message);
+            response = { choices: [{ message: { content: `[Using DeepSeek - No OpenAI API key configured]\n\n${serviceResponse.response}` } }] };
+            tokensUsed = serviceResponse.tokens;
+            cost = serviceResponse.cost;
             break;
 
           case 'claude-3-5-sonnet':
@@ -238,32 +218,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cost = serviceResponse.cost;
       }
 
-      // Log usage
-      await storage.createUsageLog({
-        userId,
-        chatSessionId: chatSession?.id || 0,
-        modelUsed: model || "deepseek-chat",
-        tokensConsumed: tokensUsed,
-        cost: cost.toString(),
-        isPremiumAccount: isPremium
-      });
-
-      // Save to Google Drive if configured
-      const driveIntegration = await storage.getIntegration(userId, "google_drive");
-      if (driveIntegration) {
-        if (chatSession) {
-          await googleDriveService.saveChatMessage(
-            chatSession.id.toString(),
-            message,
-            response.choices[0].message.content || '',
-            driveIntegration.credentialsEncrypted || ''
-          );
-        }
-      }
-
       res.json({
         response: response.choices[0].message.content,
-        sessionId: chatSession?.id,
         tokens: tokensUsed,
         tokensUsed,
         cost: cost.toString()
@@ -274,111 +230,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/chat/sessions', authenticateUser, async (req, res) => {
+  app.get('/api/chat/sessions', async (req, res) => {
     try {
-      const userId = (req.user as any).id;
-      const sessions = await storage.getChatSessions(userId);
-      res.json(sessions);
+      // Return empty array since no user accounts
+      res.json([]);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch chat sessions' });
     }
   });
 
-  app.delete('/api/chat/sessions/:id', authenticateUser, async (req, res) => {
+  app.delete('/api/chat/sessions/:id', async (req, res) => {
     try {
-      const sessionId = parseInt(req.params.id);
-      await storage.deleteChatSession(sessionId);
+      // Mock success response since no user accounts
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: 'Failed to delete chat session' });
     }
   });
 
-  // Integration routes
-  app.get('/api/integrations', authenticateUser, async (req, res) => {
+  // Integration routes - No authentication required, return empty arrays
+  app.get('/api/integrations', async (req, res) => {
     try {
-      const userId = (req.user as any).id;
-      const integrations = await storage.getIntegrations(userId);
-      res.json(integrations);
+      // Return empty array since no user accounts
+      res.json([]);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch integrations' });
     }
   });
 
-  app.post('/api/integrations', authenticateUser, async (req, res) => {
+  app.post('/api/integrations', async (req, res) => {
     try {
-      const userId = (req.user as any).id;
-      const validation = insertIntegrationSchema.parse({ ...req.body, userId });
-      
-      const integration = await storage.createIntegration(validation);
-      res.json(integration);
+      // Mock success response since no user accounts
+      res.json({ success: true, message: 'Integration not stored - no user accounts' });
     } catch (error) {
       res.status(500).json({ error: 'Failed to create integration' });
     }
   });
 
-  app.delete('/api/integrations/:id', authenticateUser, async (req, res) => {
+  app.delete('/api/integrations/:id', async (req, res) => {
     try {
-      const integrationId = parseInt(req.params.id);
-      await storage.deleteIntegration(integrationId);
+      // Mock success response since no user accounts
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: 'Failed to delete integration' });
     }
   });
 
-  // Billing routes
-  app.get('/api/billing', authenticateUser, async (req, res) => {
+  // Billing routes - No authentication required, return mock data
+  app.get('/api/billing', async (req, res) => {
     try {
-      const userId = (req.user as any).id;
-      const billing = await storage.getBilling(userId);
-      const usageLogs = await storage.getUsageLogs(userId, 30);
-      
+      // Return mock billing data since no user accounts
       res.json({
-        billing,
-        recentUsage: usageLogs
+        billing: {
+          id: 1,
+          userId: 1,
+          monthlyBalance: "25.00",
+          lastBillingDate: new Date(),
+          overageAmount: "0.00"
+        },
+        recentUsage: []
       });
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch billing information' });
     }
   });
 
-  app.post('/api/billing/topup', authenticateUser, async (req, res) => {
+  app.post('/api/billing/topup', async (req, res) => {
     try {
-      const userId = (req.user as any).id;
-      const { amount } = req.body;
-      
-      const paymentIntent = await billingService.createPaymentIntent(amount);
-      
+      // Mock success response since no user accounts
       res.json({ 
-        clientSecret: paymentIntent.client_secret,
-        amount: amount 
+        success: true,
+        message: 'Payment not processed - no user accounts' 
       });
     } catch (error) {
       res.status(500).json({ error: 'Failed to create payment intent' });
     }
   });
 
-  app.post('/api/billing/confirm-payment', authenticateUser, async (req, res) => {
+  app.post('/api/billing/confirm-payment', async (req, res) => {
     try {
-      const userId = (req.user as any).id;
-      const { amount } = req.body;
-      
-      await storage.addBalance(userId, amount);
-      
+      // Mock success response since no user accounts
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: 'Failed to confirm payment' });
     }
   });
 
-  // Usage analytics
-  app.get('/api/usage', authenticateUser, async (req, res) => {
+  // Usage analytics - No authentication required, return empty array
+  app.get('/api/usage', async (req, res) => {
     try {
-      const userId = (req.user as any).id;
-      const usageLogs = await storage.getUsageLogs(userId, 100);
-      
-      res.json(usageLogs);
+      // Return empty array since no user accounts
+      res.json([]);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch usage data' });
     }
