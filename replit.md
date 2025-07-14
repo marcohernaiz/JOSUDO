@@ -440,6 +440,10 @@ The application follows a microservices-inspired pattern with distinct service l
   - Increased theme overlay opacity from white/60 to white/80 for maximum lightness
   - Creates an ultra-bright appearance while maintaining background image visibility
   - Light mode now has the lightest possible background appearance
+- July 14, 2025. Adjusted overlay opacity to show background image properly
+  - Reduced white overlay from white/80 to white/40 for better background visibility
+  - Maintains light theme while allowing Sophia AI background image to be clearly seen
+  - Balanced approach between light aesthetic and image visibility
 
 ## User Preferences
 
