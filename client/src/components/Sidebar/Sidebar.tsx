@@ -77,21 +77,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           <div className="text-xs font-medium text-slate-400 mb-2">ACTIVE CONFIGURATION</div>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <span className="text-blue-400 text-sm">🤖</span>
+              <span className="text-blue-400 text-lg">🤖</span>
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
               <span className="text-sm text-slate-300">
                 Grok (Free)
               </span>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-purple-400 text-sm">💾</span>
+              <span className="text-purple-400 text-lg">💾</span>
               <div className="w-2 h-2 rounded-full bg-slate-500"></div>
               <span className="text-sm text-slate-300">
                 No Storage
               </span>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-orange-400 text-sm">⚡</span>
+              <span className="text-orange-400 text-lg">⚡</span>
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
               <span className="text-sm text-slate-300">
                 Josudo Processing
@@ -114,7 +114,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               onClick={() => setShowSettings(true)}
               className="flex-1 text-xs text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center"
             >
-              <span className="text-slate-400 mr-1">⚙️</span>Settings
+              <span className="text-slate-400 mr-1 text-lg">⚙️</span>Settings
             </Button>
           </div>
         </div>
