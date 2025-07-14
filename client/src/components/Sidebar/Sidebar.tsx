@@ -112,9 +112,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               variant="ghost" 
               size="sm"
               onClick={() => setShowSettings(true)}
-              className="flex-1 text-xs text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center"
+              className="flex-1 text-sm text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-start"
             >
-              <span className="text-slate-400 mr-1 text-lg">⚙️</span>Settings
+              <span className="text-slate-400 mr-2 text-lg">⚙️</span>Settings
             </Button>
           </div>
         </div>
