@@ -5,13 +5,22 @@ import { ChatArea } from '@/components/Chat/ChatArea';
 import { MessageInput } from '@/components/Chat/MessageInput';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import sophiaBackground from '@assets/Sophia background_1752487018233.png';
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
     <div className="h-screen w-full bg-black">
-      <div className="h-full w-full ai-background flex">
+      <div 
+        className="h-full w-full flex relative"
+        style={{
+          backgroundImage: `url(${sophiaBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         {/* Mobile Menu Toggle */}
         {isMobile && (
           <Button
@@ -55,11 +64,29 @@ export default function Dashboard() {
           />
         )}
 
-        {/* Dynamic Neural Particles */}
-        <div className="neural-particles"></div>
+        {/* Subtle overlay for better readability */}
+        <div className="absolute inset-0 bg-black/20 z-10"></div>
+
+        {/* Optional subtle particle effects */}
+        <div className="absolute inset-0 z-20 pointer-events-none">
+          <div className="w-full h-full" style={{
+            background: `
+              radial-gradient(1px 1px at 10% 20%, rgba(64, 224, 208, 0.3), transparent),
+              radial-gradient(1px 1px at 30% 40%, rgba(138, 43, 226, 0.2), transparent),
+              radial-gradient(1px 1px at 50% 10%, rgba(30, 144, 255, 0.25), transparent),
+              radial-gradient(1px 1px at 70% 30%, rgba(64, 224, 208, 0.2), transparent),
+              radial-gradient(1px 1px at 90% 50%, rgba(138, 43, 226, 0.3), transparent),
+              radial-gradient(1px 1px at 20% 70%, rgba(30, 144, 255, 0.2), transparent),
+              radial-gradient(1px 1px at 40% 90%, rgba(64, 224, 208, 0.25), transparent),
+              radial-gradient(1px 1px at 80% 80%, rgba(138, 43, 226, 0.2), transparent)
+            `,
+            backgroundSize: '300px 200px, 400px 300px, 250px 150px, 350px 250px, 300px 200px, 400px 300px, 250px 150px, 350px 250px',
+            animation: 'particleFlow 30s linear infinite'
+          }}></div>
+        </div>
 
         {/* Main Content - Offset by sidebar width on desktop */}
-        <div className={`flex flex-col h-full relative z-20 ${!isMobile ? 'ml-16' : ''}`}>
+        <div className={`flex flex-col h-full relative z-30 ${!isMobile ? 'ml-16' : ''}`}>
           <Header />
           <div className="flex-1 flex flex-col justify-end">
             <div className="flex-1 overflow-hidden">

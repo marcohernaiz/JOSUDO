@@ -13,21 +13,17 @@ html {
   background: transparent;
 }
 
-/* Futuristic Wave & Particles Background */
+/* Sophia AI Background */
 .ai-background {
-  background: linear-gradient(135deg, 
-    #0f0f23 0%, 
-    #1e1e3f 25%, 
-    #2d1b69 50%, 
-    #1e1e3f 75%, 
-    #0f0f23 100%);
+  background: url('@assets/Sophia background_1752487018233.png') no-repeat center center;
+  background-size: cover;
   position: relative;
   min-height: 100vh;
   width: 100%;
   overflow: hidden;
 }
 
-/* Animated Wave Patterns */
+/* Subtle overlay for better text readability */
 .ai-background::before {
   content: '';
   position: absolute;
@@ -35,19 +31,12 @@ html {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
-    linear-gradient(45deg, transparent 30%, rgba(64, 224, 208, 0.1) 50%, transparent 70%),
-    linear-gradient(-45deg, transparent 30%, rgba(138, 43, 226, 0.1) 50%, transparent 70%),
-    linear-gradient(90deg, transparent 40%, rgba(30, 144, 255, 0.08) 50%, transparent 60%),
-    radial-gradient(circle at 25% 25%, rgba(64, 224, 208, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(138, 43, 226, 0.15) 0%, transparent 50%);
-  background-size: 800px 400px, 600px 300px, 1000px 200px, 500px 500px, 400px 400px;
-  animation: waveFlow 25s linear infinite;
+  background: rgba(0, 0, 0, 0.2);
   z-index: 1;
   pointer-events: none;
 }
 
-/* Particle Layer */
+/* Optional subtle particle effect overlay */
 .ai-background::after {
   content: '';
   position: absolute;
@@ -56,18 +45,18 @@ html {
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(1px 1px at 10% 20%, rgba(64, 224, 208, 0.8), transparent),
-    radial-gradient(2px 2px at 30% 40%, rgba(138, 43, 226, 0.6), transparent),
-    radial-gradient(1px 1px at 50% 10%, rgba(30, 144, 255, 0.7), transparent),
-    radial-gradient(1px 1px at 70% 30%, rgba(64, 224, 208, 0.5), transparent),
-    radial-gradient(2px 2px at 90% 50%, rgba(138, 43, 226, 0.8), transparent),
-    radial-gradient(1px 1px at 20% 70%, rgba(30, 144, 255, 0.6), transparent),
-    radial-gradient(1px 1px at 40% 90%, rgba(64, 224, 208, 0.7), transparent),
-    radial-gradient(2px 2px at 80% 80%, rgba(138, 43, 226, 0.5), transparent);
+    radial-gradient(1px 1px at 10% 20%, rgba(64, 224, 208, 0.3), transparent),
+    radial-gradient(1px 1px at 30% 40%, rgba(138, 43, 226, 0.2), transparent),
+    radial-gradient(1px 1px at 50% 10%, rgba(30, 144, 255, 0.25), transparent),
+    radial-gradient(1px 1px at 70% 30%, rgba(64, 224, 208, 0.2), transparent),
+    radial-gradient(1px 1px at 90% 50%, rgba(138, 43, 226, 0.3), transparent),
+    radial-gradient(1px 1px at 20% 70%, rgba(30, 144, 255, 0.2), transparent),
+    radial-gradient(1px 1px at 40% 90%, rgba(64, 224, 208, 0.25), transparent),
+    radial-gradient(1px 1px at 80% 80%, rgba(138, 43, 226, 0.2), transparent);
   background-size: 
     300px 200px, 400px 300px, 250px 150px, 350px 250px,
     300px 200px, 400px 300px, 250px 150px, 350px 250px;
-  animation: particleFlow 20s linear infinite;
+  animation: particleFlow 30s linear infinite;
   z-index: 2;
   pointer-events: none;
 }
