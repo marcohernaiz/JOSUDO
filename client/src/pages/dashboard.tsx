@@ -24,7 +24,7 @@ export default function Dashboard() {
         }}
       >
         {/* Theme overlay */}
-        <div className="absolute inset-0 bg-white/40 dark:bg-black/20"></div>
+        <div className="absolute inset-0 bg-white/40 dark:bg-black/10"></div>
         {/* Mobile Menu Toggle */}
         {isMobile && (
           <Button

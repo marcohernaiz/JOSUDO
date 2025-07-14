@@ -472,6 +472,10 @@ The application follows a microservices-inspired pattern with distinct service l
 - July 14, 2025. Reduced Josudo text logo size in sidebar
   - Changed text logo height from h-10 to h-8 for better proportions
   - Maintains icon size at 40x40 pixels while making text more compact
+- July 14, 2025. Improved dark mode background visibility
+  - Reduced dark mode overlay opacity from bg-black/20 to bg-black/10
+  - Enhanced visibility of Sophia AI background image and cyberpunk animations
+  - Maintains light mode overlay at bg-white/40 for optimal contrast
 
 ## User Preferences
 
