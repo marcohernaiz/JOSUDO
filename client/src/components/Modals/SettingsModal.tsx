@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { ApiKeyModal } from './ApiKeyModal';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
 interface SettingsModalProps {
   open: boolean;
@@ -18,6 +19,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   const [activeTab, setActiveTab] = useState('integrations');
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [selectedService, setSelectedService] = useState<string>('');
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    aiModels: true,
+    cloudStorage: true,
+    processing: true,
+    mcpServers: true
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -54,15 +61,114 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
     return integrations.find(i => i.serviceName === serviceName && i.isActive);
   };
 
+  const toggleSection = (sectionName: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionName]: !prev[sectionName]
+    }));
+  };
+
+  const renderIntegrationSection = (
+    sectionKey: string,
+    title: string,
+    items: any[],
+    icon: string
+  ) => {
+    const isExpanded = expandedSections[sectionKey];
+    return (
+      <div className="border border-slate-700 rounded-lg overflow-hidden">
+        <button
+          onClick={() => toggleSection(sectionKey)}
+          className="w-full flex items-center justify-between p-4 bg-slate-800 hover:bg-slate-700 transition-colors"
+        >
+          <div className="flex items-center space-x-3">
+            <i className={`${icon} text-white`}></i>
+            <h4 className="text-sm font-medium text-white">{title}</h4>
+          </div>
+          {isExpanded ? (
+            <ChevronDown className="w-4 h-4 text-slate-400" />
+          ) : (
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          )}
+        </button>
+        {isExpanded && (
+          <div className="p-4 bg-slate-900 space-y-3">
+            {items.map((item) => {
+              const integration = getIntegrationStatus(item.name);
+              return (
+                <div 
+                  key={item.name}
+                  className="flex items-center justify-between p-4 bg-slate-800 border border-slate-700 rounded-lg"
+                >
+                  <div className="flex items-center space-x-3">
+                    <i className={`${item.icon} ${integration ? 'text-green-500' : item.color}`}></i>
+                    <div>
+                      <div className="font-medium text-white">{item.label}</div>
+                      <div className="text-sm text-slate-400">
+                        {integration ? 'Connected and active' : 'Not connected'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {integration ? (
+                      <>
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          Connected
+                        </Badge>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleDisconnect(integration.id)}
+                        >
+                          <i className="fas fa-unlink"></i>
+                        </Button>
+                      </>
+                    ) : (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleConnect(item.name)}
+                      >
+                        Connect
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const aiModels = [
     { name: 'openai', label: 'OpenAI GPT-4', icon: 'fas fa-brain', color: 'text-green-500' },
     { name: 'claude', label: 'Anthropic Claude', icon: 'fas fa-robot', color: 'text-slate-400' },
     { name: 'gemini', label: 'Google Gemini', icon: 'fas fa-star', color: 'text-slate-400' },
+    { name: 'grok', label: 'xAI Grok', icon: 'fas fa-lightning', color: 'text-slate-400' },
+    { name: 'llama', label: 'Meta Llama', icon: 'fas fa-fire', color: 'text-slate-400' },
   ];
 
   const storageServices = [
     { name: 'google_drive', label: 'Google Drive', icon: 'fab fa-google-drive', color: 'text-blue-500' },
     { name: 'dropbox', label: 'Dropbox', icon: 'fab fa-dropbox', color: 'text-slate-400' },
+    { name: 'icloud', label: 'Apple iCloud', icon: 'fab fa-apple', color: 'text-slate-400' },
+    { name: 'onedrive', label: 'Microsoft OneDrive', icon: 'fab fa-microsoft', color: 'text-slate-400' },
+  ];
+
+  const processingProviders = [
+    { name: 'aws', label: 'Amazon Web Services', icon: 'fab fa-aws', color: 'text-orange-500' },
+    { name: 'google_cloud', label: 'Google Cloud Platform', icon: 'fab fa-google', color: 'text-slate-400' },
+    { name: 'azure', label: 'Microsoft Azure', icon: 'fab fa-microsoft', color: 'text-slate-400' },
+    { name: 'josudo', label: 'Josudo Processing', icon: 'fas fa-bolt', color: 'text-orange-500' },
+  ];
+
+  const mcpServers = [
+    { name: 'github', label: 'GitHub MCP', icon: 'fab fa-github', color: 'text-slate-400' },
+    { name: 'slack', label: 'Slack MCP', icon: 'fab fa-slack', color: 'text-slate-400' },
+    { name: 'notion', label: 'Notion MCP', icon: 'fas fa-file-alt', color: 'text-slate-400' },
+    { name: 'jira', label: 'Jira MCP', icon: 'fab fa-jira', color: 'text-slate-400' },
   ];
 
   const tabs = [
@@ -109,106 +215,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
               </div>
 
               {activeTab === 'integrations' && (
-                <div className="space-y-8">
-                  {/* AI Models Section */}
-                  <div>
-                    <h4 className="text-sm font-medium text-white mb-4">AI Models</h4>
-                    <div className="space-y-3">
-                      {aiModels.map((model) => {
-                        const integration = getIntegrationStatus(model.name);
-                        return (
-                          <div 
-                            key={model.name}
-                            className="flex items-center justify-between p-4 bg-slate-800 border border-slate-700 rounded-lg"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <i className={`${model.icon} ${integration ? 'text-green-500' : model.color}`}></i>
-                              <div>
-                                <div className="font-medium text-white">{model.label}</div>
-                                <div className="text-sm text-slate-400">
-                                  {integration ? 'Connected with your API key' : 'Not connected'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              {integration ? (
-                                <>
-                                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                                    Connected
-                                  </Badge>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => handleDisconnect(integration.id)}
-                                  >
-                                    <i className="fas fa-unlink"></i>
-                                  </Button>
-                                </>
-                              ) : (
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => handleConnect(model.name)}
-                                >
-                                  Connect
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Storage Section */}
-                  <div>
-                    <h4 className="text-sm font-medium text-white mb-4">Cloud Storage</h4>
-                    <div className="space-y-3">
-                      {storageServices.map((service) => {
-                        const integration = getIntegrationStatus(service.name);
-                        return (
-                          <div 
-                            key={service.name}
-                            className="flex items-center justify-between p-4 bg-slate-800 border border-slate-700 rounded-lg"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <i className={`${service.icon} ${integration ? 'text-blue-500' : service.color}`}></i>
-                              <div>
-                                <div className="font-medium text-white">{service.label}</div>
-                                <div className="text-sm text-slate-400">
-                                  {integration ? 'Connected and syncing' : 'Not connected'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              {integration ? (
-                                <>
-                                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                                    Connected
-                                  </Badge>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => handleDisconnect(integration.id)}
-                                  >
-                                    <i className="fas fa-unlink"></i>
-                                  </Button>
-                                </>
-                              ) : (
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => handleConnect(service.name)}
-                                >
-                                  Connect
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                <div className="space-y-6">
+                  {renderIntegrationSection('aiModels', 'AI Models', aiModels, 'fas fa-brain')}
+                  {renderIntegrationSection('cloudStorage', 'Cloud Storage', storageServices, 'fas fa-cloud')}
+                  {renderIntegrationSection('processing', 'Processing Providers', processingProviders, 'fas fa-server')}
+                  {renderIntegrationSection('mcpServers', 'MCP Servers', mcpServers, 'fas fa-network-wired')}
                 </div>
               )}
 

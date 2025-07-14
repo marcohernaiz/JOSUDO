@@ -321,6 +321,14 @@ The application follows a microservices-inspired pattern with distinct service l
   - Changed all text colors to white and slate-400 for better contrast
   - Updated integration cards to use slate-800 background with slate-700 borders
   - Enhanced visual consistency with rest of the dark-themed UI
+- July 14, 2025. Added expandable subtabs to integrations settings
+  - Created expandable sections for AI Models, Cloud Storage, Processing Providers, and MCP Servers
+  - Added chevron icons (ChevronDown/ChevronRight) to indicate expand/collapse state
+  - Implemented toggle functionality for each section with smooth transitions
+  - Enhanced AI models list with Grok and Llama options
+  - Added comprehensive processing providers (AWS, Google Cloud, Azure, Josudo)
+  - Added MCP servers section with GitHub, Slack, Notion, and Jira integrations
+  - All sections default to expanded state for better user experience
 
 ## User Preferences
 
