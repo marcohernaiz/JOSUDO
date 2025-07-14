@@ -92,7 +92,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
           )}
         </button>
         {isExpanded && (
-          <div className="p-4 bg-slate-900/80 space-y-3 backdrop-blur-sm">
+          <div className="p-4 bg-slate-900/80 space-y-3 backdrop-blur-sm max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
             {items.map((item) => {
               const integration = getIntegrationStatus(item.name);
               return (
@@ -155,6 +155,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
     { name: 'dropbox', label: 'Dropbox', icon: 'fab fa-dropbox', color: 'text-cyan-400' },
     { name: 'icloud', label: 'Apple iCloud', icon: 'fab fa-apple', color: 'text-slate-300' },
     { name: 'onedrive', label: 'Microsoft OneDrive', icon: 'fab fa-microsoft', color: 'text-indigo-400' },
+    { name: 'box', label: 'Box', icon: 'fab fa-box', color: 'text-indigo-400' },
+    { name: 'aws_s3', label: 'Amazon S3', icon: 'fab fa-aws', color: 'text-orange-400' },
+    { name: 'github', label: 'GitHub Storage', icon: 'fab fa-github', color: 'text-slate-300' },
+    { name: 'gitlab', label: 'GitLab Storage', icon: 'fab fa-gitlab', color: 'text-red-400' },
   ];
 
   const processingProviders = [
@@ -181,7 +185,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[85vh] p-0 bg-slate-900 border-2 border-slate-700/50 shadow-2xl shadow-cyan-400/10">
+        <DialogContent className="max-w-4xl max-h-[85vh] p-0 bg-slate-900 border-2 border-slate-700/50 shadow-2xl shadow-cyan-400/10 overflow-hidden">
           <div className="flex h-full">
             {/* Settings Sidebar */}
             <div className="w-64 bg-slate-800/90 border-r border-slate-700/60 backdrop-blur-sm flex flex-col">
@@ -217,7 +221,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                   </Button>
                 </div>
               </div>
-              <div className="flex-1 p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
+              <div className="flex-1 p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800 max-h-0">
                 {activeTab === 'integrations' && (
                   <div className="space-y-6">
                     {renderIntegrationSection('aiModels', 'AI Models', aiModels, 'fas fa-brain')}

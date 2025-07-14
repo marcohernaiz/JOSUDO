@@ -361,6 +361,8 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added custom scrollbar styling with dark theme colors
   - Restructured layout with fixed headers and flexible scrollable content areas
   - Enhanced UI with smooth scrolling behavior and webkit scrollbar customization
+  - Fixed scrolling issue in expanded sections by adding individual scroll containers
+  - Added more storage options (Box, AWS S3, GitHub, GitLab) to test scrolling functionality
 
 ## User Preferences
 
