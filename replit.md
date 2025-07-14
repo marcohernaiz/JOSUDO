@@ -202,9 +202,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - All icons use consistent emoji-based symbols with appropriate color coding
 - July 14, 2025. Added official Josudo logo to sidebar branding
   - Integrated golden trinity knot logo (image_1752482001299.png) next to Josudo brand name
-  - Logo displays at 24x24 pixels with proper aspect ratio and object-contain styling
+  - Logo displays at 40x40 pixels with proper aspect ratio and object-contain styling
+  - Added brightness filter enhancement for better visibility against dark background
+  - Included fallback amber fleur-de-lis icon (⚜️) if image fails to load
+  - Used proper asset import syntax for reliable image loading
   - Replaced generic robot icon with official brand logo for professional appearance
-  - Logo maintains visibility against dark sidebar background
 
 ## User Preferences
 

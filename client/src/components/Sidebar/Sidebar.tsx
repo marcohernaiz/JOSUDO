@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { SettingsModal } from '@/components/Modals/SettingsModal';
 import { BillingModal } from '@/components/Modals/BillingModal';
 import { ChatHistory } from '@/components/Chat/ChatHistory';
+import josudoLogo from '@assets/image_1752482001299.png';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -26,11 +27,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         <div className="p-4 border-b border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <img 
-                src="/attached_assets/image_1752482001299.png" 
-                alt="Josudo Logo" 
-                className="w-6 h-6 object-contain"
-              />
+              <div className="relative w-10 h-10 flex items-center justify-center">
+                <img 
+                  src={josudoLogo} 
+                  alt="Josudo Logo" 
+                  className="w-10 h-10 object-contain flex-shrink-0"
+                  style={{ filter: 'brightness(1.2)' }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'block';
+                  }}
+                />
+                <span className="text-amber-400 text-2xl hidden">⚜️</span>
+              </div>
               <span className="font-bold text-white">Josudo</span>
             </div>
             <Button
