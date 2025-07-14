@@ -395,6 +395,10 @@ The application follows a microservices-inspired pattern with distinct service l
   - Updated sidebar background to match main page (slate-50) for consistent light theme
   - Increased theme overlay opacity to white/50 for better visibility
   - Achieved uniform light grey aesthetic across all interface elements
+- July 14, 2025. Enhanced add files button styling
+  - Changed add files button background from white/80 to pure white in light mode
+  - Maintains dark mode styling with slate-700/60 background
+  - Improved visual prominence of the primary file upload action
 
 ## User Preferences
 
