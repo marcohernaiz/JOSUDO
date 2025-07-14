@@ -447,6 +447,9 @@ The application follows a microservices-inspired pattern with distinct service l
 - July 14, 2025. Made sidebar background darker grey in light mode
   - Changed sidebar background from slate-100 to slate-200 for better contrast
   - Provides better visual separation while maintaining light theme aesthetic
+- July 14, 2025. Made input container darker in light mode
+  - Changed input container background from white/90 to slate-100/90 for better contrast
+  - Provides better visual definition while maintaining light theme consistency
 
 ## User Preferences
 
