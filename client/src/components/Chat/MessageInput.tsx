@@ -119,10 +119,10 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button h-8 w-8 group-hover:w-auto group-hover:px-3 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300 overflow-hidden"
+                className="ai-control-button h-8 w-8 group-hover:w-auto group-hover:px-3 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
                 title="Attach files"
               >
-                <span className="text-white text-base flex-shrink-0">+</span>
+                <span className="text-white text-base flex-shrink-0 group-hover:ml-0">+</span>
                 <span className="ml-2 text-xs text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Add files</span>
               </Button>
             </div>
