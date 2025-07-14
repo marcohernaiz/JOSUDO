@@ -476,6 +476,10 @@ The application follows a microservices-inspired pattern with distinct service l
   - Reduced dark mode overlay opacity from bg-black/20 to bg-black/10
   - Enhanced visibility of Sophia AI background image and cyberpunk animations
   - Maintains light mode overlay at bg-white/40 for optimal contrast
+- July 14, 2025. Further enhanced dark mode animation visibility
+  - Reduced dark mode overlay opacity from bg-black/10 to bg-black/5
+  - Cyberpunk stars, grid patterns, and particle effects now clearly visible
+  - Maintains UI readability while showcasing background animations
 
 ## User Preferences
 
