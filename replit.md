@@ -173,6 +173,9 @@ The application follows a microservices-inspired pattern with distinct service l
   - Chat functionality now works directly without requiring user accounts
   - All integration, billing, and session endpoints return mock data or empty arrays
   - Application now provides instant access to AI chat functionality
+  - Completely removed authentication screens - app loads directly to main chat interface
+  - Simplified sidebar to show "DeepSeek (Free)" as active AI model with disabled chat history
+  - Cleaned up all user-specific components and Avatar references
 
 ## User Preferences
 
