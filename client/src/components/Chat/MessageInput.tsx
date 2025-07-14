@@ -337,7 +337,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-24 group-hover:px-3 overflow-hidden"
                 title="Settings"
               >
-                <span className="text-white text-sm">⚙️</span>
+                <span className="text-white text-sm font-medium select-none">⚙️</span>
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Settings</span>
               </Button>
             </div>
