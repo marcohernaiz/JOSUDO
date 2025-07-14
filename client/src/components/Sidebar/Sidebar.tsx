@@ -44,7 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               <img 
                 src={josudoText} 
                 alt="Josudo" 
-                className="h-20 object-contain flex-shrink-0"
+                className="h-15 object-contain flex-shrink-0"
                 style={{ filter: 'brightness(1.1)' }}
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
