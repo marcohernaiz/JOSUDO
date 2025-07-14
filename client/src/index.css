@@ -108,6 +108,66 @@ html {
   }
 }
 
+/* Cyberpunk Universe Stars Animation */
+@keyframes starsMove {
+  0% { 
+    transform: translateX(0px) translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  25% { 
+    transform: translateX(-100px) translateY(-50px) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% { 
+    transform: translateX(-200px) translateY(-100px) rotate(180deg);
+    opacity: 0.5;
+  }
+  75% { 
+    transform: translateX(-300px) translateY(-50px) rotate(270deg);
+    opacity: 0.9;
+  }
+  100% { 
+    transform: translateX(-400px) translateY(0px) rotate(360deg);
+    opacity: 0.3;
+  }
+}
+
+@keyframes starsGlow {
+  0%, 100% { 
+    opacity: 0.2;
+    transform: scale(0.8);
+    filter: blur(0px);
+  }
+  50% { 
+    opacity: 0.8;
+    transform: scale(1.2);
+    filter: blur(1px);
+  }
+}
+
+@keyframes cyberPulse {
+  0%, 100% { 
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.4;
+    transform: scale(1.1);
+  }
+}
+
+/* Cyberpunk Grid Animation */
+@keyframes gridMove {
+  0% { 
+    transform: translateX(0px) translateY(0px);
+    opacity: 0.1;
+  }
+  100% { 
+    transform: translateX(-50px) translateY(-50px);
+    opacity: 0.3;
+  }
+}
+
 /* Enhanced chat container with animated border */
 .ai-chat-container {
   position: relative;
