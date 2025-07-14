@@ -26,7 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       <div className="w-full h-full bg-slate-900 border-r border-slate-700 flex flex-col">
         {/* Header */}
         <div className="p-4 border-b border-slate-700">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-3">
               <div className="relative w-10 h-10 flex items-center justify-center">
                 <img 
@@ -44,7 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               <img 
                 src={josudoText} 
                 alt="Josudo" 
-                className="h-40 object-contain flex-shrink-0"
+                className="h-35 object-contain flex-shrink-0"
                 style={{ filter: 'brightness(1.1)' }}
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
