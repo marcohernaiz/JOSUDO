@@ -83,14 +83,14 @@ export const MessageInput: React.FC = () => {
     <div className="w-full max-w-4xl mx-auto">
       <div className="ai-input-lines bg-slate-800/60 rounded-xl p-6 border border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
         {/* First Line - Input Box Only */}
-        <div className="relative">
+        <div className="relative flex items-center justify-between w-full">
           <input
             type="text"
             value={currentMessage}
             onChange={(e) => setCurrentMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
-            className="w-full h-14 px-6 pr-14 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+            className="flex-1 h-14 px-6 pr-14 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
           />
           
           {/* Send button */}
