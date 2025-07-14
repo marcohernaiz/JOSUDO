@@ -151,7 +151,7 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-white/80 dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
+                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-white dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
                 title="Tools"
               >
                 <span className="text-black dark:text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">🔧</span>
@@ -169,7 +169,7 @@ export const MessageInput: React.FC = () => {
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300"
+                    className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300"
                     title={`AI Model: ${currentModelInfo.name}`}
                   >
                     <currentModelInfo.icon className="text-sky-400 text-sm mr-2" />
@@ -218,7 +218,7 @@ export const MessageInput: React.FC = () => {
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300"
+                    className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300"
                     title={`Storage: ${currentStorageInfo.name}`}
                   >
                     <currentStorageInfo.icon className="text-purple-400 text-sm mr-2" />
@@ -266,7 +266,7 @@ export const MessageInput: React.FC = () => {
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center bg-white/80 dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300"
+                    className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300"
                     title={`Processing: ${currentProcessingInfo.name}`}
                   >
                     <currentProcessingInfo.icon className="text-orange-400 text-sm mr-2" />
@@ -316,7 +316,7 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-white/80 dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
+                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-white dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
                 title="Voice input"
               >
                 <span className="text-black dark:text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">🎤</span>
@@ -329,7 +329,7 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-white/80 dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
+                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-white dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
                 title="Audio conversation"
               >
                 <span className="text-black dark:text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">🎧</span>
@@ -342,7 +342,7 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-white/80 dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
+                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-white dark:bg-slate-700/60 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
                 title="Video conferencing"
               >
                 <span className="text-black dark:text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">📹</span>

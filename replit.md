@@ -399,6 +399,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Changed add files button background from white/80 to pure white in light mode
   - Maintains dark mode styling with slate-700/60 background
   - Improved visual prominence of the primary file upload action
+- July 14, 2025. Updated all control buttons to white backgrounds
+  - Changed all control buttons from white/80 to pure white (bg-white) in light mode
+  - Updated CSS ai-control-button class to use full opacity white background
+  - Applied to all buttons: tools, AI model, storage, processing, voice, audio, video
+  - Maintains dark mode styling with slate-700/60 backgrounds
 
 ## User Preferences
 
