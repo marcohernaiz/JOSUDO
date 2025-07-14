@@ -56,7 +56,7 @@ const PROCESSING_PROVIDERS = [
 export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading } = useChat();
   const { integrations } = useAppContext();
-  const [selectedModel, setSelectedModel] = useState('deepseek-chat');
+  const [selectedModel, setSelectedModel] = useState('grok-beta');
   const [selectedStorage, setSelectedStorage] = useState('none');
   const [selectedProcessing, setSelectedProcessing] = useState('josudo');
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -75,7 +75,7 @@ export const MessageInput: React.FC = () => {
 
   const activeModel = integrations.find(i => i.serviceType === 'ai_model' && i.isActive);
   const activeStorage = integrations.find(i => i.serviceType === 'storage' && i.isActive);
-  const currentModelInfo = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[0];
+  const currentModelInfo = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[5]; // Default to Grok
   const currentStorageInfo = STORAGE_OPTIONS.find(s => s.id === selectedStorage) || STORAGE_OPTIONS[0];
   const currentProcessingInfo = PROCESSING_PROVIDERS.find(p => p.id === selectedProcessing) || PROCESSING_PROVIDERS[0];
 
@@ -109,8 +109,9 @@ export const MessageInput: React.FC = () => {
         </div>
 
         {/* Second Line - All Controls */}
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center space-x-3 flex-1">
+        <div className="flex items-center justify-between w-full mt-3">
+          {/* Left side - Tools */}
+          <div className="flex items-center space-x-3">
             {/* File Upload */}
             <div className="group relative">
               <Button
@@ -136,104 +137,110 @@ export const MessageInput: React.FC = () => {
                 <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Tools</span>
               </Button>
             </div>
+          </div>
 
+          {/* Center - AI Model and Storage Selectors */}
+          <div className="flex items-center space-x-4">
             {/* AI Model Selector */}
-            <div className="group relative">
+            <div className="relative">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-28 group-hover:px-3 overflow-hidden"
+                    className="ai-control-button px-4 h-8 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                     title={`AI Model: ${currentModelInfo.name}`}
                   >
-                    <span className="text-sky-400 text-sm">🤖</span>
-                    <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">AI Model</span>
+                    <span className="text-sky-400 text-sm mr-2">🤖</span>
+                    <span className="text-xs text-white whitespace-nowrap">{currentModelInfo.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="ai-dropdown w-64">
-                {AI_MODELS.map((model) => (
-                  <DropdownMenuItem
-                    key={model.id}
-                    onClick={() => setSelectedModel(model.id)}
-                    className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <span className="text-sky-400 text-sm">🤖</span>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-semibold text-white">{model.name}</span>
-                          {model.isFree && (
-                            <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                              Free
-                            </Badge>
-                          )}
-                          {!model.isFree && (
-                            <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
-                              Premium
-                            </Badge>
-                          )}
+                <DropdownMenuContent align="start" className="ai-dropdown w-64">
+                  {AI_MODELS.map((model) => (
+                    <DropdownMenuItem
+                      key={model.id}
+                      onClick={() => setSelectedModel(model.id)}
+                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <span className="text-sky-400 text-sm">🤖</span>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-semibold text-white">{model.name}</span>
+                            {model.isFree && (
+                              <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
+                                Free
+                              </Badge>
+                            )}
+                            {!model.isFree && (
+                              <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
+                                Premium
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">{model.description}</p>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1 leading-relaxed">{model.description}</p>
                       </div>
-                    </div>
-                    {selectedModel === model.id && (
-                      <span className="text-sky-400 text-sm">✓</span>
-                    )}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
+                      {selectedModel === model.id && (
+                        <span className="text-sky-400 text-sm">✓</span>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
             {/* Storage Selector */}
-            <div className="group relative">
+            <div className="relative">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-20 group-hover:px-3 overflow-hidden"
+                    className="ai-control-button px-4 h-8 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                     title={`Storage: ${currentStorageInfo.name}`}
                   >
-                    <span className="text-purple-400 text-sm">💾</span>
-                    <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Storage</span>
+                    <span className="text-purple-400 text-sm mr-2">💾</span>
+                    <span className="text-xs text-white whitespace-nowrap">{currentStorageInfo.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="ai-dropdown w-64">
-                {STORAGE_OPTIONS.map((storage) => (
-                  <DropdownMenuItem
-                    key={storage.id}
-                    onClick={() => setSelectedStorage(storage.id)}
-                    className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <span className="text-purple-400 text-sm">💾</span>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-semibold text-white">{storage.name}</span>
-                          {storage.isConnected ? (
-                            <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                              Connected
-                            </Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-xs bg-red-900/20 text-red-300 border border-red-500/30 px-2 py-0.5 font-medium">
-                              Disconnected
-                            </Badge>
-                          )}
+                <DropdownMenuContent align="start" className="ai-dropdown w-64">
+                  {STORAGE_OPTIONS.map((storage) => (
+                    <DropdownMenuItem
+                      key={storage.id}
+                      onClick={() => setSelectedStorage(storage.id)}
+                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <span className="text-purple-400 text-sm">💾</span>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-semibold text-white">{storage.name}</span>
+                            {storage.isConnected ? (
+                              <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
+                                Connected
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-xs bg-red-900/20 text-red-300 border border-red-500/30 px-2 py-0.5 font-medium">
+                                Disconnected
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">{storage.description}</p>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1 leading-relaxed">{storage.description}</p>
                       </div>
-                    </div>
-                    {selectedStorage === storage.id && (
-                      <span className="text-purple-400 text-sm">✓</span>
-                    )}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
+                      {selectedStorage === storage.id && (
+                        <span className="text-purple-400 text-sm">✓</span>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
               </DropdownMenu>
             </div>
+          </div>
 
+          {/* Right side - Additional controls */}
+          <div className="flex items-center space-x-3">
             {/* Processing Provider Selector */}
             <div className="group relative">
               <DropdownMenu>
@@ -248,43 +255,41 @@ export const MessageInput: React.FC = () => {
                     <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Processing</span>
                   </Button>
                 </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="ai-dropdown w-64">
-                {PROCESSING_PROVIDERS.map((provider) => (
-                  <DropdownMenuItem
-                    key={provider.id}
-                    onClick={() => setSelectedProcessing(provider.id)}
-                    className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <span className="text-orange-400 text-sm">⚡</span>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-semibold text-white">{provider.name}</span>
-                          {provider.isFree && (
-                            <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                              Free
-                            </Badge>
-                          )}
-                          {!provider.isFree && (
-                            <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
-                              Premium
-                            </Badge>
-                          )}
+                <DropdownMenuContent align="start" className="ai-dropdown w-64">
+                  {PROCESSING_PROVIDERS.map((provider) => (
+                    <DropdownMenuItem
+                      key={provider.id}
+                      onClick={() => setSelectedProcessing(provider.id)}
+                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer hover:bg-slate-700/50"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <span className="text-orange-400 text-sm">⚡</span>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-semibold text-white">{provider.name}</span>
+                            {provider.isFree && (
+                              <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
+                                Free
+                              </Badge>
+                            )}
+                            {!provider.isFree && (
+                              <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
+                                Premium
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">{provider.description}</p>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1 leading-relaxed">{provider.description}</p>
                       </div>
-                    </div>
-                    {selectedProcessing === provider.id && (
-                      <span className="text-orange-400 text-sm">✓</span>
-                    )}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
+                      {selectedProcessing === provider.id && (
+                        <span className="text-orange-400 text-sm">✓</span>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-2 flex-shrink-0">
+
             {/* Voice input */}
             <div className="group relative">
               <Button
