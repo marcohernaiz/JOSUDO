@@ -122,7 +122,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
                 title="Attach files"
               >
-                <span className="text-white text-lg flex-shrink-0 ml-6 group-hover:ml-0">+</span>
+                <span className="text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">+</span>
                 <span className="ml-2 text-sm text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Add files</span>
               </Button>
             </div>
@@ -135,7 +135,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
                 title="Tools"
               >
-                <span className="text-white text-lg flex-shrink-0 ml-6 group-hover:ml-0">🔧</span>
+                <span className="text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">🔧</span>
                 <span className="ml-2 text-sm text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Tools</span>
               </Button>
             </div>
@@ -300,7 +300,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
                 title="Voice input"
               >
-                <span className="text-white text-lg flex-shrink-0 ml-6 group-hover:ml-0">🎤</span>
+                <span className="text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">🎤</span>
                 <span className="ml-2 text-sm text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Voice</span>
               </Button>
             </div>
@@ -313,7 +313,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
                 title="Audio conversation"
               >
-                <span className="text-white text-lg flex-shrink-0 ml-6 group-hover:ml-0">🎧</span>
+                <span className="text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">🎧</span>
                 <span className="ml-2 text-sm text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Audio</span>
               </Button>
             </div>
@@ -326,7 +326,7 @@ export const MessageInput: React.FC = () => {
                 className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300 overflow-hidden p-0"
                 title="Video conferencing"
               >
-                <span className="text-white text-lg flex-shrink-0 ml-6 group-hover:ml-0">📹</span>
+                <span className="text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">📹</span>
                 <span className="ml-2 text-sm text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Video</span>
               </Button>
             </div>
