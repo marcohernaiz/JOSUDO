@@ -311,6 +311,10 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added Zap icon with "Free Mixtral model" description
   - Enhanced AI model selection with additional free option for users
   - Maintains consistent free/premium badge system
+- July 14, 2025. Updated DeepSeek to DeepSeek R1
+  - Changed model from "DeepSeek" to "DeepSeek R1" with updated description
+  - Updated model ID from 'deepseek-chat' to 'deepseek-r1'
+  - Maintained free status and Bot icon for consistency
 
 ## User Preferences
 

@@ -47,7 +47,7 @@ import {
 } from 'react-icons/si';
 
 const AI_MODELS = [
-  { id: 'deepseek-chat', name: 'DeepSeek', description: 'Free AI model', icon: Bot, isFree: true },
+  { id: 'deepseek-r1', name: 'DeepSeek R1', description: 'Free DeepSeek R1 model', icon: Bot, isFree: true },
   { id: 'mixtral-8x7b', name: 'Mixtral', description: 'Free Mixtral model', icon: Zap, isFree: true },
   { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: SiOpenai, isFree: false },
   { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude', icon: SiAnthropic, isFree: false },
