@@ -249,6 +249,15 @@ The application follows a microservices-inspired pattern with distinct service l
   - Adjusted send button position to match expanded input box (right-3 top-3)
   - Enhanced container padding from p-4 to p-6 for better visual balance
   - Improved spacing between input and control buttons (mt-4)
+- July 14, 2025. Enhanced dropdown menu readability and hover states
+  - Improved dropdown background opacity to 0.98 with stronger 20px backdrop blur
+  - Added semi-transparent background to dropdown items (rgba(30, 41, 59, 0.4))
+  - Enhanced text contrast with #f1f5f9 color for better visibility
+  - Fixed hover state with very light background (rgba(248, 250, 252, 0.95))
+  - Changed hover text to dark (#0f172a) for maximum contrast on light background
+  - Updated description text from slate-400 to slate-300 with group-hover:text-slate-600
+  - Added group classes to enable proper hover state transitions
+  - Removed conflicting inline styles to ensure CSS classes take precedence
 
 ## User Preferences
 

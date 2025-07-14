@@ -160,7 +160,7 @@ export const MessageInput: React.FC = () => {
                     <DropdownMenuItem
                       key={model.id}
                       onClick={() => setSelectedModel(model.id)}
-                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
+                      className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">
                         <span className="text-sky-400 text-sm">🤖</span>
@@ -178,7 +178,7 @@ export const MessageInput: React.FC = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-slate-300 mt-1 leading-relaxed">{model.description}</p>
+                          <p className="text-xs text-slate-300 group-hover:text-slate-600 mt-1 leading-relaxed">{model.description}</p>
                         </div>
                       </div>
                       {selectedModel === model.id && (
@@ -209,7 +209,7 @@ export const MessageInput: React.FC = () => {
                     <DropdownMenuItem
                       key={storage.id}
                       onClick={() => setSelectedStorage(storage.id)}
-                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
+                      className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">
                         <span className="text-purple-400 text-sm">💾</span>
@@ -226,7 +226,7 @@ export const MessageInput: React.FC = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-slate-300 mt-1 leading-relaxed">{storage.description}</p>
+                          <p className="text-xs text-slate-300 group-hover:text-slate-600 mt-1 leading-relaxed">{storage.description}</p>
                         </div>
                       </div>
                       {selectedStorage === storage.id && (
@@ -257,7 +257,7 @@ export const MessageInput: React.FC = () => {
                     <DropdownMenuItem
                       key={provider.id}
                       onClick={() => setSelectedProcessing(provider.id)}
-                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
+                      className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">
                         <span className="text-orange-400 text-sm">⚡</span>
@@ -275,7 +275,7 @@ export const MessageInput: React.FC = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-slate-300 mt-1 leading-relaxed">{provider.description}</p>
+                          <p className="text-xs text-slate-300 group-hover:text-slate-600 mt-1 leading-relaxed">{provider.description}</p>
                         </div>
                       </div>
                       {selectedProcessing === provider.id && (
