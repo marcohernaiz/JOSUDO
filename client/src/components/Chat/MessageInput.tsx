@@ -160,7 +160,7 @@ export const MessageInput: React.FC = () => {
                     <DropdownMenuItem
                       key={model.id}
                       onClick={() => setSelectedModel(model.id)}
-                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300 rounded-lg mb-1"
+                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer bg-slate-800/40 border border-slate-700/50 hover:bg-slate-600/40 transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">
                         <span className="text-sky-400 text-sm">🤖</span>
@@ -209,7 +209,7 @@ export const MessageInput: React.FC = () => {
                     <DropdownMenuItem
                       key={storage.id}
                       onClick={() => setSelectedStorage(storage.id)}
-                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300 rounded-lg mb-1"
+                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer bg-slate-800/40 border border-slate-700/50 hover:bg-slate-600/40 transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">
                         <span className="text-purple-400 text-sm">💾</span>
@@ -257,7 +257,7 @@ export const MessageInput: React.FC = () => {
                     <DropdownMenuItem
                       key={provider.id}
                       onClick={() => setSelectedProcessing(provider.id)}
-                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300 rounded-lg mb-1"
+                      className="ai-dropdown-item flex items-center justify-between p-3 cursor-pointer bg-slate-800/40 border border-slate-700/50 hover:bg-slate-600/40 transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">
                         <span className="text-orange-400 text-sm">⚡</span>
