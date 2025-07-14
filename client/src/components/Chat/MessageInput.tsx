@@ -83,29 +83,31 @@ export const MessageInput: React.FC = () => {
     <div className="w-full max-w-4xl mx-auto">
       <div className="ai-input-lines bg-slate-800/60 rounded-xl p-6 border border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
         {/* First Line - Input Box Only */}
-        <div className="relative w-full">
-          <input
-            type="text"
-            value={currentMessage}
-            onChange={(e) => setCurrentMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask me anything..."
-            className="w-full h-14 px-6 pr-14 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-          />
-          
-          {/* Send button */}
-          <Button
-            onClick={handleSendMessage}
-            disabled={!currentMessage.trim() || isLoading}
-            className="absolute right-3 top-3 p-2 h-8 w-8 bg-blue-600 hover:bg-blue-700 rounded-md"
-            size="sm"
-          >
-            {isLoading ? (
-              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-            ) : (
-              <Send className="w-4 h-4 text-white" />
-            )}
-          </Button>
+        <div className="flex items-center justify-between w-full">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask me anything..."
+              className="w-full h-14 px-6 pr-14 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+            />
+            
+            {/* Send button */}
+            <Button
+              onClick={handleSendMessage}
+              disabled={!currentMessage.trim() || isLoading}
+              className="absolute right-3 top-3 p-2 h-8 w-8 bg-blue-600 hover:bg-blue-700 rounded-md"
+              size="sm"
+            >
+              {isLoading ? (
+                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+              ) : (
+                <Send className="w-4 h-4 text-white" />
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Second Line - All Controls */}
