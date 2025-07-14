@@ -44,13 +44,6 @@ export const Header: React.FC = () => {
           {isAuthenticated && (
             <div className="flex items-center space-x-3">
               <span className="text-white text-sm">Welcome, {user?.username}</span>
-              <Button 
-                onClick={() => window.location.href = '/api/auth/logout'}
-                className="bg-white dark:bg-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-white px-4 py-2 rounded-lg text-sm transition-all duration-200 border-none flex items-center space-x-2"
-              >
-                <span>Sign Out</span>
-                <span className="text-slate-600 dark:text-white">🚪</span>
-              </Button>
             </div>
           )}
         </div>

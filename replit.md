@@ -518,6 +518,7 @@ The application follows a microservices-inspired pattern with distinct service l
   - Enhanced sidebar footer with conditional sign out display based on authentication status
   - Updated header sign out button for light mode: white background, icon on right side, no border
   - Light mode styling matches page background with slate text and door emoji positioned after text
+  - Removed sign out button from header upper right corner - users now sign out only through sidebar
 
 ## User Preferences
 
