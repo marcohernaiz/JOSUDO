@@ -258,6 +258,16 @@ The application follows a microservices-inspired pattern with distinct service l
   - Updated description text from slate-400 to slate-300 with group-hover:text-slate-600
   - Added group classes to enable proper hover state transitions
   - Removed conflicting inline styles to ensure CSS classes take precedence
+- July 14, 2025. Updated dropdown hover background to match main screen buttons
+  - Changed dropdown hover from fully opaque white to semi-transparent slate (bg-slate-600/60)
+  - Updated text colors to white for better contrast against semi-transparent dark background
+  - Changed description text hover to slate-200 for optimal readability
+  - Achieved consistent visual style across all interface elements
+- July 14, 2025. Centered chat box in main screen
+  - Fixed chat box positioning by adding items-center to flex container
+  - Removed unnecessary wrapper div constraints that were causing left alignment
+  - Chat box now properly centers within the available space after sidebar offset
+  - Maintained responsive design for both desktop and mobile layouts
 
 ## User Preferences
 

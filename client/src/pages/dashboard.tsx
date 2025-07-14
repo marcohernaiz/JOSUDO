@@ -132,16 +132,14 @@ export default function Dashboard() {
         </div>
 
         {/* Main Content - Offset by sidebar width on desktop */}
-        <div className={`flex flex-col h-full relative z-30 ${!isMobile ? 'ml-16' : ''}`}>
+        <div className={`flex flex-col h-full relative z-30 ${!isMobile ? 'ml-16' : ''} w-full`}>
           <Header />
-          <div className="flex-1 flex flex-col justify-end">
-            <div className="flex-1 overflow-hidden">
+          <div className="flex-1 flex flex-col justify-end items-center">
+            <div className="flex-1 overflow-hidden w-full">
               <ChatArea />
             </div>
-            <div className="flex-shrink-0 flex justify-center pb-20">
-              <div className="w-full max-w-3xl px-6">
-                <MessageInput />
-              </div>
+            <div className="flex-shrink-0 pb-20 w-full flex justify-center">
+              <MessageInput />
             </div>
           </div>
         </div>
