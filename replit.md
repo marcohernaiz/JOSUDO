@@ -341,6 +341,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Updated chevron icons from slate-300 to white for improved visibility
   - Changed placeholder text in all tabs from slate-300 to white
   - Enhanced overall text contrast for better accessibility
+- July 14, 2025. Fixed navigation button text colors to white
+  - Added explicit white text color to all sidebar navigation buttons
+  - Updated button icons to use white color for consistency
+  - Fixed close button text and icon colors to white
+  - Enhanced visibility of Billing, Usage, and API Keys navigation buttons
 
 ## User Preferences
 

@@ -193,10 +193,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                   <Button
                     key={tab.id}
                     variant={activeTab === tab.id ? 'default' : 'ghost'}
-                    className="w-full justify-start"
+                    className="w-full justify-start text-white hover:text-white"
                     onClick={() => setActiveTab(tab.id)}
                   >
-                    <i className={`${tab.icon} mr-2`}></i>
+                    <i className={`${tab.icon} mr-2 text-white`}></i>
                     {tab.label}
                   </Button>
                 ))}
@@ -209,8 +209,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                 <h3 className="text-lg font-semibold text-white">
                   {tabs.find(t => t.id === activeTab)?.label}
                 </h3>
-                <Button variant="ghost" size="sm" onClick={onClose}>
-                  <i className="fas fa-times"></i>
+                <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:text-white">
+                  <i className="fas fa-times text-white"></i>
                 </Button>
               </div>
 
