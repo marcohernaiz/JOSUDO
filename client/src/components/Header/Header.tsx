@@ -35,11 +35,11 @@ export const Header: React.FC = () => {
             </Button>
           )}
           {isAuthenticated && (
-            <span className="text-slate-600 dark:text-white text-sm">Welcome, {user?.username}</span>
+            <span className="text-slate-700 dark:text-white text-sm">Welcome, {user?.username}</span>
           )}
           <Button
             onClick={toggleTheme}
-            className="p-2 bg-white dark:bg-black hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors border-none"
+            className="p-2 bg-slate-50 dark:bg-black hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors border-none"
             variant="ghost"
           >
             {theme === 'dark' ? '🌙' : '☀️'}
