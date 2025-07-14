@@ -444,6 +444,9 @@ The application follows a microservices-inspired pattern with distinct service l
   - Reduced white overlay from white/80 to white/40 for better background visibility
   - Maintains light theme while allowing Sophia AI background image to be clearly seen
   - Balanced approach between light aesthetic and image visibility
+- July 14, 2025. Made sidebar background darker grey in light mode
+  - Changed sidebar background from slate-100 to slate-200 for better contrast
+  - Provides better visual separation while maintaining light theme aesthetic
 
 ## User Preferences
 
