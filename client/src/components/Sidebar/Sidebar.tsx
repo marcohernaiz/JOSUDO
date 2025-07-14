@@ -26,7 +26,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         <div className="p-4 border-b border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <i className="fas fa-robot text-blue-400 text-xl"></i>
+              <img 
+                src="/attached_assets/image_1752482001299.png" 
+                alt="Josudo Logo" 
+                className="w-6 h-6 object-contain"
+              />
               <span className="font-bold text-white">Josudo</span>
             </div>
             <Button

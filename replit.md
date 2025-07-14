@@ -200,6 +200,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added ⚙️ settings icon to the left of settings button
   - Updated active configuration to show current defaults: Grok AI, No Storage, Josudo Processing
   - All icons use consistent emoji-based symbols with appropriate color coding
+- July 14, 2025. Added official Josudo logo to sidebar branding
+  - Integrated golden trinity knot logo (image_1752482001299.png) next to Josudo brand name
+  - Logo displays at 24x24 pixels with proper aspect ratio and object-contain styling
+  - Replaced generic robot icon with official brand logo for professional appearance
+  - Logo maintains visibility against dark sidebar background
 
 ## User Preferences
 
