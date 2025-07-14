@@ -291,6 +291,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Applied orange color filter to match processing provider theme
   - Enhanced brand consistency across all interface elements
   - Logo displays at 16x16 pixels with proper brightness and color adjustments
+- July 14, 2025. Added Apple iCloud to storage options
+  - Integrated iCloud as a storage option alongside Google Drive and IPFS
+  - Added Apple iCloud icon (SiIcloud) with proper purple theming
+  - Enhanced storage provider selection with major cloud provider coverage
+  - Maintains consistent disconnected status for all storage options
 
 ## User Preferences
 
