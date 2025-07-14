@@ -91,7 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           )}
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <span className="text-blue-400 text-xl flex-shrink-0">🤖</span>
+              <span className="text-blue-400 text-2xl flex-shrink-0">🤖</span>
               {isExpanded && (
                 <>
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
@@ -102,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               )}
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-purple-400 text-xl flex-shrink-0">💾</span>
+              <span className="text-purple-400 text-2xl flex-shrink-0">💾</span>
               {isExpanded && (
                 <>
                   <div className="w-2 h-2 rounded-full bg-slate-500"></div>
@@ -113,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               )}
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-orange-400 text-xl flex-shrink-0">⚡</span>
+              <span className="text-orange-400 text-2xl flex-shrink-0">⚡</span>
               {isExpanded && (
                 <>
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
@@ -143,7 +143,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               className={`${isExpanded ? 'flex-1 justify-start' : 'w-10 h-10 p-0 justify-center'} text-sm text-slate-400 hover:text-white hover:bg-slate-800 flex items-center`}
               title={!isExpanded ? "Settings" : ""}
             >
-              <span className="text-slate-400 text-xl">⚙️</span>
+              <span className="text-slate-400 text-2xl">⚙️</span>
               {isExpanded && <span className="ml-2">Settings</span>}
             </Button>
           </div>
