@@ -139,7 +139,7 @@ export const MessageInput: React.FC = () => {
             </div>
           </div>
 
-          {/* Center - AI Model and Storage Selectors */}
+          {/* Center - AI Model, Storage, and Processing Selectors */}
           <div className="flex items-center space-x-4">
             {/* AI Model Selector */}
             <div className="relative">
@@ -237,22 +237,19 @@ export const MessageInput: React.FC = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
 
-          {/* Right side - Additional controls */}
-          <div className="flex items-center space-x-3">
             {/* Processing Provider Selector */}
-            <div className="group relative">
+            <div className="relative">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="ai-control-button p-2 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-300 group-hover:w-28 group-hover:px-3 overflow-hidden"
+                    className="ai-control-button px-4 h-8 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                     title={`Processing: ${currentProcessingInfo.name}`}
                   >
-                    <span className="text-orange-400 text-sm">⚡</span>
-                    <span className="ml-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Processing</span>
+                    <span className="text-orange-400 text-sm mr-2">⚡</span>
+                    <span className="text-xs text-white whitespace-nowrap">{currentProcessingInfo.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="ai-dropdown w-64">
@@ -289,7 +286,10 @@ export const MessageInput: React.FC = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+          </div>
 
+          {/* Right side - Additional controls */}
+          <div className="flex items-center space-x-3">
             {/* Voice input */}
             <div className="group relative">
               <Button

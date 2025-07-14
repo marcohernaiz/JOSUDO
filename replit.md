@@ -176,6 +176,14 @@ The application follows a microservices-inspired pattern with distinct service l
   - Completely removed authentication screens - app loads directly to main chat interface
   - Simplified sidebar to show "DeepSeek (Free)" as active AI model with disabled chat history
   - Cleaned up all user-specific components and Avatar references
+- July 14, 2025. Updated message input interface layout
+  - Moved processing provider selector to center section alongside AI model and storage selectors
+  - Changed default AI model from DeepSeek to Grok
+  - Set default storage to "No Storage" with clear text display
+  - Processing provider selector now displays "Josudo" as default with expanded text
+  - Reorganized layout: tools (left), AI model/storage/processing (center), voice/audio/video/settings (right)
+  - All center selectors now show text by default instead of icon-only hover expansion
+  - Maintained futuristic design with animated background and consistent styling
 
 ## User Preferences
 
