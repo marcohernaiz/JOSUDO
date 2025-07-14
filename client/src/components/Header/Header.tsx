@@ -39,7 +39,7 @@ export const Header: React.FC = () => {
           )}
           <Button
             onClick={toggleTheme}
-            className="p-2 bg-slate-50 dark:bg-black hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors border-none"
+            className="p-2 bg-[#626567] dark:bg-black hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors border-none"
             variant="ghost"
           >
             {theme === 'dark' ? '🌙' : '☀️'}
