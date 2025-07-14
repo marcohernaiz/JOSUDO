@@ -1,4 +1,4 @@
-import josudoLogo from "@assets/JOSUDO LOGO_1752483099099.png";
+import josudoLogo from "@assets/JOSUDO LOGO_1752483631486.png";
 
 export const Header: React.FC = () => {
   return (
