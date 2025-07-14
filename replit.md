@@ -184,9 +184,6 @@ The application follows a microservices-inspired pattern with distinct service l
   - Reorganized layout: tools (left), AI model/storage/processing (center), voice/audio/video/settings (right)
   - All center selectors now show text by default instead of icon-only hover expansion
   - Maintained futuristic design with animated background and consistent styling
-  - Changed file upload button from "+" to "📎" (paperclip icon) for better usability
-  - Enhanced hover text readability with white color and font-medium weight for all buttons
-  - Improved visual consistency across all control buttons with proper text styling
 
 ## User Preferences
 
