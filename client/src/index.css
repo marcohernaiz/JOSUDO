@@ -577,9 +577,9 @@ html {
 }
 
 .ai-dropdown-item:hover {
-  background: rgba(248, 250, 252, 0.95);
+  background: rgba(51, 65, 85, 0.6);
   border-left-color: #0ea5e9;
-  color: #0f172a;
+  color: #ffffff;
 }
 
 .ai-dropdown-item.selected {

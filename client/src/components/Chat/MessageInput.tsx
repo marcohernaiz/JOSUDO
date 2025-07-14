@@ -178,7 +178,7 @@ export const MessageInput: React.FC = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-slate-300 group-hover:text-slate-600 mt-1 leading-relaxed">{model.description}</p>
+                          <p className="text-xs text-slate-300 group-hover:text-slate-200 mt-1 leading-relaxed">{model.description}</p>
                         </div>
                       </div>
                       {selectedModel === model.id && (
@@ -226,7 +226,7 @@ export const MessageInput: React.FC = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-slate-300 group-hover:text-slate-600 mt-1 leading-relaxed">{storage.description}</p>
+                          <p className="text-xs text-slate-300 group-hover:text-slate-200 mt-1 leading-relaxed">{storage.description}</p>
                         </div>
                       </div>
                       {selectedStorage === storage.id && (
@@ -275,7 +275,7 @@ export const MessageInput: React.FC = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-slate-300 group-hover:text-slate-600 mt-1 leading-relaxed">{provider.description}</p>
+                          <p className="text-xs text-slate-300 group-hover:text-slate-200 mt-1 leading-relaxed">{provider.description}</p>
                         </div>
                       </div>
                       {selectedProcessing === provider.id && (
