@@ -6,9 +6,10 @@ import { ChatMessage } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 
 export const useChat = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  // REMOVE: const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
-  const { activeSession, setActiveSession } = useAppContext();
+  // Use messages and setMessages from context
+  const { activeSession, setActiveSession, messages, setMessages } = useAppContext();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -40,6 +41,7 @@ export const useChat = () => {
         timestamp: new Date(),
         tokens: data.tokensUsed || data.tokens,
         cost: data.cost,
+        model: data.model || sendMessageMutation.variables?.model,
       };
 
       console.log('Adding messages:', { userMessage, aiMessage });

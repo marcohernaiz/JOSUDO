@@ -15,6 +15,8 @@ export const useAppContext = () => {
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeSession, setActiveSession] = useState<ChatSession | null>(null);
+  // Add chat messages state
+  const [messages, setMessages] = useState<import('../types').ChatMessage[]>([]);
 
   // No authentication required - provide default values
   const integrations: Integration[] = [];
@@ -45,6 +47,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     refreshIntegrations,
     refreshChatSessions,
     refreshBilling,
+    // Add these for chat state
+    messages,
+    setMessages,
   };
 
   return (

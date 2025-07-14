@@ -6,6 +6,28 @@ import { Badge } from '@/components/ui/badge';
 import { ChatMessage } from '@/types';
 import { useEffect, useRef } from 'react';
 
+// Helper to map model IDs to display names
+const getModelDisplayName = (modelId: string) => {
+  switch (modelId) {
+    case 'deepseek-r1':
+      return 'DeepSeek R1 (Free)';
+    case 'mixtral-8x7b':
+      return 'Mixtral (Free)';
+    case 'gpt-4':
+      return 'ChatGPT (OpenAI GPT-4)';
+    case 'claude-3-5-sonnet':
+      return 'Claude (Anthropic)';
+    case 'gemini-pro':
+      return 'Gemini (Google)';
+    case 'llama-3':
+      return 'Llama 3 (Meta)';
+    case 'grok-beta':
+      return 'Grok (xAI)';
+    default:
+      return modelId;
+  }
+};
+
 export const ChatArea: React.FC = () => {
   const { messages } = useChat();
   const { integrations } = useAppContext();
@@ -35,7 +57,7 @@ export const ChatArea: React.FC = () => {
   }
 
   return (
-    <ScrollArea className="flex-1 px-6 py-4">
+    <ScrollArea className="flex-1 h-full px-6">
       <div className="max-w-4xl mx-auto space-y-6">
         {messages.map((message) => (
           <div 
@@ -50,7 +72,9 @@ export const ChatArea: React.FC = () => {
               {message.role === 'assistant' && (
                 <div className="flex items-center space-x-2 mb-2">
                   <i className="fas fa-robot text-primary"></i>
-                  <span className="text-xs font-medium text-slate-600">DeepSeek (Free)</span>
+                  <span className="text-xs font-medium text-slate-600">
+                    {message.model ? getModelDisplayName(message.model) : "AI"}
+                  </span>
                   <span className="text-xs text-slate-400">•</span>
                   <Badge variant="secondary" className="text-xs">
                     {integrations.find(i => i.serviceType === 'ai_model' && i.isActive) 

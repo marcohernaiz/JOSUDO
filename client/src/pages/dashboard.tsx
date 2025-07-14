@@ -141,7 +141,7 @@ export default function Dashboard() {
             <Header />
           </div>
           <div className="flex-1 flex flex-col justify-end items-center pt-32">
-            <div className="flex-1 overflow-hidden w-full">
+            <div className="flex-1 overflow-auto w-full">
               <ChatArea />
             </div>
             <div className="flex-shrink-0 pb-20 w-full flex justify-center">

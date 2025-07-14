@@ -27,6 +27,7 @@ export interface ChatMessage {
   timestamp: Date;
   tokens?: number;
   cost?: string;
+  model?: string;
 }
 
 export interface Integration {
@@ -71,4 +72,7 @@ export interface AppContextType {
   refreshIntegrations: () => Promise<void>;
   refreshChatSessions: () => Promise<void>;
   refreshBilling: () => Promise<void>;
+  // Add these for chat state
+  messages: ChatMessage[];
+  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
