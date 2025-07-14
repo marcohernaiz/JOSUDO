@@ -516,6 +516,8 @@ The application follows a microservices-inspired pattern with distinct service l
   - Sidebar sign out button uses door emoji (🚪) and follows consistent styling patterns
   - Both sign out buttons redirect to '/api/auth/logout' for proper session termination
   - Enhanced sidebar footer with conditional sign out display based on authentication status
+  - Updated header sign out button for light mode: white background, icon on right side, no border
+  - Light mode styling matches page background with slate text and door emoji positioned after text
 
 ## User Preferences
 

@@ -46,9 +46,10 @@ export const Header: React.FC = () => {
               <span className="text-white text-sm">Welcome, {user?.username}</span>
               <Button 
                 onClick={() => window.location.href = '/api/auth/logout'}
-                className="bg-slate-500 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm transition-all duration-200"
+                className="bg-white dark:bg-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-white px-4 py-2 rounded-lg text-sm transition-all duration-200 border-none flex items-center space-x-2"
               >
-                Sign Out
+                <span>Sign Out</span>
+                <span className="text-slate-600 dark:text-white">🚪</span>
               </Button>
             </div>
           )}
