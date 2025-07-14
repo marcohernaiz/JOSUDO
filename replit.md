@@ -521,6 +521,7 @@ The application follows a microservices-inspired pattern with distinct service l
   - Removed sign out button from header upper right corner - users now sign out only through sidebar
   - Moved welcome message from upper right corner to left of theme toggle button for better layout
   - Enhanced light mode styling: welcome message uses slate-700 text, theme toggle uses slate-50 background
+  - Updated welcome message text color to white in light mode for better contrast
 
 ## User Preferences
 

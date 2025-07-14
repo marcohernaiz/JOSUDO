@@ -35,7 +35,7 @@ export const Header: React.FC = () => {
             </Button>
           )}
           {isAuthenticated && (
-            <span className="text-slate-700 dark:text-white text-sm">Welcome, {user?.username}</span>
+            <span className="text-white dark:text-white text-sm">Welcome, {user?.username}</span>
           )}
           <Button
             onClick={toggleTheme}
