@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
+import josudoIcon from '@assets/JOSUDO logo icon_1752491258890.png';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -59,7 +60,7 @@ const STORAGE_OPTIONS = [
 ];
 
 const PROCESSING_PROVIDERS = [
-  { id: 'josudo', name: 'Josudo', description: 'Free processing', icon: Bolt, isFree: true },
+  { id: 'josudo', name: 'Josudo', description: 'Free processing', icon: () => <img src={josudoIcon} alt="Josudo" className="w-4 h-4 filter brightness-125" style={{ filter: 'brightness(1.2) sepia(1) saturate(2) hue-rotate(25deg)' }} />, isFree: true },
   { id: 'aws', name: 'AWS', description: 'Amazon Web Services', icon: SiAmazon, isFree: false },
   { id: 'gcp', name: 'Google Cloud', description: 'Google Cloud Platform', icon: SiGoogle, isFree: false },
   { id: 'azure', name: 'Azure', description: 'Microsoft Azure', icon: Cloud, isFree: false },
