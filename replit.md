@@ -329,6 +329,13 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added comprehensive processing providers (AWS, Google Cloud, Azure, Josudo)
   - Added MCP servers section with GitHub, Slack, Notion, and Jira integrations
   - All sections default to expanded state for better user experience
+- July 14, 2025. Enhanced settings elements readability with improved colors
+  - Updated all service icons from slate-400 to colorful variants (blue-400, purple-400, yellow-400, etc.)
+  - Changed section header icons from white to cyan-400 for better visibility
+  - Enhanced chevron icons from slate-400 to slate-300 for improved contrast
+  - Updated status text from slate-400 to slate-300 for better readability
+  - Updated placeholder text colors from slate-400 to slate-300 across all tabs
+  - Enhanced overall visual hierarchy with better color contrast ratios
 
 ## User Preferences
 

@@ -82,13 +82,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
           className="w-full flex items-center justify-between p-4 bg-slate-800 hover:bg-slate-700 transition-colors"
         >
           <div className="flex items-center space-x-3">
-            <i className={`${icon} text-white`}></i>
+            <i className={`${icon} text-cyan-400`}></i>
             <h4 className="text-sm font-medium text-white">{title}</h4>
           </div>
           {isExpanded ? (
-            <ChevronDown className="w-4 h-4 text-slate-400" />
+            <ChevronDown className="w-4 h-4 text-slate-300" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-slate-400" />
+            <ChevronRight className="w-4 h-4 text-slate-300" />
           )}
         </button>
         {isExpanded && (
@@ -104,7 +104,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                     <i className={`${item.icon} ${integration ? 'text-green-500' : item.color}`}></i>
                     <div>
                       <div className="font-medium text-white">{item.label}</div>
-                      <div className="text-sm text-slate-400">
+                      <div className="text-sm text-slate-300">
                         {integration ? 'Connected and active' : 'Not connected'}
                       </div>
                     </div>
@@ -143,32 +143,32 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   };
 
   const aiModels = [
-    { name: 'openai', label: 'OpenAI GPT-4', icon: 'fas fa-brain', color: 'text-green-500' },
-    { name: 'claude', label: 'Anthropic Claude', icon: 'fas fa-robot', color: 'text-slate-400' },
-    { name: 'gemini', label: 'Google Gemini', icon: 'fas fa-star', color: 'text-slate-400' },
-    { name: 'grok', label: 'xAI Grok', icon: 'fas fa-lightning', color: 'text-slate-400' },
-    { name: 'llama', label: 'Meta Llama', icon: 'fas fa-fire', color: 'text-slate-400' },
+    { name: 'openai', label: 'OpenAI GPT-4', icon: 'fas fa-brain', color: 'text-green-400' },
+    { name: 'claude', label: 'Anthropic Claude', icon: 'fas fa-robot', color: 'text-purple-400' },
+    { name: 'gemini', label: 'Google Gemini', icon: 'fas fa-star', color: 'text-blue-400' },
+    { name: 'grok', label: 'xAI Grok', icon: 'fas fa-lightning', color: 'text-yellow-400' },
+    { name: 'llama', label: 'Meta Llama', icon: 'fas fa-fire', color: 'text-red-400' },
   ];
 
   const storageServices = [
-    { name: 'google_drive', label: 'Google Drive', icon: 'fab fa-google-drive', color: 'text-blue-500' },
-    { name: 'dropbox', label: 'Dropbox', icon: 'fab fa-dropbox', color: 'text-slate-400' },
-    { name: 'icloud', label: 'Apple iCloud', icon: 'fab fa-apple', color: 'text-slate-400' },
-    { name: 'onedrive', label: 'Microsoft OneDrive', icon: 'fab fa-microsoft', color: 'text-slate-400' },
+    { name: 'google_drive', label: 'Google Drive', icon: 'fab fa-google-drive', color: 'text-blue-400' },
+    { name: 'dropbox', label: 'Dropbox', icon: 'fab fa-dropbox', color: 'text-cyan-400' },
+    { name: 'icloud', label: 'Apple iCloud', icon: 'fab fa-apple', color: 'text-slate-300' },
+    { name: 'onedrive', label: 'Microsoft OneDrive', icon: 'fab fa-microsoft', color: 'text-indigo-400' },
   ];
 
   const processingProviders = [
-    { name: 'aws', label: 'Amazon Web Services', icon: 'fab fa-aws', color: 'text-orange-500' },
-    { name: 'google_cloud', label: 'Google Cloud Platform', icon: 'fab fa-google', color: 'text-slate-400' },
-    { name: 'azure', label: 'Microsoft Azure', icon: 'fab fa-microsoft', color: 'text-slate-400' },
-    { name: 'josudo', label: 'Josudo Processing', icon: 'fas fa-bolt', color: 'text-orange-500' },
+    { name: 'aws', label: 'Amazon Web Services', icon: 'fab fa-aws', color: 'text-orange-400' },
+    { name: 'google_cloud', label: 'Google Cloud Platform', icon: 'fab fa-google', color: 'text-blue-400' },
+    { name: 'azure', label: 'Microsoft Azure', icon: 'fab fa-microsoft', color: 'text-cyan-400' },
+    { name: 'josudo', label: 'Josudo Processing', icon: 'fas fa-bolt', color: 'text-orange-400' },
   ];
 
   const mcpServers = [
-    { name: 'github', label: 'GitHub MCP', icon: 'fab fa-github', color: 'text-slate-400' },
-    { name: 'slack', label: 'Slack MCP', icon: 'fab fa-slack', color: 'text-slate-400' },
-    { name: 'notion', label: 'Notion MCP', icon: 'fas fa-file-alt', color: 'text-slate-400' },
-    { name: 'jira', label: 'Jira MCP', icon: 'fab fa-jira', color: 'text-slate-400' },
+    { name: 'github', label: 'GitHub MCP', icon: 'fab fa-github', color: 'text-slate-300' },
+    { name: 'slack', label: 'Slack MCP', icon: 'fab fa-slack', color: 'text-green-400' },
+    { name: 'notion', label: 'Notion MCP', icon: 'fas fa-file-alt', color: 'text-gray-300' },
+    { name: 'jira', label: 'Jira MCP', icon: 'fab fa-jira', color: 'text-blue-400' },
   ];
 
   const tabs = [
@@ -225,22 +225,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
 
               {activeTab === 'billing' && (
                 <div className="text-center py-8">
-                  <i className="fas fa-credit-card text-slate-500 text-4xl mb-4"></i>
-                  <p className="text-slate-400">Billing settings will be implemented here</p>
+                  <i className="fas fa-credit-card text-slate-300 text-4xl mb-4"></i>
+                  <p className="text-slate-300">Billing settings will be implemented here</p>
                 </div>
               )}
 
               {activeTab === 'usage' && (
                 <div className="text-center py-8">
-                  <i className="fas fa-chart-line text-slate-500 text-4xl mb-4"></i>
-                  <p className="text-slate-400">Usage analytics will be implemented here</p>
+                  <i className="fas fa-chart-line text-slate-300 text-4xl mb-4"></i>
+                  <p className="text-slate-300">Usage analytics will be implemented here</p>
                 </div>
               )}
 
               {activeTab === 'api' && (
                 <div className="text-center py-8">
-                  <i className="fas fa-key text-slate-500 text-4xl mb-4"></i>
-                  <p className="text-slate-400">API key management will be implemented here</p>
+                  <i className="fas fa-key text-slate-300 text-4xl mb-4"></i>
+                  <p className="text-slate-300">API key management will be implemented here</p>
                 </div>
               )}
             </div>
