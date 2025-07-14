@@ -36,9 +36,9 @@ export const Header: React.FC = () => {
           )}
           <Button
             onClick={toggleTheme}
-            className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+            className="p-2 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors"
           >
-            {theme === 'light' ? '🌙' : '☀️'}
+            {theme === 'dark' ? '🌙' : '☀️'}
           </Button>
           {isAuthenticated && (
             <div className="flex items-center space-x-3">
