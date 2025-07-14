@@ -12,7 +12,15 @@ export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
     <div className="h-screen w-full bg-black">
-      <div className="h-full w-full flex relative ai-animated-background">
+      <div 
+        className="h-full w-full flex relative"
+        style={{
+          backgroundImage: `url(${sophiaBackground})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         {/* Mobile Menu Toggle */}
         {isMobile && (
           <Button
