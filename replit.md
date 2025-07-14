@@ -303,9 +303,14 @@ The application follows a microservices-inspired pattern with distinct service l
   - Maintains consistent disconnected status for all storage options
 - July 14, 2025. Added Microsoft OneDrive to storage options
   - Integrated OneDrive as a storage option between Dropbox and IPFS
-  - Added official OneDrive icon (SiOnedrive) with consistent purple theming
+  - Added Cloud icon for OneDrive representation with consistent purple theming
   - Enhanced storage provider selection with complete major cloud coverage
   - Maintains consistent disconnected status for all storage options
+- July 14, 2025. Added Mixtral as a free AI model option
+  - Integrated Mixtral 8x7B as a free AI model option after DeepSeek
+  - Added Zap icon with "Free Mixtral model" description
+  - Enhanced AI model selection with additional free option for users
+  - Maintains consistent free/premium badge system
 
 ## User Preferences
 
