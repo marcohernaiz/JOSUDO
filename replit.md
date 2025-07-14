@@ -346,6 +346,10 @@ The application follows a microservices-inspired pattern with distinct service l
   - Updated button icons to use white color for consistency
   - Fixed close button text and icon colors to white
   - Enhanced visibility of Billing, Usage, and API Keys navigation buttons
+- July 14, 2025. Set all integration sections to collapsed by default
+  - Changed all expandedSections state from true to false
+  - AI Models, Cloud Storage, Processing Providers, and MCP Servers now start collapsed
+  - Users can expand sections as needed for cleaner initial view
 
 ## User Preferences
 

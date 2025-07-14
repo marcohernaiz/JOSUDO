@@ -20,10 +20,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [selectedService, setSelectedService] = useState<string>('');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    aiModels: true,
-    cloudStorage: true,
-    processing: true,
-    mcpServers: true
+    aiModels: false,
+    cloudStorage: false,
+    processing: false,
+    mcpServers: false
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
