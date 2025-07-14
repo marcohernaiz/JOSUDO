@@ -2,7 +2,7 @@ import josudoLogo from "@assets/JOSUDO LOGO_1752483631486.png";
 
 export const Header: React.FC = () => {
   return (
-    <div className="px-6 py-8 relative z-10">
+    <div className="px-3 py-3 relative z-10">
       <div className="flex items-center">
         <img 
           src={josudoLogo} 
