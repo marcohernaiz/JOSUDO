@@ -134,6 +134,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  app.get('/api/auth/logout', (req, res) => {
+    req.logout(() => {
+      res.redirect('/');
+    });
+  });
+
   app.get('/api/auth/user', async (req, res) => {
     const session = req as any;
     

@@ -485,6 +485,12 @@ The application follows a microservices-inspired pattern with distinct service l
   - Updated Google OAuth routes to support storage-specific authentication with Drive permissions
   - Enhanced authentication flow to redirect back to dashboard with storage connection status
   - Users can now authenticate with Google Drive directly from storage selector dropdown
+- July 14, 2025. Added Google Sign-In button to main interface
+  - Created prominent Google Sign-In button in header with official Google branding
+  - Implemented proper authentication state management in AppContext
+  - Added both GET and POST logout routes for complete sign-out functionality
+  - Authentication status now properly tracked across the entire application
+  - Users can sign in with Google directly from the main interface
 
 ## User Preferences
 
