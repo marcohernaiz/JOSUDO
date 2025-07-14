@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom slate-250 color */
+.bg-slate-250 {
+  background-color: rgb(226, 232, 240);
+}
+
+.bg-slate-250\/90 {
+  background-color: rgba(226, 232, 240, 0.9);
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
