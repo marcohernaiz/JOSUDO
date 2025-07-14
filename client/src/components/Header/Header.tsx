@@ -10,7 +10,7 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <div className="px-3 relative z-10">
+    <div className="px-3">
       <div className="flex items-center justify-between">
         <img 
           src={josudoLogo} 

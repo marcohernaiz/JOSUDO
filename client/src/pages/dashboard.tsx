@@ -135,12 +135,14 @@ export default function Dashboard() {
           }}></div>
         </div>
 
+        {/* Header - Positioned at absolute top */}
+        <div className="absolute top-0 left-0 right-0 z-40">
+          <Header />
+        </div>
+
         {/* Main Content - Offset by sidebar width on desktop */}
         <div className={`flex flex-col h-full relative z-30 ${!isMobile ? 'ml-16' : ''} w-full`}>
-          <div className="absolute top-0 left-0 w-full z-40">
-            <Header />
-          </div>
-          <div className="flex-1 flex flex-col justify-end items-center pt-32">
+          <div className="flex-1 flex flex-col justify-end items-center pt-48">
             <div className="flex-1 overflow-hidden w-full">
               <ChatArea />
             </div>
