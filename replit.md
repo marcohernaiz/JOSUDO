@@ -414,6 +414,19 @@ The application follows a microservices-inspired pattern with distinct service l
   - Removed all vertical padding from header component
   - Added pt-32 to main content area to prevent overlap with absolute positioned header
   - Logo now appears at the very top edge of the page
+- July 14, 2025. Enhanced input box and controls with lighter colors
+  - Changed main container background from white/70 to slate-50/80 for lighter appearance
+  - Updated input box background to slate-50 with lighter border (slate-200)
+  - Changed input text color to slate-600 for softer appearance
+  - Updated send button to lighter blue-500 instead of blue-600
+  - Modified all button text colors from black to slate-600 for consistency
+  - Enhanced CSS .ai-control-button to use slate-50 background and lighter borders
+  - Updated hover states to use lighter colors with reduced shadow opacity
+  - Unified button styling with CSS !important to ensure contracted and expanded views match
+  - Removed inline style conflicts to ensure consistent appearance across all control buttons
+- July 14, 2025. Changed sidebar background to light grey
+  - Updated sidebar background from slate-50 to slate-100 for consistent light grey theme
+  - Matches the overall ultra-light aesthetic of the main page and input components
 
 ## User Preferences
 
