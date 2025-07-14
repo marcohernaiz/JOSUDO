@@ -29,7 +29,7 @@ export default function Dashboard() {
         {isMobile && (
           <Button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="fixed top-4 left-4 z-50 bg-slate-800/80 backdrop-blur-sm shadow-lg border border-slate-600 text-slate-200 hover:bg-slate-700/80"
+            className="fixed top-2 left-2 z-50 bg-slate-800/80 backdrop-blur-sm shadow-lg border border-slate-600 text-slate-200 hover:bg-slate-700/80"
             variant="outline"
             size="sm"
           >
@@ -137,8 +137,10 @@ export default function Dashboard() {
 
         {/* Main Content - Offset by sidebar width on desktop */}
         <div className={`flex flex-col h-full relative z-30 ${!isMobile ? 'ml-16' : ''} w-full`}>
-          <Header />
-          <div className="flex-1 flex flex-col justify-end items-center">
+          <div className="absolute top-0 left-0 w-full z-40">
+            <Header />
+          </div>
+          <div className="flex-1 flex flex-col justify-end items-center pt-32">
             <div className="flex-1 overflow-hidden w-full">
               <ChatArea />
             </div>
