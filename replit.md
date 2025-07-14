@@ -301,6 +301,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added official Dropbox icon (SiDropbox) with consistent purple theming
   - Enhanced storage provider selection with comprehensive cloud coverage
   - Maintains consistent disconnected status for all storage options
+- July 14, 2025. Added Microsoft OneDrive to storage options
+  - Integrated OneDrive as a storage option between Dropbox and IPFS
+  - Added official OneDrive icon (SiOnedrive) with consistent purple theming
+  - Enhanced storage provider selection with complete major cloud coverage
+  - Maintains consistent disconnected status for all storage options
 
 ## User Preferences
 
