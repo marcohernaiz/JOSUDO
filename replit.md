@@ -492,6 +492,12 @@ The application follows a microservices-inspired pattern with distinct service l
   - Authentication status now properly tracked across the entire application
   - Users can sign in with Google directly from the main interface
   - Updated button text to "Sign in" and added dark mode styling to match input text box
+- July 14, 2025. Enhanced Google Drive connection status display
+  - Storage button now shows "Google Drive" when connected, "No Storage" when not
+  - Sidebar displays Google Drive connection status with green indicator when connected
+  - Automatic selection of Google Drive storage when user authenticates
+  - Dynamic connection status updates based on authentication state
+  - Connected status properly reflects in both storage dropdown and sidebar configuration
 
 ## User Preferences
 
