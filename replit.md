@@ -491,6 +491,7 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added both GET and POST logout routes for complete sign-out functionality
   - Authentication status now properly tracked across the entire application
   - Users can sign in with Google directly from the main interface
+  - Updated button text to "Sign in" and added dark mode styling to match input text box
 
 ## User Preferences
 
