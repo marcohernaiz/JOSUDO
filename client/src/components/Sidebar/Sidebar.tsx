@@ -5,7 +5,7 @@ import { SettingsModal } from '@/components/Modals/SettingsModal';
 import { BillingModal } from '@/components/Modals/BillingModal';
 import { ChatHistory } from '@/components/Chat/ChatHistory';
 import josudoLogo from '@assets/JOSUDO ICON_1752512850035.png';
-import josudoText from '@assets/image_1752482551893.png';
+import josudoText from '@assets/josudo logo just text_1752513004427.png';
 
 interface SidebarProps {
   onClose?: () => void;
