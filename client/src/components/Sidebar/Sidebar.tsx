@@ -43,7 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             onClick={createNewChat}
             className="w-full bg-primary text-white hover:bg-primary/90"
           >
-            <span className="mr-2">+</span>
+            <i className="fas fa-plus mr-2"></i>
             New Chat
           </Button>
         </div>
@@ -53,24 +53,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           <div className="text-xs font-medium text-slate-500 mb-2">ACTIVE CONFIGURATION</div>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              <span className="text-sm">🤖</span>
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
               <span className="text-sm text-slate-700">
-                Grok (Active)
+                DeepSeek (Free)
               </span>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-sm">💾</span>
               <div className="w-2 h-2 rounded-full bg-slate-400"></div>
               <span className="text-sm text-slate-700">
                 No storage connected
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm">⚡</span>
-              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-              <span className="text-sm text-slate-700">
-                Josudo (Processing)
               </span>
             </div>
           </div>
@@ -90,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               onClick={() => setShowSettings(true)}
               className="flex-1 text-xs text-slate-600 hover:text-slate-900"
             >
-              <span className="mr-1">⚙️</span>Settings
+              <i className="fas fa-cog mr-1"></i>Settings
             </Button>
           </div>
         </div>

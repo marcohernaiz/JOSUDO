@@ -184,14 +184,6 @@ The application follows a microservices-inspired pattern with distinct service l
   - Reorganized layout: tools (left), AI model/storage/processing (center), voice/audio/video/settings (right)
   - All center selectors now show text by default instead of icon-only hover expansion
   - Maintained futuristic design with animated background and consistent styling
-- July 14, 2025. Implemented compressed sidebar with improved settings access
-  - Removed settings button from message input area and integrated into sidebar system
-  - Created compressed/collapsed sidebar (48px width) always visible on desktop with key controls
-  - Added quick access buttons: sidebar toggle (☰), settings (⚙️), and new chat (+)
-  - Enhanced user awareness of sidebar options with visual indicators and tooltips
-  - Maintained existing hover-to-expand full sidebar functionality
-  - Adjusted main content area to accommodate compressed sidebar (ml-12 on desktop)
-  - Integrated SettingsModal directly into dashboard for cleaner architecture
 
 ## User Preferences
 

@@ -4,62 +4,22 @@ import { Header } from '@/components/Header/Header';
 import { ChatArea } from '@/components/Chat/ChatArea';
 import { MessageInput } from '@/components/Chat/MessageInput';
 import { Button } from '@/components/ui/button';
-import { SettingsModal } from '@/components/Modals/SettingsModal';
-import { useAppContext } from '@/contexts/AppContext';
 import { useState } from 'react';
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const { setActiveSession } = useAppContext();
 
   const showSidebar = isMobile ? isSidebarOpen : isHovering;
-
-  const createNewChat = () => {
-    setActiveSession(null);
-  };
 
   return (
     <div className="h-screen w-full bg-black">
       <div className="h-full w-full ai-background">
-        {/* Compressed Sidebar - Always visible */}
-        {!isMobile && (
-          <div className="fixed left-0 top-0 h-full w-12 bg-slate-900/80 backdrop-blur-sm border-r border-slate-700/50 z-40 flex flex-col items-center py-4 space-y-4">
-            {/* Sidebar indicator/trigger */}
-            <div 
-              className="w-8 h-8 bg-slate-700/60 rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-600/60 transition-colors"
-              onMouseEnter={() => setIsHovering(true)}
-              title="Open sidebar"
-            >
-              <span className="text-white text-sm">☰</span>
-            </div>
-            
-            {/* Settings button */}
-            <div 
-              className="w-8 h-8 bg-slate-700/60 rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-600/60 transition-colors"
-              title="Settings"
-              onClick={() => setShowSettings(true)}
-            >
-              <span className="text-white text-sm">⚙️</span>
-            </div>
-            
-            {/* New chat button */}
-            <div 
-              className="w-8 h-8 bg-slate-700/60 rounded-lg flex items-center justify-center cursor-pointer hover:bg-slate-600/60 transition-colors"
-              title="New chat"
-              onClick={createNewChat}
-            >
-              <span className="text-white text-sm">+</span>
-            </div>
-          </div>
-        )}
-
         {/* Hover trigger area - invisible strip on the left for desktop */}
         {!isMobile && (
           <div
-            className="fixed left-12 top-0 w-8 h-full z-50 bg-transparent"
+            className="fixed left-0 top-0 w-8 h-full z-50 bg-transparent"
             onMouseEnter={() => setIsHovering(true)}
           />
         )}
@@ -80,7 +40,7 @@ export default function Dashboard() {
         <div 
           className={`
             ${showSidebar ? 'translate-x-0' : '-translate-x-full'} 
-            ${isMobile ? 'fixed inset-y-0 left-0 z-40' : 'fixed inset-y-0 left-12 z-40'} 
+            ${isMobile ? 'fixed inset-y-0 left-0 z-40' : 'fixed inset-y-0 left-0 z-40'} 
             w-80 transition-transform duration-300 ease-in-out
           `}
           onMouseEnter={() => !isMobile && setIsHovering(true)}
@@ -108,7 +68,7 @@ export default function Dashboard() {
         <div className="neural-particles"></div>
 
         {/* Main Content */}
-        <div className={`flex flex-col h-full relative z-20 ${!isMobile ? 'ml-12' : ''}`}>
+        <div className="flex flex-col h-full relative z-20">
           <Header />
           <div className="flex-1 flex flex-col justify-end">
             <div className="flex-1 overflow-hidden">
@@ -121,12 +81,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-
-        {/* Settings Modal */}
-        <SettingsModal 
-          open={showSettings} 
-          onClose={() => setShowSettings(false)} 
-        />
       </div>
     </div>
   );
