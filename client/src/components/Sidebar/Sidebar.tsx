@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { SettingsModal } from '@/components/Modals/SettingsModal';
 import { BillingModal } from '@/components/Modals/BillingModal';
 import { ChatHistory } from '@/components/Chat/ChatHistory';
-import josudoLogo from '@assets/JOSUDO LOGO_1752482870591.png';
+import josudoLogo from '@assets/image_1752482001299.png';
+import josudoText from '@assets/image_1752482551893.png';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -26,18 +27,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         {/* Header */}
         <div className="p-4 border-b border-slate-700">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-3">
+              <div className="relative w-10 h-10 flex items-center justify-center">
+                <img 
+                  src={josudoLogo} 
+                  alt="Josudo Logo" 
+                  className="w-10 h-10 object-contain flex-shrink-0"
+                  style={{ filter: 'brightness(1.2)' }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'block';
+                  }}
+                />
+                <span className="text-amber-400 text-2xl hidden">⚜️</span>
+              </div>
               <img 
-                src={josudoLogo} 
-                alt="Josudo - Own Your Data" 
-                className="h-12 object-contain flex-shrink-0"
+                src={josudoText} 
+                alt="Josudo" 
+                className="h-15 object-contain flex-shrink-0"
                 style={{ filter: 'brightness(1.1)' }}
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                   e.currentTarget.nextElementSibling.style.display = 'inline';
                 }}
               />
-              <span className="text-amber-400 text-xl font-bold hidden">Josudo</span>
+              <span className="font-bold text-white hidden">Josudo</span>
             </div>
             <Button
               variant="ghost"
