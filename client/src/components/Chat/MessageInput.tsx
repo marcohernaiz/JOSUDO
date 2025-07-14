@@ -28,14 +28,19 @@ import {
   HardDrive,
   Wifi,
   Bolt,
-  Check
+  Check,
+  Cloud
 } from 'lucide-react';
 import { 
   SiOpenai, 
   SiAnthropic, 
   SiGoogle, 
   SiMeta,
-  SiX
+  SiX,
+  SiAmazon,
+
+  SiGoogledrive,
+  SiIpfs
 } from 'react-icons/si';
 
 const AI_MODELS = [
@@ -49,15 +54,15 @@ const AI_MODELS = [
 
 const STORAGE_OPTIONS = [
   { id: 'none', name: 'No Storage', description: 'Chat not saved', icon: XCircle, isConnected: false },
-  { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: HardDrive, isConnected: false },
-  { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: Wifi, isConnected: false },
+  { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: SiGoogledrive, isConnected: false },
+  { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: SiIpfs, isConnected: false },
 ];
 
 const PROCESSING_PROVIDERS = [
   { id: 'josudo', name: 'Josudo', description: 'Free processing', icon: Bolt, isFree: true },
-  { id: 'aws', name: 'AWS', description: 'Amazon Web Services', icon: Bolt, isFree: false },
-  { id: 'gcp', name: 'Google Cloud', description: 'Google Cloud Platform', icon: Bolt, isFree: false },
-  { id: 'azure', name: 'Azure', description: 'Microsoft Azure', icon: Bolt, isFree: false },
+  { id: 'aws', name: 'AWS', description: 'Amazon Web Services', icon: SiAmazon, isFree: false },
+  { id: 'gcp', name: 'Google Cloud', description: 'Google Cloud Platform', icon: SiGoogle, isFree: false },
+  { id: 'azure', name: 'Azure', description: 'Microsoft Azure', icon: Cloud, isFree: false },
 ];
 
 export const MessageInput: React.FC = () => {
@@ -209,7 +214,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                     title={`Storage: ${currentStorageInfo.name}`}
                   >
-                    <span className="text-purple-400 text-sm mr-2">💾</span>
+                    <currentStorageInfo.icon className="text-purple-400 text-sm mr-2" />
                     <span className="text-xs text-white whitespace-nowrap">{currentStorageInfo.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -221,7 +226,7 @@ export const MessageInput: React.FC = () => {
                       className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">
-                        <span className="text-purple-400 text-sm">💾</span>
+                        <storage.icon className="text-purple-400 text-sm" />
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
                             <span className="font-semibold text-white">{storage.name}</span>
@@ -257,7 +262,7 @@ export const MessageInput: React.FC = () => {
                     className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center bg-slate-700/60 border border-slate-600 hover:bg-slate-600/60 transition-all duration-300"
                     title={`Processing: ${currentProcessingInfo.name}`}
                   >
-                    <span className="text-orange-400 text-sm mr-2">⚡</span>
+                    <currentProcessingInfo.icon className="text-orange-400 text-sm mr-2" />
                     <span className="text-xs text-white whitespace-nowrap">{currentProcessingInfo.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -269,7 +274,7 @@ export const MessageInput: React.FC = () => {
                       className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">
-                        <span className="text-orange-400 text-sm">⚡</span>
+                        <provider.icon className="text-orange-400 text-sm" />
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
                             <span className="font-semibold text-white">{provider.name}</span>

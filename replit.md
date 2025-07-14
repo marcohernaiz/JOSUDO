@@ -280,6 +280,12 @@ The application follows a microservices-inspired pattern with distinct service l
   - Replaced generic icons with authentic brand logos using react-icons/si library
   - Improved logo positioning in header by reducing padding to px-3 py-1 for tighter corner placement
   - Enhanced overall professional appearance with proper brand representation
+- July 14, 2025. Updated storage and processing selectors with authentic company logos
+  - Added real company logos to storage options: Google Drive (SiGoogledrive), IPFS (SiIpfs)
+  - Added authentic logos to processing providers: Amazon (SiAmazon), Google Cloud (SiGoogle), Microsoft Azure (SiWindows)
+  - Replaced emoji-based icons with proper brand icons throughout all dropdown menus
+  - Maintained consistent color theming: purple for storage, orange for processing
+  - Enhanced professional appearance with authentic brand representation across all selectors
 
 ## User Preferences
 
