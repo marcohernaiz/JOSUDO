@@ -60,7 +60,7 @@ const STORAGE_OPTIONS = [
 ];
 
 const PROCESSING_PROVIDERS = [
-  { id: 'josudo', name: 'Josudo', description: 'Free processing', icon: () => <img src={josudoIcon} alt="Josudo" className="w-4 h-4 filter brightness-125" style={{ filter: 'brightness(1.2) sepia(1) saturate(2) hue-rotate(25deg)' }} />, isFree: true },
+  { id: 'josudo', name: 'Josudo', description: 'Free processing', icon: () => <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(471%) hue-rotate(349deg) brightness(101%) contrast(101%)' }} />, isFree: true },
   { id: 'aws', name: 'AWS', description: 'Amazon Web Services', icon: SiAmazon, isFree: false },
   { id: 'gcp', name: 'Google Cloud', description: 'Google Cloud Platform', icon: SiGoogle, isFree: false },
   { id: 'azure', name: 'Azure', description: 'Microsoft Azure', icon: Cloud, isFree: false },
