@@ -472,6 +472,61 @@ The application follows a microservices-inspired pattern with distinct service l
 - July 14, 2025. Reduced Josudo text logo size in sidebar
   - Changed text logo height from h-10 to h-8 for better proportions
   - Maintains icon size at 40x40 pixels while making text more compact
+- July 14, 2025. Improved dark mode background visibility
+  - Reduced dark mode overlay opacity from bg-black/20 to bg-black/10
+  - Enhanced visibility of Sophia AI background image and cyberpunk animations
+  - Maintains light mode overlay at bg-white/40 for optimal contrast
+- July 14, 2025. Further enhanced dark mode animation visibility
+  - Reduced dark mode overlay opacity from bg-black/10 to bg-black/5
+  - Cyberpunk stars, grid patterns, and particle effects now clearly visible
+  - Maintains UI readability while showcasing background animations
+- July 14, 2025. Integrated Google Sign-In for storage selection
+  - Added handleStorageSelection function to trigger OAuth when selecting Google Drive
+  - Updated Google OAuth routes to support storage-specific authentication with Drive permissions
+  - Enhanced authentication flow to redirect back to dashboard with storage connection status
+  - Users can now authenticate with Google Drive directly from storage selector dropdown
+- July 14, 2025. Added Google Sign-In button to main interface
+  - Created prominent Google Sign-In button in header with official Google branding
+  - Implemented proper authentication state management in AppContext
+  - Added both GET and POST logout routes for complete sign-out functionality
+  - Authentication status now properly tracked across the entire application
+  - Users can sign in with Google directly from the main interface
+- July 14, 2025. Enhanced header with repositioned authentication and theme controls
+  - Changed Google Sign-In button text from "Sign in with Google" to "Sign in"
+  - Updated sign-in button styling to match input box background with theme-aware colors
+  - Moved theme toggle button to header, positioned to the right of sign-in button
+  - Removed duplicate theme toggle from dashboard page to avoid conflicts
+  - Enhanced button layout with proper spacing and consistent styling across light/dark themes
+- July 14, 2025. Refined theme toggle button design
+  - Removed background from theme toggle button for cleaner appearance
+  - Fixed icon logic to show moon (🌙) in dark mode and sun (☀️) in light mode
+  - Added subtle hover effect instead of solid background
+  - Enhanced visual consistency with minimal, clean design approach
+  - Updated button to match page background color (white/black) with no borders
+  - Applied ghost variant for seamless integration with header design
+- July 14, 2025. Enhanced Google Drive integration with authentication status
+  - Updated storage selector to show Google Drive as connected when user is authenticated
+  - Modified sidebar to display Google Drive with green status indicator when signed in
+  - Added dynamic storage options based on authentication state
+  - Enhanced storage selection logic to handle authenticated Google Drive connections
+  - Both storage button and sidebar now accurately reflect Google Drive connection status
+- July 14, 2025. Updated sign out functionality and styling
+  - Changed header sign out button background from red to slate (bg-slate-500 hover:bg-slate-600)
+  - Added sign out option to sidebar footer that appears when user is authenticated
+  - Sidebar sign out button uses door emoji (🚪) and follows consistent styling patterns
+  - Both sign out buttons redirect to '/api/auth/logout' for proper session termination
+  - Enhanced sidebar footer with conditional sign out display based on authentication status
+  - Updated header sign out button for light mode: white background, icon on right side, no border
+  - Light mode styling matches page background with slate text and door emoji positioned after text
+  - Removed sign out button from header upper right corner - users now sign out only through sidebar
+  - Moved welcome message from upper right corner to left of theme toggle button for better layout
+  - Enhanced light mode styling: welcome message uses slate-700 text, theme toggle uses slate-50 background
+  - Updated welcome message text color to white in light mode for better contrast
+- July 14, 2025. Set application to default to dark mode on startup
+  - Modified ThemeContext to default to dark mode when no saved preference exists
+  - Updated sign-in button styling with custom hex color (#d7dce4) for light mode
+  - Updated theme toggle button styling with custom hex color (#626567) for light mode
+  - Application now provides consistent dark mode experience by default
 
 ## User Preferences
 

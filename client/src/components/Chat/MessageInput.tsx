@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
+import { useAuth } from '@/hooks/useAuth';
 import josudoIcon from '@assets/JOSUDO logo icon_1752491258890.png';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -56,9 +57,9 @@ const AI_MODELS = [
   { id: 'grok-beta', name: 'Grok', description: 'xAI Grok', icon: SiX, isFree: false },
 ];
 
-const STORAGE_OPTIONS = [
+const getStorageOptions = (isAuthenticated: boolean) => [
   { id: 'none', name: 'No Storage', description: 'Chat not saved', icon: XCircle, isConnected: false },
-  { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: SiGoogledrive, isConnected: false },
+  { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: SiGoogledrive, isConnected: isAuthenticated },
   { id: 'icloud', name: 'iCloud', description: 'Save to Apple iCloud', icon: SiIcloud, isConnected: false },
   { id: 'dropbox', name: 'Dropbox', description: 'Save to Dropbox', icon: SiDropbox, isConnected: false },
   { id: 'onedrive', name: 'OneDrive', description: 'Save to Microsoft OneDrive', icon: Cloud, isConnected: false },
@@ -75,10 +76,33 @@ const PROCESSING_PROVIDERS = [
 export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading } = useChat();
   const { integrations } = useAppContext();
+  const { isAuthenticated } = useAuth();
   const [selectedModel, setSelectedModel] = useState('grok-beta');
   const [selectedStorage, setSelectedStorage] = useState('none');
   const [selectedProcessing, setSelectedProcessing] = useState('josudo');
   const [showAdvanced, setShowAdvanced] = useState(false);
+  
+  const STORAGE_OPTIONS = getStorageOptions(isAuthenticated);
+
+  // Check if user just connected storage or is authenticated
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('storage') === 'connected' || isAuthenticated) {
+      setSelectedStorage('google-drive');
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [isAuthenticated]);
+
+  const handleStorageSelection = (storage: any) => {
+    if (storage.id === 'google-drive' && !storage.isConnected) {
+      // Trigger Google Sign-In for Google Drive
+      window.location.href = '/api/auth/google?service=storage';
+    } else {
+      // For connected storage or other options, just select it
+      setSelectedStorage(storage.id);
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -229,7 +253,7 @@ export const MessageInput: React.FC = () => {
                   {STORAGE_OPTIONS.map((storage) => (
                     <DropdownMenuItem
                       key={storage.id}
-                      onClick={() => setSelectedStorage(storage.id)}
+                      onClick={() => handleStorageSelection(storage)}
                       className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">

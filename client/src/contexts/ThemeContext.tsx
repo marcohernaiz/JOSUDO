@@ -29,6 +29,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (savedTheme) {
       setTheme(savedTheme);
+    } else {
+      // Default to dark mode and save it
+      setTheme('dark');
+      localStorage.setItem('theme', 'dark');
     }
   }, []);
 

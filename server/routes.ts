@@ -20,12 +20,18 @@ import { z } from "zod";
 const hasGoogleAuth = process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET;
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Trust proxy for HTTPS detection
+  app.set('trust proxy', 1);
+  
   // Session configuration
   app.use(session({
     secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+    cookie: { 
+      secure: process.env.NODE_ENV === 'production', 
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
   }));
 
   app.use(passport.initialize());
@@ -33,10 +39,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Passport configuration (only if Google OAuth is available)
   if (hasGoogleAuth) {
+    // Get the current domain for the callback URL
+    const getCallbackURL = (req: any) => {
+      const protocol = req.secure ? 'https' : 'http';
+      const host = req.get('host');
+      return `${protocol}://${host}/api/auth/google/callback`;
+    };
+
     passport.use(new GoogleStrategy({
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: "/api/auth/google/callback"
+      callbackURL: "https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev/api/auth/google/callback"
     }, async (accessToken: any, refreshToken: any, profile: any, done: any) => {
     try {
       let user = await storage.getUserByGoogleId(profile.id);
@@ -79,12 +92,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth routes (only if Google OAuth is configured)
   if (hasGoogleAuth) {
-    app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+    app.get('/api/auth/google', (req, res, next) => {
+      const service = req.query.service;
+      const scope = service === 'storage' 
+        ? ['profile', 'email', 'https://www.googleapis.com/auth/drive.file']
+        : ['profile', 'email'];
+      
+      passport.authenticate('google', { scope })(req, res, next);
+    });
     
     app.get('/api/auth/google/callback', 
       passport.authenticate('google', { failureRedirect: '/auth' }),
       (req, res) => {
-        res.redirect('/dashboard');
+        const service = req.query.service;
+        if (service === 'storage') {
+          // Redirect back to dashboard with storage connected
+          res.redirect('/dashboard?storage=connected');
+        } else {
+          res.redirect('/dashboard');
+        }
       }
     );
   }
@@ -118,6 +144,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/logout', (req, res) => {
     req.logout(() => {
       res.json({ success: true });
+    });
+  });
+
+  app.get('/api/auth/logout', (req, res) => {
+    req.logout(() => {
+      res.redirect('/');
     });
   });
 

@@ -3,7 +3,6 @@ import { Sidebar } from '@/components/Sidebar/Sidebar';
 import { Header } from '@/components/Header/Header';
 import { ChatArea } from '@/components/Chat/ChatArea';
 import { MessageInput } from '@/components/Chat/MessageInput';
-import { ThemeToggle } from '@/components/ThemeToggle/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import sophiaBackground from '@assets/Sophia background_1752487018233.png';
@@ -13,7 +12,6 @@ export default function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
     <div className="h-screen w-full bg-white dark:bg-black">
-      <ThemeToggle />
       <div 
         className="h-full w-full flex relative"
         style={{
@@ -24,7 +22,7 @@ export default function Dashboard() {
         }}
       >
         {/* Theme overlay */}
-        <div className="absolute inset-0 bg-white/40 dark:bg-black/20"></div>
+        <div className="absolute inset-0 bg-white/40 dark:bg-black/5"></div>
         {/* Mobile Menu Toggle */}
         {isMobile && (
           <Button
