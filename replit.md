@@ -502,6 +502,8 @@ The application follows a microservices-inspired pattern with distinct service l
   - Fixed icon logic to show moon (🌙) in dark mode and sun (☀️) in light mode
   - Added subtle hover effect instead of solid background
   - Enhanced visual consistency with minimal, clean design approach
+  - Updated button to match page background color (white/black) with no borders
+  - Applied ghost variant for seamless integration with header design
 
 ## User Preferences
 
