@@ -443,18 +443,30 @@ html {
 
 /* AI Dropdown */
 .ai-dropdown {
-  background: rgba(30, 41, 59, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(148, 163, 184, 0.2);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
+.dark .ai-dropdown {
+  background: rgba(30, 41, 59, 0.95);
+}
+
 .ai-dropdown-item {
-  color: #e2e8f0;
+  color: #1e293b;
   transition: all 0.3s ease;
 }
 
+.dark .ai-dropdown-item {
+  color: #e2e8f0;
+}
+
 .ai-dropdown-item:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+.dark .ai-dropdown-item:hover {
   background: rgba(51, 65, 85, 0.8);
 }
 

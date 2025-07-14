@@ -382,6 +382,12 @@ The application follows a microservices-inspired pattern with distinct service l
   - Changed main page background from white to slate-50 for subtle light grey in light mode
   - Updated theme overlay to use white/30 opacity in light mode vs black/20 in dark mode
   - Enhanced visual comfort with softer background color while maintaining dark mode aesthetics
+- July 14, 2025. Enhanced light mode with even lighter backgrounds
+  - Updated main page background to slate-100 for a much lighter grey appearance
+  - Modified input box and control buttons to use white/80 backgrounds in light mode
+  - Enhanced theme overlay opacity to white/40 for better visibility
+  - Applied comprehensive light/dark theme support to all input components and dropdown menus
+  - Improved text color contrast for better readability in both themes
 
 ## User Preferences
 

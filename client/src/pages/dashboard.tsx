@@ -12,7 +12,7 @@ export default function Dashboard() {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
-    <div className="h-screen w-full bg-slate-50 dark:bg-black">
+    <div className="h-screen w-full bg-slate-100 dark:bg-black">
       <ThemeToggle />
       <div 
         className="h-full w-full flex relative"
@@ -24,7 +24,7 @@ export default function Dashboard() {
         }}
       >
         {/* Theme overlay */}
-        <div className="absolute inset-0 bg-white/30 dark:bg-black/20"></div>
+        <div className="absolute inset-0 bg-white/40 dark:bg-black/20"></div>
         {/* Mobile Menu Toggle */}
         {isMobile && (
           <Button
