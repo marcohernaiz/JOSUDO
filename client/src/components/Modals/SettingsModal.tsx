@@ -82,7 +82,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
           className="w-full flex items-center justify-between p-4 bg-slate-800/80 hover:bg-slate-700/90 transition-all duration-200 backdrop-blur-sm"
         >
           <div className="flex items-center space-x-3">
-            <i className={`${icon} text-cyan-400`}></i>
+            <span className="text-xl text-cyan-400">
+              {icon === 'fas fa-brain' ? '🧠' : 
+               icon === 'fas fa-cloud' ? '☁️' : 
+               icon === 'fas fa-server' ? '🖥️' : 
+               icon === 'fas fa-network-wired' ? '🌐' : '⚙️'}
+            </span>
             <h4 className="text-sm font-medium text-white">{title}</h4>
           </div>
           {isExpanded ? (
@@ -101,7 +106,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                   className="flex items-center justify-between p-4 bg-slate-800/70 border border-slate-700/50 rounded-lg hover:bg-slate-800/90 hover:border-slate-600/60 transition-all duration-200 backdrop-blur-sm"
                 >
                   <div className="flex items-center space-x-3">
-                    <i className={`${item.icon} ${integration ? 'text-green-500' : item.color}`}></i>
+                    <span className={`text-xl ${integration ? 'text-green-500' : item.color}`}>
+                      {item.icon}
+                    </span>
                     <div>
                       <div className="font-medium text-white">{item.label}</div>
                       <div className="text-sm text-white">
@@ -119,8 +126,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                           variant="ghost" 
                           size="sm"
                           onClick={() => handleDisconnect(integration.id)}
+                          className="text-white hover:text-red-400"
                         >
-                          <i className="fas fa-unlink"></i>
+                          🔗
                         </Button>
                       </>
                     ) : (
@@ -143,36 +151,41 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   };
 
   const aiModels = [
-    { name: 'openai', label: 'OpenAI GPT-4', icon: 'fas fa-brain', color: 'text-green-400' },
-    { name: 'claude', label: 'Anthropic Claude', icon: 'fas fa-robot', color: 'text-purple-400' },
-    { name: 'gemini', label: 'Google Gemini', icon: 'fas fa-star', color: 'text-blue-400' },
-    { name: 'grok', label: 'xAI Grok', icon: 'fas fa-lightning', color: 'text-yellow-400' },
-    { name: 'llama', label: 'Meta Llama', icon: 'fas fa-fire', color: 'text-red-400' },
+    { name: 'deepseek', label: 'DeepSeek R1', icon: '🤖', color: 'text-green-400' },
+    { name: 'mixtral', label: 'Mixtral 8x7B', icon: '⚡', color: 'text-purple-400' },
+    { name: 'openai', label: 'OpenAI GPT-4', icon: '🧠', color: 'text-green-400' },
+    { name: 'claude', label: 'Anthropic Claude', icon: '🤖', color: 'text-purple-400' },
+    { name: 'gemini', label: 'Google Gemini', icon: '⭐', color: 'text-blue-400' },
+    { name: 'grok', label: 'xAI Grok', icon: '⚡', color: 'text-yellow-400' },
+    { name: 'llama', label: 'Meta Llama', icon: '🔥', color: 'text-red-400' },
   ];
 
   const storageServices = [
-    { name: 'google_drive', label: 'Google Drive', icon: 'fab fa-google-drive', color: 'text-blue-400' },
-    { name: 'dropbox', label: 'Dropbox', icon: 'fab fa-dropbox', color: 'text-cyan-400' },
-    { name: 'icloud', label: 'Apple iCloud', icon: 'fab fa-apple', color: 'text-slate-300' },
-    { name: 'onedrive', label: 'Microsoft OneDrive', icon: 'fab fa-microsoft', color: 'text-indigo-400' },
-    { name: 'box', label: 'Box', icon: 'fab fa-box', color: 'text-indigo-400' },
-    { name: 'aws_s3', label: 'Amazon S3', icon: 'fab fa-aws', color: 'text-orange-400' },
-    { name: 'github', label: 'GitHub Storage', icon: 'fab fa-github', color: 'text-slate-300' },
-    { name: 'gitlab', label: 'GitLab Storage', icon: 'fab fa-gitlab', color: 'text-red-400' },
+    { name: 'google_drive', label: 'Google Drive', icon: '💾', color: 'text-blue-400' },
+    { name: 'dropbox', label: 'Dropbox', icon: '💾', color: 'text-cyan-400' },
+    { name: 'icloud', label: 'Apple iCloud', icon: '☁️', color: 'text-slate-300' },
+    { name: 'onedrive', label: 'Microsoft OneDrive', icon: '💾', color: 'text-indigo-400' },
+    { name: 'box', label: 'Box', icon: '📦', color: 'text-indigo-400' },
+    { name: 'aws_s3', label: 'Amazon S3', icon: '🗄️', color: 'text-orange-400' },
+    { name: 'github', label: 'GitHub Storage', icon: '🐙', color: 'text-slate-300' },
+    { name: 'gitlab', label: 'GitLab Storage', icon: '🦊', color: 'text-red-400' },
   ];
 
   const processingProviders = [
-    { name: 'aws', label: 'Amazon Web Services', icon: 'fab fa-aws', color: 'text-orange-400' },
-    { name: 'google_cloud', label: 'Google Cloud Platform', icon: 'fab fa-google', color: 'text-blue-400' },
-    { name: 'azure', label: 'Microsoft Azure', icon: 'fab fa-microsoft', color: 'text-cyan-400' },
-    { name: 'josudo', label: 'Josudo Processing', icon: 'fas fa-bolt', color: 'text-orange-400' },
+    { name: 'aws', label: 'Amazon Web Services', icon: '🚀', color: 'text-orange-400' },
+    { name: 'google_cloud', label: 'Google Cloud Platform', icon: '☁️', color: 'text-blue-400' },
+    { name: 'azure', label: 'Microsoft Azure', icon: '🌐', color: 'text-cyan-400' },
+    { name: 'josudo', label: 'Josudo Processing', icon: '⚡', color: 'text-orange-400' },
   ];
 
   const mcpServers = [
-    { name: 'github', label: 'GitHub MCP', icon: 'fab fa-github', color: 'text-slate-300' },
-    { name: 'slack', label: 'Slack MCP', icon: 'fab fa-slack', color: 'text-green-400' },
-    { name: 'notion', label: 'Notion MCP', icon: 'fas fa-file-alt', color: 'text-gray-300' },
-    { name: 'jira', label: 'Jira MCP', icon: 'fab fa-jira', color: 'text-blue-400' },
+    { name: 'github', label: 'GitHub MCP', icon: '🐙', color: 'text-slate-300' },
+    { name: 'slack', label: 'Slack MCP', icon: '💬', color: 'text-green-400' },
+    { name: 'notion', label: 'Notion MCP', icon: '📝', color: 'text-gray-300' },
+    { name: 'jira', label: 'Jira MCP', icon: '🎯', color: 'text-blue-400' },
+    { name: 'discord', label: 'Discord MCP', icon: '💬', color: 'text-purple-400' },
+    { name: 'trello', label: 'Trello MCP', icon: '📋', color: 'text-blue-400' },
+    { name: 'asana', label: 'Asana MCP', icon: '✅', color: 'text-pink-400' },
   ];
 
   const tabs = [

@@ -363,6 +363,13 @@ The application follows a microservices-inspired pattern with distinct service l
   - Enhanced UI with smooth scrolling behavior and webkit scrollbar customization
   - Fixed scrolling issue in expanded sections by adding individual scroll containers
   - Added more storage options (Box, AWS S3, GitHub, GitLab) to test scrolling functionality
+- July 14, 2025. Fixed integration display issues and enhanced options visibility
+  - Replaced FontAwesome icons with emoji symbols for guaranteed visibility
+  - Added DeepSeek R1 and Mixtral as free AI model options
+  - Enhanced storage options with Box, AWS S3, GitHub, GitLab
+  - Added Discord, Trello, and Asana to MCP servers
+  - Improved icon display consistency across all integration sections
+  - Fixed section header icons to use emoji symbols for better visibility
 
 ## User Preferences
 
