@@ -192,6 +192,14 @@ The application follows a microservices-inspired pattern with distinct service l
   - Enhanced button styling with dark hover states
   - Improved settings icon visibility with enhanced styling
   - Chat history section now uses darker text colors to match overall theme
+- July 14, 2025. Added comprehensive icons to sidebar components
+  - Added + icon to the left of "New Chat" button
+  - Added 🤖 AI icon to the left of AI model (now showing Grok instead of DeepSeek)
+  - Added 💾 storage icon to the left of storage model status
+  - Added ⚡ processing icon to the left of processing provider (Josudo)
+  - Added ⚙️ settings icon to the left of settings button
+  - Updated active configuration to show current defaults: Grok AI, No Storage, Josudo Processing
+  - All icons use consistent emoji-based symbols with appropriate color coding
 
 ## User Preferences
 

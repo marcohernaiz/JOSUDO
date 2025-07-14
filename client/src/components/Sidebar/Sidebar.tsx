@@ -41,9 +41,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           
           <Button 
             onClick={createNewChat}
-            className="w-full bg-blue-600 text-white hover:bg-blue-700"
+            className="w-full bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center"
           >
-            <i className="fas fa-plus mr-2"></i>
+            <span className="text-white mr-2">+</span>
             New Chat
           </Button>
         </div>
@@ -53,15 +53,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           <div className="text-xs font-medium text-slate-400 mb-2">ACTIVE CONFIGURATION</div>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
+              <span className="text-blue-400 text-sm">🤖</span>
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
               <span className="text-sm text-slate-300">
-                DeepSeek (Free)
+                Grok (Free)
               </span>
             </div>
             <div className="flex items-center space-x-2">
+              <span className="text-purple-400 text-sm">💾</span>
               <div className="w-2 h-2 rounded-full bg-slate-500"></div>
               <span className="text-sm text-slate-300">
-                No storage connected
+                No Storage
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-orange-400 text-sm">⚡</span>
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span className="text-sm text-slate-300">
+                Josudo Processing
               </span>
             </div>
           </div>
@@ -79,9 +88,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               variant="ghost" 
               size="sm"
               onClick={() => setShowSettings(true)}
-              className="flex-1 text-xs text-slate-400 hover:text-white hover:bg-slate-800"
+              className="flex-1 text-xs text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center"
             >
-              <i className="fas fa-cog mr-1"></i>Settings
+              <span className="text-slate-400 mr-1">⚙️</span>Settings
             </Button>
           </div>
         </div>
