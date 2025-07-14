@@ -71,67 +71,56 @@ export default function Dashboard() {
         {/* Subtle overlay for better readability */}
         <div className="absolute inset-0 bg-black/20 z-10"></div>
 
-        {/* Cyberpunk Universe Stars Animation */}
+        {/* Enhanced Visible Animation System */}
         <div className="absolute inset-0 z-20 pointer-events-none">
-          {/* Moving Stars Layer 1 */}
+          {/* Large Floating Energy Orbs */}
           <div className="w-full h-full" style={{
             background: `
-              radial-gradient(1px 1px at 5% 10%, rgba(0, 255, 255, 0.8), transparent),
-              radial-gradient(2px 2px at 15% 25%, rgba(255, 0, 255, 0.6), transparent),
-              radial-gradient(1px 1px at 25% 40%, rgba(0, 255, 255, 0.7), transparent),
-              radial-gradient(1px 1px at 35% 60%, rgba(255, 255, 0, 0.5), transparent),
-              radial-gradient(2px 2px at 45% 15%, rgba(0, 255, 255, 0.8), transparent),
-              radial-gradient(1px 1px at 55% 80%, rgba(255, 0, 255, 0.6), transparent),
-              radial-gradient(1px 1px at 65% 35%, rgba(0, 255, 255, 0.7), transparent),
-              radial-gradient(2px 2px at 75% 55%, rgba(255, 255, 0, 0.5), transparent),
-              radial-gradient(1px 1px at 85% 75%, rgba(0, 255, 255, 0.8), transparent),
-              radial-gradient(1px 1px at 95% 20%, rgba(255, 0, 255, 0.6), transparent)
+              radial-gradient(8px 8px at 10% 15%, rgba(0, 255, 255, 0.9), rgba(0, 255, 255, 0.3) 30%, transparent 70%),
+              radial-gradient(12px 12px at 25% 35%, rgba(255, 0, 255, 0.8), rgba(255, 0, 255, 0.2) 40%, transparent 70%),
+              radial-gradient(10px 10px at 40% 60%, rgba(0, 255, 255, 0.9), rgba(0, 255, 255, 0.3) 35%, transparent 70%),
+              radial-gradient(15px 15px at 65% 25%, rgba(255, 255, 0, 0.7), rgba(255, 255, 0, 0.2) 30%, transparent 70%),
+              radial-gradient(9px 9px at 80% 45%, rgba(0, 255, 255, 0.8), rgba(0, 255, 255, 0.3) 35%, transparent 70%),
+              radial-gradient(11px 11px at 95% 75%, rgba(255, 0, 255, 0.9), rgba(255, 0, 255, 0.3) 30%, transparent 70%)
             `,
-            backgroundSize: '400px 300px, 300px 400px, 500px 200px, 250px 350px, 350px 250px, 400px 300px, 300px 400px, 500px 200px, 250px 350px, 350px 250px',
-            animation: 'starsMove 40s linear infinite, starsGlow 8s ease-in-out infinite'
+            backgroundSize: '300px 200px, 400px 300px, 350px 250px, 500px 350px, 300px 200px, 400px 300px',
+            animation: 'floatingOrbs 25s linear infinite, energyPulse 6s ease-in-out infinite'
           }}></div>
           
-          {/* Moving Stars Layer 2 */}
+          {/* Geometric Shapes Layer */}
           <div className="w-full h-full" style={{
             background: `
-              radial-gradient(1px 1px at 10% 30%, rgba(64, 224, 208, 0.6), transparent),
-              radial-gradient(1px 1px at 20% 60%, rgba(138, 43, 226, 0.5), transparent),
-              radial-gradient(2px 2px at 30% 20%, rgba(30, 144, 255, 0.7), transparent),
-              radial-gradient(1px 1px at 40% 70%, rgba(64, 224, 208, 0.4), transparent),
-              radial-gradient(1px 1px at 50% 40%, rgba(138, 43, 226, 0.6), transparent),
-              radial-gradient(2px 2px at 60% 80%, rgba(30, 144, 255, 0.5), transparent),
-              radial-gradient(1px 1px at 70% 50%, rgba(64, 224, 208, 0.7), transparent),
-              radial-gradient(1px 1px at 80% 10%, rgba(138, 43, 226, 0.4), transparent),
-              radial-gradient(2px 2px at 90% 90%, rgba(30, 144, 255, 0.6), transparent)
+              conic-gradient(from 0deg at 20% 30%, rgba(0, 255, 255, 0.6) 0deg, transparent 90deg, rgba(0, 255, 255, 0.6) 180deg, transparent 270deg),
+              conic-gradient(from 45deg at 50% 20%, rgba(255, 0, 255, 0.5) 0deg, transparent 120deg, rgba(255, 0, 255, 0.5) 240deg, transparent 360deg),
+              conic-gradient(from 90deg at 75% 50%, rgba(255, 255, 0, 0.4) 0deg, transparent 90deg, rgba(255, 255, 0, 0.4) 180deg, transparent 270deg),
+              conic-gradient(from 180deg at 30% 80%, rgba(0, 255, 255, 0.5) 0deg, transparent 120deg, rgba(0, 255, 255, 0.5) 240deg, transparent 360deg)
             `,
-            backgroundSize: '350px 250px, 450px 350px, 300px 200px, 400px 300px, 250px 400px, 350px 250px, 450px 350px, 300px 200px, 400px 300px',
-            animation: 'starsMove 60s linear infinite reverse, cyberPulse 12s ease-in-out infinite'
+            backgroundSize: '150px 150px, 200px 200px, 180px 180px, 160px 160px',
+            animation: 'geometricRotate 20s linear infinite, shapePulse 8s ease-in-out infinite'
           }}></div>
           
-          {/* Cyberpunk Grid Overlay */}
+          {/* Enhanced Energy Grid */}
           <div className="w-full h-full" style={{
             background: `
-              linear-gradient(90deg, transparent 49%, rgba(0, 255, 255, 0.1) 50%, transparent 51%),
-              linear-gradient(0deg, transparent 49%, rgba(255, 0, 255, 0.1) 50%, transparent 51%)
+              linear-gradient(45deg, transparent 48%, rgba(0, 255, 255, 0.4) 49%, rgba(0, 255, 255, 0.6) 50%, rgba(0, 255, 255, 0.4) 51%, transparent 52%),
+              linear-gradient(-45deg, transparent 48%, rgba(255, 0, 255, 0.3) 49%, rgba(255, 0, 255, 0.5) 50%, rgba(255, 0, 255, 0.3) 51%, transparent 52%)
             `,
-            backgroundSize: '100px 100px, 150px 150px',
-            animation: 'gridMove 20s linear infinite'
+            backgroundSize: '80px 80px, 120px 120px',
+            animation: 'energyGrid 15s linear infinite'
           }}></div>
           
-          {/* Subtle particle effects */}
+          {/* Bright Particle System */}
           <div className="w-full h-full" style={{
             background: `
-              radial-gradient(1px 1px at 12% 22%, rgba(64, 224, 208, 0.2), transparent),
-              radial-gradient(1px 1px at 32% 42%, rgba(138, 43, 226, 0.15), transparent),
-              radial-gradient(1px 1px at 52% 12%, rgba(30, 144, 255, 0.18), transparent),
-              radial-gradient(1px 1px at 72% 32%, rgba(64, 224, 208, 0.15), transparent),
-              radial-gradient(1px 1px at 92% 52%, rgba(138, 43, 226, 0.2), transparent),
-              radial-gradient(1px 1px at 22% 72%, rgba(30, 144, 255, 0.15), transparent),
-              radial-gradient(1px 1px at 42% 92%, rgba(64, 224, 208, 0.18), transparent),
-              radial-gradient(1px 1px at 82% 82%, rgba(138, 43, 226, 0.15), transparent)
+              radial-gradient(4px 4px at 15% 25%, rgba(64, 224, 208, 0.9), rgba(64, 224, 208, 0.4) 50%, transparent 70%),
+              radial-gradient(6px 6px at 35% 45%, rgba(138, 43, 226, 0.8), rgba(138, 43, 226, 0.3) 50%, transparent 70%),
+              radial-gradient(5px 5px at 55% 15%, rgba(30, 144, 255, 0.9), rgba(30, 144, 255, 0.4) 50%, transparent 70%),
+              radial-gradient(4px 4px at 75% 65%, rgba(64, 224, 208, 0.8), rgba(64, 224, 208, 0.3) 50%, transparent 70%),
+              radial-gradient(7px 7px at 85% 35%, rgba(138, 43, 226, 0.9), rgba(138, 43, 226, 0.4) 50%, transparent 70%),
+              radial-gradient(5px 5px at 25% 85%, rgba(30, 144, 255, 0.8), rgba(30, 144, 255, 0.3) 50%, transparent 70%)
             `,
-            backgroundSize: '300px 200px, 400px 300px, 250px 150px, 350px 250px, 300px 200px, 400px 300px, 250px 150px, 350px 250px',
-            animation: 'particleFlow 30s linear infinite'
+            backgroundSize: '200px 200px, 300px 300px, 250px 250px, 200px 200px, 300px 300px, 250px 250px',
+            animation: 'brightParticles 35s linear infinite'
           }}></div>
         </div>
 
