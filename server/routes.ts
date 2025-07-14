@@ -79,12 +79,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth routes (only if Google OAuth is configured)
   if (hasGoogleAuth) {
-    app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+    app.get('/api/auth/google', (req, res, next) => {
+      const service = req.query.service;
+      const scope = service === 'storage' 
+        ? ['profile', 'email', 'https://www.googleapis.com/auth/drive.file']
+        : ['profile', 'email'];
+      
+      passport.authenticate('google', { scope })(req, res, next);
+    });
     
     app.get('/api/auth/google/callback', 
       passport.authenticate('google', { failureRedirect: '/auth' }),
       (req, res) => {
-        res.redirect('/dashboard');
+        const service = req.query.service;
+        if (service === 'storage') {
+          // Redirect back to dashboard with storage connected
+          res.redirect('/dashboard?storage=connected');
+        } else {
+          res.redirect('/dashboard');
+        }
       }
     );
   }

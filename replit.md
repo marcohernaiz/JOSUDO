@@ -480,6 +480,11 @@ The application follows a microservices-inspired pattern with distinct service l
   - Reduced dark mode overlay opacity from bg-black/10 to bg-black/5
   - Cyberpunk stars, grid patterns, and particle effects now clearly visible
   - Maintains UI readability while showcasing background animations
+- July 14, 2025. Integrated Google Sign-In for storage selection
+  - Added handleStorageSelection function to trigger OAuth when selecting Google Drive
+  - Updated Google OAuth routes to support storage-specific authentication with Drive permissions
+  - Enhanced authentication flow to redirect back to dashboard with storage connection status
+  - Users can now authenticate with Google Drive directly from storage selector dropdown
 
 ## User Preferences
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
 import josudoIcon from '@assets/JOSUDO logo icon_1752491258890.png';
@@ -79,6 +79,34 @@ export const MessageInput: React.FC = () => {
   const [selectedStorage, setSelectedStorage] = useState('none');
   const [selectedProcessing, setSelectedProcessing] = useState('josudo');
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // Check if user just connected storage
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('storage') === 'connected') {
+      setSelectedStorage('google-drive');
+      // Update storage status in the array
+      const driveStorage = STORAGE_OPTIONS.find(s => s.id === 'google-drive');
+      if (driveStorage) {
+        driveStorage.isConnected = true;
+      }
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
+  const handleStorageSelection = (storage: any) => {
+    if (storage.id === 'google-drive' && !storage.isConnected) {
+      // Trigger Google Sign-In for Google Drive
+      window.location.href = '/api/auth/google?service=storage';
+    } else if (storage.id === 'none') {
+      // No storage selected
+      setSelectedStorage(storage.id);
+    } else {
+      // Other storage providers that might require authentication
+      setSelectedStorage(storage.id);
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -229,7 +257,7 @@ export const MessageInput: React.FC = () => {
                   {STORAGE_OPTIONS.map((storage) => (
                     <DropdownMenuItem
                       key={storage.id}
-                      onClick={() => setSelectedStorage(storage.id)}
+                      onClick={() => handleStorageSelection(storage)}
                       className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">
