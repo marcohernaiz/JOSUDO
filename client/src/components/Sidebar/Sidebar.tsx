@@ -25,14 +25,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   return (
     <>
       <div 
-        className={`h-full bg-slate-100 dark:bg-slate-900/80 border-r border-slate-300 dark:border-slate-700 flex flex-col transition-all duration-75 ${
+        className={`h-full bg-slate-600 dark:bg-slate-900/80 border-r border-slate-500 dark:border-slate-700 flex flex-col transition-all duration-75 ${
           isExpanded ? 'w-64' : 'w-16'
         }`}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
       >
         {/* Header */}
-        <div className="p-4 border-b border-slate-300 dark:border-slate-700">
+        <div className="p-4 border-b border-slate-500 dark:border-slate-700">
           <div className={`flex items-center ${isExpanded ? 'justify-between' : 'justify-center'} mb-4`}>
             <div className={`flex items-center ${isExpanded ? 'space-x-3' : 'justify-center'}`}>
               <div className="relative w-10 h-10 flex items-center justify-center flex-shrink-0">

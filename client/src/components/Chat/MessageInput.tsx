@@ -100,7 +100,7 @@ export const MessageInput: React.FC = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <div className="ai-input-lines bg-white/90 dark:bg-slate-800/60 rounded-xl p-6 border border-slate-200/60 dark:border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
+      <div className="ai-input-lines bg-slate-600/90 dark:bg-slate-800/60 rounded-xl p-6 border border-slate-500/60 dark:border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
         {/* First Line - Input Box Only */}
         <div className="flex items-center justify-between w-full">
           <div className="relative flex-1">
@@ -110,7 +110,7 @@ export const MessageInput: React.FC = () => {
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask me anything..."
-              className="w-full h-14 px-6 pr-14 bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 rounded-lg text-slate-600 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg"
+              className="w-full h-14 px-6 pr-14 bg-slate-600 dark:bg-slate-700 border border-slate-500 dark:border-slate-600 rounded-lg text-white dark:text-white placeholder-slate-300 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg"
             />
             
             {/* Send button */}
