@@ -74,7 +74,7 @@ export const ChatArea: React.FC = () => {
           >
             <div className={`max-w-3xl ${
               message.role === 'user' 
-                ? 'bg-primary text-white rounded-2xl px-4 py-3' 
+                ? 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-2xl px-4 py-3' 
                 : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3'
             }`}>
               {message.role === 'assistant' && (
@@ -94,7 +94,11 @@ export const ChatArea: React.FC = () => {
               )}
               
               <div className="prose prose-sm max-w-none">
-                <p className="text-sm whitespace-pre-wrap text-slate-800 dark:text-slate-200">
+                <p className={`text-sm whitespace-pre-wrap ${
+                  message.role === 'user' 
+                    ? 'text-slate-800 dark:text-slate-200' 
+                    : 'text-slate-800 dark:text-slate-200'
+                }`}>
                   {message.content}
                 </p>
               </div>

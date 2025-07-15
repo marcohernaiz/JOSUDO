@@ -550,6 +550,12 @@ The application follows a microservices-inspired pattern with distinct service l
   - Added overflow-hidden to main content area with max-height constraints
   - Eliminated 5+ pages of scrollable white space below main content
   - Page now has fixed height with no vertical scrolling capability
+- July 14, 2025. Updated user chat message background for better visual distinction
+  - Changed user message background from primary (dark blue) to lighter slate colors
+  - Light mode: bg-slate-100 with dark text (slate-800)
+  - Dark mode: bg-slate-700 with light text (slate-200)
+  - User messages now have lighter background than AI messages for better contrast
+  - Improved readability and visual hierarchy in chat interface
 
 ## User Preferences
 
