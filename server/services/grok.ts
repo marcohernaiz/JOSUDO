@@ -65,15 +65,43 @@ class GrokService {
   private generateContextualResponse(message: string): string {
     const lowerMessage = message.toLowerCase();
     
-    if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+    // Handle greetings
+    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
       return "Hey there! I'm Grok, xAI's witty assistant. What's on your mind today?";
-    } else if (lowerMessage.includes('what') && lowerMessage.includes('you')) {
-      return "I'm Grok, built by xAI with a bit of wit and rebellion. I'm here to help you think outside the box and tackle problems with a fresh perspective.";
-    } else if (lowerMessage.includes('elon') || lowerMessage.includes('musk')) {
-      return "Ah, you're asking about my creator's boss! Elon's always pushing boundaries. Speaking of which, what boundary shall we push today?";
-    } else {
-      return `You said: "${message}". That's interesting! I'm Grok, xAI's AI with a bit of attitude. I'm designed to be helpful while keeping things real. What would you like to explore together?`;
     }
+    
+    // Handle questions about identity
+    if (lowerMessage.includes('what') && (lowerMessage.includes('you') || lowerMessage.includes('grok'))) {
+      return "I'm Grok, built by xAI with a bit of wit and rebellion. I'm here to help you think outside the box and tackle problems with a fresh perspective.";
+    }
+    
+    // Handle questions about capabilities
+    if (lowerMessage.includes('what') && lowerMessage.includes('can') && lowerMessage.includes('you')) {
+      return "I can help you with a wide range of tasks! I can answer questions, help with analysis, creative writing, coding, problem-solving, and much more. I'm designed to be helpful while keeping things real and adding a bit of wit. What would you like to work on?";
+    }
+    
+    // Handle questions about Josudo
+    if (lowerMessage.includes('josudo')) {
+      return "Josudo appears to be the AI assistant platform you're using right now! It's a pretty slick interface that lets you chat with different AI models like me. It seems designed to give you access to various AI capabilities in one place. Are you testing out the platform's features?";
+    }
+    
+    // Handle questions about knowledge or knowing things
+    if (lowerMessage.includes('do you know') || lowerMessage.includes('know what')) {
+      return "I have knowledge up to my training cutoff, so I can help with many topics, but I might not know about very recent events or specific proprietary systems. What specifically were you curious about? I'll do my best to help or let you know if something's outside my knowledge.";
+    }
+    
+    // Handle questions about help
+    if (lowerMessage.includes('help') || lowerMessage.includes('assist')) {
+      return "I'm here to help! I can assist with analysis, writing, coding, problem-solving, creative tasks, research, and much more. I approach things with a mix of helpfulness and wit. What would you like to tackle together?";
+    }
+    
+    // Handle Elon/Musk references
+    if (lowerMessage.includes('elon') || lowerMessage.includes('musk')) {
+      return "Ah, you're asking about my creator's boss! Elon's always pushing boundaries. Speaking of which, what boundary shall we push today?";
+    }
+    
+    // Default response that acknowledges the input
+    return `I hear you! "${message}" - that's an interesting point. I'm Grok, and I'm here to help with whatever you'd like to explore. What would you like to dive into?`;
   }
 
   calculateCost(tokens: number): number {
