@@ -1,7 +1,6 @@
 import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { ChatMessage } from '@/types';
 import { useEffect, useRef } from 'react';
@@ -32,15 +31,20 @@ export const ChatArea: React.FC = () => {
   const { messages } = useChat();
   const { integrations } = useAppContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   console.log('ChatArea render, messages:', messages);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      setTimeout(scrollToBottom, 100); // Small delay to ensure DOM is updated
+    }
   }, [messages]);
 
   const selectModel = (model: string) => {
@@ -57,8 +61,12 @@ export const ChatArea: React.FC = () => {
   }
 
   return (
-    <ScrollArea className="flex-1 h-full px-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div 
+      ref={scrollContainerRef}
+      className="flex-1 h-full px-6 overflow-y-auto"
+      style={{ scrollBehavior: 'smooth' }}
+    >
+      <div className="max-w-4xl mx-auto space-y-6 pb-4">
         {messages.map((message) => (
           <div 
             key={message.id} 
@@ -67,12 +75,12 @@ export const ChatArea: React.FC = () => {
             <div className={`max-w-3xl ${
               message.role === 'user' 
                 ? 'bg-primary text-white rounded-2xl px-4 py-3' 
-                : 'bg-white border border-slate-200 rounded-2xl px-4 py-3'
+                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3'
             }`}>
               {message.role === 'assistant' && (
                 <div className="flex items-center space-x-2 mb-2">
                   <i className="fas fa-robot text-primary"></i>
-                  <span className="text-xs font-medium text-slate-600">
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
                     {message.model ? getModelDisplayName(message.model) : "AI"}
                   </span>
                   <span className="text-xs text-slate-400">•</span>
@@ -86,11 +94,13 @@ export const ChatArea: React.FC = () => {
               )}
               
               <div className="prose prose-sm max-w-none">
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                <p className="text-sm whitespace-pre-wrap text-slate-800 dark:text-slate-200">
+                  {message.content}
+                </p>
               </div>
               
               <div className={`flex items-center justify-between mt-3 ${
-                message.role === 'user' ? 'text-primary-100' : 'text-slate-400'
+                message.role === 'user' ? 'text-primary-100' : 'text-slate-400 dark:text-slate-500'
               }`}>
                 <div className="text-xs">
                   {message.timestamp.toLocaleTimeString()}
@@ -112,6 +122,6 @@ export const ChatArea: React.FC = () => {
         ))}
         <div ref={messagesEndRef} />
       </div>
-    </ScrollArea>
+    </div>
   );
 };
