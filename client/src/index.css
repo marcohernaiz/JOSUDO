@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent scrolling on body and html */
+html, body {
+  overflow: hidden;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
 /* Custom slate-250 color */
 .bg-slate-250 {
   background-color: rgb(226, 232, 240);

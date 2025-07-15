@@ -11,7 +11,7 @@ export default function Dashboard() {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
-    <div className="h-screen w-full bg-white dark:bg-black">
+    <div className="h-screen w-full bg-white dark:bg-black overflow-hidden">
       <div 
         className="h-full w-full flex relative"
         style={{
@@ -134,12 +134,12 @@ export default function Dashboard() {
         </div>
 
         {/* Main Content - Offset by sidebar width on desktop */}
-        <div className={`flex flex-col h-full relative z-30 ${!isMobile ? 'ml-16' : ''} w-full`}>
+        <div className={`flex flex-col h-full relative z-30 ${!isMobile ? 'ml-16' : ''} w-full overflow-hidden`}>
           <div className="absolute top-0 left-0 w-full z-40">
             <Header />
           </div>
-          <div className="flex-1 flex flex-col justify-end items-center pt-20">
-            <div className="flex-1 overflow-auto w-full">
+          <div className="flex-1 flex flex-col justify-end items-center pt-20 h-full">
+            <div className="flex-1 overflow-auto w-full max-h-full">
               <ChatArea />
             </div>
             <div className="flex-shrink-0 pb-6 w-full flex justify-center">
