@@ -283,8 +283,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Integration routes - No authentication required, return empty arrays
   app.get('/api/integrations', async (req, res) => {
     try {
-      // Return empty array since no user accounts
-      res.json([]);
+      const session = req as any;
+      let integrations = [];
+      
+      // Check for authenticated user
+      if (req.isAuthenticated()) {
+        integrations = await storage.getIntegrations((req.user as any).id);
+      } else if (session.session?.userId) {
+        integrations = await storage.getIntegrations(session.session.userId);
+      } else if (session.session?.integrations) {
+        // Return session-stored integrations
+        integrations = session.session.integrations;
+      }
+      
+      res.json(integrations);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch integrations' });
     }
@@ -292,8 +304,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/integrations', async (req, res) => {
     try {
-      // Mock success response since no user accounts
-      res.json({ success: true, message: 'Integration not stored - no user accounts' });
+      const session = req as any;
+      let userId = null;
+      
+      // Check for authenticated user
+      if (req.isAuthenticated()) {
+        userId = (req.user as any).id;
+      } else if (session.session?.userId) {
+        userId = session.session.userId;
+      }
+      
+      if (userId) {
+        const integration = await storage.createIntegration({
+          ...req.body,
+          userId
+        });
+        res.json({ success: true, integration });
+      } else {
+        // Store temporarily in session for current session only
+        if (!session.session.integrations) {
+          session.session.integrations = [];
+        }
+        const integration = {
+          id: Date.now(),
+          ...req.body,
+          userId: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        session.session.integrations.push(integration);
+        res.json({ success: true, integration, message: 'Stored for current session only' });
+      }
     } catch (error) {
       res.status(500).json({ error: 'Failed to create integration' });
     }
