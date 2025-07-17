@@ -181,6 +181,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { message, model } = req.body;
 
+      const userId = (req as any).session?.userId;
+      if (!userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+
       let response;
       let cost = 0;
       let tokensUsed = 0;
@@ -199,7 +204,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case 'gpt-4':
           case 'gpt-4o':
             // Fallback to DeepSeek since no user API keys
-            serviceResponse = await openaiService.sendMessage(message);
+            serviceResponse = await openaiService.sendMessage(message, userId);
             response = { choices: [{ message: { content: serviceResponse.choices[0].message.content } }] };
             tokensUsed = serviceResponse.usage?.total_tokens || 0;
             cost =

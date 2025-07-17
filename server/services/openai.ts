@@ -1,19 +1,22 @@
 import OpenAI from "openai";
 import { getSecret } from "../admin";
+import { storage } from '../storage'; // adjust path as needed
 
 class OpenAIService {
-  private getOpenAIClient(apiKey?: string) {
-    const key = apiKey || getSecret('OPENAI_API_KEY');
-    if (!key) {
-      throw new Error('OpenAI API key not configured. Please configure it in the admin panel.');
-    }
-    return new OpenAI({
-      apiKey: key
-    });
+  private async getOpenAIClientForUser(userId: number) {
+    // 1. Query the integration
+    const integration = await storage.getIntegration(userId, 'openai');
+    if (!integration) throw new Error('No OpenAI integration found for user');
+    // 2. Decrypt or parse credentials_encrypted
+    const credentials = JSON.parse(integration.credentialsEncrypted);
+    const apiKey = credentials.apiKey;
+    if (!apiKey) throw new Error('No API key found in integration');
+    // 3. Return OpenAI client
+    return new OpenAI({ apiKey });
   }
 
-  async sendMessage(message: string, userApiKey?: string) {
-    const openai = this.getOpenAIClient(userApiKey);
+  async sendMessage(message: string, userId: number) {
+    const openai = await this.getOpenAIClientForUser(userId);
     
     try {
       // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
@@ -36,9 +39,9 @@ class OpenAIService {
     }
   }
 
-  async testApiKey(apiKey: string): Promise<boolean> {
+  async testApiKey(userId: number): Promise<boolean> {
     try {
-      const openai = this.getOpenAIClient(apiKey);
+      const openai = await this.getOpenAIClientForUser(userId);
       await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [{ role: "user", content: "Hello" }],
