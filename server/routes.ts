@@ -70,6 +70,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      if (accessToken && refreshToken) {
+        const credentials = {
+          accessToken,
+          refreshToken,
+          // Optionally: expiry_date, scope, token_type, etc.
+        };
+        const existing = await storage.getIntegration(user.id, 'google-drive');
+        if (existing) {
+          await storage.updateIntegration(existing.id, {
+            credentialsEncrypted: JSON.stringify(credentials),
+            isActive: true,
+            // ...other fields as needed
+          });
+        } else {
+          await storage.createIntegration({
+            userId: user.id,
+            serviceType: 'storage', // <-- add this line
+            serviceName: 'google-drive',
+            credentialsEncrypted: JSON.stringify(credentials),
+            isActive: true,
+            // ...other fields as needed
+          });
+        }
+      }
+
       return done(null, user);
     } catch (error) {
       return done(error);
@@ -181,7 +206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { message, model } = req.body;
 
-      const userId = (req as any).session?.userId;
+      const userId = (req as any).session?.passport?.user;
       if (!userId) {
         return res.status(401).json({ error: 'Not authenticated' });
       }
@@ -255,6 +280,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         response = { choices: [{ message: { content: `[Fallback to DeepSeek - ${model} unavailable]\n\n${serviceResponse.response}` } }] };
         tokensUsed = serviceResponse.tokens;
         cost = serviceResponse.cost;
+      }
+
+      // After getting the AI response:
+      const chatMessage = {
+        user: message,
+        ai: response.choices[0].message.content,
+        timestamp: new Date(),
+        model,
+      };
+
+      // Get user's Google Drive credentials
+      const integration = await storage.getIntegration(userId, 'google-drive');
+      if (integration) {
+        const credentials = JSON.parse(integration.credentialsEncrypted);
+        // Save both user and AI message
+        await googleDriveService.saveChatMessage(
+          userId, // or sessionId if you have one
+          message, // user message (string)
+          response.choices[0].message.content || "", // ai response (string)
+          JSON.stringify(credentials) // credentials (string)
+        );
       }
 
       res.json({
