@@ -201,6 +201,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { message, model } = req.body;
 
+      console.log("model: " + model);
+
       let response;
       let cost = 0;
       let tokensUsed = 0;
@@ -220,37 +222,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "gpt-4":
           case "gpt-4o":
-            try {
-              serviceResponse = await openaiService.sendMessage(message);
-              response = {
-                choices: [
-                  {
-                    message: {
-                      content: serviceResponse.choices[0].message.content,
-                    },
+            serviceResponse = await openaiService.sendMessage(message);
+            response = {
+              choices: [
+                {
+                  message: {
+                    content: serviceResponse.choices[0].message.content,
                   },
-                ],
-              };
-              tokensUsed = serviceResponse.usage?.total_tokens || 0;
-              cost =
-                ((serviceResponse.usage?.prompt_tokens ?? 0) / 1000) * 0.01 +
-                ((serviceResponse.usage?.completion_tokens ?? 0) / 1000) * 0.03;
-            } catch (error) {
-              console.error(`Error with ${model}:`, error);
-              // Fallback to DeepSeek if OpenAI fails
-              serviceResponse = await deepseekService.sendMessage(message);
-              response = {
-                choices: [
-                  {
-                    message: {
-                      content: `[Fallback to DeepSeek - ${model} unavailable]\n\n${serviceResponse.response}`,
-                    },
-                  },
-                ],
-              };
-              tokensUsed = serviceResponse.tokens;
-              cost = serviceResponse.cost;
-            }
+                },
+              ],
+            };
+            tokensUsed = serviceResponse.usage?.total_tokens || 0;
+            cost =
+              ((serviceResponse.usage?.prompt_tokens ?? 0) / 1000) * 0.01 +
+              ((serviceResponse.usage?.completion_tokens ?? 0) / 1000) * 0.03;
             break;
 
           case "claude-3-5-sonnet":
