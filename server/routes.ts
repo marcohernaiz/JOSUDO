@@ -220,6 +220,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "gpt-4":
           case "gpt-4o":
+            // Fallback to DeepSeek since no user API keys
+            serviceResponse = await openaiService.sendMessage(message);
+            response = {
+              choices: [
+                {
+                  message: {
+                    content: serviceResponse.choices[0].message.content,
+                  },
+                },
+              ],
+            };
+            tokensUsed = serviceResponse.usage?.total_tokens || 0;
+            cost =
+              ((serviceResponse.usage?.prompt_tokens ?? 0) / 1000) * 0.01 +
+              ((serviceResponse.usage?.completion_tokens ?? 0) / 1000) * 0.03;
+            break;
+
+          case "gpt-4":
+          case "gpt-4o":
             serviceResponse = await openaiService.sendMessage(message);
             response = {
               choices: [
