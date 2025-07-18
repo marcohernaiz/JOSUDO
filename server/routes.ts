@@ -144,8 +144,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         service === "storage"
           ? ["profile", "email", "https://www.googleapis.com/auth/drive.file"]
           : ["profile", "email"];
-
-      passport.authenticate("google", { scope })(req, res, next);
+      const authOptions: any = {
+        scope,
+        access_type: "offline",
+        prompt: "consent",
+      };
+      passport.authenticate("google", authOptions)(req, res, next);
     });
 
     app.get(
