@@ -60,14 +60,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
           callbackURL:
             "https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev/api/auth/google/callback",
+          passReqToCallback: true,
         },
         async (
+          req: Request,
           accessToken: any,
           refreshToken: any,
           profile: any,
           done: any,
         ) => {
           try {
+            console.log("Access Token:", accessToken);
+            console.log("Refresh Token:", refreshToken); // <- is this undefined?
+            console.log("Profile:", profile);
+
             let user = await storage.getUserByGoogleId(profile.id);
 
             if (!user) {
@@ -139,15 +145,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes (only if Google OAuth is configured)
   if (hasGoogleAuth) {
     app.get("/api/auth/google", (req, res, next) => {
-      const service = req.query.service;
-      const scope =
+      //const service = req.query.service;
+      //console.log("Service:", service);
+      /*const scope =
         service === "storage"
           ? ["profile", "email", "https://www.googleapis.com/auth/drive.file"]
           : ["profile", "email"];
+      */
+      const scope = [
+        "profile",
+        "email",
+        "https://www.googleapis.com/auth/drive.file",
+      ];
       const authOptions: any = {
         scope,
         access_type: "offline",
         prompt: "consent",
+        approval_prompt: "force",
       };
       passport.authenticate("google", authOptions)(req, res, next);
     });
