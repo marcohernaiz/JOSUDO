@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { getSecret } from "../admin";
 import { storage } from "../storage"; // adjust path as needed
+import { googleDriveService } from "./googleDrive";
 
 class OpenAIService {
   private async getOpenAIClientForUser(userId: number) {
@@ -15,19 +16,46 @@ class OpenAIService {
     return new OpenAI({ apiKey });
   }
 
-  async sendMessage(message: string, userId: number) {
+  async sendMessage(
+    message: string,
+    userId: number,
+    sessionId: string,
+    googleCredentials: string,
+  ) {
     const openai = await this.getOpenAIClientForUser(userId);
 
     try {
-      // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      // ✅ 1. Load and sanitize previous chat history from Google Drive
+      let messages = await googleDriveService.getChatHistory(
+        sessionId,
+        googleCredentials,
+      );
+
+      // Only keep fields that OpenAI expects
+      messages = messages
+        .filter(
+          (msg) =>
+            msg.role === "user" ||
+            msg.role === "assistant" ||
+            msg.role === "system",
+        )
+        .map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        }));
+
+      // ✅ 2. Add the new user message
+      messages.push({
+        role: "user",
+        content: message,
+      });
+
+      console.log("Sending messages to OpenAI:", messages);
+
+      // ✅ 3. Send full chat history
       const response = await openai.chat.completions.create({
         model: "gpt-4o",
-        messages: [
-          {
-            role: "user",
-            content: message,
-          },
-        ],
+        messages,
         max_tokens: 1000,
         temperature: 0.7,
       });

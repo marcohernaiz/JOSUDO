@@ -92,7 +92,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               });
             }
 
-            if (accessToken && refreshToken) {
+            if (accessToken) {
               const credentials = {
                 accessToken,
                 refreshToken,
@@ -258,6 +258,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let tokensUsed = 0;
       let serviceResponse;
 
+      // Get user's Google Drive credentials
+      const integration = await storage.getIntegration(userId, "google-drive");
+
       // Route to appropriate AI service based on model
       try {
         switch (model) {
@@ -273,7 +276,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case "gpt-4":
           case "gpt-4o":
             // Fallback to DeepSeek since no user API keys
-            serviceResponse = await openaiService.sendMessage(message, userId);
+            serviceResponse = await openaiService.sendMessage(
+              message,
+              userId,
+              userId,
+              integration.credentialsEncrypted,
+            );
             response = {
               choices: [
                 {
@@ -361,8 +369,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         model,
       };
 
-      // Get user's Google Drive credentials
-      const integration = await storage.getIntegration(userId, "google-drive");
       if (integration) {
         const credentials = JSON.parse(integration.credentialsEncrypted);
         // Save both user and AI message
