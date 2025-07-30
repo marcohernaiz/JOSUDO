@@ -533,6 +533,171 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint to check authentication
+  app.get("/api/test-auth", authenticateUser, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.id;
+      res.json({
+        authenticated: true,
+        userId,
+        user: req.user,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Auth test failed" });
+    }
+  });
+
+  // Google Drive chat history endpoints
+  app.get(
+    "/api/google-drive/chat-history",
+    authenticateUser,
+    async (req, res) => {
+      try {
+        const userId = (req.user as any)?.id;
+        console.log("Fetching chat history for userId:", userId);
+
+        // Get user's Google Drive credentials
+        const integration = await storage.getIntegration(
+          userId,
+          "google-drive",
+        );
+        if (!integration) {
+          console.log("No Google Drive integration found for userId:", userId);
+          return res
+            .status(404)
+            .json({ error: "Google Drive integration not found" });
+        }
+
+        console.log("Found Google Drive integration for userId:", userId);
+        const credentials = JSON.parse(integration.credentialsEncrypted);
+        const chatFiles = await googleDriveService.getChatHistoryFiles(
+          JSON.stringify(credentials),
+        );
+
+        console.log("Found chat files:", chatFiles.length);
+
+        // Transform the files to include session info
+        const chatSessions = chatFiles.map((file) => {
+          const sessionId = file.name
+            ?.replace("chat_session_", "")
+            .replace(".json", "");
+          return {
+            id: sessionId,
+            title: `Chat Session ${sessionId}`,
+            modifiedTime: file.modifiedTime,
+            size: file.size,
+            fileId: file.id,
+          };
+        });
+
+        res.json(chatSessions);
+      } catch (error) {
+        console.error("Google Drive chat history error:", error);
+        res.status(500).json({
+          error: "Failed to fetch chat history",
+          details: error instanceof Error ? error.message : String(error),
+        });
+      }
+    },
+  );
+
+  app.get(
+    "/api/google-drive/chat-session/:sessionId",
+    authenticateUser,
+    async (req, res) => {
+      try {
+        const userId = (req.user as any)?.id;
+        const { sessionId } = req.params;
+
+        console.log(
+          "Fetching chat session content for userId:",
+          userId,
+          "sessionId:",
+          sessionId,
+        );
+
+        // Get user's Google Drive credentials
+        const integration = await storage.getIntegration(
+          userId,
+          "google-drive",
+        );
+        if (!integration) {
+          console.log("No Google Drive integration found for userId:", userId);
+          return res
+            .status(404)
+            .json({ error: "Google Drive integration not found" });
+        }
+
+        console.log("Found Google Drive integration for userId:", userId);
+        const credentials = JSON.parse(integration.credentialsEncrypted);
+        const chatContent = await googleDriveService.getChatSessionContent(
+          sessionId,
+          JSON.stringify(credentials),
+        );
+
+        console.log(
+          "Retrieved chat content, messages count:",
+          chatContent.length,
+        );
+        res.json(chatContent);
+      } catch (error) {
+        console.error("Google Drive chat session error:", error);
+        res.status(500).json({
+          error: "Failed to fetch chat session",
+          details: error instanceof Error ? error.message : String(error),
+        });
+      }
+    },
+  );
+
+  // Non-authenticated version for testing (remove in production)
+  app.get(
+    "/api/google-drive/chat-session-test/:sessionId",
+    async (req, res) => {
+      try {
+        const { sessionId } = req.params;
+        console.log("Testing chat session content for sessionId:", sessionId);
+
+        // For testing, use a mock user ID or get from session
+        const session = req as any;
+        const userId = session.session?.userId || 1; // Fallback to user ID 1 for testing
+
+        console.log("Using userId for testing:", userId);
+
+        // Get user's Google Drive credentials
+        const integration = await storage.getIntegration(
+          userId,
+          "google-drive",
+        );
+        if (!integration) {
+          console.log("No Google Drive integration found for userId:", userId);
+          return res
+            .status(404)
+            .json({ error: "Google Drive integration not found" });
+        }
+
+        console.log("Found Google Drive integration for userId:", userId);
+        const credentials = JSON.parse(integration.credentialsEncrypted);
+        const chatContent = await googleDriveService.getChatSessionContent(
+          sessionId,
+          JSON.stringify(credentials),
+        );
+
+        console.log(
+          "Retrieved chat content, messages count:",
+          chatContent.length,
+        );
+        res.json(chatContent);
+      } catch (error) {
+        console.error("Google Drive chat session test error:", error);
+        res.status(500).json({
+          error: "Failed to fetch chat session",
+          details: error instanceof Error ? error.message : String(error),
+        });
+      }
+    },
+  );
+
   const httpServer = createServer(app);
   return httpServer;
 }

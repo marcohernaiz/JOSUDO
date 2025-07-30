@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { useAppContext } from '@/contexts/AppContext';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { SettingsModal } from '@/components/Modals/SettingsModal';
-import { BillingModal } from '@/components/Modals/BillingModal';
-import { ChatHistory } from '@/components/Chat/ChatHistory';
-import josudoLogo from '@assets/JOSUDO ICON_1752512850035.png';
-import josudoText from '@assets/josudo logo just text_1752513004427.png';
+import { useState } from "react";
+import { useAppContext } from "@/contexts/AppContext";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { SettingsModal } from "@/components/Modals/SettingsModal";
+import { BillingModal } from "@/components/Modals/BillingModal";
+import { ChatHistory } from "@/components/Chat/ChatHistory";
+import { GoogleDriveChatHistory } from "@/components/Sidebar/GoogleDriveChatHistory";
+import josudoLogo from "@assets/JOSUDO ICON_1752512850035.png";
+import josudoText from "@assets/josudo logo just text_1752513004427.png";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -26,41 +27,47 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
 
   return (
     <>
-      <div 
+      <div
         className={`h-full bg-slate-250 dark:bg-slate-900/80 border-r border-slate-300 dark:border-slate-700 flex flex-col transition-all duration-75 ${
-          isExpanded ? 'w-64' : 'w-16'
+          isExpanded ? "w-64" : "w-16"
         }`}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
       >
         {/* Header */}
         <div className="p-4 border-b border-slate-300 dark:border-slate-700">
-          <div className={`flex items-center ${isExpanded ? 'justify-between' : 'justify-center'} mb-4`}>
-            <div className={`flex items-center ${isExpanded ? 'space-x-3' : 'justify-center'}`}>
+          <div
+            className={`flex items-center ${isExpanded ? "justify-between" : "justify-center"} mb-4`}
+          >
+            <div
+              className={`flex items-center ${isExpanded ? "space-x-3" : "justify-center"}`}
+            >
               <div className="relative w-10 h-10 flex items-center justify-center flex-shrink-0">
-                <img 
-                  src={josudoLogo} 
-                  alt="Josudo Logo" 
+                <img
+                  src={josudoLogo}
+                  alt="Josudo Logo"
                   className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light"
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling.style.display = 'block';
+                    e.currentTarget.style.display = "none";
+                    e.currentTarget.nextElementSibling.style.display = "block";
                   }}
                 />
                 <span className="text-amber-400 text-2xl hidden">⚜️</span>
               </div>
               {isExpanded && (
-                <img 
-                  src={josudoText} 
-                  alt="Josudo" 
+                <img
+                  src={josudoText}
+                  alt="Josudo"
                   className="h-8 object-contain flex-shrink-0 josudo-text-light"
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling.style.display = 'inline';
+                    e.currentTarget.style.display = "none";
+                    e.currentTarget.nextElementSibling.style.display = "inline";
                   }}
                 />
               )}
-              <span className="font-bold text-black dark:text-white hidden">Josudo</span>
+              <span className="font-bold text-black dark:text-white hidden">
+                Josudo
+              </span>
             </div>
             {isExpanded && (
               <Button
@@ -73,11 +80,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
               </Button>
             )}
           </div>
-          
-          <div className={`${isExpanded ? '' : 'flex justify-center'}`}>
-            <Button 
+
+          <div className={`${isExpanded ? "" : "flex justify-center"}`}>
+            <Button
               onClick={createNewChat}
-              className={`${isExpanded ? 'w-full' : 'w-10 h-10 p-0'} bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 flex items-center justify-center`}
+              className={`${isExpanded ? "w-full" : "w-10 h-10 p-0"} bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 flex items-center justify-center`}
               title={!isExpanded ? "New Chat" : ""}
             >
               <span className="text-white text-lg">+</span>
@@ -89,10 +96,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         {/* Active Configuration */}
         <div className="px-4 py-3 bg-slate-200 dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700">
           {isExpanded && (
-            <div className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">ACTIVE CONFIGURATION</div>
+            <div className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
+              ACTIVE CONFIGURATION
+            </div>
           )}
           <div className="space-y-2">
-            <div className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'}`}>
+            <div
+              className={`flex items-center ${isExpanded ? "space-x-2" : "justify-center"}`}
+            >
               <span className="text-blue-400 text-2xl flex-shrink-0">🤖</span>
               {isExpanded && (
                 <>
@@ -103,18 +114,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                 </>
               )}
             </div>
-            <div className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'}`}>
+            <div
+              className={`flex items-center ${isExpanded ? "space-x-2" : "justify-center"}`}
+            >
               <span className="text-purple-400 text-2xl flex-shrink-0">💾</span>
               {isExpanded && (
                 <>
-                  <div className={`w-2 h-2 rounded-full ${isAuthenticated ? 'bg-green-500' : 'bg-slate-500'}`}></div>
+                  <div
+                    className={`w-2 h-2 rounded-full ${isAuthenticated ? "bg-green-500" : "bg-slate-500"}`}
+                  ></div>
                   <span className="text-sm text-slate-700 dark:text-slate-300">
-                    {isAuthenticated ? 'Google Drive' : 'No Storage'}
+                    {isAuthenticated ? "Google Drive" : "No Storage"}
                   </span>
                 </>
               )}
             </div>
-            <div className={`flex items-center ${isExpanded ? 'space-x-2' : 'justify-center'}`}>
+            <div
+              className={`flex items-center ${isExpanded ? "space-x-2" : "justify-center"}`}
+            >
               <span className="text-orange-400 text-2xl flex-shrink-0">⚡</span>
               {isExpanded && (
                 <>
@@ -135,15 +152,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           </div>
         )}
 
+        {/* Google Drive Chat History */}
+        {isExpanded && <GoogleDriveChatHistory />}
+
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-slate-300 dark:border-slate-700">
-          <div className={`${isExpanded ? 'space-y-2' : 'space-y-2'}`}>
+          <div className={`${isExpanded ? "space-y-2" : "space-y-2"}`}>
             <div className="flex space-x-2">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={() => setShowSettings(true)}
-                className={`${isExpanded ? 'flex-1 justify-start' : 'w-10 h-10 p-0 justify-center'} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
+                className={`${isExpanded ? "flex-1 justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
                 title={!isExpanded ? "Settings" : ""}
               >
                 <span className="text-slate-400 text-2xl">⚙️</span>
@@ -152,11 +172,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             </div>
             {isAuthenticated && (
               <div className="flex space-x-2">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
-                  onClick={() => window.location.href = '/api/auth/logout'}
-                  className={`${isExpanded ? 'flex-1 justify-start' : 'w-10 h-10 p-0 justify-center'} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
+                  onClick={() => (window.location.href = "/api/auth/logout")}
+                  className={`${isExpanded ? "flex-1 justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
                   title={!isExpanded ? "Sign Out" : ""}
                 >
                   <span className="text-slate-400 text-2xl">🚪</span>
@@ -168,14 +188,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </div>
       </div>
 
-      <SettingsModal 
-        open={showSettings} 
-        onClose={() => setShowSettings(false)} 
+      <SettingsModal
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
       />
-      <BillingModal 
-        open={showBilling} 
-        onClose={() => setShowBilling(false)} 
-      />
+      <BillingModal open={showBilling} onClose={() => setShowBilling(false)} />
     </>
   );
 };

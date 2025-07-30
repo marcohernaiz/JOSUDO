@@ -145,8 +145,110 @@ class GoogleDriveService {
       const drive = this.getDriveClient(credentials);
       await drive.files.list({ pageSize: 1 });
       return true;
-    } catch {
+    } catch (error) {
       return false;
+    }
+  }
+
+  async listFiles(
+    credentials: string,
+    pageSize: number = 20,
+    pageToken?: string,
+  ) {
+    try {
+      const drive = this.getDriveClient(credentials);
+
+      const response = await drive.files.list({
+        pageSize,
+        pageToken,
+        fields:
+          "nextPageToken, files(id, name, mimeType, size, modifiedTime, parents, webViewLink)",
+        orderBy: "modifiedTime desc",
+      });
+
+      return {
+        files: response.data.files || [],
+        nextPageToken: response.data.nextPageToken,
+      };
+    } catch (error) {
+      console.error("Google Drive list files error:", error);
+      throw new Error("Failed to list Google Drive files");
+    }
+  }
+
+  async getChatHistoryFiles(credentials: string) {
+    try {
+      console.log("Getting chat history files from Google Drive");
+      const drive = this.getDriveClient(credentials);
+
+      // Search for chat session files
+      const response = await drive.files.list({
+        q: "name contains 'chat_session_' and mimeType='application/json'",
+        fields: "files(id, name, modifiedTime, size)",
+        orderBy: "modifiedTime desc",
+        pageSize: 50,
+      });
+
+      const files = response.data.files || [];
+      console.log("Found chat history files:", files.length);
+      return files;
+    } catch (error) {
+      console.error("Google Drive chat history error:", error);
+      throw new Error(
+        `Failed to fetch chat history: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  async getChatSessionContent(sessionId: string, credentials: string) {
+    try {
+      console.log("Getting chat session content for sessionId:", sessionId);
+      const drive = this.getDriveClient(credentials);
+      const fileName = `chat_session_${sessionId}.json`;
+
+      console.log("Searching for file:", fileName);
+      const files = await drive.files.list({
+        q: `name='${fileName}'`,
+        fields: "files(id, name)",
+      });
+
+      console.log("Found files:", files.data.files?.length || 0);
+
+      if (files.data.files && files.data.files.length > 0) {
+        const fileId = files.data.files[0].id;
+        console.log("Getting file content for fileId:", fileId);
+
+        const fileContent = await drive.files.get({
+          fileId: fileId!,
+          alt: "media",
+        });
+
+        console.log("File content type:", typeof fileContent.data);
+        console.log("File content:", fileContent.data);
+
+        // Handle both string and object responses
+        let parsedContent;
+        if (typeof fileContent.data === "string") {
+          parsedContent = JSON.parse(fileContent.data);
+        } else if (typeof fileContent.data === "object") {
+          parsedContent = fileContent.data;
+        } else {
+          throw new Error(
+            `Unexpected file content type: ${typeof fileContent.data}`,
+          );
+        }
+
+        console.log("Parsed content, messages count:", parsedContent.length);
+        return parsedContent;
+      }
+
+      console.log("No files found for sessionId:", sessionId);
+      return [];
+    } catch (error) {
+      console.error("Google Drive get session content error:", error);
+      throw new Error(
+        `Failed to get chat session content: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 }
