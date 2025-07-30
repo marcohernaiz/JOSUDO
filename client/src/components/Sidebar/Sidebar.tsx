@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { SettingsModal } from "@/components/Modals/SettingsModal";
 import { BillingModal } from "@/components/Modals/BillingModal";
-import { ChatHistory } from "@/components/Chat/ChatHistory";
 import { GoogleDriveChatHistory } from "@/components/Sidebar/GoogleDriveChatHistory";
 import josudoLogo from "@assets/JOSUDO ICON_1752512850035.png";
 import josudoText from "@assets/josudo logo just text_1752513004427.png";
@@ -14,15 +13,44 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
-  const { setActiveSession } = useAppContext();
+  const { setActiveSession, setMessages, setCurrentSessionId } =
+    useAppContext();
   const { isAuthenticated } = useAuth();
   const [showSettings, setShowSettings] = useState(false);
   const [showBilling, setShowBilling] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const createNewChat = () => {
-    setActiveSession(null);
-    onClose?.();
+  const createNewChat = async () => {
+    try {
+      if (isAuthenticated) {
+        // Create a new chat session in Google Drive
+        const response = await fetch("/api/google-drive/new-chat", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Created new chat session:", data.sessionId);
+          setCurrentSessionId(data.sessionId);
+        } else {
+          console.error("Failed to create new chat session");
+        }
+      }
+
+      // Clear the active session
+      setActiveSession(null);
+      // Clear all messages to start fresh
+      setMessages([]);
+      // Close sidebar on mobile
+      onClose?.();
+    } catch (error) {
+      console.error("Error creating new chat:", error);
+      // Still clear messages even if session creation fails
+      setActiveSession(null);
+      setMessages([]);
+      onClose?.();
+    }
   };
 
   return (
@@ -144,13 +172,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             </div>
           </div>
         </div>
-
-        {/* Chat History */}
-        {isExpanded && (
-          <div className="flex-1 overflow-y-auto">
-            <ChatHistory onChatSelect={onClose} />
-          </div>
-        )}
 
         {/* Google Drive Chat History */}
         {isExpanded && <GoogleDriveChatHistory />}

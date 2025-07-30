@@ -20,8 +20,28 @@ interface ChatMessage {
 }
 
 export const GoogleDriveChatHistory: React.FC = () => {
-  const { isAuthenticated, setMessages } = useAppContext();
+  const {
+    isAuthenticated,
+    setMessages,
+    messages,
+    currentSessionId,
+    setCurrentSessionId,
+  } = useAppContext();
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
+
+  // Reset selected session when messages are cleared (new chat started)
+  React.useEffect(() => {
+    if (messages.length === 0) {
+      setSelectedSession(null);
+    }
+  }, [messages.length]);
+
+  // Update selected session when currentSessionId changes
+  React.useEffect(() => {
+    if (currentSessionId) {
+      setSelectedSession(currentSessionId);
+    }
+  }, [currentSessionId]);
 
   const {
     data: chatSessions,
@@ -32,6 +52,7 @@ export const GoogleDriveChatHistory: React.FC = () => {
     queryKey: ["/api/google-drive/chat-history"],
     enabled: isAuthenticated,
     staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchInterval: 5000, // Refetch every 5 seconds to catch new sessions
     queryFn: async () => {
       const response = await fetch("/api/google-drive/chat-history", {
         credentials: "include",
@@ -78,7 +99,11 @@ export const GoogleDriveChatHistory: React.FC = () => {
   });
 
   const handleSessionClick = (sessionId: string) => {
+    console.log("Clicking on session:", sessionId);
     setSelectedSession(sessionId);
+    // Set currentSessionId to the selected session so new messages are saved to that file
+    setCurrentSessionId(sessionId);
+    console.log("Set currentSessionId to:", sessionId);
   };
 
   // Load chat content when selectedChatContent changes

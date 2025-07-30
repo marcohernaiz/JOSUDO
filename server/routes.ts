@@ -245,7 +245,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat routes - No authentication required
   app.post("/api/chat/send", async (req, res) => {
     try {
-      const { message, model } = req.body;
+      const { message, model, sessionId } = req.body;
+      console.log("Received chat request:", { message, model, sessionId });
 
       const userId = (req as any).session?.passport?.user;
 
@@ -371,13 +372,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (integration) {
         const credentials = JSON.parse(integration.credentialsEncrypted);
+        console.log(
+          "Saving to Google Drive with sessionId:",
+          sessionId || userId,
+        );
         // Save both user and AI message
         await googleDriveService.saveChatMessage(
-          userId, // or sessionId if you have one
+          sessionId || userId, // Use sessionId if provided, otherwise fallback to userId
           message, // user message (string)
           response.choices[0].message.content || "", // ai response (string)
           JSON.stringify(credentials), // credentials (string)
         );
+        console.log("Successfully saved to Google Drive");
       }
 
       res.json({
@@ -548,6 +554,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Google Drive chat history endpoints
+  app.post("/api/google-drive/new-chat", authenticateUser, async (req, res) => {
+    try {
+      const userId = (req.user as any)?.id;
+      console.log("Creating new chat session for userId:", userId);
+
+      // Get user's Google Drive credentials
+      const integration = await storage.getIntegration(userId, "google-drive");
+      if (!integration) {
+        console.log("No Google Drive integration found for userId:", userId);
+        return res
+          .status(404)
+          .json({ error: "Google Drive integration not found" });
+      }
+
+      console.log("Found Google Drive integration for userId:", userId);
+      const credentials = JSON.parse(integration.credentialsEncrypted);
+      const sessionId = await googleDriveService.createNewChatSession(
+        JSON.stringify(credentials),
+      );
+
+      console.log("Created new chat session:", sessionId);
+      res.json({ sessionId });
+    } catch (error) {
+      console.error("Google Drive new chat error:", error);
+      res.status(500).json({
+        error: "Failed to create new chat session",
+        details: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
+
   app.get(
     "/api/google-drive/chat-history",
     authenticateUser,

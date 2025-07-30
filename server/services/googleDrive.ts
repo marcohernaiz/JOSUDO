@@ -96,6 +96,34 @@ class GoogleDriveService {
     }
   }
 
+  async createNewChatSession(credentials: string): Promise<string> {
+    try {
+      const drive = this.getDriveClient(credentials);
+
+      // Generate a unique session ID using timestamp
+      const sessionId = Date.now().toString();
+      const fileName = `chat_session_${sessionId}.json`;
+
+      // Create new empty chat session file
+      await drive.files.create({
+        requestBody: {
+          name: fileName,
+          mimeType: "application/json",
+        },
+        media: {
+          mimeType: "application/json",
+          body: JSON.stringify([], null, 2),
+        },
+      });
+
+      console.log("Created new chat session:", sessionId);
+      return sessionId;
+    } catch (error) {
+      console.error("Google Drive create session error:", error);
+      throw new Error("Failed to create new chat session");
+    }
+  }
+
   // ✅ Get full message history for a session
   async getChatHistory(
     sessionId: string,

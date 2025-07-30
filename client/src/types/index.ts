@@ -22,7 +22,7 @@ export interface ChatSession {
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
   tokens?: number;
@@ -33,7 +33,7 @@ export interface ChatMessage {
 export interface Integration {
   id: number;
   userId: number;
-  serviceType: 'ai_model' | 'storage';
+  serviceType: "ai_model" | "storage";
   serviceName: string;
   credentialsEncrypted: string;
   isActive: boolean;
@@ -75,4 +75,6 @@ export interface AppContextType {
   // Add these for chat state
   messages: ChatMessage[];
   setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  currentSessionId: string | null;
+  setCurrentSessionId: (sessionId: string | null) => void;
 }
