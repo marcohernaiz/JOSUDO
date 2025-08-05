@@ -23,10 +23,14 @@ class ClaudeService {
     });
   }
 
-  async sendMessage(message: string, model: string = DEFAULT_MODEL_STR): Promise<{ 
-    response: string; 
-    tokens: number; 
-    cost: number; 
+    async sendMessage(
+    message: string, 
+    model: string = DEFAULT_MODEL_STR,
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): Promise<{
+    response: string;
+    tokens: number;
+    cost: number;
   }> {
     try {
       const apiKey = getSecret('ANTHROPIC_API_KEY') || process.env.ANTHROPIC_API_KEY;
@@ -34,9 +38,15 @@ class ClaudeService {
         return this.simulateClaudeResponse(message);
       }
 
+      // Prepare messages array with conversation history
+      const messages = [
+        ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })),
+        { role: 'user' as const, content: message }
+      ];
+
       const response = await this.anthropic.messages.create({
         max_tokens: 1024,
-        messages: [{ role: 'user', content: message }],
+        messages,
         // "claude-sonnet-4-20250514"
         model: DEFAULT_MODEL_STR,
       });
@@ -52,11 +62,14 @@ class ClaudeService {
       };
     } catch (error) {
       console.error('Claude API error:', error);
-      return this.simulateClaudeResponse(message);
+      return this.simulateClaudeResponse(message, conversationHistory);
     }
   }
 
-  private async simulateClaudeResponse(message: string): Promise<{
+  private async simulateClaudeResponse(
+    message: string,
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): Promise<{
     response: string;
     tokens: number;
     cost: number;
@@ -64,7 +77,12 @@ class ClaudeService {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
 
-    const response = this.generateContextualResponse(message);
+    // Combine conversation history with current message for context
+    const fullContext = conversationHistory.length > 0 
+      ? `${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\nUser: ${message}`
+      : message;
+    
+    const response = this.generateContextualResponse(fullContext);
     const tokens = Math.floor(message.length / 4) + Math.floor(response.length / 4);
     const cost = this.calculateCost(tokens);
 

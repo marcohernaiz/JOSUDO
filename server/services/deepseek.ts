@@ -8,14 +8,23 @@ class DeepSeekService {
     this.baseUrl = 'https://api.deepseek.com/v1';
   }
 
-  async sendMessage(message: string, model: string = 'deepseek-chat'): Promise<{ 
+  async sendMessage(
+    message: string, 
+    model: string = 'deepseek-chat',
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): Promise<{ 
     response: string; 
     tokens: number; 
     cost: number; 
   }> {
     try {
+      // Combine conversation history with current message for context
+      const fullContext = conversationHistory.length > 0 
+        ? `${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\nUser: ${message}`
+        : message;
+      
       // Simulate DeepSeek API call with a realistic response
-      const response = await this.simulateDeepSeekResponse(message);
+      const response = await this.simulateDeepSeekResponse(fullContext);
       
       return {
         response: response.content,

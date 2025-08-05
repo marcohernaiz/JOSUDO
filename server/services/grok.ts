@@ -12,10 +12,14 @@ class GrokService {
     });
   }
 
-  async sendMessage(message: string, model: string = 'grok-2-1212'): Promise<{ 
-    response: string; 
-    tokens: number; 
-    cost: number; 
+    async sendMessage(
+    message: string, 
+    model: string = 'grok-2-1212',
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): Promise<{
+    response: string;
+    tokens: number;
+    cost: number;
   }> {
     try {
       const apiKey = getSecret('XAI_API_KEY') || process.env.XAI_API_KEY;
@@ -23,9 +27,15 @@ class GrokService {
         return this.simulateGrokResponse(message);
       }
 
+      // Prepare messages array with conversation history
+      const messages = [
+        ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })),
+        { role: 'user' as const, content: message }
+      ];
+
       const response = await this.openai.chat.completions.create({
         model: "grok-2-1212",
-        messages: [{ role: "user", content: message }],
+        messages,
       });
 
       const responseText = response.choices[0].message.content || '';
@@ -39,11 +49,14 @@ class GrokService {
       };
     } catch (error) {
       console.error('Grok API error:', error);
-      return this.simulateGrokResponse(message);
+      return this.simulateGrokResponse(message, conversationHistory);
     }
   }
 
-  private async simulateGrokResponse(message: string): Promise<{
+  private async simulateGrokResponse(
+    message: string,
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): Promise<{
     response: string;
     tokens: number;
     cost: number;
@@ -51,7 +64,12 @@ class GrokService {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
 
-    const response = this.generateContextualResponse(message);
+    // Combine conversation history with current message for context
+    const fullContext = conversationHistory.length > 0 
+      ? `${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\nUser: ${message}`
+      : message;
+    
+    const response = this.generateContextualResponse(fullContext);
     const tokens = Math.floor(message.length / 4) + Math.floor(response.length / 4);
     const cost = this.calculateCost(tokens);
 

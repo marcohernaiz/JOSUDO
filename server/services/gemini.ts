@@ -16,10 +16,14 @@ class GeminiService {
     });
   }
 
-  async sendMessage(message: string, model: string = 'gemini-2.5-flash'): Promise<{ 
-    response: string; 
-    tokens: number; 
-    cost: number; 
+    async sendMessage(
+    message: string, 
+    model: string = 'gemini-2.5-flash',
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): Promise<{
+    response: string;
+    tokens: number;
+    cost: number;
   }> {
     try {
       const apiKey = getSecret('GEMINI_API_KEY') || process.env.GEMINI_API_KEY;
@@ -27,9 +31,14 @@ class GeminiService {
         return this.simulateGeminiResponse(message);
       }
 
+      // Prepare content with conversation history
+      const fullContent = conversationHistory.length > 0 
+        ? `${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\nUser: ${message}`
+        : message;
+
       const response = await this.ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: message,
+        contents: fullContent,
       });
 
       const responseText = response.text || "Something went wrong";
@@ -43,11 +52,14 @@ class GeminiService {
       };
     } catch (error) {
       console.error('Gemini API error:', error);
-      return this.simulateGeminiResponse(message);
+      return this.simulateGeminiResponse(message, conversationHistory);
     }
   }
 
-  private async simulateGeminiResponse(message: string): Promise<{
+  private async simulateGeminiResponse(
+    message: string,
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): Promise<{
     response: string;
     tokens: number;
     cost: number;
@@ -55,7 +67,12 @@ class GeminiService {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
 
-    const response = this.generateContextualResponse(message);
+    // Combine conversation history with current message for context
+    const fullContext = conversationHistory.length > 0 
+      ? `${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\nUser: ${message}`
+      : message;
+    
+    const response = this.generateContextualResponse(fullContext);
     const tokens = this.estimateTokens(message + response);
     const cost = this.calculateCost(tokens);
 

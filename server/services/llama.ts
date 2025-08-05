@@ -9,15 +9,19 @@ class LlamaService {
     this.baseUrl = 'https://api.llama-api.com/chat/completions'; // Example endpoint
   }
 
-  async sendMessage(message: string, model: string = 'llama-3'): Promise<{ 
-    response: string; 
-    tokens: number; 
-    cost: number; 
+    async sendMessage(
+    message: string, 
+    model: string = 'llama-3',
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): Promise<{
+    response: string;
+    tokens: number;
+    cost: number;
   }> {
     try {
       // Since we don't have a real Llama API connection, we'll simulate the response
       if (!this.apiKey) {
-        return this.simulateLlamaResponse(message);
+        return this.simulateLlamaResponse(message, conversationHistory);
       }
 
       const response = await fetch(this.baseUrl, {
@@ -28,7 +32,10 @@ class LlamaService {
         },
         body: JSON.stringify({
           model: 'llama-3',
-          messages: [{ role: 'user', content: message }],
+          messages: [
+          ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })),
+          { role: 'user' as const, content: message }
+        ],
           max_tokens: 1000,
         }),
       });
@@ -50,11 +57,14 @@ class LlamaService {
     } catch (error) {
       console.error('Llama API error:', error);
       // Fallback to simulated response
-      return this.simulateLlamaResponse(message);
+      return this.simulateLlamaResponse(message, conversationHistory);
     }
   }
 
-  private async simulateLlamaResponse(message: string): Promise<{
+  private async simulateLlamaResponse(
+    message: string,
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): Promise<{
     response: string;
     tokens: number;
     cost: number;
@@ -62,7 +72,12 @@ class LlamaService {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
 
-    const response = this.generateContextualResponse(message);
+    // Combine conversation history with current message for context
+    const fullContext = conversationHistory.length > 0 
+      ? `${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\nUser: ${message}`
+      : message;
+    
+    const response = this.generateContextualResponse(fullContext);
     const tokens = Math.floor(message.length / 4) + Math.floor(response.length / 4);
     const cost = this.calculateCost(tokens);
 

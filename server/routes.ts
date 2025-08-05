@@ -418,11 +418,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user's Google Drive credentials
       const integration = await storage.getIntegration(userId, "google-drive");
 
+      // Load conversation history if sessionId is provided
+      let conversationHistory: Array<{ role: string; content: string }> = [];
+      if (sessionId && integration) {
+        try {
+          const credentials = JSON.parse(integration.credentialsEncrypted);
+          const chatHistory = await googleDriveService.getChatHistory(
+            sessionId,
+            JSON.stringify(credentials)
+          );
+          
+          // Convert to the format expected by AI services
+          conversationHistory = chatHistory
+            .filter(msg => msg.role === "user" || msg.role === "assistant")
+            .map(msg => ({
+              role: msg.role,
+              content: msg.content
+            }));
+          
+          console.log("Loaded conversation history:", conversationHistory.length, "messages");
+        } catch (error) {
+          console.error("Failed to load conversation history:", error);
+        }
+      }
+
       // Route to appropriate AI service based on model
       try {
         switch (model) {
           case "deepseek-chat":
-            serviceResponse = await deepseekService.sendMessage(message);
+            serviceResponse = await deepseekService.sendMessage(message, model, conversationHistory);
             response = {
               choices: [{ message: { content: serviceResponse.response } }],
             };
@@ -432,11 +456,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "gpt-4":
           case "gpt-4o":
-            // Fallback to DeepSeek since no user API keys
+            // Use OpenAI with proper sessionId for context
             serviceResponse = await openaiService.sendMessage(
               message,
               userId,
-              userId,
+              sessionId || userId.toString(),
               integration?.credentialsEncrypted || "",
             );
             response = {
@@ -456,7 +480,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case "claude-3-5-sonnet":
-            serviceResponse = await claudeService.sendMessage(message);
+            serviceResponse = await claudeService.sendMessage(message, model, conversationHistory);
             response = {
               choices: [{ message: { content: serviceResponse.response } }],
             };
@@ -465,7 +489,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case "gemini-pro":
-            serviceResponse = await geminiService.sendMessage(message);
+            serviceResponse = await geminiService.sendMessage(message, model, conversationHistory);
             response = {
               choices: [{ message: { content: serviceResponse.response } }],
             };
@@ -474,7 +498,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case "grok-beta":
-            serviceResponse = await grokService.sendMessage(message);
+            serviceResponse = await grokService.sendMessage(message, model, conversationHistory);
             response = {
               choices: [{ message: { content: serviceResponse.response } }],
             };
@@ -483,7 +507,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case "llama-3":
-            serviceResponse = await llamaService.sendMessage(message);
+            serviceResponse = await llamaService.sendMessage(message, model, conversationHistory);
             response = {
               choices: [{ message: { content: serviceResponse.response } }],
             };
@@ -493,7 +517,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           default:
             // Default to DeepSeek for any unknown model
-            serviceResponse = await deepseekService.sendMessage(message);
+            serviceResponse = await deepseekService.sendMessage(message, model, conversationHistory);
             response = {
               choices: [{ message: { content: serviceResponse.response } }],
             };
@@ -504,7 +528,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         console.error(`Error with ${model}:`, error);
         // Fallback to DeepSeek on any error
-        serviceResponse = await deepseekService.sendMessage(message);
+        serviceResponse = await deepseekService.sendMessage(message, model, conversationHistory);
         response = {
           choices: [
             {
