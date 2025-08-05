@@ -1,6 +1,19 @@
-import { deepseekService } from "./deepseek";
+import OpenAI from "openai";
 
 export class SummaryService {
+  private static openai: OpenAI | null = null;
+
+  private static getOpenAI(): OpenAI {
+    if (!this.openai) {
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        throw new Error("OpenAI API key not found in environment variables");
+      }
+      this.openai = new OpenAI({ apiKey });
+    }
+    return this.openai;
+  }
+
   static async generateChatSummary(messages: Array<{ role: string; content: string }>): Promise<string> {
     try {
       // Filter to only user and assistant messages, exclude system messages
@@ -26,10 +39,16 @@ ${conversationText}
 
 Title:`;
 
-      const response = await deepseekService.sendMessage(summaryPrompt);
+      const openai = this.getOpenAI();
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: summaryPrompt }],
+        max_tokens: 100,
+        temperature: 0.3,
+      });
       
       // Clean up the response and ensure it's not too long
-      let summary = response.response.trim();
+      let summary = response.choices[0]?.message?.content?.trim() || "";
       
       // Remove quotes if present
       summary = summary.replace(/^["']|["']$/g, '');
