@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { SettingsModal } from "@/components/Modals/SettingsModal";
 import { BillingModal } from "@/components/Modals/BillingModal";
 import { GoogleDriveChatHistory } from "@/components/Sidebar/GoogleDriveChatHistory";
+import { useQueryClient } from "@tanstack/react-query";
 import josudoLogo from "@assets/JOSUDO ICON_1752512850035.png";
 import josudoText from "@assets/josudo logo just text_1752513004427.png";
 
@@ -16,6 +17,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const { setActiveSession, setMessages, setCurrentSessionId } =
     useAppContext();
   const { isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
   const [showSettings, setShowSettings] = useState(false);
   const [showBilling, setShowBilling] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -33,6 +35,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           const data = await response.json();
           console.log("Created new chat session:", data.sessionId);
           setCurrentSessionId(data.sessionId);
+          
+          // Invalidate chat history to refresh the list
+          queryClient.invalidateQueries({ queryKey: ["/api/google-drive/chat-history"] });
         } else {
           console.error("Failed to create new chat session");
         }

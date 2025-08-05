@@ -69,7 +69,14 @@ export const useChat = () => {
       // Update active session if new session created
       if (data.sessionId && !activeSession) {
         // Refresh chat sessions to get the new session
-        queryClient.invalidateQueries({ queryKey: ["/api/chat/sessions"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/google-drive/chat-history"] });
+      }
+      
+      // Always refresh the current chat session to get updated content
+      if (currentSessionId) {
+        queryClient.invalidateQueries({ 
+          queryKey: ["/api/google-drive/chat-session", currentSessionId] 
+        });
       }
     },
     onError: (error: any) => {

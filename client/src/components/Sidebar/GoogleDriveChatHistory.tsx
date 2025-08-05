@@ -51,8 +51,8 @@ export const GoogleDriveChatHistory: React.FC = () => {
   } = useQuery<GoogleDriveChatSession[]>({
     queryKey: ["/api/google-drive/chat-history"],
     enabled: isAuthenticated,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    refetchInterval: 5000, // Refetch every 5 seconds to catch new sessions
+    staleTime: 30 * 1000, // 30 seconds
+    refetchInterval: 2000, // Refetch every 2 seconds to catch new sessions quickly
     queryFn: async () => {
       const response = await fetch("/api/google-drive/chat-history", {
         credentials: "include",
@@ -149,8 +149,12 @@ export const GoogleDriveChatHistory: React.FC = () => {
 
       console.log("Converted messages:", messages);
       setMessages(messages);
+    } else if (selectedSession && !selectedChatContent && selectedSession !== currentSessionId) {
+      // Only clear messages if we're switching to a different session and it has no content yet
+      // This prevents clearing messages for the current active session
+      setMessages([]);
     }
-  }, [selectedChatContent, selectedSession, setMessages]);
+  }, [selectedChatContent, selectedSession, setMessages, currentSessionId]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
