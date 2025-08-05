@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as AppleStrategy } from "passport-apple";
+import { Strategy as MicrosoftStrategy } from "passport-microsoft";
 import { storage } from "./storage";
 import { openaiService } from "./services/openai";
 import { googleDriveService } from "./services/googleDrive";
@@ -20,9 +22,19 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 
-// Google OAuth will be configured dynamically or skipped for admin-only mode
+// OAuth providers configuration
 const hasGoogleAuth =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET;
+
+const hasAppleAuth =
+  process.env.APPLE_CLIENT_ID && 
+  process.env.APPLE_TEAM_ID && 
+  process.env.APPLE_KEY_ID && 
+  process.env.APPLE_PRIVATE_KEY;
+
+const hasMicrosoftAuth =
+  process.env.MICROSOFT_CLIENT_ID && 
+  process.env.MICROSOFT_CLIENT_SECRET;
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Trust proxy for HTTPS detection
@@ -63,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           passReqToCallback: true,
         },
         async (
-          req: Request,
+          req: any,
           accessToken: any,
           refreshToken: any,
           profile: any,
@@ -129,6 +141,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
     );
   }
 
+  // Apple OAuth configuration
+  if (hasAppleAuth) {
+    passport.use(
+      new AppleStrategy(
+        {
+          clientID: process.env.APPLE_CLIENT_ID!,
+          teamID: process.env.APPLE_TEAM_ID!,
+          keyID: process.env.APPLE_KEY_ID!,
+          privateKeyString: process.env.APPLE_PRIVATE_KEY!,
+          passReqToCallback: true,
+          callbackURL: "https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev/api/auth/apple/callback",
+        },
+        async (
+          req: any,
+          accessToken: string,
+          refreshToken: string,
+          idToken: string,
+          profile: any,
+          done: any,
+        ) => {
+          try {
+            console.log("Apple Access Token:", accessToken);
+            console.log("Apple Profile:", profile);
+
+            let user = await storage.getUserByAppleId(profile.id);
+
+            if (!user) {
+              // Create username from Apple profile
+              const firstName = profile.name?.firstName || profile.displayName?.firstName || "";
+              const lastName = profile.name?.lastName || profile.displayName?.lastName || "";
+              const username = [firstName, lastName].filter(Boolean).join(" ") || "Apple User";
+
+              user = await storage.createUser({
+                appleId: profile.id,
+                email: profile.emails?.[0]?.value || "",
+                username: username,
+                avatar: "", // Apple doesn't provide avatar in OAuth
+              });
+
+              // Create initial billing record
+              await storage.createBilling({
+                userId: user.id,
+                monthlyBalance: "9.99",
+                overageAmount: "0.00",
+              });
+            }
+
+            return done(null, user);
+          } catch (error) {
+            return done(error);
+          }
+        },
+      ),
+    );
+  }
+
+  // Microsoft OAuth configuration
+  if (hasMicrosoftAuth) {
+    passport.use(
+      new MicrosoftStrategy(
+        {
+          clientID: process.env.MICROSOFT_CLIENT_ID!,
+          clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
+          passReqToCallback: true,
+          callbackURL: "https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev/api/auth/microsoft/callback",
+          scope: ["user.read", "email", "profile"],
+        },
+        async (
+          req: any,
+          accessToken: string,
+          refreshToken: string,
+          profile: any,
+          done: any,
+        ) => {
+          try {
+            console.log("Microsoft Access Token:", accessToken);
+            console.log("Microsoft Profile:", profile);
+
+            let user = await storage.getUserByMicrosoftId(profile.id);
+
+            if (!user) {
+              // Create username from Microsoft profile
+              const firstName = profile.name?.givenName || "";
+              const lastName = profile.name?.familyName || "";
+              const username = [firstName, lastName].filter(Boolean).join(" ") || profile.displayName || "Microsoft User";
+
+              user = await storage.createUser({
+                microsoftId: profile.id,
+                email: profile.emails?.[0]?.value || "",
+                username: username,
+                avatar: profile.photos?.[0]?.value || "",
+              });
+
+              // Create initial billing record
+              await storage.createBilling({
+                userId: user.id,
+                monthlyBalance: "9.99",
+                overageAmount: "0.00",
+              });
+            }
+
+            return done(null, user);
+          } catch (error) {
+            return done(error);
+          }
+        },
+      ),
+    );
+  }
+
   passport.serializeUser((user: any, done) => {
     done(null, user.id);
   });
@@ -177,6 +299,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } else {
           res.redirect("/dashboard");
         }
+      },
+    );
+  }
+
+  // Apple OAuth routes (only if Apple OAuth is configured)
+  if (hasAppleAuth) {
+    app.get("/api/auth/apple", (req, res, next) => {
+      passport.authenticate("apple", {
+        scope: ["name", "email"],
+      })(req, res, next);
+    });
+
+    app.get(
+      "/api/auth/apple/callback",
+      passport.authenticate("apple", { failureRedirect: "/auth" }),
+      (req, res) => {
+        res.redirect("/dashboard");
+      },
+    );
+  }
+
+  // Microsoft OAuth routes (only if Microsoft OAuth is configured)
+  if (hasMicrosoftAuth) {
+    app.get("/api/auth/microsoft", (req, res, next) => {
+      passport.authenticate("microsoft", {
+        scope: ["user.read", "email", "profile"],
+      })(req, res, next);
+    });
+
+    app.get(
+      "/api/auth/microsoft/callback",
+      passport.authenticate("microsoft", { failureRedirect: "/auth" }),
+      (req, res) => {
+        res.redirect("/dashboard");
       },
     );
   }
@@ -281,7 +437,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               message,
               userId,
               userId,
-              integration.credentialsEncrypted,
+              integration?.credentialsEncrypted || "",
             );
             response = {
               choices: [
@@ -613,19 +769,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         console.log("Found chat files:", chatFiles.length);
 
-        // Transform the files to include session info
-        const chatSessions = chatFiles.map((file) => {
-          const sessionId = file.name
-            ?.replace("chat_session_", "")
-            .replace(".json", "");
-          return {
-            id: sessionId,
-            title: `Chat Session ${sessionId}`,
-            modifiedTime: file.modifiedTime,
-            size: file.size,
-            fileId: file.id,
-          };
-        });
+        // Transform the files to include session info and summaries
+        const chatSessions = await Promise.all(
+          chatFiles.map(async (file) => {
+            const sessionId = file.name
+              ?.replace("chat_session_", "")
+              .replace(".json", "") || "";
+            
+            // Get summary for each session
+            let title = `Chat Session ${sessionId}`;
+            try {
+              title = await googleDriveService.getChatSessionSummary(
+                sessionId,
+                JSON.stringify(credentials)
+              );
+            } catch (error) {
+              console.error("Failed to get summary for session:", sessionId, error);
+            }
+            
+            return {
+              id: sessionId,
+              title: title,
+              modifiedTime: file.modifiedTime,
+              size: file.size,
+              fileId: file.id,
+            };
+          })
+        );
 
         res.json(chatSessions);
       } catch (error) {

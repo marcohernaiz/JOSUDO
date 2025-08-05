@@ -6,6 +6,8 @@ import { z } from "zod";
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   googleId: text("google_id").unique(),
+  appleId: text("apple_id").unique(),
+  microsoftId: text("microsoft_id").unique(),
   email: text("email").notNull().unique(),
   username: text("username").notNull(),
   avatar: text("avatar"),

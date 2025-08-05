@@ -6,11 +6,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { LoginModal } from '@/components/Modals/LoginModal';
+import { useState } from 'react';
 
 export default function Auth() {
-  const { isAuthenticated, login, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const demoLogin = useMutation({
     mutationFn: async () => {
@@ -59,12 +62,14 @@ export default function Auth() {
           </div>
           
           <Button 
-            onClick={login}
+            onClick={() => setIsLoginModalOpen(true)}
             className="w-full bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 flex items-center justify-center space-x-3"
             variant="outline"
           >
-            <i className="fab fa-google text-red-500"></i>
-            <span className="font-medium">Continue with Google</span>
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span className="font-medium">Sign in</span>
           </Button>
 
           <div className="text-center text-sm text-slate-500 my-3">
@@ -85,6 +90,11 @@ export default function Auth() {
           </div>
         </CardContent>
       </Card>
+      
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+      />
     </div>
   );
 }

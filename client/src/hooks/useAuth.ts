@@ -6,10 +6,6 @@ export const useAuth = () => {
   const { user, isAuthenticated, isLoading } = useAppContext();
   const { toast } = useToast();
 
-  const login = () => {
-    window.location.href = '/api/auth/google';
-  };
-
   const logout = async () => {
     try {
       await apiRequest('POST', '/api/auth/logout');
@@ -27,7 +23,6 @@ export const useAuth = () => {
     user,
     isAuthenticated,
     isLoading,
-    login,
     logout,
   };
 };
