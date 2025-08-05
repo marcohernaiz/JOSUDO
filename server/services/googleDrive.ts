@@ -22,6 +22,41 @@ class GoogleDriveService {
     return google.drive({ version: "v3", auth });
   }
 
+  private async getOrCreateJosudoFolder(credentials: string): Promise<string> {
+    const drive = this.getDriveClient(credentials);
+    const folderName = "Josudo";
+
+    try {
+      // First, try to find the existing Josudo folder
+      const existingFolders = await drive.files.list({
+        q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+        fields: "files(id, name)",
+      });
+
+      if (existingFolders.data.files && existingFolders.data.files.length > 0) {
+        console.log("Found existing Josudo folder:", existingFolders.data.files[0].id);
+        return existingFolders.data.files[0].id!;
+      }
+
+      // If folder doesn't exist, create it
+      const folderMetadata = {
+        name: folderName,
+        mimeType: "application/vnd.google-apps.folder",
+      };
+
+      const folder = await drive.files.create({
+        requestBody: folderMetadata,
+        fields: "id",
+      });
+
+      console.log("Created new Josudo folder:", folder.data.id);
+      return folder.data.id!;
+    } catch (error) {
+      console.error("Error getting/creating Josudo folder:", error);
+      throw new Error("Failed to get or create Josudo folder");
+    }
+  }
+
   // ✅ Save a new message pair (user + assistant) to history
   async saveChatMessage(
     sessionId: string,
@@ -45,11 +80,22 @@ class GoogleDriveService {
         timestamp: new Date().toISOString(),
       };
 
-      // Try to find existing file
-      const existingFiles = await drive.files.list({
-        q: `name='${fileName}' and trashed=false`,
+      // Get the Josudo folder ID
+      const folderId = await this.getOrCreateJosudoFolder(credentials);
+      
+      // First try to find existing file in the Josudo folder
+      let existingFiles = await drive.files.list({
+        q: `'${folderId}' in parents and name='${fileName}' and trashed=false`,
         fields: "files(id, name)",
       });
+
+      // If not found in Josudo folder, check root directory (backward compatibility)
+      if (!existingFiles.data.files || existingFiles.data.files.length === 0) {
+        existingFiles = await drive.files.list({
+          q: `'root' in parents and name='${fileName}' and trashed=false`,
+          fields: "files(id, name)",
+        });
+      }
 
       if (existingFiles.data.files && existingFiles.data.files.length > 0) {
         const fileId = existingFiles.data.files[0].id!;
@@ -126,10 +172,14 @@ class GoogleDriveService {
           console.error("Failed to generate initial summary:", error);
         }
 
+        // Get or create the Josudo folder
+        const folderId = await this.getOrCreateJosudoFolder(credentials);
+
         await drive.files.create({
           requestBody: {
             name: fileName,
             mimeType: "application/json",
+            parents: [folderId], // Place file in Josudo folder
           },
           media: {
             mimeType: "application/json",
@@ -147,6 +197,9 @@ class GoogleDriveService {
     try {
       const drive = this.getDriveClient(credentials);
 
+      // Get or create the Josudo folder
+      const folderId = await this.getOrCreateJosudoFolder(credentials);
+
       // Generate a unique session ID using timestamp
       const sessionId = Date.now().toString();
       const fileName = `chat_session_${sessionId}.json`;
@@ -163,6 +216,7 @@ class GoogleDriveService {
         requestBody: {
           name: fileName,
           mimeType: "application/json",
+          parents: [folderId], // Place file in Josudo folder
         },
         media: {
           mimeType: "application/json",
@@ -170,7 +224,7 @@ class GoogleDriveService {
         },
       });
 
-      console.log("Created new chat session:", sessionId);
+      console.log("Created new chat session in Josudo folder:", sessionId);
       return sessionId;
     } catch (error) {
       console.error("Google Drive create session error:", error);
@@ -187,10 +241,22 @@ class GoogleDriveService {
       const drive = this.getDriveClient(credentials);
       const fileName = `chat_session_${sessionId}.json`;
 
-      const files = await drive.files.list({
-        q: `name='${fileName}'`,
+      // Get the Josudo folder ID
+      const folderId = await this.getOrCreateJosudoFolder(credentials);
+      
+      // First try to find file in Josudo folder
+      let files = await drive.files.list({
+        q: `'${folderId}' in parents and name='${fileName}'`,
         fields: "files(id, name)",
       });
+
+      // If not found in Josudo folder, check root directory (backward compatibility)
+      if (!files.data.files || files.data.files.length === 0) {
+        files = await drive.files.list({
+          q: `'root' in parents and name='${fileName}'`,
+          fields: "files(id, name)",
+        });
+      }
 
       if (files.data.files && files.data.files.length > 0) {
         const fileId = files.data.files[0].id;
@@ -271,17 +337,40 @@ class GoogleDriveService {
       console.log("Getting chat history files from Google Drive");
       const drive = this.getDriveClient(credentials);
 
-      // Search for chat session files
+      // Get the Josudo folder ID
+      const folderId = await this.getOrCreateJosudoFolder(credentials);
+
+      // Search for chat session files in the Josudo folder
       const response = await drive.files.list({
-        q: "name contains 'chat_session_' and mimeType='application/json'",
+        q: `'${folderId}' in parents and name contains 'chat_session_' and mimeType='application/json'`,
         fields: "files(id, name, modifiedTime, size)",
         orderBy: "modifiedTime desc",
         pageSize: 50,
       });
 
-      const files = response.data.files || [];
-      console.log("Found chat history files:", files.length);
-      return files;
+      let files = response.data.files || [];
+      console.log("Found chat history files in Josudo folder:", files.length);
+
+      // Also check for files in root directory (backward compatibility)
+      const rootResponse = await drive.files.list({
+        q: `'root' in parents and name contains 'chat_session_' and mimeType='application/json'`,
+        fields: "files(id, name, modifiedTime, size)",
+        orderBy: "modifiedTime desc",
+        pageSize: 50,
+      });
+
+      const rootFiles = rootResponse.data.files || [];
+      console.log("Found chat history files in root directory:", rootFiles.length);
+
+      // Combine and sort by modified time
+      const allFiles = [...files, ...rootFiles].sort((a, b) => {
+        const timeA = new Date(a.modifiedTime || '').getTime();
+        const timeB = new Date(b.modifiedTime || '').getTime();
+        return timeB - timeA;
+      });
+
+      console.log("Total chat history files found:", allFiles.length);
+      return allFiles;
     } catch (error) {
       console.error("Google Drive chat history error:", error);
       throw new Error(
@@ -295,10 +384,22 @@ class GoogleDriveService {
       const drive = this.getDriveClient(credentials);
       const fileName = `chat_session_${sessionId}.json`;
 
-      const files = await drive.files.list({
-        q: `name='${fileName}'`,
+      // Get the Josudo folder ID
+      const folderId = await this.getOrCreateJosudoFolder(credentials);
+
+      // First try to find file in Josudo folder
+      let files = await drive.files.list({
+        q: `'${folderId}' in parents and name='${fileName}'`,
         fields: "files(id, name)",
       });
+
+      // If not found in Josudo folder, check root directory (backward compatibility)
+      if (!files.data.files || files.data.files.length === 0) {
+        files = await drive.files.list({
+          q: `'root' in parents and name='${fileName}'`,
+          fields: "files(id, name)",
+        });
+      }
 
       if (files.data.files && files.data.files.length > 0) {
         const fileId = files.data.files[0].id;
@@ -358,10 +459,23 @@ class GoogleDriveService {
       const fileName = `chat_session_${sessionId}.json`;
 
       console.log("Searching for file:", fileName);
-      const files = await drive.files.list({
-        q: `name='${fileName}'`,
+      
+      // Get the Josudo folder ID
+      const folderId = await this.getOrCreateJosudoFolder(credentials);
+      
+      // First try to find file in Josudo folder
+      let files = await drive.files.list({
+        q: `'${folderId}' in parents and name='${fileName}'`,
         fields: "files(id, name)",
       });
+
+      // If not found in Josudo folder, check root directory (backward compatibility)
+      if (!files.data.files || files.data.files.length === 0) {
+        files = await drive.files.list({
+          q: `'root' in parents and name='${fileName}'`,
+          fields: "files(id, name)",
+        });
+      }
 
       console.log("Found files:", files.data.files?.length || 0);
 
