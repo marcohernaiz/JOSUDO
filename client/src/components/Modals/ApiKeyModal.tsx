@@ -75,10 +75,11 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ open, onClose, service
   };
 
   const getServiceLabel = (name: string) => {
-    const labels = {
+    const labels: Record<string, string> = {
       'openai': 'OpenAI',
       'claude': 'Anthropic Claude',
       'gemini': 'Google Gemini',
+      'replicate': 'Replicate',
       'google_drive': 'Google Drive',
       'dropbox': 'Dropbox',
     };
@@ -91,10 +92,11 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ open, onClose, service
   };
 
   const getPlaceholder = (name: string) => {
-    const placeholders = {
+    const placeholders: Record<string, string> = {
       'openai': 'sk-...',
       'claude': 'sk-ant-...',
       'gemini': 'AI...',
+      'replicate': 'r8_...',
       'google_drive': 'OAuth Token',
       'dropbox': 'OAuth Token',
     };

@@ -50,6 +50,9 @@ import {
 const AI_MODELS = [
   { id: 'deepseek-r1', name: 'DeepSeek R1', description: 'Free DeepSeek R1 model', icon: Bot, isFree: true },
   { id: 'mixtral-8x7b', name: 'Mixtral', description: 'Free Mixtral model', icon: Zap, isFree: true },
+  { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', description: 'Meta Llama 3.1 8B via Replicate', icon: SiMeta, isFree: false },
+  { id: 'llama-3.1-70b', name: 'Llama 3.1 70B', description: 'Meta Llama 3.1 70B via Replicate', icon: SiMeta, isFree: false },
+  { id: 'codellama-34b', name: 'Code Llama 34B', description: 'Code-optimized Llama via Replicate', icon: SiMeta, isFree: false },
   { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: SiOpenai, isFree: false },
   { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude', icon: SiAnthropic, isFree: false },
   { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: SiGoogle, isFree: false },
