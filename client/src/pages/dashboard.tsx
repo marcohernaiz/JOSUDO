@@ -5,59 +5,11 @@ import { ChatArea } from '@/components/Chat/ChatArea';
 import { MessageInput } from '@/components/Chat/MessageInput';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { VirtualEmployeeOrchestrator, type EmployeeCreationData } from '@/components/VirtualEmployee/VirtualEmployeeOrchestrator';
-import { EmployeeDashboard } from '@/components/VirtualEmployee/EmployeeDashboard';
 import sophiaBackground from '@assets/Sophia background_1752487018233.png';
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [view, setView] = useState<'chat' | 'virtual-employee-setup' | 'virtual-employee-dashboard'>('virtual-employee-setup');
-  const [virtualEmployee, setVirtualEmployee] = useState<EmployeeCreationData | null>(null);
-
-  const handleEmployeeCreated = (employeeData: EmployeeCreationData) => {
-    setVirtualEmployee(employeeData);
-    setView('virtual-employee-dashboard');
-  };
-
-  const handleBackToSelection = () => {
-    setVirtualEmployee(null);
-    setView('virtual-employee-setup');
-  };
-
-  const handleSwitchToChat = () => {
-    setView('chat');
-  };
-
-  const renderMainContent = () => {
-    switch (view) {
-      case 'virtual-employee-setup':
-        return <VirtualEmployeeOrchestrator onEmployeeCreated={handleEmployeeCreated} />;
-      case 'virtual-employee-dashboard':
-        return virtualEmployee ? (
-          <EmployeeDashboard 
-            employeeData={virtualEmployee} 
-            onBackToSelection={handleBackToSelection}
-          />
-        ) : (
-          <VirtualEmployeeOrchestrator onEmployeeCreated={handleEmployeeCreated} />
-        );
-      case 'chat':
-        return (
-          <div className="flex-1 flex flex-col justify-end items-center pt-20 h-full">
-            <div className="flex-1 overflow-auto w-full max-h-full">
-              <ChatArea />
-            </div>
-            <div className="flex-shrink-0 pb-6 w-full flex justify-center">
-              <MessageInput />
-            </div>
-          </div>
-        );
-      default:
-        return <VirtualEmployeeOrchestrator onEmployeeCreated={handleEmployeeCreated} />;
-    }
-  };
-
   return (
     <div className="h-screen w-full bg-white dark:bg-black overflow-hidden">
       <div 
@@ -186,33 +138,13 @@ export default function Dashboard() {
           <div className="absolute top-0 left-0 w-full z-40">
             <Header />
           </div>
-          
-          {/* View Toggle Buttons */}
-          {(view === 'virtual-employee-dashboard' || virtualEmployee) && (
-            <div className="absolute top-20 right-4 z-40">
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant={view === 'virtual-employee-dashboard' ? 'default' : 'outline'}
-                  onClick={() => setView('virtual-employee-dashboard')}
-                  className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm"
-                >
-                  Dashboard
-                </Button>
-                <Button
-                  size="sm"
-                  variant={view === 'chat' ? 'default' : 'outline'}
-                  onClick={handleSwitchToChat}
-                  className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm"
-                >
-                  Chat
-                </Button>
-              </div>
+          <div className="flex-1 flex flex-col justify-end items-center pt-20 h-full">
+            <div className="flex-1 overflow-auto w-full max-h-full">
+              <ChatArea />
             </div>
-          )}
-
-          <div className="flex-1 overflow-auto pt-20">
-            {renderMainContent()}
+            <div className="flex-shrink-0 pb-6 w-full flex justify-center">
+              <MessageInput />
+            </div>
           </div>
         </div>
       </div>

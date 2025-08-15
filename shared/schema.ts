@@ -57,78 +57,12 @@ export const billing = pgTable("billing", {
   overageAmount: decimal("overage_amount", { precision: 10, scale: 2 }).default("0.00"),
 });
 
-export const virtualEmployees = pgTable("virtual_employees", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  personaId: text("persona_id").notNull(), // 'closer', 'connector', etc.
-  name: text("name").notNull(),
-  customization: json("customization").notNull(), // task focus, work style, hours
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  lastInteraction: timestamp("last_interaction").defaultNow(),
-});
-
-export const employeeTasks = pgTable("employee_tasks", {
-  id: serial("id").primaryKey(),
-  employeeId: integer("employee_id").references(() => virtualEmployees.id).notNull(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  title: text("title").notNull(),
-  description: text("description"),
-  status: text("status").default("pending"), // 'pending', 'in_progress', 'completed', 'cancelled'
-  priority: text("priority").default("medium"), // 'low', 'medium', 'high', 'urgent'
-  dueDate: timestamp("due_date"),
-  createdAt: timestamp("created_at").defaultNow(),
-  completedAt: timestamp("completed_at"),
-});
-
-export const employeeContext = pgTable("employee_context", {
-  id: serial("id").primaryKey(),
-  employeeId: integer("employee_id").references(() => virtualEmployees.id).notNull(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  contextType: text("context_type").notNull(), // 'company_info', 'user_preferences', 'conversation_memory'
-  contextData: json("context_data").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
 // Relations
-export const virtualEmployeesRelations = relations(virtualEmployees, ({ one, many }) => ({
-  user: one(users, {
-    fields: [virtualEmployees.userId],
-    references: [users.id],
-  }),
-  tasks: many(employeeTasks),
-  context: many(employeeContext),
-}));
-
-export const employeeTasksRelations = relations(employeeTasks, ({ one }) => ({
-  employee: one(virtualEmployees, {
-    fields: [employeeTasks.employeeId],
-    references: [virtualEmployees.id],
-  }),
-  user: one(users, {
-    fields: [employeeTasks.userId],
-    references: [users.id],
-  }),
-}));
-
-export const employeeContextRelations = relations(employeeContext, ({ one }) => ({
-  employee: one(virtualEmployees, {
-    fields: [employeeContext.employeeId],
-    references: [virtualEmployees.id],
-  }),
-  user: one(users, {
-    fields: [employeeContext.userId],
-    references: [users.id],
-  }),
-}));
-
 export const usersRelations = relations(users, ({ many }) => ({
   integrations: many(integrations),
   chatSessions: many(chatSessions),
   usageLogs: many(usageLogs),
   billing: many(billing),
-  virtualEmployees: many(virtualEmployees),
 }));
 
 export const integrationsRelations = relations(integrations, ({ one }) => ({

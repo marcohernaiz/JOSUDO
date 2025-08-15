@@ -14,7 +14,6 @@ import { claudeService } from "./services/claude";
 import { geminiService } from "./services/gemini";
 import { grokService } from "./services/grok";
 import { llamaService } from "./services/llama";
-import { replicateService } from "./services/replicate";
 import { authenticateUser } from "./middleware/auth";
 import {
   insertChatSessionSchema,
@@ -516,30 +515,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             cost = serviceResponse.cost;
             break;
 
-          case "llama-3.1-8b":
-          case "llama-3.1-70b":
-          case "codellama-34b":
-            // Use Replicate with proper sessionId for context
-            serviceResponse = await replicateService.sendMessage(
-              message,
-              userId,
-              sessionId || userId.toString(),
-              integration?.credentialsEncrypted || "",
-            );
-            response = {
-              choices: [
-                {
-                  message: {
-                    content: serviceResponse.choices[0].message.content,
-                  },
-                },
-              ],
-            };
-
-            tokensUsed = 1000; // Approximate for Replicate
-            cost = replicateService.calculateCost(tokensUsed, model);
-            break;
-
           default:
             // Default to DeepSeek for any unknown model
             serviceResponse = await deepseekService.sendMessage(message, model, conversationHistory);
@@ -585,9 +560,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await googleDriveService.saveChatMessage(
           sessionId || userId, // Use sessionId if provided, otherwise fallback to userId
           message, // user message (string)
-          typeof response.choices[0].message.content === 'string' 
-            ? response.choices[0].message.content 
-            : JSON.stringify(response.choices[0].message.content) || "", // ai response (string)
+          response.choices[0].message.content || "", // ai response (string)
           JSON.stringify(credentials), // credentials (string)
         );
         console.log("Successfully saved to Google Drive");

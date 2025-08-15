@@ -78,7 +78,7 @@ class BillingService {
     };
     
     const markup = 1.2; // 20% markup
-    return (tokens / 1000) * (baseCosts[model as keyof typeof baseCosts] || baseCosts["gpt-4o"]) * markup;
+    return (tokens / 1000) * (baseCosts[model] || baseCosts["gpt-4o"]) * markup;
   }
 }
 

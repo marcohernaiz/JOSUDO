@@ -153,7 +153,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   const aiModels = [
     { name: 'deepseek', label: 'DeepSeek R1', icon: '🤖', color: 'text-green-400' },
     { name: 'mixtral', label: 'Mixtral 8x7B', icon: '⚡', color: 'text-purple-400' },
-    { name: 'replicate', label: 'Replicate', icon: '🔄', color: 'text-orange-400' },
     { name: 'openai', label: 'OpenAI GPT-4', icon: '🧠', color: 'text-green-400' },
     { name: 'claude', label: 'Anthropic Claude', icon: '🤖', color: 'text-purple-400' },
     { name: 'gemini', label: 'Google Gemini', icon: '⭐', color: 'text-blue-400' },
