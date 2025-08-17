@@ -83,7 +83,7 @@ class OpenAIService {
 
   calculateCost(tokens: number, model: string = "gpt-4o"): number {
     // Approximate costs per 1K tokens
-    const costs = {
+    const costs: Record<string, number> = {
       "gpt-4o": 0.03,
       "gpt-4": 0.06,
       "gpt-3.5-turbo": 0.002,
