@@ -1,13 +1,15 @@
 import OpenAI from "openai";
+import { getSecret } from "../admin";
+import { deepseekService } from "./deepseek";
 
 export class SummaryService {
   private static openai: OpenAI | null = null;
 
-  private static getOpenAI(): OpenAI {
+  private static getOpenAI(): OpenAI | null {
     if (!this.openai) {
-      const apiKey = process.env.OPENAI_API_KEY;
+      const apiKey = getSecret('OPENAI_API_KEY') || process.env.OPENAI_API_KEY;
       if (!apiKey) {
-        throw new Error("OpenAI API key not found in environment variables");
+        return null; // Return null instead of throwing error
       }
       this.openai = new OpenAI({ apiKey });
     }
@@ -39,50 +41,61 @@ ${conversationText}
 
 Title:`;
 
+      // Try OpenAI first if available
       const openai = this.getOpenAI();
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [{ role: "user", content: summaryPrompt }],
-        max_tokens: 100,
-        temperature: 0.3,
-      });
-      
-      // Clean up the response and ensure it's not too long
-      let summary = response.choices[0]?.message?.content?.trim() || "";
-      
-      // Remove quotes if present
-      summary = summary.replace(/^["']|["']$/g, '');
-      
-      // Limit to 50 characters
-      if (summary.length > 50) {
-        summary = summary.substring(0, 47) + '...';
-      }
-      
-      // Fallback if empty or too short
-      if (!summary || summary.length < 3) {
-        const firstUserMessage = conversationMessages.find(msg => msg.role === "user");
-        if (firstUserMessage) {
-          summary = firstUserMessage.content.substring(0, 50);
-          if (summary.length === 50) {
-            summary = summary.substring(0, 47) + '...';
-          }
-        } else {
-          summary = "New conversation";
+      if (openai) {
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [{ role: "user", content: summaryPrompt }],
+          max_tokens: 100,
+          temperature: 0.3,
+        });
+        
+        // Clean up the response and ensure it's not too long
+        const summary = response.choices[0]?.message?.content?.trim() || "";
+        const cleanSummary = summary.replace(/^["']|["']$/g, '').substring(0, 50);
+        if (cleanSummary.length > 47) {
+          return cleanSummary.substring(0, 47) + '...';
         }
+        return cleanSummary || this.generateFallbackSummary(conversationMessages);
       }
-
-      return summary;
+      
+      // Fallback to DeepSeek if OpenAI is not available
+      console.log("OpenAI not available, using DeepSeek for summary generation");
+      return await this.generateSummaryWithDeepSeek(summaryPrompt, conversationMessages);
+      
     } catch (error) {
       console.error("Error generating chat summary:", error);
-      
-      // Fallback: use first user message or default
-      const firstUserMessage = messages.find(msg => msg.role === "user");
-      if (firstUserMessage) {
-        const fallback = firstUserMessage.content.substring(0, 50);
-        return fallback.length === 50 ? fallback.substring(0, 47) + '...' : fallback;
-      }
-      
-      return "New conversation";
+      return this.generateFallbackSummary(messages);
     }
   }
-} 
+
+  private static async generateSummaryWithDeepSeek(prompt: string, conversationMessages: Array<{ role: string; content: string }>): Promise<string> {
+    try {
+      // Create conversation text for DeepSeek
+      const conversationText = conversationMessages
+        .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
+        .join('\n');
+      
+      // Use DeepSeek's specialized summary generation method
+      const summary = await deepseekService.generateSummary(conversationText);
+      return summary || this.generateFallbackSummary(conversationMessages);
+    } catch (error) {
+      console.error("Error generating summary with DeepSeek:", error);
+      return this.generateFallbackSummary(conversationMessages);
+    }
+  }
+
+  private static generateFallbackSummary(messages: Array<{ role: string; content: string }>): string {
+    // Try to use the first user message as a summary
+    const firstUserMessage = messages.find(msg => msg.role === "user");
+    if (firstUserMessage && firstUserMessage.content.trim()) {
+      let summary = firstUserMessage.content.trim().substring(0, 50);
+      if (summary.length === 50) {
+        summary = summary.substring(0, 47) + '...';
+      }
+      return summary;
+    }
+    return "New conversation";
+  }
+}

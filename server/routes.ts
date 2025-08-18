@@ -455,6 +455,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             cost = serviceResponse.cost;
             break;
 
+          case "deepseek-v3":
+            response = await replicateService.sendMessage(message, userId || 0, sessionId || "anonymous", integration?.credentialsEncrypted || "", model);
+            // Estimate tokens and cost for DeepSeek V3
+            const responseContent = response.choices[0]?.message?.content;
+            const contentLength = typeof responseContent === 'string' ? responseContent.length : 0;
+            tokensUsed = Math.ceil((message.length + contentLength) / 4);
+            cost = replicateService.calculateCost(tokensUsed, model);
+            break;
+
           case "gpt-4":
           case "gpt-4o":
             // Use OpenAI with proper sessionId for context
@@ -680,7 +689,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Route to appropriate AI service for streaming
         switch (model) {
           case "deepseek-chat":
-          case "deepseek-r1":
             console.log("Starting DeepSeek streaming...");
             for await (const chunk of deepseekService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
               console.log("Received chunk:", chunk.content);
@@ -688,6 +696,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
             }
             console.log("DeepSeek streaming finished, fullResponse length:", fullResponse.length);
+            break;
+
+          case "deepseek-v3":
+            console.log("Starting DeepSeek V3 streaming via Replicate...");
+            for await (const chunk of replicateService.sendMessageStream(enhancedMessage, userId || 0, sessionId || "anonymous", integration?.credentialsEncrypted || "", model)) {
+              console.log("Received Replicate chunk:", chunk.content);
+              fullResponse += chunk.content;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            }
+            console.log("Replicate DeepSeek V3 streaming finished, fullResponse length:", fullResponse.length);
             break;
 
           case "gpt-4":

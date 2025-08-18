@@ -53,7 +53,7 @@ import {
 } from 'react-icons/si';
 
 const AI_MODELS = [
-  { id: 'deepseek-r1', name: 'DeepSeek R1', description: 'Free DeepSeek R1 model', icon: Bot, isFree: true },
+  { id: 'deepseek-v3', name: 'DeepSeek V3', description: 'Advanced DeepSeek V3 model', icon: Bot, isFree: true },
   { id: 'mixtral-8x7b', name: 'Mixtral', description: 'Free Mixtral model', icon: Zap, isFree: true },
   { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', description: 'Meta Llama 3.1 8B via Replicate', icon: SiMeta, isFree: false },
   { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: SiOpenai, isFree: false },
@@ -84,7 +84,7 @@ export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading } = useChat();
   const { integrations } = useAppContext();
   const { isAuthenticated } = useAuth();
-  const [selectedModel, setSelectedModel] = useState('grok-beta');
+  const [selectedModel, setSelectedModel] = useState('deepseek-v3');
   const [selectedStorage, setSelectedStorage] = useState('none');
   const [selectedProcessing, setSelectedProcessing] = useState('josudo');
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -193,7 +193,7 @@ export const MessageInput: React.FC = () => {
 
   const activeModel = integrations.find(i => i.serviceType === 'ai_model' && i.isActive);
   const activeStorage = integrations.find(i => i.serviceType === 'storage' && i.isActive);
-  const currentModelInfo = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[5]; // Default to Grok
+  const currentModelInfo = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[0]; // Default to DeepSeek V3
   const currentStorageInfo = STORAGE_OPTIONS.find(s => s.id === selectedStorage) || STORAGE_OPTIONS[0];
   const currentProcessingInfo = PROCESSING_PROVIDERS.find(p => p.id === selectedProcessing) || PROCESSING_PROVIDERS[0];
 

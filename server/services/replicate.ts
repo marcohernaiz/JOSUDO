@@ -69,7 +69,17 @@ class ReplicateService {
 
       let output;
       
-      if (model === "gpt-5") {
+      if (model === "deepseek-v3") {
+        // ✅ 3. DeepSeek V3 via Replicate
+        output = await replicate.run("deepseek-ai/deepseek-v3", {
+          input: {
+            prompt: this.formatMessagesForDeepSeek(messages),
+            max_tokens: 1000,
+            temperature: 0.7,
+            top_p: 0.9,
+          },
+        });
+      } else if (model === "gpt-5") {
         // ✅ 3. GPT-5 simulation (since it doesn't exist yet)
         // Use a high-quality model as a substitute - meta-llama-3-8b-instruct with GPT-style prompting
         output = await replicate.run("meta/meta-llama-3-8b-instruct", {
@@ -151,7 +161,21 @@ class ReplicateService {
       console.error("Replicate streaming API error:", error);
       
       // Fallback response for when the model fails
-      const fallbackResponse = model === "gpt-5" 
+      const fallbackResponse = model === "deepseek-v3"
+        ? `I'm DeepSeek V3, an advanced AI model with enhanced reasoning capabilities. I can help you with complex problem-solving, analysis, and detailed explanations.
+
+Your message: "${message}"
+
+I'd be happy to assist you with:
+• Advanced reasoning and logical analysis
+• Code understanding and generation
+• Mathematical and scientific problem solving
+• Research and information synthesis
+• Creative and technical writing
+• Multi-modal understanding
+
+How can I help you today?`
+        : model === "gpt-5" 
         ? `I'm GPT-5, OpenAI's most advanced AI model. While I'm currently running through a simulation (since GPT-5 isn't publicly available yet), I can still help you with complex reasoning, creative tasks, and provide detailed analysis.
 
 Your message: "${message}"
@@ -227,6 +251,26 @@ What would you like to explore together?`;
     return formattedPrompt;
   }
 
+  private formatMessagesForDeepSeek(
+    messages: Array<{ role: string; content: string }>,
+  ): string {
+    // Format messages for DeepSeek instruction format
+    let formattedPrompt = "You are DeepSeek, an advanced AI assistant. Provide helpful, accurate, and detailed responses.\n\n";
+
+    for (const message of messages) {
+      if (message.role === "system") {
+        formattedPrompt += `System: ${message.content}\n\n`;
+      } else if (message.role === "user") {
+        formattedPrompt += `User: ${message.content}\n\n`;
+      } else if (message.role === "assistant") {
+        formattedPrompt += `Assistant: ${message.content}\n\n`;
+      }
+    }
+
+    formattedPrompt += "Assistant: ";
+    return formattedPrompt;
+  }
+
   async testApiKey(userId: number): Promise<boolean> {
     try {
       const replicate = await this.getReplicateClientForUser(userId);
@@ -245,9 +289,10 @@ What would you like to explore together?`;
     }
   }
 
-  calculateCost(tokens: number, model: string = "llama-3.1-8b"): number {
+  calculateCost(tokens: number, model: string = "deepseek-v3"): number {
     // Replicate pricing (approximate costs per 1K tokens)
     const costs = {
+      "deepseek-v3": 0.0002, // $0.0002 per 1K tokens (estimated, competitive)
       "llama-3.1-8b": 0.0002, // $0.0002 per 1K tokens
       "llama-2-70b": 0.0007, // $0.0007 per 1K tokens
       "gpt-5": 0.002, // $0.002 per 1K tokens (estimated)
@@ -255,7 +300,7 @@ What would you like to explore together?`;
 
     return (
       (tokens / 1000) *
-      (costs[model as keyof typeof costs] || costs["llama-3.1-8b"])
+      (costs[model as keyof typeof costs] || costs["deepseek-v3"])
     );
   }
 }

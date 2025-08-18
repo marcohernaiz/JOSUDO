@@ -177,8 +177,8 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
 // Helper to map model IDs to display names
 const getModelDisplayName = (modelId: string) => {
   switch (modelId) {
-    case "deepseek-r1":
-      return "DeepSeek R1 (Free)";
+    case "deepseek-v3":
+      return "DeepSeek V3 (Free)";
     case "mixtral-8x7b":
       return "Mixtral (Free)";
     case "llama-3.1-8b":

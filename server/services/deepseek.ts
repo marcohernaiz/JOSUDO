@@ -65,7 +65,7 @@ class DeepSeekService {
     }
   }
 
-  private async simulateDeepSeekResponse(message: string): Promise<{
+  async simulateDeepSeekResponse(message: string): Promise<{
     content: string;
     tokens: number;
   }> {
@@ -149,6 +149,40 @@ How can I assist you further? Feel free to ask me anything specific you'd like t
       return true;
     } catch {
       return false;
+    }
+  }
+
+  // Generate a chat summary specifically
+  async generateSummary(conversationText: string): Promise<string> {
+    const summaryPrompt = `Create a brief, descriptive title (maximum 50 characters) for this conversation. Focus on the main topic. Return only the title.
+
+Conversation:
+${conversationText}
+
+Title:`;
+
+    try {
+      const response = await this.simulateDeepSeekResponse(summaryPrompt);
+      let summary = response.content.trim();
+      
+      // Extract just the first line if there are multiple lines
+      const firstLine = summary.split('\n')[0];
+      
+      // Remove common prefixes and quotes
+      summary = firstLine
+        .replace(/^(Title:|Summary:|Chat about|Conversation about|Topic:)\s*/i, '')
+        .replace(/^["']|["']$/g, '')
+        .trim();
+      
+      // Limit to 50 characters
+      if (summary.length > 50) {
+        summary = summary.substring(0, 47) + '...';
+      }
+      
+      return summary || "Chat Summary";
+    } catch (error) {
+      console.error("Error generating summary:", error);
+      return "Chat Summary";
     }
   }
 
