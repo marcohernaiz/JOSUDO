@@ -34,8 +34,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
     queryFn: async () => {
       console.log('📊 Fetching usage data...');
       const response = await apiRequest('GET', '/api/usage');
-      console.log('📊 Usage data received:', response);
-      return response;
+      const data = await response.json();
+      console.log('📊 Usage data received:', data);
+      console.log('📊 Data properties:', {
+        totalTokens: data?.totalTokens,
+        totalCost: data?.totalCost,
+        totalRequests: data?.totalRequests,
+        hasModelUsage: !!data?.modelUsage,
+        hasBilling: !!data?.billing
+      });
+      return data;
     },
     enabled: false, // Disabled by default, we'll manually trigger it
     retry: (failureCount, error) => {
@@ -51,6 +59,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
       refetchUsage();
     }
   }, [open, activeTab, refetchUsage]);
+
+  // Debug log when usageData changes
+  useEffect(() => {
+    if (usageData) {
+      console.log('🎯 usageData state updated:', usageData);
+      console.log('🎯 Checking conditions:', {
+        hasData: !!usageData,
+        totalTokens: usageData.totalTokens,
+        totalCost: usageData.totalCost,
+        totalRequests: usageData.totalRequests,
+        shouldShowCards: !!(usageData && (usageData.totalTokens > 0 || usageData.totalCost > 0 || usageData.totalRequests > 0))
+      });
+    }
+  }, [usageData]);
 
   const deleteIntegrationMutation = useMutation({
     mutationFn: async (integrationId: number) => {
@@ -318,6 +340,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                       </div>
                     ) : (
                       <>
+                        {/* Debug: Show raw data */}
+                        {process.env.NODE_ENV === 'development' && (
+                          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg mb-4">
+                            <h5 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Debug: Raw Usage Data</h5>
+                            <pre className="text-xs text-yellow-700 dark:text-yellow-300 overflow-auto max-h-32">
+                              {JSON.stringify(usageData, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+
                         {/* Billing Overview */}
                         {usageData?.billing && (
                           <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200 dark:border-blue-800 mb-6">
@@ -387,56 +419,66 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                           </div>
                         )}
 
-                        {/* Summary Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Total Tokens</p>
-                                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                                  {usageData?.totalTokens?.toLocaleString() || '0'}
-                                </p>
+                        {/* Summary Cards - Always show if we have any usage data */}
+                        {(usageData && (usageData.totalTokens > 0 || usageData.totalCost > 0 || usageData.totalRequests > 0)) ? (
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Total Tokens</p>
+                                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                                    {(usageData?.totalTokens || 0).toLocaleString()}
+                                  </p>
+                                </div>
+                                <Zap className="h-8 w-8 text-blue-500" />
                               </div>
-                              <Zap className="h-8 w-8 text-blue-500" />
+                            </div>
+                            
+                            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="text-sm font-medium text-green-600 dark:text-green-400">Total Cost</p>
+                                  <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                                    ${(usageData?.totalCost || 0).toFixed(4)}
+                                  </p>
+                                </div>
+                                <DollarSign className="h-8 w-8 text-green-500" />
+                              </div>
+                            </div>
+                            
+                            <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">API Calls</p>
+                                  <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                                    {usageData?.totalRequests || 0}
+                                  </p>
+                                </div>
+                                <TrendingUp className="h-8 w-8 text-purple-500" />
+                              </div>
+                            </div>
+                            
+                            <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Avg Cost</p>
+                                  <p className="text-2xl font-bold text-orange-900 dark:text-orange-100">
+                                    ${((usageData?.totalCost || 0) / Math.max(usageData?.totalRequests || 1, 1)).toFixed(4)}
+                                  </p>
+                                </div>
+                                <Clock className="h-8 w-8 text-orange-500" />
+                              </div>
                             </div>
                           </div>
-                          
-                          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-sm font-medium text-green-600 dark:text-green-400">Total Cost</p>
-                                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
-                                  ${usageData?.totalCost?.toFixed(4) || '0.0000'}
-                                </p>
-                              </div>
-                              <DollarSign className="h-8 w-8 text-green-500" />
-                            </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <Zap className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <p className="text-gray-600 dark:text-gray-400 mb-2">No usage data found</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-500">
+                              {usageData ? 'All usage values are zero' : 'API returned no data'}
+                            </p>
                           </div>
-                          
-                          <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-sm font-medium text-purple-600 dark:text-purple-400">API Calls</p>
-                                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
-                                  {usageData?.totalRequests || '0'}
-                                </p>
-                              </div>
-                              <TrendingUp className="h-8 w-8 text-purple-500" />
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Avg Cost</p>
-                                <p className="text-2xl font-bold text-orange-900 dark:text-orange-100">
-                                  ${((usageData?.totalCost || 0) / (usageData?.totalRequests || 1)).toFixed(4)}
-                                </p>
-                              </div>
-                              <Clock className="h-8 w-8 text-orange-500" />
-                            </div>
-                          </div>
-                        </div>
+                        )}
 
                         {/* Model Usage Breakdown */}
                         <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
