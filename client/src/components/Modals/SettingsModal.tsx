@@ -303,9 +303,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                 )}
 
                 {activeTab === 'usage' && (
-                  <div className="space-y-6">
-                    {/* Usage Header with Refresh Button */}
-                    <div className="flex items-center justify-between">
+                  <div className="h-[600px] flex flex-col">
+                    {/* Usage Header with Refresh Button - Fixed at top */}
+                    <div className="flex items-center justify-between mb-6 flex-shrink-0">
                       <h3 className="text-xl font-semibold text-black dark:text-white">Usage Statistics</h3>
                       <Button
                         variant="outline"
@@ -321,6 +321,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                         Refresh
                       </Button>
                     </div>
+
+                    {/* Scrollable Content Area */}
+                    <div className="flex-1 overflow-y-auto pr-2 space-y-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
 
                     {usageLoading ? (
                       <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
@@ -340,16 +343,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                       </div>
                     ) : (
                       <>
-                        {/* Debug: Show raw data */}
-                        {process.env.NODE_ENV === 'development' && (
-                          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg mb-4">
-                            <h5 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Debug: Raw Usage Data</h5>
-                            <pre className="text-xs text-yellow-700 dark:text-yellow-300 overflow-auto max-h-32">
-                              {JSON.stringify(usageData, null, 2)}
-                            </pre>
-                          </div>
-                        )}
-
                         {/* Billing Overview */}
                         {usageData?.billing && (
                           <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200 dark:border-blue-800 mb-6">
@@ -539,9 +532,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
 
                         {/* Recent Usage */}
                         {usageData?.recentUsage && usageData.recentUsage.length > 0 && (
-                          <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
+                    <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
                             <h4 className="text-lg font-semibold text-black dark:text-white mb-4">Recent Activity</h4>
-                            <div className="space-y-2 max-h-64 overflow-y-auto">
+                            <div className="space-y-2 max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-track-gray-700 dark:scrollbar-thumb-gray-500 pr-2">
                               {usageData.recentUsage.map((usage: any, index: number) => (
                                 <div key={index} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-700 rounded text-sm">
                                   <div className="flex items-center space-x-3">
@@ -567,6 +560,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                         )}
                       </>
                     )}
+                    </div>
+                    {/* End of scrollable content area */}
                   </div>
                 )}
 
