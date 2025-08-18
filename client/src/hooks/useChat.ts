@@ -119,7 +119,16 @@ export const useChat = () => {
         }).then(async response => {
           if (!response.ok) {
             console.error('Network response not ok:', response.status, response.statusText);
-            throw new Error(`Network response was not ok: ${response.status}`);
+            
+            // Provide specific error messages for common issues
+            let errorMessage = `Network response was not ok: ${response.status}`;
+            if (response.status === 413) {
+              errorMessage = 'File upload too large. Please reduce file size or number of files.';
+            } else if (response.status === 400) {
+              errorMessage = 'Bad request. Please check your files and try again.';
+            }
+            
+            throw new Error(errorMessage);
           }
 
           const reader = response.body?.getReader();

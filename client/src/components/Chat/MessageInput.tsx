@@ -145,21 +145,37 @@ export const MessageInput: React.FC = () => {
         'application/zip'
       ];
       const maxSize = 10 * 1024 * 1024; // 10MB
+      // Note: Base64 encoding increases size by ~33%, so effective limit is lower
+      const effectiveMaxSize = maxSize * 0.75; // ~7.5MB to account for base64 expansion
       
       if (!validTypes.includes(file.type) && !file.name.match(/\.(txt|md|js|ts|jsx|tsx|py|java|cpp|c|h|css|html|xml|yaml|yml|json)$/i)) {
         alert(`File type not supported: ${file.name}`);
         return false;
       }
       
-      if (file.size > maxSize) {
-        alert(`File too large: ${file.name}. Maximum size is 10MB.`);
+      if (file.size > effectiveMaxSize) {
+        alert(`File too large: ${file.name}. Maximum size is ${Math.round(effectiveMaxSize / 1024 / 1024 * 10) / 10}MB (due to encoding overhead).`);
         return false;
       }
       
       return true;
     });
     
-    setAttachedFiles(prev => [...prev, ...validFiles]);
+    setAttachedFiles(prev => {
+      const newFiles = [...prev, ...validFiles];
+      
+      // Check total payload size
+      const totalSize = newFiles.reduce((sum, file) => sum + file.size, 0);
+      const maxTotalSize = 20 * 1024 * 1024; // 20MB total limit
+      
+      if (totalSize > maxTotalSize) {
+        alert(`Total file size too large. Please keep total under ${maxTotalSize / 1024 / 1024}MB.`);
+        return prev; // Don't add the files
+      }
+      
+      return newFiles;
+    });
+    
     // Reset the input so the same file can be selected again
     e.target.value = '';
   };

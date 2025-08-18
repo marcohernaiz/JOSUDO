@@ -90,8 +90,8 @@ async function loadSettings() {
 // Initialize settings cache
 loadSettings();
 
-adminApp.use(express.json());
-adminApp.use(express.urlencoded({ extended: true }));
+adminApp.use(express.json({ limit: '50mb' }));
+adminApp.use(express.urlencoded({ extended: true, limit: '50mb' }));
 adminApp.use(session({
   secret: 'admin-secret-key-josudo',
   resave: false,
