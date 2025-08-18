@@ -658,10 +658,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         switch (model) {
           case "deepseek-chat":
           case "deepseek-r1":
+            console.log("Starting DeepSeek streaming...");
             for await (const chunk of deepseekService.sendMessageStream(message, model, conversationHistory)) {
+              console.log("Received chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
             }
+            console.log("DeepSeek streaming finished, fullResponse length:", fullResponse.length);
             break;
 
           case "gpt-4":
@@ -687,35 +690,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case "claude-3-5-sonnet":
+            console.log("Starting Claude streaming...");
             for await (const chunk of claudeService.sendMessageStream(message, model, conversationHistory)) {
+              console.log("Received Claude chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
             }
+            console.log("Claude streaming finished, fullResponse length:", fullResponse.length);
             break;
 
           case "gemini-pro":
+            console.log("Starting Gemini streaming...");
             for await (const chunk of geminiService.sendMessageStream(message, model, conversationHistory)) {
+              console.log("Received Gemini chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
             }
+            console.log("Gemini streaming finished, fullResponse length:", fullResponse.length);
             break;
 
           case "grok-beta":
+            console.log("Starting Grok streaming...");
             for await (const chunk of grokService.sendMessageStream(message, model, conversationHistory)) {
+              console.log("Received Grok chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
             }
+            console.log("Grok streaming finished, fullResponse length:", fullResponse.length);
             break;
 
           case "llama-3":
+            console.log("Starting Llama streaming...");
             for await (const chunk of llamaService.sendMessageStream(message, model, conversationHistory)) {
+              console.log("Received Llama chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
             }
+            console.log("Llama streaming finished, fullResponse length:", fullResponse.length);
             break;
 
           case "llama-3.1-8b":
           case "gpt-5":
+            console.log("Starting Replicate streaming for model:", model);
             if (userId && integration) {
               for await (const chunk of replicateService.sendMessageStream(
                 message,
@@ -724,24 +740,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 integration?.credentialsEncrypted || "",
                 model,
               )) {
+                console.log("Received Replicate chunk:", chunk.content);
                 fullResponse += chunk.content;
                 res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
               }
             } else {
+              console.log("User not authenticated, falling back to DeepSeek for model:", model);
               // Fallback to DeepSeek for unauthenticated users
               for await (const chunk of deepseekService.sendMessageStream(message, "deepseek-chat", conversationHistory)) {
+                console.log("Received fallback chunk:", chunk.content);
                 fullResponse += chunk.content;
                 res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
               }
             }
+            console.log("Replicate streaming finished, fullResponse length:", fullResponse.length);
             break;
 
           default:
+            console.log("Unknown model, defaulting to DeepSeek:", model);
             // Default to DeepSeek for any unknown model
             for await (const chunk of deepseekService.sendMessageStream(message, "deepseek-chat", conversationHistory)) {
+              console.log("Received default chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
             }
+            console.log("Default streaming finished, fullResponse length:", fullResponse.length);
             break;
         }
 
@@ -777,6 +800,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Chat streaming API error:", error);
       res.status(500).json({ error: "Failed to process streaming chat" });
+    }
+  });
+
+  // Test endpoint for debugging streaming
+  app.get("/api/test/deepseek-streaming", async (req, res) => {
+    try {
+      console.log("Testing DeepSeek streaming...");
+      await deepseekService.testStreaming();
+      res.json({ message: "Check server console for streaming test results" });
+    } catch (error) {
+      console.error("DeepSeek streaming test error:", error);
+      res.status(500).json({ error: "Streaming test failed" });
     }
   });
 

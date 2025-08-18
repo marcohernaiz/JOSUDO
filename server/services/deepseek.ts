@@ -48,6 +48,7 @@ class DeepSeekService {
         : message;
       
       const response = await this.simulateDeepSeekResponse(fullContext);
+      console.log("DeepSeek generated response:", response.content.substring(0, 100) + "...");
       
       // Stream the response word by word
       const words = response.content.split(' ');
@@ -149,6 +150,17 @@ How can I assist you further? Feel free to ask me anything specific you'd like t
     } catch {
       return false;
     }
+  }
+
+  // Test streaming functionality
+  async testStreaming(): Promise<void> {
+    console.log("Testing DeepSeek streaming...");
+    let totalContent = "";
+    for await (const chunk of this.sendMessageStream("Hello world", "deepseek-chat", [])) {
+      totalContent += chunk.content;
+      console.log("Test chunk:", chunk.content);
+    }
+    console.log("Test streaming completed, total content:", totalContent);
   }
 }
 
