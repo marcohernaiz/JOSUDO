@@ -3,7 +3,176 @@ import { useAppContext } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChatMessage } from "@/types";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+// Component to render message content with image detection
+const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ content, isUser }) => {
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+
+  // Enhanced regex to detect various image URL formats
+  const imageUrlRegex = /https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp|svg|bmp|tiff)(?:\?[^\s]*)?/gi;
+  
+  // Markdown image pattern: ![alt](url)
+  const markdownImageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+  
+  // Also detect common AI image generation patterns
+  const aiImagePatterns = [
+    /https?:\/\/[^\s]*(?:replicate|openai|midjourney|dalle|stablediffusion|huggingface)[^\s]*\.(?:png|jpg|jpeg|gif|webp)/gi,
+    /https?:\/\/[^\s]*\/[^\s]*\.(?:png|jpg|jpeg|gif|webp)/gi,
+    /data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/gi
+  ];
+
+  const handleImageError = (url: string) => {
+    setImageErrors(prev => new Set([...prev, url]));
+  };
+
+  const renderContentWithImages = (text: string) => {
+    const parts: JSX.Element[] = [];
+    let lastIndex = 0;
+    
+    // Find all image URLs
+    const allMatches: Array<{ url: string; index: number; length: number; alt?: string; isMarkdown?: boolean }> = [];
+    
+    // Check markdown images first (![alt](url))
+    let markdownMatch;
+    while ((markdownMatch = markdownImageRegex.exec(text)) !== null) {
+      allMatches.push({
+        url: markdownMatch[2],
+        index: markdownMatch.index,
+        length: markdownMatch[0].length,
+        alt: markdownMatch[1],
+        isMarkdown: true
+      });
+    }
+    
+    // Check main image regex
+    let match;
+    while ((match = imageUrlRegex.exec(text)) !== null) {
+      // Skip if this URL is already captured by markdown
+      const isAlreadyCaptured = allMatches.some(m => m.url === match[0]);
+      if (!isAlreadyCaptured) {
+        allMatches.push({
+          url: match[0],
+          index: match.index,
+          length: match[0].length
+        });
+      }
+    }
+    
+    // Check AI image patterns
+    aiImagePatterns.forEach(pattern => {
+      let aiMatch;
+      while ((aiMatch = pattern.exec(text)) !== null) {
+        // Skip if this URL is already captured
+        const isAlreadyCaptured = allMatches.some(m => m.url === aiMatch[0]);
+        if (!isAlreadyCaptured) {
+          allMatches.push({
+            url: aiMatch[0],
+            index: aiMatch.index,
+            length: aiMatch[0].length
+          });
+        }
+      }
+    });
+    
+    // Sort matches by index and remove duplicates
+    const uniqueMatches = allMatches
+      .filter((match, index, arr) => 
+        arr.findIndex(m => m.url === match.url) === index
+      )
+      .sort((a, b) => a.index - b.index);
+    
+    uniqueMatches.forEach((match, i) => {
+      // Add text before image
+      if (match.index > lastIndex) {
+        const textBefore = text.slice(lastIndex, match.index);
+        if (textBefore.trim()) {
+          parts.push(
+            <span key={`text-${i}`} className="whitespace-pre-wrap">
+              {textBefore}
+            </span>
+          );
+        }
+      }
+      
+      // Add image
+      if (!imageErrors.has(match.url)) {
+        parts.push(
+          <div key={`img-${i}`} className="my-3">
+            <img
+              src={match.url}
+              alt={match.alt || "Generated image"}
+              className="max-w-full h-auto rounded-lg border border-slate-200 dark:border-slate-600 shadow-md"
+              onError={() => handleImageError(match.url)}
+              loading="lazy"
+              style={{ maxHeight: '400px', objectFit: 'contain' }}
+            />
+            <div className="text-xs text-slate-500 mt-1 flex items-center justify-between">
+              <span>{match.alt && `${match.alt} • `}AI Generated Image</span>
+              <a 
+                href={match.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-blue-500 underline"
+              >
+                View full size
+              </a>
+            </div>
+          </div>
+        );
+      } else {
+        // Show link if image failed to load
+        parts.push(
+          <div key={`link-${i}`} className="my-2">
+            <a 
+              href={match.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:text-blue-700 underline text-sm"
+            >
+              🖼️ {match.alt || "View image"}: {match.url}
+            </a>
+          </div>
+        );
+      }
+      
+      lastIndex = match.index + match.length;
+    });
+    
+    // Add remaining text
+    if (lastIndex < text.length) {
+      const remainingText = text.slice(lastIndex);
+      if (remainingText.trim()) {
+        parts.push(
+          <span key="text-end" className="whitespace-pre-wrap">
+            {remainingText}
+          </span>
+        );
+      }
+    }
+    
+    // If no images found, return original text
+    if (parts.length === 0) {
+      return <span className="whitespace-pre-wrap">{text}</span>;
+    }
+    
+    return <>{parts}</>;
+  };
+
+  return (
+    <div className="prose prose-sm max-w-none">
+      <div
+        className={`text-sm ${
+          isUser
+            ? "text-slate-800 dark:text-slate-200"
+            : "text-slate-800 dark:text-slate-200"
+        }`}
+      >
+        {renderContentWithImages(content)}
+      </div>
+    </div>
+  );
+};
 
 // Helper to map model IDs to display names
 const getModelDisplayName = (modelId: string) => {
@@ -117,29 +286,25 @@ export const ChatArea: React.FC = () => {
                   </div>
                 )}
 
-                <div className="prose prose-sm max-w-none">
-                  <p
-                    className={`text-sm whitespace-pre-wrap ${
-                      message.role === "user"
-                        ? "text-slate-800 dark:text-slate-200"
-                        : "text-slate-800 dark:text-slate-200"
-                    }`}
-                  >
-                    {message.content}
-                    
-                    {/* Show typing indicator for streaming messages */}
-                    {isStreaming && streamingMessageId === message.id && message.content === "" && (
-                      <div className="flex items-center space-x-1 text-slate-500 mt-2">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                        </div>
-                        <span className="text-xs ml-2">AI is thinking...</span>
+                {/* Show content with image rendering */}
+                {message.content ? (
+                  <MessageContent 
+                    content={message.content} 
+                    isUser={message.role === "user"} 
+                  />
+                ) : (
+                  /* Show typing indicator for streaming messages */
+                  isStreaming && streamingMessageId === message.id && (
+                    <div className="flex items-center space-x-1 text-slate-500 mt-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                       </div>
-                    )}
-                  </p>
-                </div>
+                      <span className="text-xs ml-2">AI is thinking...</span>
+                    </div>
+                  )
+                )}
 
                 <div
                   className={`flex items-center justify-between mt-3 ${
