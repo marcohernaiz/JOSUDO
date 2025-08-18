@@ -167,19 +167,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                 </>
               )}
             </div>
-            <div
-              className={`flex items-center ${isExpanded ? "space-x-2" : "justify-center"}`}
-            >
-              <span className="text-orange-400 text-2xl flex-shrink-0">⚡</span>
-              {isExpanded && (
-                <>
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm text-slate-700 dark:text-slate-300">
-                    Josudo Processing
-                  </span>
-                </>
-              )}
-            </div>
           </div>
         </div>
 

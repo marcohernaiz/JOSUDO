@@ -79,6 +79,26 @@ class ReplicateService {
             top_p: 0.9,
           },
         });
+      } else if (model === "claude-3-5-sonnet-replicate") {
+        // ✅ 3. Claude 3.5 Sonnet via Replicate
+        output = await replicate.run("anthropic/claude-3-5-sonnet", {
+          input: {
+            prompt: this.formatMessagesForClaude(messages),
+            max_tokens: 1000,
+            temperature: 0.7,
+            top_p: 0.9,
+          },
+        });
+      } else if (model === "claude-3-haiku-replicate") {
+        // ✅ 3. Claude 3 Haiku via Replicate (faster, cheaper)
+        output = await replicate.run("anthropic/claude-3-haiku", {
+          input: {
+            prompt: this.formatMessagesForClaude(messages),
+            max_tokens: 1000,
+            temperature: 0.7,
+            top_p: 0.9,
+          },
+        });
       } else if (model === "gpt-5") {
         // ✅ 3. GPT-5 simulation (since it doesn't exist yet)
         // Use a high-quality model as a substitute - meta-llama-3-8b-instruct with GPT-style prompting
@@ -173,6 +193,34 @@ I'd be happy to assist you with:
 • Research and information synthesis
 • Creative and technical writing
 • Multi-modal understanding
+
+How can I help you today?`
+        : model === "claude-3-5-sonnet-replicate"
+        ? `I'm Claude 3.5 Sonnet, an AI assistant created by Anthropic. I'm designed to be helpful, harmless, and honest, with strong capabilities in reasoning and analysis.
+
+Your message: "${message}"
+
+I'd be happy to assist you with:
+• Complex reasoning and problem-solving
+• Code analysis and programming help
+• Creative writing and brainstorming
+• Research and information synthesis
+• Mathematical and scientific questions
+• Thoughtful analysis of complex topics
+
+How can I help you today?`
+        : model === "claude-3-haiku-replicate"
+        ? `I'm Claude 3 Haiku, a fast and efficient AI assistant by Anthropic. I'm designed to provide quick, accurate responses while being helpful and honest.
+
+Your message: "${message}"
+
+I can help you with:
+• Quick answers to questions
+• Code assistance and debugging
+• Writing and editing tasks
+• Analysis and explanations
+• Problem-solving support
+• General knowledge inquiries
 
 How can I help you today?`
         : model === "gpt-5" 
@@ -271,6 +319,26 @@ What would you like to explore together?`;
     return formattedPrompt;
   }
 
+  private formatMessagesForClaude(
+    messages: Array<{ role: string; content: string }>,
+  ): string {
+    // Format messages for Claude instruction format
+    let formattedPrompt = "You are Claude, an AI assistant created by Anthropic. You are helpful, harmless, and honest.\n\n";
+
+    for (const message of messages) {
+      if (message.role === "system") {
+        formattedPrompt += `System: ${message.content}\n\n`;
+      } else if (message.role === "user") {
+        formattedPrompt += `Human: ${message.content}\n\n`;
+      } else if (message.role === "assistant") {
+        formattedPrompt += `Assistant: ${message.content}\n\n`;
+      }
+    }
+
+    formattedPrompt += "Assistant: ";
+    return formattedPrompt;
+  }
+
   async testApiKey(userId: number): Promise<boolean> {
     try {
       const replicate = await this.getReplicateClientForUser(userId);
@@ -295,6 +363,8 @@ What would you like to explore together?`;
       "deepseek-v3": 0.0002, // $0.0002 per 1K tokens (estimated, competitive)
       "llama-3.1-8b": 0.0002, // $0.0002 per 1K tokens
       "llama-2-70b": 0.0007, // $0.0007 per 1K tokens
+      "claude-3-5-sonnet-replicate": 0.003, // $0.003 per 1K tokens (premium)
+      "claude-3-haiku-replicate": 0.00025, // $0.00025 per 1K tokens (fast & cheap)
       "gpt-5": 0.002, // $0.002 per 1K tokens (estimated)
     };
 

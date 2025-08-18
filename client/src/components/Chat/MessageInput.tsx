@@ -55,10 +55,12 @@ import {
 const AI_MODELS = [
   { id: 'deepseek-v3', name: 'DeepSeek V3', description: 'Advanced DeepSeek V3 model', icon: Bot, isFree: true },
   { id: 'mixtral-8x7b', name: 'Mixtral', description: 'Free Mixtral model', icon: Zap, isFree: true },
+  { id: 'claude-3-haiku-replicate', name: 'Claude 3 Haiku', description: 'Fast Claude via Replicate', icon: SiAnthropic, isFree: false },
   { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', description: 'Meta Llama 3.1 8B via Replicate', icon: SiMeta, isFree: false },
   { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: SiOpenai, isFree: false },
+  { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet', description: 'Premium Claude via Replicate', icon: SiAnthropic, isFree: false },
   { id: 'gpt-5', name: 'GPT-5', description: 'OpenAI GPT-5 via Replicate', icon: SiOpenai, isFree: false },
-  { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude', icon: SiAnthropic, isFree: false },
+  { id: 'claude-3-5-sonnet', name: 'Claude (Direct)', description: 'Anthropic Claude Direct API', icon: SiAnthropic, isFree: false },
   { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: SiGoogle, isFree: false },
   { id: 'llama-3', name: 'Llama', description: 'Meta Llama 3', icon: SiMeta, isFree: false },
   { id: 'grok-beta', name: 'Grok', description: 'xAI Grok', icon: SiX, isFree: false },

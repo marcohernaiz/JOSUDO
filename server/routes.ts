@@ -578,6 +578,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             break;
 
+          case "claude-3-5-sonnet-replicate":
+          case "claude-3-haiku-replicate":
+            response = await replicateService.sendMessage(message, userId || 0, sessionId || "anonymous", integration?.credentialsEncrypted || "", model);
+            const claudeResponseContent = response.choices[0]?.message?.content;
+            const claudeContentLength = typeof claudeResponseContent === 'string' ? claudeResponseContent.length : 0;
+            tokensUsed = Math.ceil((message.length + claudeContentLength) / 4);
+            cost = replicateService.calculateCost(tokensUsed, model);
+            
+            // Track usage for Claude Replicate
+            if (userId) {
+              try {
+                const now = new Date();
+                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+                
+                await storage.createUsageLog({
+                  userId,
+                  chatSessionId: null, // We can add session tracking later
+                  modelUsed: model,
+                  tokensConsumed: tokensUsed,
+                  cost: cost.toString(),
+                  isPremiumAccount: false, // Add proper premium check if needed
+                  billingPeriod,
+                  requestType: 'chat'
+                });
+
+                // Update monthly usage for billing
+                await storage.updateMonthlyUsage(userId, cost);
+                console.log(`✅ Claude Replicate usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}`);
+                console.log(`💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`);
+              } catch (error) {
+                console.error("Failed to log Claude Replicate usage:", error);
+              }
+            }
+            break;
+
           case "gemini-pro":
             serviceResponse = await geminiService.sendMessage(message, model, conversationHistory);
             response = {
@@ -892,6 +927,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log("Claude streaming finished, fullResponse length:", fullResponse.length);
             break;
 
+          case "claude-3-5-sonnet-replicate":
+          case "claude-3-haiku-replicate":
+            console.log("Starting Claude Replicate streaming for model:", model);
+            for await (const chunk of replicateService.sendMessageStream(enhancedMessage, userId || 0, sessionId || "anonymous", integration?.credentialsEncrypted || "", model)) {
+              console.log("Received Claude Replicate chunk:", chunk.content);
+              fullResponse += chunk.content;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            }
+            console.log("Claude Replicate streaming finished, fullResponse length:", fullResponse.length);
+            break;
+
           case "gemini-pro":
             console.log("Starting Gemini streaming...");
             for await (const chunk of geminiService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
@@ -976,6 +1022,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
           case "claude-3-5-sonnet":
             estimatedCost = claudeService.calculateCost(finalTokens);
+            break;
+          case "claude-3-5-sonnet-replicate":
+          case "claude-3-haiku-replicate":
+            estimatedCost = replicateService.calculateCost(finalTokens, model);
             break;
           case "gemini-pro":
             estimatedCost = geminiService.calculateCost(finalTokens);

@@ -187,8 +187,12 @@ const getModelDisplayName = (modelId: string) => {
       return "ChatGPT (OpenAI GPT-4)";
     case "gpt-5":
       return "GPT-5 (Replicate)";
+    case "claude-3-haiku-replicate":
+      return "Claude 3 Haiku (Replicate)";
+    case "claude-3-5-sonnet-replicate":
+      return "Claude 3.5 Sonnet (Replicate)";
     case "claude-3-5-sonnet":
-      return "Claude (Anthropic)";
+      return "Claude (Anthropic Direct)";
     case "gemini-pro":
       return "Gemini (Google)";
     case "llama-3":
