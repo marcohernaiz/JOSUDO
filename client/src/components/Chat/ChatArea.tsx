@@ -14,12 +14,10 @@ const getModelDisplayName = (modelId: string) => {
       return "Mixtral (Free)";
     case "llama-3.1-8b":
       return "Llama 3.1 8B (Replicate)";
-    case "llama-3.1-70b":
-      return "Llama 3.1 70B (Replicate)";
-    case "codellama-34b":
-      return "Code Llama 34B (Replicate)";
     case "gpt-4":
       return "ChatGPT (OpenAI GPT-4)";
+    case "gpt-5":
+      return "GPT-5 (Replicate)";
     case "claude-3-5-sonnet":
       return "Claude (Anthropic)";
     case "gemini-pro":

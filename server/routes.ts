@@ -517,14 +517,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case "llama-3.1-8b":
-          case "llama-3.1-70b":
-          case "codellama-34b":
+          case "gpt-5":
             // Use Replicate with proper sessionId for context
             serviceResponse = await replicateService.sendMessage(
               message,
               userId,
               sessionId || userId.toString(),
               integration?.credentialsEncrypted || "",
+              model,
             );
             response = {
               choices: [
@@ -536,7 +536,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               ],
             };
 
-            tokensUsed = 1000; // Approximate for Replicate
+            tokensUsed = model === "gpt-5" ? 1500 : 1000; // Higher token estimate for GPT-5
             cost = replicateService.calculateCost(tokensUsed, model);
             break;
 

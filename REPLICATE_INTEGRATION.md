@@ -6,8 +6,7 @@ This document explains how to set up and use the Replicate.com LLM integration i
 
 Replicate is a platform that allows you to run open-source AI models in the cloud. It provides access to models like:
 - **Llama 3.1 8B** - Fast, efficient language model
-- **Llama 3.1 70B** - High-quality, larger language model  
-- **Code Llama 34B** - Code-optimized language model
+- **GPT-5** - OpenAI's latest advanced language model (via Replicate)
 
 ## Setup Instructions
 
@@ -32,16 +31,14 @@ Replicate is a platform that allows you to run open-source AI models in the clou
 
 Once connected, you can select from these Replicate models:
 
-- **Llama 3.1 8B** (`llama-3.1-8b`) - Fastest, most cost-effective
-- **Llama 3.1 70B** (`llama-3.1-70b`) - Best quality, higher cost
-- **Code Llama 34B** (`codellama-34b`) - Optimized for code generation
+- **Llama 3.1 8B** (`llama-3.1-8b`) - Fast, cost-effective
+- **GPT-5** (`gpt-5`) - Advanced reasoning and capabilities, higher cost
 
 ## Pricing
 
 Replicate offers competitive pricing:
 - **Llama 3.1 8B**: $0.0002 per 1K tokens
-- **Llama 3.1 70B**: $0.001 per 1K tokens  
-- **Code Llama 34B**: $0.0005 per 1K tokens
+- **GPT-5**: $0.002 per 1K tokens (estimated)
 
 ## Features
 
@@ -56,8 +53,7 @@ Replicate offers competitive pricing:
 | Model | Size | Speed | Quality | Cost | Best For |
 |-------|------|-------|---------|------|----------|
 | Llama 3.1 8B | Small | Fast | Good | Low | General chat, quick responses |
-| Llama 3.1 70B | Large | Slower | Excellent | Medium | Complex reasoning, high quality |
-| Code Llama 34B | Medium | Medium | Good | Low | Code generation, technical tasks |
+| GPT-5 | Large | Medium | Excellent | High | Advanced reasoning, complex tasks |
 
 ## Troubleshooting
 
@@ -71,7 +67,7 @@ Replicate offers competitive pricing:
 - Check your Replicate account for any billing issues
 
 ### Slow responses
-- Try switching to a smaller model (8B instead of 70B)
+- Try switching to a smaller model (Llama 3.1 8B instead of GPT-5)
 - Check your internet connection
 - Replicate models may have varying response times
 
