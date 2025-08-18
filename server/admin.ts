@@ -84,6 +84,7 @@ adminApp.get('/admin/dashboard', requireAdminAuth, (req, res) => {
   const hasOpenAI = !!secrets.OPENAI_API_KEY;
   const hasStripeSecret = !!secrets.STRIPE_SECRET_KEY;
   const hasStripePublic = !!secrets.VITE_STRIPE_PUBLIC_KEY;
+  const hasReplicate = !!secrets.REPLICATE_API_TOKEN;
   
   res.send(`
     <!DOCTYPE html>
@@ -120,6 +121,7 @@ adminApp.get('/admin/dashboard', requireAdminAuth, (req, res) => {
         <div class="card">
           <h2>API Keys Status</h2>
           <p><strong>OpenAI:</strong> <span class="status ${hasOpenAI ? 'connected' : 'disconnected'}">${hasOpenAI ? 'Connected' : 'Not Connected'}</span></p>
+          <p><strong>Replicate:</strong> <span class="status ${hasReplicate ? 'connected' : 'disconnected'}">${hasReplicate ? 'Connected' : 'Not Connected'}</span></p>
           <p><strong>Stripe Secret:</strong> <span class="status ${hasStripeSecret ? 'connected' : 'disconnected'}">${hasStripeSecret ? 'Connected' : 'Not Connected'}</span></p>
           <p><strong>Stripe Public:</strong> <span class="status ${hasStripePublic ? 'connected' : 'disconnected'}">${hasStripePublic ? 'Connected' : 'Not Connected'}</span></p>
         </div>
@@ -132,6 +134,11 @@ adminApp.get('/admin/dashboard', requireAdminAuth, (req, res) => {
             <div class="form-group">
               <label for="openai">OpenAI API Key:</label>
               <input type="password" id="openai" name="OPENAI_API_KEY" placeholder="sk-..." value="${secrets.OPENAI_API_KEY ? '***hidden***' : ''}">
+            </div>
+            
+            <div class="form-group">
+              <label for="replicate">Replicate API Token:</label>
+              <input type="password" id="replicate" name="REPLICATE_API_TOKEN" placeholder="r8_..." value="${secrets.REPLICATE_API_TOKEN ? '***hidden***' : ''}">
             </div>
             
             <div class="form-group">
@@ -152,6 +159,7 @@ adminApp.get('/admin/dashboard', requireAdminAuth, (req, res) => {
           <h2>Instructions</h2>
           <h3>Getting Your API Keys:</h3>
           <p><strong>OpenAI:</strong> Visit <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a> and create a new secret key.</p>
+          <p><strong>Replicate:</strong> Visit <a href="https://replicate.com/account/api-tokens" target="_blank">replicate.com/account/api-tokens</a> and create a new API token.</p>
           <p><strong>Stripe:</strong> Visit <a href="https://dashboard.stripe.com/apikeys" target="_blank">dashboard.stripe.com/apikeys</a> and copy both your secret key and publishable key.</p>
           
           <h3>Security:</h3>
@@ -167,11 +175,16 @@ adminApp.get('/admin/dashboard', requireAdminAuth, (req, res) => {
 
 // Update keys handler
 adminApp.post('/admin/update-keys', requireAdminAuth, (req: any, res) => {
-  const { OPENAI_API_KEY, STRIPE_SECRET_KEY, VITE_STRIPE_PUBLIC_KEY } = req.body;
+  const { OPENAI_API_KEY, REPLICATE_API_TOKEN, STRIPE_SECRET_KEY, VITE_STRIPE_PUBLIC_KEY } = req.body;
   
   if (OPENAI_API_KEY && OPENAI_API_KEY !== '***hidden***') {
     secrets.OPENAI_API_KEY = OPENAI_API_KEY.trim();
     process.env.OPENAI_API_KEY = OPENAI_API_KEY.trim();
+  }
+  
+  if (REPLICATE_API_TOKEN && REPLICATE_API_TOKEN !== '***hidden***') {
+    secrets.REPLICATE_API_TOKEN = REPLICATE_API_TOKEN.trim();
+    process.env.REPLICATE_API_TOKEN = REPLICATE_API_TOKEN.trim();
   }
   
   if (STRIPE_SECRET_KEY && STRIPE_SECRET_KEY !== '***hidden***') {
