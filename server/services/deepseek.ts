@@ -140,7 +140,8 @@ How can I assist you further? Feel free to ask me anything specific you'd like t
   }
 
   calculateCost(tokens: number): number {
-    return 0; // Free tier
+    // DeepSeek free tier - but we'll track tiny cost for monitoring
+    return (tokens / 1000000) * 0.14; // $0.14 per 1M tokens (very competitive)
   }
 
   async testConnection(): Promise<boolean> {

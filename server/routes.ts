@@ -518,6 +518,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
             cost =
               ((serviceResponse.usage?.prompt_tokens ?? 0) / 1000) * 0.01 +
               ((serviceResponse.usage?.completion_tokens ?? 0) / 1000) * 0.03;
+            
+            // Track usage for OpenAI
+            if (userId) {
+              try {
+                const now = new Date();
+                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+                
+                await storage.createUsageLog({
+                  userId,
+                  chatSessionId: null,
+                  modelUsed: model,
+                  tokensConsumed: tokensUsed,
+                  cost: cost.toString(),
+                  isPremiumAccount: false,
+                  billingPeriod,
+                  requestType: 'chat'
+                });
+
+                await storage.updateMonthlyUsage(userId, cost);
+                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
+              } catch (error) {
+                console.error("Failed to log OpenAI usage:", error);
+              }
+            }
             break;
 
           case "claude-3-5-sonnet":
@@ -527,6 +551,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
             };
             tokensUsed = serviceResponse.tokens;
             cost = serviceResponse.cost;
+            
+            // Track usage for Claude
+            if (userId) {
+              try {
+                const now = new Date();
+                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+                
+                await storage.createUsageLog({
+                  userId,
+                  chatSessionId: null,
+                  modelUsed: model,
+                  tokensConsumed: tokensUsed,
+                  cost: cost.toString(),
+                  isPremiumAccount: false,
+                  billingPeriod,
+                  requestType: 'chat'
+                });
+
+                await storage.updateMonthlyUsage(userId, cost);
+                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
+              } catch (error) {
+                console.error("Failed to log Claude usage:", error);
+              }
+            }
             break;
 
           case "gemini-pro":
@@ -536,6 +584,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
             };
             tokensUsed = serviceResponse.tokens;
             cost = serviceResponse.cost;
+            
+            // Track usage for Gemini
+            if (userId) {
+              try {
+                const now = new Date();
+                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+                
+                await storage.createUsageLog({
+                  userId,
+                  chatSessionId: null,
+                  modelUsed: model,
+                  tokensConsumed: tokensUsed,
+                  cost: cost.toString(),
+                  isPremiumAccount: false,
+                  billingPeriod,
+                  requestType: 'chat'
+                });
+
+                await storage.updateMonthlyUsage(userId, cost);
+                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
+              } catch (error) {
+                console.error("Failed to log Gemini usage:", error);
+              }
+            }
             break;
 
           case "grok-beta":
@@ -545,6 +617,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
             };
             tokensUsed = serviceResponse.tokens;
             cost = serviceResponse.cost;
+            
+            // Track usage for Grok
+            if (userId) {
+              try {
+                const now = new Date();
+                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+                
+                await storage.createUsageLog({
+                  userId,
+                  chatSessionId: null,
+                  modelUsed: model,
+                  tokensConsumed: tokensUsed,
+                  cost: cost.toString(),
+                  isPremiumAccount: false,
+                  billingPeriod,
+                  requestType: 'chat'
+                });
+
+                await storage.updateMonthlyUsage(userId, cost);
+                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
+              } catch (error) {
+                console.error("Failed to log Grok usage:", error);
+              }
+            }
             break;
 
           case "llama-3":
@@ -554,6 +650,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
             };
             tokensUsed = serviceResponse.tokens;
             cost = serviceResponse.cost;
+            
+            // Track usage for Llama
+            if (userId) {
+              try {
+                const now = new Date();
+                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+                
+                await storage.createUsageLog({
+                  userId,
+                  chatSessionId: null,
+                  modelUsed: model,
+                  tokensConsumed: tokensUsed,
+                  cost: cost.toString(),
+                  isPremiumAccount: false,
+                  billingPeriod,
+                  requestType: 'chat'
+                });
+
+                await storage.updateMonthlyUsage(userId, cost);
+                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
+              } catch (error) {
+                console.error("Failed to log Llama usage:", error);
+              }
+            }
             break;
 
           case "llama-3.1-8b":
@@ -836,9 +956,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Calculate final usage metrics
         const finalTokens = totalTokens || Math.floor(fullResponse.length / 4);
-        const estimatedCost = model === 'deepseek-v3' ? 
-          replicateService.calculateCost(finalTokens, model) : 
-          finalTokens * 0.001; // Default cost estimation
+        
+        // Calculate cost based on the actual model used
+        let estimatedCost = 0;
+        switch (model) {
+          case "deepseek-v3":
+            estimatedCost = replicateService.calculateCost(finalTokens, model);
+            break;
+          case "deepseek-chat":
+            estimatedCost = deepseekService.calculateCost(finalTokens);
+            break;
+          case "gpt-4":
+          case "gpt-4o":
+            estimatedCost = openaiService.calculateCost(finalTokens, model);
+            break;
+          case "gpt-5":
+            estimatedCost = replicateService.calculateCost(finalTokens, model);
+            break;
+          case "claude-3-5-sonnet":
+            estimatedCost = claudeService.calculateCost(finalTokens);
+            break;
+          case "gemini-pro":
+            estimatedCost = geminiService.calculateCost(finalTokens);
+            break;
+          case "grok-beta":
+            estimatedCost = grokService.calculateCost(finalTokens);
+            break;
+          case "llama-3":
+          case "llama-3.1-8b":
+            estimatedCost = llamaService.calculateCost(finalTokens);
+            break;
+          default:
+            // Very conservative fallback - $0.001 per 1K tokens
+            estimatedCost = (finalTokens / 1000) * 0.001;
+        }
         
         // Track usage for streaming responses
         if (userId) {

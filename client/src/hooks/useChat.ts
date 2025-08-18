@@ -231,6 +231,9 @@ export const useChat = () => {
           queryKey: ["/api/google-drive/chat-session", currentSessionId] 
         });
       }
+
+      // Refresh usage data after each message to show updated costs and tokens
+      queryClient.invalidateQueries({ queryKey: ['usage'] });
     },
     onError: (error: any) => {
       setIsStreaming(false);
