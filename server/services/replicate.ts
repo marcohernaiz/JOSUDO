@@ -117,14 +117,13 @@ class ReplicateService {
       // and GPT-5 doesn't actually exist yet
       
       const response = await this.sendMessage(message, userId, sessionId, googleCredentials, model);
-      const fullContent = response.choices[0].message.content;
+      const rawContent = response.choices[0].message.content;
+      const fullContent = typeof rawContent === 'string' ? rawContent : String(rawContent);
       
-      // Ensure fullContent is a string
-      const contentStr = typeof fullContent === 'string' ? fullContent : String(fullContent);
-      console.log("Replicate generated response:", contentStr.substring(0, 100) + "...");
+      console.log("Replicate generated response:", fullContent.substring(0, 100) + "...");
       
       // Stream the response word by word to simulate real-time streaming
-      const words = contentStr.split(' ');
+      const words = fullContent.split(' ');
       console.log("Replicate streaming:", words.length, "words");
       
       for (let i = 0; i < words.length; i++) {

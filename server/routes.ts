@@ -633,6 +633,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let integration = null;
       if (userId) {
         integration = await storage.getIntegration(userId, "google-drive");
+        console.log("Integration status for user", userId, ":", integration ? "found" : "not found");
+        if (integration) {
+          console.log("Integration credentials available:", !!integration.credentialsEncrypted);
+        }
       }
 
       // Load conversation history if sessionId is provided and user is authenticated
@@ -732,6 +736,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case "llama-3.1-8b":
           case "gpt-5":
             console.log("Starting Replicate streaming for model:", model);
+            console.log("Auth check - userId:", !!userId, "integration:", !!integration);
             if (userId && integration) {
               for await (const chunk of replicateService.sendMessageStream(
                 message,
