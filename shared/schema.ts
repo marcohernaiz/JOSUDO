@@ -47,6 +47,8 @@ export const usageLogs = pgTable("usage_logs", {
   cost: decimal("cost", { precision: 10, scale: 4 }).notNull(),
   timestamp: timestamp("timestamp").defaultNow(),
   isPremiumAccount: boolean("is_premium_account").default(false),
+  billingPeriod: text("billing_period"), // e.g., "2024-01" for monthly billing
+  requestType: text("request_type").default("chat"), // "chat", "api", "batch"
 });
 
 export const billing = pgTable("billing", {
@@ -55,6 +57,11 @@ export const billing = pgTable("billing", {
   monthlyBalance: decimal("monthly_balance", { precision: 10, scale: 2 }).default("9.99"),
   lastBillingDate: timestamp("last_billing_date").defaultNow(),
   overageAmount: decimal("overage_amount", { precision: 10, scale: 2 }).default("0.00"),
+  currentMonthUsage: decimal("current_month_usage", { precision: 10, scale: 4 }).default("0.0000"),
+  usageLimit: decimal("usage_limit", { precision: 10, scale: 2 }).default("10.00"), // Monthly limit
+  alertThreshold: decimal("alert_threshold", { precision: 3, scale: 2 }).default("0.80"), // 80% alert
+  isActive: boolean("is_active").default(true),
+  planType: text("plan_type").default("free"), // "free", "basic", "premium"
 });
 
 export const appSettings = pgTable("app_settings", {

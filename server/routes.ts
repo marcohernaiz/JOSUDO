@@ -20,8 +20,13 @@ import {
   insertChatSessionSchema,
   insertIntegrationSchema,
   insertUsageLogSchema,
+  usageLogs,
+  users,
+  billing,
 } from "@shared/schema";
 import { z } from "zod";
+import { db } from './db';
+import { eq, and, sql } from 'drizzle-orm';
 
 // OAuth providers configuration
 const hasGoogleAuth =
@@ -466,14 +471,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Track usage for Replicate
             if (userId) {
               try {
+                const now = new Date();
+                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+                
                 await storage.createUsageLog({
                   userId,
                   chatSessionId: null, // We can add session tracking later
                   modelUsed: model,
                   tokensConsumed: tokensUsed,
                   cost: cost.toString(),
-                  isPremiumAccount: false // Add proper premium check if needed
+                  isPremiumAccount: false, // Add proper premium check if needed
+                  billingPeriod,
+                  requestType: 'chat'
                 });
+
+                // Update monthly usage for billing
+                await storage.updateMonthlyUsage(userId, cost);
+                
+                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
               } catch (error) {
                 console.error("Failed to log Replicate usage:", error);
               }
@@ -828,15 +843,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Track usage for streaming responses
         if (userId) {
           try {
+            const now = new Date();
+            const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+            
             await storage.createUsageLog({
               userId,
               chatSessionId: null,
               modelUsed: model,
               tokensConsumed: finalTokens,
               cost: estimatedCost.toString(),
-              isPremiumAccount: false
+              isPremiumAccount: false,
+              billingPeriod,
+              requestType: 'chat'
             });
-            console.log(`Usage tracked: ${finalTokens} tokens, $${estimatedCost} for model ${model}`);
+
+            // Update monthly usage for billing
+            await storage.updateMonthlyUsage(userId, estimatedCost);
+            
+            console.log(`Usage tracked: ${finalTokens} tokens, $${estimatedCost} for model ${model} (user: ${userId})`);
           } catch (error) {
             console.error("Failed to log streaming usage:", error);
           }
@@ -1050,16 +1074,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return acc;
       }, {} as Record<string, { tokens: number; cost: number; requests: number }>);
 
+      // Get billing information and usage summary
+      const [usageSummary, usageLimit] = await Promise.all([
+        storage.getUserUsageSummary(userId),
+        storage.checkUsageLimit(userId)
+      ]);
+
       res.json({
         totalTokens,
         totalCost: Math.round(totalCost * 10000) / 10000, // Round to 4 decimal places
         totalRequests: usageLogs.length,
         modelUsage,
-        recentUsage: usageLogs.slice(0, 20) // Return last 20 requests
+        recentUsage: usageLogs.slice(0, 20), // Return last 20 requests
+        
+        // Billing information
+        billing: {
+          currentMonth: Math.round(usageSummary.currentMonth * 10000) / 10000,
+          lastMonth: Math.round(usageSummary.lastMonth * 10000) / 10000,
+          totalAllTime: Math.round(usageSummary.totalAllTime * 10000) / 10000,
+          limit: usageSummary.currentLimit,
+          planType: usageSummary.planType,
+          
+          // Usage limit status
+          isOverLimit: usageLimit.isOverLimit,
+          isNearLimit: usageLimit.isNearLimit,
+          usagePercentage: Math.round(usageLimit.percentage * 100),
+          remainingCredit: Math.max(0, usageLimit.limit - usageLimit.currentUsage)
+        }
       });
     } catch (error) {
       console.error("Failed to fetch usage data:", error);
       res.status(500).json({ error: "Failed to fetch usage data" });
+    }
+  });
+
+  // Admin endpoint for billing - view all user usage
+  app.get("/api/admin/billing-usage", async (req, res) => {
+    try {
+      // Note: In production, add proper admin authentication here
+      const { month, year } = req.query;
+      const currentDate = new Date();
+      const targetYear = year ? parseInt(year as string) : currentDate.getFullYear();
+      const targetMonth = month ? parseInt(month as string) : currentDate.getMonth() + 1;
+      const billingPeriod = `${targetYear}-${targetMonth.toString().padStart(2, '0')}`;
+
+      // Get all users with usage in the specified period
+      const usageByUser = await db.select({
+        userId: usageLogs.userId,
+        userEmail: users.email,
+        username: users.username,
+        totalTokens: sql<number>`sum(${usageLogs.tokensConsumed})`,
+        totalCost: sql<number>`sum(${usageLogs.cost})`,
+        requestCount: sql<number>`count(*)`,
+        planType: billing.planType,
+        usageLimit: billing.usageLimit,
+        currentMonthUsage: billing.currentMonthUsage
+      })
+      .from(usageLogs)
+      .leftJoin(users, eq(usageLogs.userId, users.id))
+      .leftJoin(billing, eq(usageLogs.userId, billing.userId))
+      .where(eq(usageLogs.billingPeriod, billingPeriod))
+      .groupBy(usageLogs.userId, users.email, users.username, billing.planType, billing.usageLimit, billing.currentMonthUsage);
+
+      const summary = {
+        billingPeriod,
+        totalUsers: usageByUser.length,
+        totalRevenue: usageByUser.reduce((sum: number, user: any) => sum + parseFloat(user.totalCost.toString()), 0),
+        totalTokens: usageByUser.reduce((sum: number, user: any) => sum + user.totalTokens, 0),
+        totalRequests: usageByUser.reduce((sum: number, user: any) => sum + user.requestCount, 0),
+        users: usageByUser.map((user: any) => ({
+          userId: user.userId,
+          email: user.userEmail,
+          username: user.username,
+          usage: {
+            tokens: user.totalTokens,
+            cost: Math.round(parseFloat(user.totalCost.toString()) * 10000) / 10000,
+            requests: user.requestCount
+          },
+          billing: {
+            planType: user.planType || 'free',
+            limit: parseFloat(user.usageLimit || '10.00'),
+            currentUsage: parseFloat(user.currentMonthUsage || '0.00'),
+            isOverLimit: parseFloat(user.currentMonthUsage || '0.00') > parseFloat(user.usageLimit || '10.00')
+          }
+        }))
+      };
+
+      res.json(summary);
+    } catch (error) {
+      console.error("Failed to fetch billing usage data:", error);
+      res.status(500).json({ error: "Failed to fetch billing usage data" });
     }
   });
 

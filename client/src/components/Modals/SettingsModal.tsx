@@ -280,6 +280,75 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                       </div>
                     ) : (
                       <>
+                        {/* Billing Overview */}
+                        {usageData?.billing && (
+                          <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200 dark:border-blue-800 mb-6">
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="text-lg font-semibold text-black dark:text-white">Monthly Usage</h4>
+                              <Badge variant={usageData.billing.isOverLimit ? "destructive" : usageData.billing.isNearLimit ? "secondary" : "default"}>
+                                {usageData.billing.planType.charAt(0).toUpperCase() + usageData.billing.planType.slice(1)} Plan
+                              </Badge>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Current Month</p>
+                                <p className="text-2xl font-bold text-black dark:text-white">
+                                  ${usageData.billing.currentMonth.toFixed(4)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Limit</p>
+                                <p className="text-2xl font-bold text-black dark:text-white">
+                                  ${usageData.billing.limit.toFixed(2)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Remaining</p>
+                                <p className={`text-2xl font-bold ${usageData.billing.remainingCredit > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                  ${usageData.billing.remainingCredit.toFixed(4)}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            {/* Usage Progress Bar */}
+                            <div className="mb-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Usage Progress</span>
+                                <span className="text-sm font-medium text-black dark:text-white">
+                                  {usageData.billing.usagePercentage}%
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full transition-all duration-300 ${
+                                    usageData.billing.isOverLimit ? 'bg-red-500' :
+                                    usageData.billing.isNearLimit ? 'bg-yellow-500' : 'bg-green-500'
+                                  }`}
+                                  style={{ width: `${Math.min(usageData.billing.usagePercentage, 100)}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                            
+                            {/* Alerts */}
+                            {usageData.billing.isOverLimit && (
+                              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                <p className="text-sm text-red-700 dark:text-red-300">
+                                  ⚠️ You have exceeded your monthly usage limit. Additional usage may incur overage charges.
+                                </p>
+                              </div>
+                            )}
+                            
+                            {usageData.billing.isNearLimit && !usageData.billing.isOverLimit && (
+                              <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                                <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                                  ⚡ You're approaching your monthly usage limit. Consider upgrading your plan.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         {/* Summary Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">

@@ -190,6 +190,88 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(billing.userId, userId));
   }
+
+  // Enhanced billing functions for usage tracking
+  async updateMonthlyUsage(userId: number, additionalCost: number): Promise<void> {
+    await db.update(billing)
+      .set({ 
+        currentMonthUsage: sql`current_month_usage + ${additionalCost.toString()}`
+      })
+      .where(eq(billing.userId, userId));
+  }
+
+  async getMonthlyUsage(userId: number, year: number, month: number): Promise<number> {
+    const billingPeriod = `${year}-${month.toString().padStart(2, '0')}`;
+    const logs = await db.select({ cost: usageLogs.cost })
+      .from(usageLogs)
+      .where(
+        and(
+          eq(usageLogs.userId, userId),
+          eq(usageLogs.billingPeriod, billingPeriod)
+        )
+      );
+    
+    return logs.reduce((total, log) => total + parseFloat(log.cost), 0);
+  }
+
+  async getUserUsageSummary(userId: number): Promise<{
+    currentMonth: number;
+    lastMonth: number;
+    totalAllTime: number;
+    currentLimit: number;
+    planType: string;
+  }> {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const lastYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+
+    const [currentMonthUsage, lastMonthUsage, totalUsage, userBilling] = await Promise.all([
+      this.getMonthlyUsage(userId, currentYear, currentMonth),
+      this.getMonthlyUsage(userId, lastYear, lastMonth),
+      db.select({ cost: usageLogs.cost })
+        .from(usageLogs)
+        .where(eq(usageLogs.userId, userId)),
+      this.getBilling(userId)
+    ]);
+
+    const totalAllTime = totalUsage.reduce((total, log) => total + parseFloat(log.cost), 0);
+
+    return {
+      currentMonth: currentMonthUsage,
+      lastMonth: lastMonthUsage,
+      totalAllTime,
+      currentLimit: parseFloat(userBilling?.usageLimit || "10.00"),
+      planType: userBilling?.planType || "free"
+    };
+  }
+
+  async checkUsageLimit(userId: number): Promise<{
+    isOverLimit: boolean;
+    isNearLimit: boolean;
+    currentUsage: number;
+    limit: number;
+    percentage: number;
+  }> {
+    const userBilling = await this.getBilling(userId);
+    if (!userBilling) {
+      return { isOverLimit: false, isNearLimit: false, currentUsage: 0, limit: 10, percentage: 0 };
+    }
+
+    const currentUsage = parseFloat(userBilling.currentMonthUsage || "0");
+    const limit = parseFloat(userBilling.usageLimit || "10.00");
+    const alertThreshold = parseFloat(userBilling.alertThreshold || "0.80");
+    const percentage = limit > 0 ? currentUsage / limit : 0;
+
+    return {
+      isOverLimit: currentUsage > limit,
+      isNearLimit: percentage >= alertThreshold,
+      currentUsage,
+      limit,
+      percentage: Math.round(percentage * 100) / 100
+    };
+  }
 }
 
 export const storage = new DatabaseStorage();
