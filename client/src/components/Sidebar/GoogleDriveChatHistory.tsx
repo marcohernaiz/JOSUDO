@@ -19,7 +19,11 @@ interface ChatMessage {
   role?: "user" | "assistant";
 }
 
-export const GoogleDriveChatHistory: React.FC = () => {
+interface GoogleDriveChatHistoryProps {
+  onSwitchToChat?: () => void;
+}
+
+export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ onSwitchToChat }) => {
   const {
     isAuthenticated,
     setMessages,
@@ -104,6 +108,8 @@ export const GoogleDriveChatHistory: React.FC = () => {
     // Set currentSessionId to the selected session so new messages are saved to that file
     setCurrentSessionId(sessionId);
     console.log("Set currentSessionId to:", sessionId);
+    // Switch to chat view to show the selected chat
+    onSwitchToChat?.();
   };
 
   // Load chat content when selectedChatContent changes

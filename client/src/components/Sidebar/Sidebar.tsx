@@ -11,9 +11,10 @@ import josudoText from "@assets/josudo logo just text_1752513004427.png";
 
 interface SidebarProps {
   onClose?: () => void;
+  onSwitchToChat?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => {
   const { setActiveSession, setMessages, setCurrentSessionId } =
     useAppContext();
   const { isAuthenticated } = useAuth();
@@ -47,6 +48,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       setActiveSession(null);
       // Clear all messages to start fresh
       setMessages([]);
+      // Switch to chat view
+      onSwitchToChat?.();
       // Close sidebar on mobile
       onClose?.();
     } catch (error) {
@@ -54,6 +57,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
       // Still clear messages even if session creation fails
       setActiveSession(null);
       setMessages([]);
+      // Switch to chat view
+      onSwitchToChat?.();
       onClose?.();
     }
   };
@@ -179,7 +184,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
         </div>
 
         {/* Google Drive Chat History */}
-        {isExpanded && <GoogleDriveChatHistory />}
+        {isExpanded && <GoogleDriveChatHistory onSwitchToChat={onSwitchToChat} />}
 
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-slate-300 dark:border-slate-700">

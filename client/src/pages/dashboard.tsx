@@ -87,7 +87,7 @@ export default function Dashboard() {
         {!isMobile && (
           <div className="fixed inset-y-0 left-0 z-40">
             <div className="h-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-r border-slate-300/50 dark:border-slate-700/50 shadow-xl">
-              <Sidebar onClose={() => setIsSidebarOpen(false)} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} />
             </div>
           </div>
         )}
@@ -101,7 +101,7 @@ export default function Dashboard() {
             `}
           >
             <div className="h-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-r border-slate-300/50 dark:border-slate-700/50 shadow-xl">
-              <Sidebar onClose={() => setIsSidebarOpen(false)} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} />
             </div>
           </div>
         )}
