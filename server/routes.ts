@@ -462,6 +462,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const contentLength = typeof responseContent === 'string' ? responseContent.length : 0;
             tokensUsed = Math.ceil((message.length + contentLength) / 4);
             cost = replicateService.calculateCost(tokensUsed, model);
+            
+            // Track usage for Replicate
+            if (userId) {
+              try {
+                await storage.createUsageLog({
+                  userId,
+                  chatSessionId: null, // We can add session tracking later
+                  modelUsed: model,
+                  tokensConsumed: tokensUsed,
+                  cost: cost.toString(),
+                  isPremiumAccount: false // Add proper premium check if needed
+                });
+              } catch (error) {
+                console.error("Failed to log Replicate usage:", error);
+              }
+            }
             break;
 
           case "gpt-4":
@@ -802,11 +818,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         console.log("Streaming completed, full response length:", fullResponse.length);
+        
+        // Calculate final usage metrics
+        const finalTokens = totalTokens || Math.floor(fullResponse.length / 4);
+        const estimatedCost = model === 'deepseek-v3' ? 
+          replicateService.calculateCost(finalTokens, model) : 
+          finalTokens * 0.001; // Default cost estimation
+        
+        // Track usage for streaming responses
+        if (userId) {
+          try {
+            await storage.createUsageLog({
+              userId,
+              chatSessionId: null,
+              modelUsed: model,
+              tokensConsumed: finalTokens,
+              cost: estimatedCost.toString(),
+              isPremiumAccount: false
+            });
+            console.log(`Usage tracked: ${finalTokens} tokens, $${estimatedCost} for model ${model}`);
+          } catch (error) {
+            console.error("Failed to log streaming usage:", error);
+          }
+        }
+        
         // Send completion signal
         res.write(`data: ${JSON.stringify({ 
           type: 'complete', 
           response: fullResponse,
-          tokens: totalTokens || Math.floor(fullResponse.length / 4),
+          tokens: finalTokens,
           model: model
         })}\n\n`);
 
@@ -982,9 +1022,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Usage analytics - No authentication required, return empty array
   app.get("/api/usage", async (req, res) => {
     try {
-      // Return empty array since no user accounts
-      res.json([]);
+      const userId = (req as any).session?.passport?.user;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      // Get usage logs for the authenticated user
+      const usageLogs = await storage.getUsageLogs(userId, 100);
+      
+      // Calculate summary statistics
+      const totalTokens = usageLogs.reduce((sum, log) => sum + log.tokensConsumed, 0);
+      const totalCost = usageLogs.reduce((sum, log) => sum + parseFloat(log.cost), 0);
+      
+      // Group by model
+      const modelUsage = usageLogs.reduce((acc, log) => {
+        if (!acc[log.modelUsed]) {
+          acc[log.modelUsed] = {
+            tokens: 0,
+            cost: 0,
+            requests: 0
+          };
+        }
+        acc[log.modelUsed].tokens += log.tokensConsumed;
+        acc[log.modelUsed].cost += parseFloat(log.cost);
+        acc[log.modelUsed].requests += 1;
+        return acc;
+      }, {} as Record<string, { tokens: number; cost: number; requests: number }>);
+
+      res.json({
+        totalTokens,
+        totalCost: Math.round(totalCost * 10000) / 10000, // Round to 4 decimal places
+        totalRequests: usageLogs.length,
+        modelUsage,
+        recentUsage: usageLogs.slice(0, 20) // Return last 20 requests
+      });
     } catch (error) {
+      console.error("Failed to fetch usage data:", error);
       res.status(500).json({ error: "Failed to fetch usage data" });
     }
   });

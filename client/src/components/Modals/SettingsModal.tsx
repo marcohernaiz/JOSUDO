@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useAppContext } from '@/contexts/AppContext';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { ApiKeyModal } from './ApiKeyModal';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, TrendingUp, Zap, DollarSign, Clock } from 'lucide-react';
 
 interface SettingsModalProps {
   open: boolean;
@@ -27,6 +27,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch usage data
+  const { data: usageData, isLoading: usageLoading, error: usageError } = useQuery({
+    queryKey: ['usage'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/usage');
+      return response;
+    },
+    enabled: open && activeTab === 'usage', // Only fetch when modal is open and usage tab is active
+  });
 
   const deleteIntegrationMutation = useMutation({
     mutationFn: async (integrationId: number) => {
@@ -258,12 +268,143 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
 
                 {activeTab === 'usage' && (
                   <div className="space-y-6">
-                    <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
-                      <h4 className="text-lg font-semibold text-black dark:text-white mb-4">Usage Statistics</h4>
-                      <p className="text-black dark:text-white">Tokens Used This Month: 15,000</p>
-                      <p className="text-black dark:text-white">API Calls Made: 250</p>
-                      <p className="text-black dark:text-white">Storage Used: 2.5 GB</p>
-                    </div>
+                    {usageLoading ? (
+                      <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
+                        <h4 className="text-lg font-semibold text-black dark:text-white mb-4">Usage Statistics</h4>
+                        <p className="text-black dark:text-white">Loading usage data...</p>
+                      </div>
+                    ) : usageError ? (
+                      <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
+                        <h4 className="text-lg font-semibold text-black dark:text-white mb-4">Usage Statistics</h4>
+                        <p className="text-red-500">Failed to load usage data. Please try again.</p>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Summary Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Total Tokens</p>
+                                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                                  {usageData?.totalTokens?.toLocaleString() || '0'}
+                                </p>
+                              </div>
+                              <Zap className="h-8 w-8 text-blue-500" />
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-green-600 dark:text-green-400">Total Cost</p>
+                                <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                                  ${usageData?.totalCost?.toFixed(4) || '0.0000'}
+                                </p>
+                              </div>
+                              <DollarSign className="h-8 w-8 text-green-500" />
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-purple-600 dark:text-purple-400">API Calls</p>
+                                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                                  {usageData?.totalRequests || '0'}
+                                </p>
+                              </div>
+                              <TrendingUp className="h-8 w-8 text-purple-500" />
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Avg Cost</p>
+                                <p className="text-2xl font-bold text-orange-900 dark:text-orange-100">
+                                  ${((usageData?.totalCost || 0) / (usageData?.totalRequests || 1)).toFixed(4)}
+                                </p>
+                              </div>
+                              <Clock className="h-8 w-8 text-orange-500" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Model Usage Breakdown */}
+                        <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
+                          <h4 className="text-lg font-semibold text-black dark:text-white mb-4">Usage by Model</h4>
+                          {usageData?.modelUsage && Object.keys(usageData.modelUsage).length > 0 ? (
+                            <div className="space-y-4">
+                              {Object.entries(usageData.modelUsage).map(([model, data]: [string, any]) => (
+                                <div key={model} className="flex items-center justify-between p-4 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                                  <div className="flex items-center space-x-3">
+                                    <div className={`w-3 h-3 rounded-full ${
+                                      model === 'deepseek-v3' ? 'bg-blue-500' :
+                                      model.includes('gpt') ? 'bg-green-500' :
+                                      model.includes('claude') ? 'bg-purple-500' :
+                                      model.includes('gemini') ? 'bg-yellow-500' :
+                                      'bg-gray-500'
+                                    }`}></div>
+                                    <div>
+                                      <p className="font-medium text-black dark:text-white">
+                                        {model === 'deepseek-v3' ? 'DeepSeek V3' :
+                                         model === 'gpt-4' ? 'GPT-4' :
+                                         model === 'claude-3-5-sonnet' ? 'Claude 3.5 Sonnet' :
+                                         model === 'gemini-pro' ? 'Gemini Pro' :
+                                         model.charAt(0).toUpperCase() + model.slice(1)}
+                                      </p>
+                                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        {data.requests} requests
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="font-medium text-black dark:text-white">
+                                      {data.tokens.toLocaleString()} tokens
+                                    </p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                      ${data.cost.toFixed(4)}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-gray-600 dark:text-gray-400">No usage data available yet. Start using AI models to see your usage statistics!</p>
+                          )}
+                        </div>
+
+                        {/* Recent Usage */}
+                        {usageData?.recentUsage && usageData.recentUsage.length > 0 && (
+                          <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
+                            <h4 className="text-lg font-semibold text-black dark:text-white mb-4">Recent Activity</h4>
+                            <div className="space-y-2 max-h-64 overflow-y-auto">
+                              {usageData.recentUsage.map((usage: any, index: number) => (
+                                <div key={index} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-700 rounded text-sm">
+                                  <div className="flex items-center space-x-3">
+                                    <div className={`w-2 h-2 rounded-full ${
+                                      usage.modelUsed === 'deepseek-v3' ? 'bg-blue-500' :
+                                      usage.modelUsed.includes('gpt') ? 'bg-green-500' :
+                                      usage.modelUsed.includes('claude') ? 'bg-purple-500' :
+                                      'bg-gray-500'
+                                    }`}></div>
+                                    <span className="text-black dark:text-white">
+                                      {usage.modelUsed === 'deepseek-v3' ? 'DeepSeek V3' : usage.modelUsed}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center space-x-4 text-gray-600 dark:text-gray-400">
+                                    <span>{usage.tokensConsumed} tokens</span>
+                                    <span>${parseFloat(usage.cost).toFixed(4)}</span>
+                                    <span>{new Date(usage.timestamp).toLocaleDateString()}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 )}
 
