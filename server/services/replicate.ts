@@ -1,21 +1,24 @@
 import Replicate from "replicate";
 import { storage } from "../storage";
 import { googleDriveService } from "./googleDrive";
+import { getSecret } from '../admin';
 
 class ReplicateService {
-  private async getReplicateClientForUser(userId: number) {
-    // 1. Query the integration
-    const integration = await storage.getIntegration(userId, "replicate");
-    if (!integration)
-      throw new Error("No Replicate integration found for user");
+  private getReplicateClient() {
+    // Use default API key from admin panel or environment variables
+    const apiKey = getSecret('REPLICATE_API_TOKEN') || process.env.REPLICATE_API_TOKEN;
+    if (!apiKey) {
+      throw new Error("REPLICATE_API_TOKEN not configured. Please set it in the admin panel or environment variables.");
+    }
 
-    // 2. Decrypt or parse credentials_encrypted
-    const credentials = JSON.parse(integration.credentialsEncrypted);
-    const apiKey = credentials.apiKey;
-    if (!apiKey) throw new Error("No API key found in integration");
-
-    // 3. Return Replicate client
+    // Return Replicate client with default API key
     return new Replicate({ auth: apiKey });
+  }
+
+  // Legacy method for backwards compatibility (if needed)
+  private async getReplicateClientForUser(userId: number) {
+    // Now just use the default client
+    return this.getReplicateClient();
   }
 
   async sendMessage(
@@ -25,14 +28,23 @@ class ReplicateService {
     googleCredentials: string,
     model: string = "llama-3.1-8b",
   ) {
-    const replicate = await this.getReplicateClientForUser(userId);
+    const replicate = this.getReplicateClient();
 
     try {
-      // ✅ 1. Load and sanitize previous chat history from Google Drive
-      let messages = await googleDriveService.getChatHistory(
-        sessionId,
-        googleCredentials,
-      );
+      // ✅ 1. Load and sanitize previous chat history from Google Drive (if available)
+      let messages: Array<{ role: string; content: string }> = [];
+      
+      if (googleCredentials && sessionId) {
+        try {
+          messages = await googleDriveService.getChatHistory(
+            sessionId,
+            googleCredentials,
+          );
+        } catch (error) {
+          console.log("Could not load chat history from Google Drive, starting fresh:", error);
+          // Continue with empty history if Google Drive fails
+        }
+      }
 
       // Only keep fields that Replicate expects
       messages = messages

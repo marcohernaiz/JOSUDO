@@ -518,12 +518,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "llama-3.1-8b":
           case "gpt-5":
-            // Use Replicate with proper sessionId for context
+            // Use Replicate with default API key - no authentication required
             serviceResponse = await replicateService.sendMessage(
               message,
-              userId,
-              sessionId || userId.toString(),
-              integration?.credentialsEncrypted || "",
+              userId || 0, // Use 0 as fallback for unauthenticated users
+              sessionId || "anonymous",
+              integration?.credentialsEncrypted || "", // Empty string if no Google Drive
               model,
             );
             response = {
@@ -737,26 +737,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case "gpt-5":
             console.log("Starting Replicate streaming for model:", model);
             console.log("Auth check - userId:", !!userId, "integration:", !!integration);
-            if (userId && integration) {
-              for await (const chunk of replicateService.sendMessageStream(
-                message,
-                userId,
-                sessionId || userId.toString(),
-                integration?.credentialsEncrypted || "",
-                model,
-              )) {
-                console.log("Received Replicate chunk:", chunk.content);
-                fullResponse += chunk.content;
-                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-              }
-            } else {
-              console.log("User not authenticated, falling back to DeepSeek for model:", model);
-              // Fallback to DeepSeek for unauthenticated users
-              for await (const chunk of deepseekService.sendMessageStream(message, "deepseek-chat", conversationHistory)) {
-                console.log("Received fallback chunk:", chunk.content);
-                fullResponse += chunk.content;
-                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-              }
+            // Replicate now works with default API key - no user authentication required
+            for await (const chunk of replicateService.sendMessageStream(
+              message,
+              userId || 0, // Use 0 as fallback for unauthenticated users
+              sessionId || "anonymous",
+              integration?.credentialsEncrypted || "", // Empty string if no Google Drive
+              model,
+            )) {
+              console.log("Received Replicate chunk:", chunk.content);
+              fullResponse += chunk.content;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
             }
             console.log("Replicate streaming finished, fullResponse length:", fullResponse.length);
             break;
