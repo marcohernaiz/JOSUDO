@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,7 +31,12 @@ import {
   Wifi,
   Bolt,
   Check,
-  Cloud
+  Cloud,
+  Paperclip,
+  FileText,
+  Image,
+  FileIcon,
+  X
 } from 'lucide-react';
 import { 
   SiOpenai, 
@@ -83,6 +88,8 @@ export const MessageInput: React.FC = () => {
   const [selectedStorage, setSelectedStorage] = useState('none');
   const [selectedProcessing, setSelectedProcessing] = useState('josudo');
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const STORAGE_OPTIONS = getStorageOptions(isAuthenticated);
 
@@ -114,8 +121,58 @@ export const MessageInput: React.FC = () => {
   };
 
   const handleSendMessage = () => {
-    if (!currentMessage.trim() || isLoading) return;
-    sendMessage(selectedModel);
+    if ((!currentMessage.trim() && attachedFiles.length === 0) || isLoading) return;
+    sendMessage(selectedModel, attachedFiles);
+    setAttachedFiles([]); // Clear files after sending
+  };
+
+  const handleFileAttach = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles = files.filter(file => {
+      // Accept common file types
+      const validTypes = [
+        'text/plain', 'text/markdown', 'text/csv',
+        'application/pdf', 
+        'application/json',
+        'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+        'application/javascript', 'text/javascript',
+        'text/html', 'text/css',
+        'application/zip'
+      ];
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      
+      if (!validTypes.includes(file.type) && !file.name.match(/\.(txt|md|js|ts|jsx|tsx|py|java|cpp|c|h|css|html|xml|yaml|yml|json)$/i)) {
+        alert(`File type not supported: ${file.name}`);
+        return false;
+      }
+      
+      if (file.size > maxSize) {
+        alert(`File too large: ${file.name}. Maximum size is 10MB.`);
+        return false;
+      }
+      
+      return true;
+    });
+    
+    setAttachedFiles(prev => [...prev, ...validFiles]);
+    // Reset the input so the same file can be selected again
+    e.target.value = '';
+  };
+
+  const removeFile = (index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const getFileIcon = (file: File) => {
+    if (file.type.startsWith('image/')) return Image;
+    if (file.type.includes('pdf')) return FileText;
+    if (file.type.includes('text/') || file.name.match(/\.(txt|md|js|ts|jsx|tsx|py|java|cpp|c|h|css|html|xml|yaml|yml|json)$/i)) return FileText;
+    return FileIcon;
   };
 
   const activeModel = integrations.find(i => i.serviceType === 'ai_model' && i.isActive);
@@ -142,7 +199,7 @@ export const MessageInput: React.FC = () => {
             {/* Send button */}
             <Button
               onClick={handleSendMessage}
-              disabled={!currentMessage.trim() || isLoading}
+              disabled={(!currentMessage.trim() && attachedFiles.length === 0) || isLoading}
               className="absolute right-3 top-3 p-2 h-8 w-8 bg-blue-500 hover:bg-blue-600 rounded-md"
               size="sm"
             >
@@ -155,6 +212,34 @@ export const MessageInput: React.FC = () => {
           </div>
         </div>
 
+        {/* Attached Files Preview */}
+        {attachedFiles.length > 0 && (
+          <div className="mt-4 p-3 bg-slate-100 dark:bg-slate-700/50 rounded-lg">
+            <div className="flex flex-wrap gap-2">
+              {attachedFiles.map((file, index) => {
+                const FileIconComponent = getFileIcon(file);
+                return (
+                  <div key={index} className="flex items-center space-x-2 bg-white dark:bg-slate-600 px-3 py-2 rounded-md border border-slate-200 dark:border-slate-500">
+                    <FileIconComponent className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                    <span className="text-sm text-slate-700 dark:text-slate-200 max-w-32 truncate">
+                      {file.name}
+                    </span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                      ({(file.size / 1024).toFixed(1)}KB)
+                    </span>
+                    <button
+                      onClick={() => removeFile(index)}
+                      className="ml-1 text-slate-400 hover:text-red-500 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Second Line - All Controls */}
         <div className="flex items-center justify-between w-full mt-4">
           {/* Left side - Tools */}
@@ -164,12 +249,21 @@ export const MessageInput: React.FC = () => {
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={handleFileAttach}
                 className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center transition-all duration-300 overflow-hidden p-0"
                 title="Attach files"
               >
-                <span className="text-slate-600 dark:text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">+</span>
+                <Paperclip className="text-slate-600 dark:text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0 w-4 h-4" />
                 <span className="ml-2 text-sm text-slate-600 dark:text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Add files</span>
               </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+                accept=".txt,.md,.pdf,.doc,.docx,.json,.csv,.js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.css,.html,.xml,.yaml,.yml,.jpg,.jpeg,.png,.gif,.webp"
+              />
             </div>
 
             {/* Tools */}

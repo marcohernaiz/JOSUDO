@@ -27,20 +27,28 @@ export const useChat = () => {
       message,
       sessionId,
       model,
+      files,
     }: {
       message: string;
       sessionId?: string | number;
       model?: string;
+      files?: File[];
     }) => {
       // Use streaming for all requests
-      return new Promise((resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         setIsStreaming(true);
         
         // Add user message immediately
+        let messageContent = message;
+        if (files && files.length > 0) {
+          const fileList = files.map(f => `📎 ${f.name}`).join('\n');
+          messageContent = message + (message ? '\n\n' : '') + `Attached files:\n${fileList}`;
+        }
+        
         const userMessage: ChatMessage = {
           id: Date.now().toString(),
           role: "user",
-          content: message,
+          content: messageContent,
           timestamp: new Date(),
         };
 
@@ -57,18 +65,57 @@ export const useChat = () => {
         setStreamingMessageId(aiMessageId);
         setMessages((prev) => [...prev, userMessage, aiMessage]);
 
+        // Prepare request data - convert files to base64 for simple handling
+        let processedFiles: Array<{name: string, content: string, type: string}> = [];
+        
+        if (files && files.length > 0) {
+          // Convert files to base64
+          const filePromises = files.map(file => 
+            new Promise<{name: string, content: string, type: string}>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => {
+                const result = reader.result as string;
+                // Remove data URL prefix to get just the base64 content
+                const base64Content = result.split(',')[1] || result;
+                resolve({
+                  name: file.name,
+                  content: base64Content,
+                  type: file.type
+                });
+              };
+              reader.onerror = () => {
+                console.error('Error reading file:', file.name);
+                reject(new Error(`Failed to read file: ${file.name}`));
+              };
+              reader.readAsDataURL(file);
+            })
+          );
+          
+          try {
+            processedFiles = await Promise.all(filePromises);
+          } catch (error) {
+            console.error('Error processing files:', error);
+            // Continue with empty files if there's an error
+          }
+        }
+
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+        
+        const body = JSON.stringify({
+          message,
+          sessionId,
+          model: model || "deepseek-chat",
+          files: processedFiles.length > 0 ? processedFiles : undefined,
+        });
+
         // Use fetch with streaming for POST request
         fetch('/api/chat/send-stream', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers,
           credentials: 'include',
-          body: JSON.stringify({
-            message,
-            sessionId,
-            model: model || "deepseek-chat",
-          }),
+          body,
         }).then(async response => {
           if (!response.ok) {
             console.error('Network response not ok:', response.status, response.statusText);
@@ -188,8 +235,8 @@ export const useChat = () => {
     },
   });
 
-  const sendMessage = async (model?: string) => {
-    if (!currentMessage.trim()) return;
+  const sendMessage = async (model?: string, files?: File[]) => {
+    if (!currentMessage.trim() && (!files || files.length === 0)) return;
 
     console.log("Sending message with sessionId:", currentSessionId);
 
@@ -197,6 +244,7 @@ export const useChat = () => {
       message: currentMessage,
       sessionId: currentSessionId || undefined,
       model,
+      files,
     });
   };
 

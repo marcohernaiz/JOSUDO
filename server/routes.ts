@@ -608,8 +608,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat streaming route - Server-Sent Events
   app.post("/api/chat/send-stream", async (req, res) => {
     try {
-      const { message, model, sessionId } = req.body;
-      console.log("Received streaming chat request:", { message, model, sessionId });
+      const { message, model, sessionId, files } = req.body;
+      console.log("Received streaming chat request:", { message, model, sessionId, fileCount: files?.length || 0 });
 
       const userId = (req as any).session?.passport?.user;
 
@@ -653,6 +653,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Process files and create enhanced message
+      let enhancedMessage = message;
+      if (files && files.length > 0) {
+        let fileContents = "";
+        for (const file of files) {
+          try {
+            // Decode base64 content
+            const content = Buffer.from(file.content, 'base64').toString('utf-8');
+            fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n${content}\n--- End of ${file.name} ---\n`;
+          } catch (error) {
+            console.error(`Error processing file ${file.name}:`, error);
+            fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n[Error reading file content]\n--- End of ${file.name} ---\n`;
+          }
+        }
+        
+        enhancedMessage = `${message}\n\nAttached files:${fileContents}`;
+        console.log(`Enhanced message with ${files.length} files, total length: ${enhancedMessage.length}`);
+      }
+
       let totalTokens = 0;
       let fullResponse = "";
 
@@ -663,7 +682,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case "deepseek-chat":
           case "deepseek-r1":
             console.log("Starting DeepSeek streaming...");
-            for await (const chunk of deepseekService.sendMessageStream(message, model, conversationHistory)) {
+            for await (const chunk of deepseekService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
               console.log("Received chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
@@ -675,7 +694,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           case "gpt-4o":
             if (userId && integration) {
               for await (const chunk of openaiService.sendMessageStream(
-                message,
+                enhancedMessage,
                 userId,
                 sessionId || userId.toString(),
                 integration?.credentialsEncrypted || "",
@@ -686,7 +705,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
             } else {
               // Fallback to DeepSeek for unauthenticated users
-              for await (const chunk of deepseekService.sendMessageStream(message, "deepseek-chat", conversationHistory)) {
+              for await (const chunk of deepseekService.sendMessageStream(enhancedMessage, "deepseek-chat", conversationHistory)) {
                 fullResponse += chunk.content;
                 res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
               }
@@ -695,7 +714,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "claude-3-5-sonnet":
             console.log("Starting Claude streaming...");
-            for await (const chunk of claudeService.sendMessageStream(message, model, conversationHistory)) {
+            for await (const chunk of claudeService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
               console.log("Received Claude chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
@@ -705,7 +724,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "gemini-pro":
             console.log("Starting Gemini streaming...");
-            for await (const chunk of geminiService.sendMessageStream(message, model, conversationHistory)) {
+            for await (const chunk of geminiService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
               console.log("Received Gemini chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
@@ -715,7 +734,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "grok-beta":
             console.log("Starting Grok streaming...");
-            for await (const chunk of grokService.sendMessageStream(message, model, conversationHistory)) {
+            for await (const chunk of grokService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
               console.log("Received Grok chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
@@ -725,7 +744,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "llama-3":
             console.log("Starting Llama streaming...");
-            for await (const chunk of llamaService.sendMessageStream(message, model, conversationHistory)) {
+            for await (const chunk of llamaService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
               console.log("Received Llama chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
@@ -739,7 +758,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log("Auth check - userId:", !!userId, "integration:", !!integration);
             // Replicate now works with default API key - no user authentication required
             for await (const chunk of replicateService.sendMessageStream(
-              message,
+              enhancedMessage,
               userId || 0, // Use 0 as fallback for unauthenticated users
               sessionId || "anonymous",
               integration?.credentialsEncrypted || "", // Empty string if no Google Drive
@@ -755,7 +774,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           default:
             console.log("Unknown model, defaulting to DeepSeek:", model);
             // Default to DeepSeek for any unknown model
-            for await (const chunk of deepseekService.sendMessageStream(message, "deepseek-chat", conversationHistory)) {
+            for await (const chunk of deepseekService.sendMessageStream(enhancedMessage, "deepseek-chat", conversationHistory)) {
               console.log("Received default chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
@@ -778,7 +797,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           try {
             await googleDriveService.saveChatMessage(
               sessionId || userId.toString(),
-              message,
+              message, // Save original user message (not enhanced with files)
               fullResponse,
               integration.credentialsEncrypted
             );
