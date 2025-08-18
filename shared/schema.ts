@@ -57,6 +57,15 @@ export const billing = pgTable("billing", {
   overageAmount: decimal("overage_amount", { precision: 10, scale: 2 }).default("0.00"),
 });
 
+export const appSettings = pgTable("app_settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: text("value").notNull(),
+  isEncrypted: boolean("is_encrypted").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const virtualEmployees = pgTable("virtual_employees", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),

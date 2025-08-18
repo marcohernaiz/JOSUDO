@@ -2,13 +2,93 @@ import express from 'express';
 import session from 'express-session';
 import { storage } from './storage';
 import crypto from 'crypto';
+import { db } from './db';
+import { appSettings } from '@shared/schema';
+import { eq } from 'drizzle-orm';
 
 const adminApp = express();
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'josudo2025!';
 
-// Simple in-memory secret storage for MVP
-let secrets: Record<string, string> = {};
+// Encryption for secrets
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'josudo-default-key-32-characters!!';
+const ALGORITHM = 'aes-256-cbc';
+
+function encrypt(text: string): string {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipher(ALGORITHM, ENCRYPTION_KEY);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return iv.toString('hex') + ':' + encrypted;
+}
+
+function decrypt(text: string): string {
+  const [ivHex, encryptedText] = text.split(':');
+  const iv = Buffer.from(ivHex, 'hex');
+  const decipher = crypto.createDecipher(ALGORITHM, ENCRYPTION_KEY);
+  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted;
+}
+
+// Database functions for settings
+async function getSetting(key: string): Promise<string | null> {
+  try {
+    const result = await db.select().from(appSettings).where(eq(appSettings.key, key)).limit(1);
+    if (result.length > 0) {
+      const setting = result[0];
+      return setting.isEncrypted ? decrypt(setting.value) : setting.value;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting setting:', error);
+    return null;
+  }
+}
+
+async function setSetting(key: string, value: string, isEncrypted: boolean = true): Promise<void> {
+  try {
+    const storedValue = isEncrypted ? encrypt(value) : value;
+    const existing = await db.select().from(appSettings).where(eq(appSettings.key, key)).limit(1);
+    
+    if (existing.length > 0) {
+      await db.update(appSettings)
+        .set({ value: storedValue, isEncrypted, updatedAt: new Date() })
+        .where(eq(appSettings.key, key));
+    } else {
+      await db.insert(appSettings).values({
+        key,
+        value: storedValue,
+        isEncrypted
+      });
+    }
+  } catch (error) {
+    console.error('Error setting:', error);
+  }
+}
+
+// Cache for frequently accessed settings (still keep some in-memory for performance)
+let settingsCache: Record<string, string> = {};
+
+// Load settings into cache on startup
+async function loadSettings() {
+  try {
+    // Try to access the table, if it fails, it might not exist yet
+    const settings = await db.select().from(appSettings);
+    settings.forEach(setting => {
+      const value = setting.isEncrypted ? decrypt(setting.value) : setting.value;
+      settingsCache[setting.key] = value;
+      process.env[setting.key] = value; // Also set as env var for compatibility
+    });
+    console.log('Loaded', settings.length, 'settings from database');
+  } catch (error) {
+    console.error('Error loading settings (table might not exist yet):', error);
+    console.log('Note: Run "npm run db:push" to create the appSettings table');
+  }
+}
+
+// Initialize settings cache
+loadSettings();
 
 adminApp.use(express.json());
 adminApp.use(express.urlencoded({ extended: true }));
@@ -81,10 +161,10 @@ adminApp.post('/admin/login', (req: any, res) => {
 
 // Dashboard
 adminApp.get('/admin/dashboard', requireAdminAuth, (req, res) => {
-  const hasOpenAI = !!secrets.OPENAI_API_KEY;
-  const hasStripeSecret = !!secrets.STRIPE_SECRET_KEY;
-  const hasStripePublic = !!secrets.VITE_STRIPE_PUBLIC_KEY;
-  const hasReplicate = !!secrets.REPLICATE_API_TOKEN;
+  const hasOpenAI = !!settingsCache.OPENAI_API_KEY;
+  const hasStripeSecret = !!settingsCache.STRIPE_SECRET_KEY;
+  const hasStripePublic = !!settingsCache.VITE_STRIPE_PUBLIC_KEY;
+  const hasReplicate = !!settingsCache.REPLICATE_API_TOKEN;
   
   res.send(`
     <!DOCTYPE html>
@@ -109,6 +189,7 @@ adminApp.get('/admin/dashboard', requireAdminAuth, (req, res) => {
         .logout { float: right; background: #dc2626; }
         .logout:hover { background: #b91c1c; }
         .success { color: #065f46; margin-bottom: 10px; padding: 10px; background: #d1fae5; border: 1px solid #a7f3d0; border-radius: 4px; }
+        .error { color: #991b1b; margin-bottom: 10px; padding: 10px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 4px; }
       </style>
     </head>
     <body>
@@ -129,26 +210,27 @@ adminApp.get('/admin/dashboard', requireAdminAuth, (req, res) => {
         <div class="card">
           <h2>Configure API Keys</h2>
           ${req.query.success ? '<div class="success">API keys updated successfully!</div>' : ''}
+          ${req.query.error ? '<div class="error">Failed to update API keys. Please try again.</div>' : ''}
           
           <form method="POST" action="/admin/update-keys">
             <div class="form-group">
               <label for="openai">OpenAI API Key:</label>
-              <input type="password" id="openai" name="OPENAI_API_KEY" placeholder="sk-..." value="${secrets.OPENAI_API_KEY ? '***hidden***' : ''}">
+              <input type="password" id="openai" name="OPENAI_API_KEY" placeholder="sk-..." value="${settingsCache.OPENAI_API_KEY ? '***hidden***' : ''}">
             </div>
             
             <div class="form-group">
               <label for="replicate">Replicate API Token:</label>
-              <input type="password" id="replicate" name="REPLICATE_API_TOKEN" placeholder="r8_..." value="${secrets.REPLICATE_API_TOKEN ? '***hidden***' : ''}">
+              <input type="password" id="replicate" name="REPLICATE_API_TOKEN" placeholder="r8_..." value="${settingsCache.REPLICATE_API_TOKEN ? '***hidden***' : ''}">
             </div>
             
             <div class="form-group">
               <label for="stripe_secret">Stripe Secret Key:</label>
-              <input type="password" id="stripe_secret" name="STRIPE_SECRET_KEY" placeholder="sk_..." value="${secrets.STRIPE_SECRET_KEY ? '***hidden***' : ''}">
+              <input type="password" id="stripe_secret" name="STRIPE_SECRET_KEY" placeholder="sk_..." value="${settingsCache.STRIPE_SECRET_KEY ? '***hidden***' : ''}">
             </div>
             
             <div class="form-group">
               <label for="stripe_public">Stripe Publishable Key:</label>
-              <input type="text" id="stripe_public" name="VITE_STRIPE_PUBLIC_KEY" placeholder="pk_..." value="${secrets.VITE_STRIPE_PUBLIC_KEY || ''}">
+              <input type="text" id="stripe_public" name="VITE_STRIPE_PUBLIC_KEY" placeholder="pk_..." value="${settingsCache.VITE_STRIPE_PUBLIC_KEY || ''}">
             </div>
             
             <button type="submit">Update API Keys</button>
@@ -174,30 +256,44 @@ adminApp.get('/admin/dashboard', requireAdminAuth, (req, res) => {
 });
 
 // Update keys handler
-adminApp.post('/admin/update-keys', requireAdminAuth, (req: any, res) => {
+adminApp.post('/admin/update-keys', requireAdminAuth, async (req: any, res) => {
   const { OPENAI_API_KEY, REPLICATE_API_TOKEN, STRIPE_SECRET_KEY, VITE_STRIPE_PUBLIC_KEY } = req.body;
   
-  if (OPENAI_API_KEY && OPENAI_API_KEY !== '***hidden***') {
-    secrets.OPENAI_API_KEY = OPENAI_API_KEY.trim();
-    process.env.OPENAI_API_KEY = OPENAI_API_KEY.trim();
+  try {
+    if (OPENAI_API_KEY && OPENAI_API_KEY !== '***hidden***') {
+      const trimmedKey = OPENAI_API_KEY.trim();
+      await setSetting('OPENAI_API_KEY', trimmedKey);
+      settingsCache.OPENAI_API_KEY = trimmedKey;
+      process.env.OPENAI_API_KEY = trimmedKey;
+    }
+    
+    if (REPLICATE_API_TOKEN && REPLICATE_API_TOKEN !== '***hidden***') {
+      const trimmedToken = REPLICATE_API_TOKEN.trim();
+      await setSetting('REPLICATE_API_TOKEN', trimmedToken);
+      settingsCache.REPLICATE_API_TOKEN = trimmedToken;
+      process.env.REPLICATE_API_TOKEN = trimmedToken;
+    }
+    
+    if (STRIPE_SECRET_KEY && STRIPE_SECRET_KEY !== '***hidden***') {
+      const trimmedKey = STRIPE_SECRET_KEY.trim();
+      await setSetting('STRIPE_SECRET_KEY', trimmedKey);
+      settingsCache.STRIPE_SECRET_KEY = trimmedKey;
+      process.env.STRIPE_SECRET_KEY = trimmedKey;
+    }
+    
+    if (VITE_STRIPE_PUBLIC_KEY) {
+      const trimmedKey = VITE_STRIPE_PUBLIC_KEY.trim();
+      await setSetting('VITE_STRIPE_PUBLIC_KEY', trimmedKey, false); // Public key doesn't need encryption
+      settingsCache.VITE_STRIPE_PUBLIC_KEY = trimmedKey;
+      process.env.VITE_STRIPE_PUBLIC_KEY = trimmedKey;
+    }
+    
+    console.log('Successfully updated API keys in database');
+    res.redirect('/admin/dashboard?success=1');
+  } catch (error) {
+    console.error('Error updating API keys:', error);
+    res.redirect('/admin/dashboard?error=1');
   }
-  
-  if (REPLICATE_API_TOKEN && REPLICATE_API_TOKEN !== '***hidden***') {
-    secrets.REPLICATE_API_TOKEN = REPLICATE_API_TOKEN.trim();
-    process.env.REPLICATE_API_TOKEN = REPLICATE_API_TOKEN.trim();
-  }
-  
-  if (STRIPE_SECRET_KEY && STRIPE_SECRET_KEY !== '***hidden***') {
-    secrets.STRIPE_SECRET_KEY = STRIPE_SECRET_KEY.trim();
-    process.env.STRIPE_SECRET_KEY = STRIPE_SECRET_KEY.trim();
-  }
-  
-  if (VITE_STRIPE_PUBLIC_KEY) {
-    secrets.VITE_STRIPE_PUBLIC_KEY = VITE_STRIPE_PUBLIC_KEY.trim();
-    process.env.VITE_STRIPE_PUBLIC_KEY = VITE_STRIPE_PUBLIC_KEY.trim();
-  }
-  
-  res.redirect('/admin/dashboard?success=1');
 });
 
 // Logout
@@ -207,9 +303,10 @@ adminApp.get('/admin/logout', (req: any, res) => {
 });
 
 // Export secrets getter for main app
-export const getSecret = (key: string) => secrets[key] || process.env[key];
-export const setSecret = (key: string, value: string) => {
-  secrets[key] = value;
+export const getSecret = (key: string) => settingsCache[key] || process.env[key];
+export const setSecret = async (key: string, value: string) => {
+  await setSetting(key, value);
+  settingsCache[key] = value;
   process.env[key] = value;
 };
 
