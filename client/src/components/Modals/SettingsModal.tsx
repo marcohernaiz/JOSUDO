@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppContext } from '@/contexts/AppContext';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { ApiKeyModal } from './ApiKeyModal';
-import { ChevronDown, ChevronRight, TrendingUp, Zap, DollarSign, Clock } from 'lucide-react';
+import { ChevronDown, ChevronRight, TrendingUp, Zap, DollarSign, Clock, RefreshCw } from 'lucide-react';
 
 interface SettingsModalProps {
   open: boolean;
@@ -29,14 +29,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   const queryClient = useQueryClient();
 
   // Fetch usage data
-  const { data: usageData, isLoading: usageLoading, error: usageError } = useQuery({
+  const { data: usageData, isLoading: usageLoading, error: usageError, refetch: refetchUsage } = useQuery({
     queryKey: ['usage'],
     queryFn: async () => {
+      console.log('📊 Fetching usage data...');
       const response = await apiRequest('GET', '/api/usage');
+      console.log('📊 Usage data received:', response);
       return response;
     },
-    enabled: open && activeTab === 'usage', // Only fetch when modal is open and usage tab is active
+    enabled: false, // Disabled by default, we'll manually trigger it
+    retry: (failureCount, error) => {
+      console.log('❌ Usage query failed:', error);
+      return failureCount < 3;
+    },
   });
+
+  // Refetch usage data whenever the usage tab becomes active
+  useEffect(() => {
+    if (open && activeTab === 'usage') {
+      console.log('🔄 Usage tab activated, refetching data...');
+      refetchUsage();
+    }
+  }, [open, activeTab, refetchUsage]);
 
   const deleteIntegrationMutation = useMutation({
     mutationFn: async (integrationId: number) => {
@@ -268,15 +282,39 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
 
                 {activeTab === 'usage' && (
                   <div className="space-y-6">
+                    {/* Usage Header with Refresh Button */}
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xl font-semibold text-black dark:text-white">Usage Statistics</h3>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          console.log('🔄 Manual refresh triggered');
+                          refetchUsage();
+                        }}
+                        disabled={usageLoading}
+                        className="flex items-center gap-2"
+                      >
+                        <RefreshCw className={`h-4 w-4 ${usageLoading ? 'animate-spin' : ''}`} />
+                        Refresh
+                      </Button>
+                    </div>
+
                     {usageLoading ? (
                       <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
-                        <h4 className="text-lg font-semibold text-black dark:text-white mb-4">Usage Statistics</h4>
                         <p className="text-black dark:text-white">Loading usage data...</p>
                       </div>
                     ) : usageError ? (
                       <div className="p-6 bg-slate-200 dark:bg-slate-800 rounded-lg">
-                        <h4 className="text-lg font-semibold text-black dark:text-white mb-4">Usage Statistics</h4>
                         <p className="text-red-500">Failed to load usage data. Please try again.</p>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => refetchUsage()}
+                          className="mt-2"
+                        >
+                          Retry
+                        </Button>
                       </div>
                     ) : (
                       <>
@@ -440,7 +478,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
                               ))}
                             </div>
                           ) : (
-                            <p className="text-gray-600 dark:text-gray-400">No usage data available yet. Start using AI models to see your usage statistics!</p>
+                            <div className="text-center py-8">
+                              <Zap className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                              <p className="text-gray-600 dark:text-gray-400 mb-2">No usage data available yet</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-500">Start using AI models to see your usage statistics!</p>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => refetchUsage()}
+                                className="mt-4"
+                              >
+                                <RefreshCw className="h-4 w-4 mr-2" />
+                                Check Again
+                              </Button>
+                            </div>
                           )}
                         </div>
 

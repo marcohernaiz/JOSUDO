@@ -488,7 +488,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Update monthly usage for billing
                 await storage.updateMonthlyUsage(userId, cost);
                 
-                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
+                console.log(`✅ DeepSeek V3 usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}`);
+                console.log(`💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`);
               } catch (error) {
                 console.error("Failed to log Replicate usage:", error);
               }
@@ -1063,6 +1064,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint to create sample usage data
+  app.post("/api/test/create-usage", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      console.log("Creating test usage data for user:", userId);
+      
+      const now = new Date();
+      const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+      
+      // Create some test usage data
+      const testUsageData = [
+        { model: 'deepseek-v3', tokens: 1500, cost: 0.0003 },
+        { model: 'gpt-4', tokens: 2000, cost: 0.06 },
+        { model: 'claude-3-5-sonnet', tokens: 1200, cost: 0.0108 }
+      ];
+
+      for (const data of testUsageData) {
+        await storage.createUsageLog({
+          userId,
+          chatSessionId: null,
+          modelUsed: data.model,
+          tokensConsumed: data.tokens,
+          cost: data.cost.toString(),
+          isPremiumAccount: false,
+          billingPeriod,
+          requestType: 'chat'
+        });
+
+        await storage.updateMonthlyUsage(userId, data.cost);
+        console.log(`✅ Test usage created: ${data.model} - ${data.tokens} tokens, $${data.cost}`);
+      }
+
+      res.json({ 
+        message: "Test usage data created successfully",
+        data: testUsageData
+      });
+    } catch (error) {
+      console.error("Failed to create test usage data:", error);
+      res.status(500).json({ error: "Failed to create test usage data" });
+    }
+  });
+
+  // Debug endpoint to check raw usage logs
+  app.get("/api/debug/usage-logs", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      console.log("Debug: Checking raw usage logs for user:", userId);
+      
+      // Get all usage logs for this user from database
+      const logs = await db.select().from(usageLogs).where(eq(usageLogs.userId, userId));
+      
+      console.log("Debug: Found", logs.length, "usage logs");
+      console.log("Debug: Raw logs:", logs);
+
+      res.json({
+        userId,
+        totalLogs: logs.length,
+        logs: logs
+      });
+    } catch (error) {
+      console.error("Debug endpoint error:", error);
+      res.status(500).json({ error: "Debug failed" });
+    }
+  });
+
   app.get("/api/chat/sessions", async (req, res) => {
     try {
       // Return empty array since no user accounts
@@ -1198,13 +1274,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/usage", async (req, res) => {
     try {
       const userId = (req as any).session?.passport?.user;
+      console.log("Usage API called - userId:", userId);
       
       if (!userId) {
+        console.log("No userId found in session, returning 401");
         return res.status(401).json({ error: "Not authenticated" });
       }
 
       // Get usage logs for the authenticated user
+      console.log("Fetching usage logs for userId:", userId);
       const usageLogs = await storage.getUsageLogs(userId, 100);
+      console.log("Retrieved usage logs:", usageLogs.length, "entries");
       
       // Calculate summary statistics
       const totalTokens = usageLogs.reduce((sum, log) => sum + log.tokensConsumed, 0);
@@ -1231,7 +1311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         storage.checkUsageLimit(userId)
       ]);
 
-      res.json({
+      const responseData = {
         totalTokens,
         totalCost: Math.round(totalCost * 10000) / 10000, // Round to 4 decimal places
         totalRequests: usageLogs.length,
@@ -1252,7 +1332,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           usagePercentage: Math.round(usageLimit.percentage * 100),
           remainingCredit: Math.max(0, usageLimit.limit - usageLimit.currentUsage)
         }
-      });
+      };
+      
+      console.log("Usage API response:", JSON.stringify(responseData, null, 2));
+      res.json(responseData);
     } catch (error) {
       console.error("Failed to fetch usage data:", error);
       res.status(500).json({ error: "Failed to fetch usage data" });
