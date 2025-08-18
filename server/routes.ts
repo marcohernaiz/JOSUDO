@@ -614,7 +614,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = (req as any).session?.passport?.user;
 
       if (!userId) {
-        return res.status(401).json({ error: "Not authenticated" });
+        console.log("User not authenticated for streaming request, continuing without Google Drive");
+        // Continue without authentication for free models
+      } else {
+        console.log("Streaming request from authenticated user:", userId);
       }
 
       // Set up Server-Sent Events
@@ -626,12 +629,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'Access-Control-Allow-Headers': 'Cache-Control',
       });
 
-      // Get user's Google Drive credentials
-      const integration = await storage.getIntegration(userId, "google-drive");
+      // Get user's Google Drive credentials (only if authenticated)
+      let integration = null;
+      if (userId) {
+        integration = await storage.getIntegration(userId, "google-drive");
+      }
 
-      // Load conversation history if sessionId is provided
+      // Load conversation history if sessionId is provided and user is authenticated
       let conversationHistory: Array<{ role: string; content: string }> = [];
-      if (sessionId && integration) {
+      if (sessionId && integration && userId) {
         try {
           conversationHistory = await googleDriveService.getChatHistory(
             sessionId,
@@ -647,6 +653,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let fullResponse = "";
 
       try {
+        console.log("Starting streaming for model:", model);
         // Route to appropriate AI service for streaming
         switch (model) {
           case "deepseek-chat":
@@ -659,15 +666,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "gpt-4":
           case "gpt-4o":
-            for await (const chunk of openaiService.sendMessageStream(
-              message,
-              userId,
-              sessionId || userId.toString(),
-              integration?.credentialsEncrypted || "",
-            )) {
-              fullResponse += chunk.content;
-              totalTokens = chunk.tokens || totalTokens;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            if (userId && integration) {
+              for await (const chunk of openaiService.sendMessageStream(
+                message,
+                userId,
+                sessionId || userId.toString(),
+                integration?.credentialsEncrypted || "",
+              )) {
+                fullResponse += chunk.content;
+                totalTokens = chunk.tokens || totalTokens;
+                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+              }
+            } else {
+              // Fallback to DeepSeek for unauthenticated users
+              for await (const chunk of deepseekService.sendMessageStream(message, "deepseek-chat", conversationHistory)) {
+                fullResponse += chunk.content;
+                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+              }
             }
             break;
 
@@ -701,15 +716,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "llama-3.1-8b":
           case "gpt-5":
-            for await (const chunk of replicateService.sendMessageStream(
-              message,
-              userId,
-              sessionId || userId.toString(),
-              integration?.credentialsEncrypted || "",
-              model,
-            )) {
-              fullResponse += chunk.content;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            if (userId && integration) {
+              for await (const chunk of replicateService.sendMessageStream(
+                message,
+                userId,
+                sessionId || userId.toString(),
+                integration?.credentialsEncrypted || "",
+                model,
+              )) {
+                fullResponse += chunk.content;
+                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+              }
+            } else {
+              // Fallback to DeepSeek for unauthenticated users
+              for await (const chunk of deepseekService.sendMessageStream(message, "deepseek-chat", conversationHistory)) {
+                fullResponse += chunk.content;
+                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+              }
             }
             break;
 
@@ -722,6 +745,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
         }
 
+        console.log("Streaming completed, full response length:", fullResponse.length);
         // Send completion signal
         res.write(`data: ${JSON.stringify({ 
           type: 'complete', 
@@ -730,8 +754,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           model: model
         })}\n\n`);
 
-        // Save the complete conversation to Google Drive
-        if (integration) {
+        // Save the complete conversation to Google Drive (only if authenticated)
+        if (integration && userId) {
           try {
             await googleDriveService.saveChatMessage(
               sessionId || userId.toString(),

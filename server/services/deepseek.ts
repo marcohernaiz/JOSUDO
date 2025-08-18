@@ -51,8 +51,12 @@ class DeepSeekService {
       
       // Stream the response word by word
       const words = response.content.split(' ');
-      for (const word of words) {
-        yield { content: word + ' ' };
+      console.log("DeepSeek streaming:", words.length, "words");
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+        const content = i === words.length - 1 ? word : word + ' '; // Don't add space to last word
+        console.log("Streaming word:", content);
+        yield { content };
         await new Promise(resolve => setTimeout(resolve, 50)); // Simulate streaming delay
       }
     } catch (error) {

@@ -57,11 +57,6 @@ export const useChat = () => {
         setStreamingMessageId(aiMessageId);
         setMessages((prev) => [...prev, userMessage, aiMessage]);
 
-        // Setup EventSource for streaming
-        const eventSource = new EventSource('/api/chat/send-stream', {
-          // Note: EventSource doesn't support POST directly, so we'll use fetch with stream
-        });
-
         // Use fetch with streaming for POST request
         fetch('/api/chat/send-stream', {
           method: 'POST',
@@ -74,66 +69,95 @@ export const useChat = () => {
             sessionId,
             model: model || "deepseek-chat",
           }),
-        }).then(response => {
+        }).then(async response => {
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            console.error('Network response not ok:', response.status, response.statusText);
+            throw new Error(`Network response was not ok: ${response.status}`);
           }
 
           const reader = response.body?.getReader();
+          if (!reader) {
+            throw new Error('Response body is not readable');
+          }
+
           const decoder = new TextDecoder();
+          let buffer = '';
 
           const readStream = async () => {
-            while (reader) {
-              const { done, value } = await reader.read();
-              if (done) break;
+            try {
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-              const chunk = decoder.decode(value);
-              const lines = chunk.split('\n');
+                const chunk = decoder.decode(value, { stream: true });
+                buffer += chunk;
+                
+                // Process complete lines
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || ''; // Keep incomplete line in buffer
 
-              for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                  try {
-                    const data = JSON.parse(line.slice(6));
-                    
-                    if (data.type === 'chunk') {
-                      // Update the streaming message content
-                      setMessages((prev) => 
-                        prev.map((msg) => 
-                          msg.id === aiMessageId 
-                            ? { ...msg, content: msg.content + data.content }
-                            : msg
-                        )
-                      );
-                    } else if (data.type === 'complete') {
-                      // Finalize the message
-                      setMessages((prev) => 
-                        prev.map((msg) => 
-                          msg.id === aiMessageId 
-                            ? { 
-                                ...msg, 
-                                content: data.response,
-                                tokens: data.tokens,
-                                cost: data.cost 
-                              }
-                            : msg
-                        )
-                      );
-                      setIsStreaming(false);
-                      setStreamingMessageId(null);
-                      resolve(data);
-                    } else if (data.type === 'error') {
-                      throw new Error(data.error);
+                for (const line of lines) {
+                  if (line.trim() === '') continue; // Skip empty lines
+                  
+                  if (line.startsWith('data: ')) {
+                    try {
+                      const jsonStr = line.slice(6).trim();
+                      if (jsonStr === '') continue; // Skip empty data
+                      
+                      const data = JSON.parse(jsonStr);
+                      console.log('Received streaming data:', data);
+                      
+                      if (data.type === 'chunk') {
+                        // Update the streaming message content
+                        setMessages((prev) => 
+                          prev.map((msg) => 
+                            msg.id === aiMessageId 
+                              ? { ...msg, content: msg.content + data.content }
+                              : msg
+                          )
+                        );
+                      } else if (data.type === 'complete') {
+                        // Finalize the message
+                        setMessages((prev) => 
+                          prev.map((msg) => 
+                            msg.id === aiMessageId 
+                              ? { 
+                                  ...msg, 
+                                  content: data.response,
+                                  tokens: data.tokens,
+                                  cost: data.cost 
+                                }
+                              : msg
+                          )
+                        );
+                        setIsStreaming(false);
+                        setStreamingMessageId(null);
+                        resolve(data);
+                        return;
+                      } else if (data.type === 'error') {
+                        throw new Error(data.error);
+                      }
+                    } catch (parseError) {
+                      console.error('Error parsing SSE data:', parseError, 'Line:', line);
                     }
-                  } catch (parseError) {
-                    console.error('Error parsing SSE data:', parseError);
                   }
                 }
               }
+            } catch (streamError) {
+              console.error('Streaming error:', streamError);
+              reject(streamError);
+            } finally {
+              reader.releaseLock();
             }
           };
 
-          readStream().catch(reject);
-        }).catch(reject);
+          await readStream();
+        }).catch(error => {
+          console.error('Fetch error:', error);
+          setIsStreaming(false);
+          setStreamingMessageId(null);
+          reject(error);
+        });
       });
     },
     onSuccess: (data: any) => {
