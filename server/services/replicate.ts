@@ -103,6 +103,137 @@ class ReplicateService {
     }
   }
 
+  async *sendMessageStream(
+    message: string,
+    userId: number,
+    sessionId: string,
+    googleCredentials: string,
+    model: string = "llama-3.1-8b",
+  ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
+    const replicate = await this.getReplicateClientForUser(userId);
+
+    try {
+      // ✅ 1. Load and sanitize previous chat history from Google Drive
+      let messages = await googleDriveService.getChatHistory(
+        sessionId,
+        googleCredentials,
+      );
+
+      // Only keep fields that Replicate expects
+      messages = messages
+        .filter(
+          (msg) =>
+            msg.role === "user" ||
+            msg.role === "assistant" ||
+            msg.role === "system",
+        )
+        .map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        }));
+
+      // ✅ 2. Add the new user message
+      messages.push({
+        role: "user",
+        content: message,
+      });
+
+      console.log("Sending streaming messages to Replicate:", messages);
+
+      let modelPath: string;
+      let inputConfig: any;
+      
+      if (model === "gpt-5") {
+        modelPath = "openai/gpt-5";
+        inputConfig = {
+          prompt: this.formatMessagesForGPT(messages),
+          max_new_tokens: 1500,
+          temperature: 0.6,
+          top_p: 0.95,
+          top_k: 40,
+          repetition_penalty: 1.05,
+        };
+      } else {
+        modelPath = "meta/meta-llama-3-8b-instruct";
+        inputConfig = {
+          prompt: this.formatMessagesForLlama(messages),
+          max_new_tokens: 1000,
+          temperature: 0.7,
+          top_p: 0.9,
+          top_k: 50,
+          repetition_penalty: 1.1,
+        };
+      }
+
+      // ✅ 3. Create streaming prediction
+      const prediction = await replicate.predictions.create({
+        model: modelPath,
+        input: inputConfig,
+        stream: true,
+      });
+
+      // ✅ 4. Stream the response
+      if (prediction.urls?.stream) {
+        const response = await fetch(prediction.urls.stream);
+        const reader = response.body?.getReader();
+        
+        if (reader) {
+          const decoder = new TextDecoder();
+          
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n');
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const data = JSON.parse(line.slice(6));
+                  if (data.output) {
+                    // Replicate streaming outputs can be arrays or strings
+                    const content = Array.isArray(data.output) 
+                      ? data.output.join('') 
+                      : data.output;
+                    
+                    if (content) {
+                      yield { content };
+                    }
+                  }
+                } catch (parseError) {
+                  // Ignore JSON parse errors for malformed chunks
+                  continue;
+                }
+              }
+            }
+          }
+        }
+      } else {
+        // Fallback to polling if streaming URL not available
+        let prediction_status = await replicate.predictions.get(prediction.id);
+        
+        while (prediction_status.status === "starting" || prediction_status.status === "processing") {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          prediction_status = await replicate.predictions.get(prediction.id);
+          
+          if (prediction_status.output) {
+            const content = Array.isArray(prediction_status.output) 
+              ? prediction_status.output.join('') 
+              : prediction_status.output;
+            
+            if (content) {
+              yield { content };
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Replicate streaming API error:", error);
+      throw new Error("Failed to get streaming response from Replicate");
+    }
+  }
+
   private formatMessagesForLlama(
     messages: Array<{ role: string; content: string }>,
   ): string {

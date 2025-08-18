@@ -19,6 +19,9 @@ export const useChat = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
+
   const sendMessageMutation = useMutation({
     mutationFn: async ({
       message,
@@ -29,46 +32,116 @@ export const useChat = () => {
       sessionId?: string | number;
       model?: string;
     }) => {
-      const response = await apiRequest("POST", "/api/chat/send", {
-        message,
-        sessionId,
-        model: model || "deepseek-chat",
+      // Use streaming for all requests
+      return new Promise((resolve, reject) => {
+        setIsStreaming(true);
+        
+        // Add user message immediately
+        const userMessage: ChatMessage = {
+          id: Date.now().toString(),
+          role: "user",
+          content: message,
+          timestamp: new Date(),
+        };
+
+        // Add placeholder AI message for streaming
+        const aiMessageId = (Date.now() + 1).toString();
+        const aiMessage: ChatMessage = {
+          id: aiMessageId,
+          role: "assistant",
+          content: "",
+          timestamp: new Date(),
+          model: model || "deepseek-chat",
+        };
+
+        setStreamingMessageId(aiMessageId);
+        setMessages((prev) => [...prev, userMessage, aiMessage]);
+
+        // Setup EventSource for streaming
+        const eventSource = new EventSource('/api/chat/send-stream', {
+          // Note: EventSource doesn't support POST directly, so we'll use fetch with stream
+        });
+
+        // Use fetch with streaming for POST request
+        fetch('/api/chat/send-stream', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            message,
+            sessionId,
+            model: model || "deepseek-chat",
+          }),
+        }).then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          const reader = response.body?.getReader();
+          const decoder = new TextDecoder();
+
+          const readStream = async () => {
+            while (reader) {
+              const { done, value } = await reader.read();
+              if (done) break;
+
+              const chunk = decoder.decode(value);
+              const lines = chunk.split('\n');
+
+              for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                  try {
+                    const data = JSON.parse(line.slice(6));
+                    
+                    if (data.type === 'chunk') {
+                      // Update the streaming message content
+                      setMessages((prev) => 
+                        prev.map((msg) => 
+                          msg.id === aiMessageId 
+                            ? { ...msg, content: msg.content + data.content }
+                            : msg
+                        )
+                      );
+                    } else if (data.type === 'complete') {
+                      // Finalize the message
+                      setMessages((prev) => 
+                        prev.map((msg) => 
+                          msg.id === aiMessageId 
+                            ? { 
+                                ...msg, 
+                                content: data.response,
+                                tokens: data.tokens,
+                                cost: data.cost 
+                              }
+                            : msg
+                        )
+                      );
+                      setIsStreaming(false);
+                      setStreamingMessageId(null);
+                      resolve(data);
+                    } else if (data.type === 'error') {
+                      throw new Error(data.error);
+                    }
+                  } catch (parseError) {
+                    console.error('Error parsing SSE data:', parseError);
+                  }
+                }
+              }
+            }
+          };
+
+          readStream().catch(reject);
+        }).catch(reject);
       });
-      return response.json();
     },
-    onSuccess: (data) => {
-      console.log("Chat response received:", data);
-
-      // Add user message
-      const userMessage: ChatMessage = {
-        id: Date.now().toString(),
-        role: "user",
-        content: currentMessage,
-        timestamp: new Date(),
-      };
-
-      // Add AI response
-      const aiMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: data.response,
-        timestamp: new Date(),
-        tokens: data.tokensUsed || data.tokens,
-        cost: data.cost,
-        model: data.model || sendMessageMutation.variables?.model,
-      };
-
-      console.log("Adding messages:", { userMessage, aiMessage });
-      setMessages((prev) => {
-        const newMessages = [...prev, userMessage, aiMessage];
-        console.log("New messages state:", newMessages);
-        return newMessages;
-      });
+    onSuccess: (data: any) => {
+      console.log("Streaming chat completed:", data);
       setCurrentMessage("");
 
       // Update active session if new session created
       if (data.sessionId && !activeSession) {
-        // Refresh chat sessions to get the new session
         queryClient.invalidateQueries({ queryKey: ["/api/google-drive/chat-history"] });
       }
       
@@ -80,6 +153,8 @@ export const useChat = () => {
       }
     },
     onError: (error: any) => {
+      setIsStreaming(false);
+      setStreamingMessageId(null);
       toast({
         title: "Message Failed",
         description:
@@ -112,6 +187,8 @@ export const useChat = () => {
     setCurrentMessage,
     sendMessage,
     clearChat,
-    isLoading: sendMessageMutation.isPending,
+    isLoading: sendMessageMutation.isPending || isStreaming,
+    isStreaming,
+    streamingMessageId,
   };
 };

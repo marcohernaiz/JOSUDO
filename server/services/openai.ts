@@ -67,6 +67,67 @@ class OpenAIService {
     }
   }
 
+  async *sendMessageStream(
+    message: string,
+    userId: number,
+    sessionId: string,
+    googleCredentials: string,
+  ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
+    const openai = await this.getOpenAIClientForUser(userId);
+
+    try {
+      // ✅ 1. Load and sanitize previous chat history from Google Drive
+      let messages = await googleDriveService.getChatHistory(
+        sessionId,
+        googleCredentials,
+      );
+
+      // Only keep fields that OpenAI expects
+      messages = messages
+        .filter(
+          (msg) =>
+            msg.role === "user" ||
+            msg.role === "assistant" ||
+            msg.role === "system",
+        )
+        .map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        }));
+
+      // ✅ 2. Add the new user message
+      messages.push({
+        role: "user",
+        content: message,
+      });
+
+      console.log("Sending streaming messages to OpenAI:", messages);
+
+      // ✅ 3. Create streaming completion
+      const stream = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages,
+        max_tokens: 1000,
+        temperature: 0.7,
+        stream: true,
+      });
+
+      // ✅ 4. Yield streaming chunks
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content;
+        if (content) {
+          yield { 
+            content,
+            tokens: chunk.usage?.total_tokens 
+          };
+        }
+      }
+    } catch (error) {
+      console.error("OpenAI streaming API error:", error);
+      throw new Error("Failed to get streaming response from OpenAI");
+    }
+  }
+
   async testApiKey(userId: number): Promise<boolean> {
     try {
       const openai = await this.getOpenAIClientForUser(userId);

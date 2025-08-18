@@ -32,7 +32,7 @@ const getModelDisplayName = (modelId: string) => {
 };
 
 export const ChatArea: React.FC = () => {
-  const { messages } = useChat();
+  const { messages, isStreaming, streamingMessageId } = useChat();
   const { integrations, currentSessionId } = useAppContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -126,6 +126,18 @@ export const ChatArea: React.FC = () => {
                     }`}
                   >
                     {message.content}
+                    
+                    {/* Show typing indicator for streaming messages */}
+                    {isStreaming && streamingMessageId === message.id && message.content === "" && (
+                      <div className="flex items-center space-x-1 text-slate-500 mt-2">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
+                        <span className="text-xs ml-2">AI is thinking...</span>
+                      </div>
+                    )}
                   </p>
                 </div>
 

@@ -66,6 +66,57 @@ class ClaudeService {
     }
   }
 
+  async *sendMessageStream(
+    message: string, 
+    model: string = DEFAULT_MODEL_STR,
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
+    try {
+      const apiKey = getSecret('ANTHROPIC_API_KEY') || process.env.ANTHROPIC_API_KEY;
+      if (!apiKey || apiKey === 'dummy-key') {
+        // Simulate streaming for fake responses
+        const fakeResponse = await this.simulateClaudeResponse(message, conversationHistory);
+        const words = fakeResponse.response.split(' ');
+        for (const word of words) {
+          yield { content: word + ' ' };
+          await new Promise(resolve => setTimeout(resolve, 50)); // Simulate streaming delay
+        }
+        return;
+      }
+
+      // Prepare messages array with conversation history
+      const messages = [
+        ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })),
+        { role: 'user' as const, content: message }
+      ];
+
+      const stream = await this.anthropic.messages.create({
+        max_tokens: 1024,
+        messages,
+        model: DEFAULT_MODEL_STR,
+        stream: true,
+      });
+
+      for await (const chunk of stream) {
+        if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+          yield { 
+            content: chunk.delta.text,
+            tokens: undefined // Anthropic doesn't provide token counts in streaming
+          };
+        }
+      }
+    } catch (error) {
+      console.error('Claude streaming API error:', error);
+      // Fallback to simulated streaming
+      const fakeResponse = await this.simulateClaudeResponse(message, conversationHistory);
+      const words = fakeResponse.response.split(' ');
+      for (const word of words) {
+        yield { content: word + ' ' };
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    }
+  }
+
   private async simulateClaudeResponse(
     message: string,
     conversationHistory: Array<{ role: string; content: string }> = []

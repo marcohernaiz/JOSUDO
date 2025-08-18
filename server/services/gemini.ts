@@ -56,6 +56,44 @@ class GeminiService {
     }
   }
 
+  async *sendMessageStream(
+    message: string, 
+    model: string = 'gemini-2.5-flash',
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
+    try {
+      const apiKey = getSecret('GEMINI_API_KEY') || process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        // Simulate streaming for fake responses
+        const fakeResponse = await this.simulateGeminiResponse(message, conversationHistory);
+        const words = fakeResponse.response.split(' ');
+        for (const word of words) {
+          yield { content: word + ' ' };
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        return;
+      }
+
+      // For real Gemini API, we'd implement proper streaming here
+      // For now, simulate streaming
+      const response = await this.sendMessage(message, model, conversationHistory);
+      const words = response.response.split(' ');
+      for (const word of words) {
+        yield { content: word + ' ' };
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    } catch (error) {
+      console.error('Gemini streaming API error:', error);
+      // Fallback to simulated streaming
+      const fakeResponse = await this.simulateGeminiResponse(message, conversationHistory);
+      const words = fakeResponse.response.split(' ');
+      for (const word of words) {
+        yield { content: word + ' ' };
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    }
+  }
+
   private async simulateGeminiResponse(
     message: string,
     conversationHistory: Array<{ role: string; content: string }> = []

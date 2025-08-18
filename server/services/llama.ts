@@ -61,6 +61,31 @@ class LlamaService {
     }
   }
 
+  async *sendMessageStream(
+    message: string, 
+    model: string = 'llama-3',
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
+    try {
+      // Since this is mostly simulated, stream the response word by word
+      const response = await this.sendMessage(message, model, conversationHistory);
+      const words = response.response.split(' ');
+      for (const word of words) {
+        yield { content: word + ' ' };
+        await new Promise(resolve => setTimeout(resolve, 50)); // Simulate streaming delay
+      }
+    } catch (error) {
+      console.error('Llama streaming API error:', error);
+      // Fallback to simulated streaming
+      const fakeResponse = await this.simulateLlamaResponse(message, conversationHistory);
+      const words = fakeResponse.response.split(' ');
+      for (const word of words) {
+        yield { content: word + ' ' };
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    }
+  }
+
   private async simulateLlamaResponse(
     message: string,
     conversationHistory: Array<{ role: string; content: string }> = []

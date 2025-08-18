@@ -605,6 +605,157 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chat streaming route - Server-Sent Events
+  app.post("/api/chat/send-stream", async (req, res) => {
+    try {
+      const { message, model, sessionId } = req.body;
+      console.log("Received streaming chat request:", { message, model, sessionId });
+
+      const userId = (req as any).session?.passport?.user;
+
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      // Set up Server-Sent Events
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control',
+      });
+
+      // Get user's Google Drive credentials
+      const integration = await storage.getIntegration(userId, "google-drive");
+
+      // Load conversation history if sessionId is provided
+      let conversationHistory: Array<{ role: string; content: string }> = [];
+      if (sessionId && integration) {
+        try {
+          conversationHistory = await googleDriveService.getChatHistory(
+            sessionId,
+            integration.credentialsEncrypted
+          );
+          console.log("Loaded conversation history:", conversationHistory.length, "messages");
+        } catch (error) {
+          console.error("Failed to load conversation history:", error);
+        }
+      }
+
+      let totalTokens = 0;
+      let fullResponse = "";
+
+      try {
+        // Route to appropriate AI service for streaming
+        switch (model) {
+          case "deepseek-chat":
+          case "deepseek-r1":
+            for await (const chunk of deepseekService.sendMessageStream(message, model, conversationHistory)) {
+              fullResponse += chunk.content;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            }
+            break;
+
+          case "gpt-4":
+          case "gpt-4o":
+            for await (const chunk of openaiService.sendMessageStream(
+              message,
+              userId,
+              sessionId || userId.toString(),
+              integration?.credentialsEncrypted || "",
+            )) {
+              fullResponse += chunk.content;
+              totalTokens = chunk.tokens || totalTokens;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            }
+            break;
+
+          case "claude-3-5-sonnet":
+            for await (const chunk of claudeService.sendMessageStream(message, model, conversationHistory)) {
+              fullResponse += chunk.content;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            }
+            break;
+
+          case "gemini-pro":
+            for await (const chunk of geminiService.sendMessageStream(message, model, conversationHistory)) {
+              fullResponse += chunk.content;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            }
+            break;
+
+          case "grok-beta":
+            for await (const chunk of grokService.sendMessageStream(message, model, conversationHistory)) {
+              fullResponse += chunk.content;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            }
+            break;
+
+          case "llama-3":
+            for await (const chunk of llamaService.sendMessageStream(message, model, conversationHistory)) {
+              fullResponse += chunk.content;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            }
+            break;
+
+          case "llama-3.1-8b":
+          case "gpt-5":
+            for await (const chunk of replicateService.sendMessageStream(
+              message,
+              userId,
+              sessionId || userId.toString(),
+              integration?.credentialsEncrypted || "",
+              model,
+            )) {
+              fullResponse += chunk.content;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            }
+            break;
+
+          default:
+            // Default to DeepSeek for any unknown model
+            for await (const chunk of deepseekService.sendMessageStream(message, "deepseek-chat", conversationHistory)) {
+              fullResponse += chunk.content;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            }
+            break;
+        }
+
+        // Send completion signal
+        res.write(`data: ${JSON.stringify({ 
+          type: 'complete', 
+          response: fullResponse,
+          tokens: totalTokens || Math.floor(fullResponse.length / 4),
+          model: model
+        })}\n\n`);
+
+        // Save the complete conversation to Google Drive
+        if (integration) {
+          try {
+            await googleDriveService.saveChatMessage(
+              sessionId || userId.toString(),
+              message,
+              fullResponse,
+              integration.credentialsEncrypted
+            );
+          } catch (error) {
+            console.error("Failed to save message to Google Drive:", error);
+          }
+        }
+
+        res.end();
+      } catch (error) {
+        console.error("Streaming error:", error);
+        res.write(`data: ${JSON.stringify({ type: 'error', error: 'Failed to process streaming request' })}\n\n`);
+        res.end();
+      }
+    } catch (error) {
+      console.error("Chat streaming API error:", error);
+      res.status(500).json({ error: "Failed to process streaming chat" });
+    }
+  });
+
   app.get("/api/chat/sessions", async (req, res) => {
     try {
       // Return empty array since no user accounts

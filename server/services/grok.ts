@@ -53,6 +53,57 @@ class GrokService {
     }
   }
 
+  async *sendMessageStream(
+    message: string, 
+    model: string = 'grok-2-1212',
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
+    try {
+      const apiKey = getSecret('XAI_API_KEY') || process.env.XAI_API_KEY;
+      if (!apiKey || apiKey === 'dummy-key') {
+        // Simulate streaming for fake responses
+        const fakeResponse = await this.simulateGrokResponse(message, conversationHistory);
+        const words = fakeResponse.response.split(' ');
+        for (const word of words) {
+          yield { content: word + ' ' };
+          await new Promise(resolve => setTimeout(resolve, 50)); // Simulate streaming delay
+        }
+        return;
+      }
+
+      // Prepare messages array with conversation history
+      const messages = [
+        ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })),
+        { role: 'user' as const, content: message }
+      ];
+
+      const stream = await this.openai.chat.completions.create({
+        model: "grok-2-1212",
+        messages,
+        stream: true,
+      });
+
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content;
+        if (content) {
+          yield { 
+            content,
+            tokens: chunk.usage?.total_tokens 
+          };
+        }
+      }
+    } catch (error) {
+      console.error('Grok streaming API error:', error);
+      // Fallback to simulated streaming
+      const fakeResponse = await this.simulateGrokResponse(message, conversationHistory);
+      const words = fakeResponse.response.split(' ');
+      for (const word of words) {
+        yield { content: word + ' ' };
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    }
+  }
+
   private async simulateGrokResponse(
     message: string,
     conversationHistory: Array<{ role: string; content: string }> = []

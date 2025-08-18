@@ -36,6 +36,30 @@ class DeepSeekService {
     }
   }
 
+  async *sendMessageStream(
+    message: string, 
+    model: string = 'deepseek-chat',
+    conversationHistory: Array<{ role: string; content: string }> = []
+  ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
+    try {
+      // Generate full response first
+      const fullContext = conversationHistory.length > 0 
+        ? `${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\nUser: ${message}`
+        : message;
+      
+      const response = await this.simulateDeepSeekResponse(fullContext);
+      
+      // Stream the response word by word
+      const words = response.content.split(' ');
+      for (const word of words) {
+        yield { content: word + ' ' };
+        await new Promise(resolve => setTimeout(resolve, 50)); // Simulate streaming delay
+      }
+    } catch (error) {
+      throw new Error('DeepSeek streaming failed: ' + (error as Error).message);
+    }
+  }
+
   private async simulateDeepSeekResponse(message: string): Promise<{
     content: string;
     tokens: number;
