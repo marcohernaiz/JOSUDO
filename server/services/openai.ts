@@ -88,7 +88,7 @@ class OpenAIService {
       "gpt-4": 0.06,
       "gpt-3.5-turbo": 0.002,
     };
-    console.log("test");
+
     return (tokens / 1000) * (costs[model] || costs["gpt-4o"]);
   }
 }
