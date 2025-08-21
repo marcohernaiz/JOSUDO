@@ -12,12 +12,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { 
   Plus, 
   Wrench, 
   Mic, 
-  Headphones, 
-  Video, 
+  Phone, 
+  VideoIcon, 
   Settings, 
   Send,
   Bot,
@@ -269,17 +275,22 @@ export const MessageInput: React.FC = () => {
           {/* Left side - Tools */}
           <div className="flex items-center space-x-3">
             {/* File Upload */}
-            <div className="group relative">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleFileAttach}
-                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center transition-all duration-300 overflow-hidden p-0"
-                title="Attach files"
-              >
-                <Paperclip className="text-slate-600 dark:text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0 w-4 h-4" />
-                <span className="ml-2 text-sm text-slate-600 dark:text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Add files</span>
-              </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleFileAttach}
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                  >
+                    <Paperclip className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Attach files</p>
+                </TooltipContent>
+              </Tooltip>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -288,7 +299,7 @@ export const MessageInput: React.FC = () => {
                 className="hidden"
                 accept=".txt,.md,.pdf,.doc,.docx,.json,.csv,.js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.css,.html,.xml,.yaml,.yml,.jpg,.jpeg,.png,.gif,.webp"
               />
-            </div>
+            </TooltipProvider>
 
             {/* Tools */}
             <div className="group relative">
@@ -495,44 +506,59 @@ export const MessageInput: React.FC = () => {
 
           {/* Right side - Additional controls */}
           <div className="flex items-center space-x-3">
-            {/* Voice input */}
-            <div className="group relative">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center transition-all duration-300 overflow-hidden p-0"
-                title="Voice input"
-              >
-                <span className="text-slate-600 dark:text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">🎤</span>
-                <span className="ml-2 text-sm text-slate-600 dark:text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Voice</span>
-              </Button>
-            </div>
+            {/* Voice dictation */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                  >
+                    <Mic className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Voice dictation</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
-            {/* Audio conversation */}
-            <div className="group relative">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center transition-all duration-300 overflow-hidden p-0"
-                title="Audio conversation"
-              >
-                <span className="text-slate-600 dark:text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">🎧</span>
-                <span className="ml-2 text-sm text-slate-600 dark:text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Audio</span>
-              </Button>
-            </div>
+            {/* Voice conversation */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                  >
+                    <Phone className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Voice conversation</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
-            {/* Video conferencing */}
-            <div className="group relative">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center transition-all duration-300 overflow-hidden p-0"
-                title="Video conferencing"
-              >
-                <span className="text-slate-600 dark:text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">📹</span>
-                <span className="ml-2 text-sm text-slate-600 dark:text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Video</span>
-              </Button>
-            </div>
+            {/* Video conversation */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                  >
+                    <VideoIcon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Video conversation</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
 
           </div>

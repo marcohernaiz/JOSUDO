@@ -51,9 +51,14 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
-- August 21, 2025. Enhanced user interface with blue hover effects and enforced light mode
+- August 21, 2025. Modernized chat input icons and improved user interface
+  - Updated chat input icons to match modern AI interfaces (ChatGPT, Claude, etc.)
+  - Changed voice dictation icon from emoji to clean Mic icon from Lucide React
+  - Changed voice conversation icon from headphones emoji to Phone icon for clarity
+  - Changed video conversation icon from camera emoji to VideoIcon for consistency
+  - Replaced expanding text functionality with hover tooltips for cleaner interface
+  - Updated file attachment button to use consistent tooltip and modern styling
   - Enforced light mode as the absolute default theme, clearing any stored dark mode preferences
-  - Added explicit localStorage clearing and CSS rules to prevent dark mode on startup
   - Updated sidebar menu items to use blue hover background (blue-50/blue-900) instead of gray
   - Updated chat history items to use consistent blue hover effects matching selection state
   - Updated user profile dropdown hover to use blue background for consistency
