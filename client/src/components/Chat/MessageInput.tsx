@@ -36,7 +36,8 @@ import {
   FileText,
   Image,
   FileIcon,
-  X
+  X,
+  Plug
 } from 'lucide-react';
 import { 
   SiOpenai, 
@@ -341,42 +342,44 @@ export const MessageInput: React.FC = () => {
                     <DropdownMenuItem
                       key={model.id}
                       onClick={() => setSelectedModel(model.id)}
-                      className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
+                      className="ai-dropdown-item group relative p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
-                      <div className="flex items-center space-x-3 flex-1">
-                        <model.icon className="text-sky-400 text-sm" />
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-semibold text-white ai-model-name">{model.name}</span>
-                            {model.isFree && (
-                              <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                                Free
-                              </Badge>
-                            )}
-                            {!model.isFree && (
-                              <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
-                                Premium
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-xs text-slate-300 group-hover:text-slate-100 mt-1 leading-relaxed ai-model-description">{model.description}</p>
+                      {/* Connect button in upper right corner */}
+                      <div className="absolute top-2 right-2 group/connect">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Handle connect logic here
+                          }}
+                          className="h-6 w-6 p-1 bg-green-600 hover:bg-green-700 rounded-full text-white"
+                        >
+                          <Plug className="w-3 h-3" />
+                        </Button>
+                        <div className="absolute top-full left-0 mt-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover/connect:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                          Link your account
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="relative group/connect">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Handle connect logic here
-                            }}
-                            className="h-6 w-16 text-xs bg-green-600 hover:bg-green-700 border-green-500 text-white px-2"
-                          >
-                            Connect
-                          </Button>
-                          <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover/connect:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
-                            Link your account
+
+                      <div className="flex items-center justify-between pr-8">
+                        <div className="flex items-center space-x-3 flex-1">
+                          <model.icon className="text-sky-400 text-sm" />
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-semibold text-white ai-model-name">{model.name}</span>
+                              {model.isFree && (
+                                <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
+                                  Free
+                                </Badge>
+                              )}
+                              {!model.isFree && (
+                                <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
+                                  Premium
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-slate-300 group-hover:text-slate-100 mt-1 leading-relaxed ai-model-description">{model.description}</p>
                           </div>
                         </div>
                         {selectedModel === model.id && (
