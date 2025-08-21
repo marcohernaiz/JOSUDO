@@ -495,36 +495,40 @@ html {
 
 /* AI Dropdown */
 .ai-dropdown {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
-.dark .ai-dropdown {
-  background: rgba(30, 41, 59, 0.95);
+  background: rgba(30, 41, 59, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
 }
 
 .ai-dropdown-item {
-  color: #1e293b;
-  transition: all 0.3s ease;
-}
-
-.dark .ai-dropdown-item {
-  color: #e2e8f0;
+  background: rgba(30, 41, 59, 0.6) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
 }
 
 .ai-dropdown-item:hover {
-  background: rgba(148, 163, 184, 0.6);
+  background: rgba(51, 65, 85, 0.8) !important;
+  border-color: rgba(148, 163, 184, 0.4) !important;
 }
 
-.dark .ai-dropdown-item:hover {
-  background: rgba(51, 65, 85, 0.8);
+.ai-dropdown-item:hover * {
+  color: white !important;
 }
 
-.ai-dropdown-item.selected {
-  background: rgba(14, 165, 233, 0.15);
-  border-left: 4px solid #0ea5e9;
+/* Model name and description specific styles in light mode */
+.ai-model-name {
+  color: white !important;
+}
+
+.ai-model-description {
+  color: rgb(203, 213, 225) !important;
+}
+
+.ai-dropdown-item:hover .ai-model-name {
+  color: white !important;
+}
+
+.ai-dropdown-item:hover .ai-model-description {
+  color: rgb(226, 232, 240) !important;
 }
 
 /* AI Badge */
