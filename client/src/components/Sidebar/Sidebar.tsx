@@ -172,16 +172,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             )}
           </div>
 
-          <div className={`${isExpanded ? "" : "flex justify-center"}`}>
-            <Button
-              onClick={createNewChat}
-              className={`${isExpanded ? "w-full" : "w-10 h-10 p-0"} bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 flex items-center justify-center`}
-              title={!isExpanded ? "New Chat" : ""}
-            >
-              <span className="text-white text-lg">+</span>
-              {isExpanded && <span className="ml-2">New Chat</span>}
-            </Button>
-          </div>
+          
         </div>
 
         {/* Active Configuration */}
@@ -223,24 +214,81 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
           </div>
         </div>
 
+        {/* Menu Options */}
+        <div className="flex-1 p-4">
+          <div className="space-y-1">
+            <Button
+              onClick={createNewChat}
+              variant="ghost"
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
+              title={!isExpanded ? "New Chat" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">💬</span>
+              {isExpanded && <span className="ml-2">New Chat</span>}
+            </Button>
+            
+            <Button
+              variant="ghost"
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
+              title={!isExpanded ? "Search" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">🔍</span>
+              {isExpanded && <span className="ml-2">Search</span>}
+            </Button>
+
+            <Button
+              variant="ghost"
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
+              title={!isExpanded ? "Library" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">📚</span>
+              {isExpanded && <span className="ml-2">Library</span>}
+            </Button>
+
+            <Button
+              variant="ghost"
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
+              title={!isExpanded ? "Spaces" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">🌌</span>
+              {isExpanded && <span className="ml-2">Spaces</span>}
+            </Button>
+
+            <Button
+              variant="ghost"
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
+              title={!isExpanded ? "Tools" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">🔧</span>
+              {isExpanded && <span className="ml-2">Tools</span>}
+            </Button>
+
+            <Button
+              variant="ghost"
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
+              title={!isExpanded ? "Virtual Employees" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">👥</span>
+              {isExpanded && <span className="ml-2">Virtual Employees</span>}
+            </Button>
+
+            <Button
+              variant="ghost"
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
+              title={!isExpanded ? "Knowledge Base" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">📖</span>
+              {isExpanded && <span className="ml-2">Knowledge Base</span>}
+            </Button>
+          </div>
+        </div>
+
         {/* Google Drive Chat History */}
         {isExpanded && <GoogleDriveChatHistory onSwitchToChat={onSwitchToChat} />}
 
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-slate-300 dark:border-slate-700">
           <div className={`${isExpanded ? "space-y-2" : "space-y-2"}`}>
-            <div className="flex space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowSettings(true)}
-                className={`${isExpanded ? "flex-1 justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
-                title={!isExpanded ? "Settings" : ""}
-              >
-                <span className="text-slate-400 text-2xl">⚙️</span>
-                {isExpanded && <span className="ml-2">Settings</span>}
-              </Button>
-            </div>
             {isAuthenticated && (
               <div className="flex space-x-2">
                 <Button
