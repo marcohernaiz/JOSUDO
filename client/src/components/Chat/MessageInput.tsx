@@ -317,7 +317,29 @@ export const MessageInput: React.FC = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="ai-dropdown w-64">
-                  {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 5)).map((model) => (
+                  {!showAllModels && (
+                    <DropdownMenuItem
+                      onClick={() => setShowAllModels(true)}
+                      className="ai-dropdown-item group flex items-center justify-center p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1 border-b border-slate-600 mb-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Plus className="text-sky-400 text-sm" />
+                        <span className="font-medium text-white">Show more models</span>
+                      </div>
+                    </DropdownMenuItem>
+                  )}
+                  {showAllModels && (
+                    <DropdownMenuItem
+                      onClick={() => setShowAllModels(false)}
+                      className="ai-dropdown-item group flex items-center justify-center p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1 border-b border-slate-600 mb-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <XCircle className="text-sky-400 text-sm" />
+                        <span className="font-medium text-white">Show fewer models</span>
+                      </div>
+                    </DropdownMenuItem>
+                  )}
+                  {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 7)).map((model) => (
                     <DropdownMenuItem
                       key={model.id}
                       onClick={() => setSelectedModel(model.id)}
@@ -347,28 +369,6 @@ export const MessageInput: React.FC = () => {
                       )}
                     </DropdownMenuItem>
                   ))}
-                  {!showAllModels && (
-                    <DropdownMenuItem
-                      onClick={() => setShowAllModels(true)}
-                      className="ai-dropdown-item group flex items-center justify-center p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1 border-t border-slate-600 mt-2"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Plus className="text-sky-400 text-sm" />
-                        <span className="font-medium text-white">Show more models</span>
-                      </div>
-                    </DropdownMenuItem>
-                  )}
-                  {showAllModels && (
-                    <DropdownMenuItem
-                      onClick={() => setShowAllModels(false)}
-                      className="ai-dropdown-item group flex items-center justify-center p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1 border-t border-slate-600 mt-2"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <XCircle className="text-sky-400 text-sm" />
-                        <span className="font-medium text-white">Show fewer models</span>
-                      </div>
-                    </DropdownMenuItem>
-                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
