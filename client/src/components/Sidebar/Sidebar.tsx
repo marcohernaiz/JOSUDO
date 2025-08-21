@@ -15,7 +15,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => {
-  const { setActiveSession, setMessages, setCurrentSessionId } =
+  const { setActiveSession, setMessages, setCurrentSessionId, user } =
     useAppContext();
   const { isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
@@ -286,10 +286,54 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
         {/* Google Drive Chat History */}
         {isExpanded && <GoogleDriveChatHistory onSwitchToChat={onSwitchToChat} />}
 
-        {/* Sidebar Footer */}
-        <div className="p-4 border-t border-slate-300 dark:border-slate-700">
-          <div className={`${isExpanded ? "space-y-2" : "space-y-2"}`}>
-            {isAuthenticated && (
+        {/* User Profile Section */}
+        {isAuthenticated && (
+          <div className="p-4 border-t border-slate-300 dark:border-slate-700">
+            <div className={`${isExpanded ? "space-y-3" : "space-y-2"}`}>
+              {/* User Info */}
+              <div className={`flex items-center ${isExpanded ? "space-x-3" : "justify-center"}`}>
+                {isExpanded ? (
+                  <>
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-300 dark:bg-slate-600 flex-shrink-0">
+                      {user?.profileImage ? (
+                        <img 
+                          src={user.profileImage} 
+                          alt={user.displayName || 'User'} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400">
+                          <span className="text-lg">👤</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                        {user?.displayName || 'User'}
+                      </div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
+                        Free Plan
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-300 dark:bg-slate-600 flex-shrink-0" title={user?.displayName || 'User'}>
+                    {user?.profileImage ? (
+                      <img 
+                        src={user.profileImage} 
+                        alt={user.displayName || 'User'} 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400">
+                        <span className="text-lg">👤</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              
+              {/* Sign Out Button */}
               <div className="flex space-x-2">
                 <Button
                   variant="ghost"
@@ -302,9 +346,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                   {isExpanded && <span className="ml-2">Sign Out</span>}
                 </Button>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
+        
+        {/* Sidebar Footer for non-authenticated users */}
+        {!isAuthenticated && (
+          <div className="p-4 border-t border-slate-300 dark:border-slate-700">
+            <div className={`${isExpanded ? "space-y-2" : "space-y-2"}`}>
+              <div className="text-center text-sm text-slate-500 dark:text-slate-400">
+                {isExpanded ? "Sign in to save your chats" : ""}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <SettingsModal
