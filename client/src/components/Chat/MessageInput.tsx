@@ -409,8 +409,8 @@ export const MessageInput: React.FC = () => {
                     className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center transition-all duration-300"
                     title={`Storage: ${currentStorageInfo.name}`}
                   >
-                    <currentStorageInfo.icon className="text-purple-400 text-sm mr-2" />
-                    <span className="text-xs text-slate-600 dark:text-white whitespace-nowrap">{currentStorageInfo.name}</span>
+                    <currentStorageInfo.icon className="text-purple-400 text-sm" />
+                    <span className="text-xs text-slate-600 dark:text-white whitespace-nowrap ml-2">{currentStorageInfo.name}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="ai-dropdown w-64">
