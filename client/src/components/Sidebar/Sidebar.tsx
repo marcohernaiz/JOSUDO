@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { SettingsModal } from "@/components/Modals/SettingsModal";
 import { BillingModal } from "@/components/Modals/BillingModal";
 import { GoogleDriveChatHistory } from "@/components/Sidebar/GoogleDriveChatHistory";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
 import josudoLogo from "@assets/JOSUDO ICON_1752512850035.png";
 import josudoText from "@assets/josudo logo just text_1752513004427.png";
@@ -290,62 +297,88 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
         {isAuthenticated && (
           <div className="p-4 border-t border-slate-300 dark:border-slate-700">
             <div className={`${isExpanded ? "space-y-3" : "space-y-2"}`}>
-              {/* User Info */}
-              <div className={`flex items-center ${isExpanded ? "space-x-3" : "justify-center"}`}>
-                {isExpanded ? (
-                  <>
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-300 dark:bg-slate-600 flex-shrink-0">
-                      {user?.profileImage ? (
-                        <img 
-                          src={user.profileImage} 
-                          alt={user.displayName || 'User'} 
-                          className="w-full h-full object-cover"
-                        />
+              {/* User Info with Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={`${isExpanded ? "w-full justify-start p-3" : "w-10 h-10 p-0 justify-center"} hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors`}
+                  >
+                    <div className={`flex items-center ${isExpanded ? "space-x-3" : "justify-center"}`}>
+                      {isExpanded ? (
+                        <>
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-300 dark:bg-slate-600 flex-shrink-0">
+                            {user?.avatar ? (
+                              <img 
+                                src={user.avatar} 
+                                alt={user.username || 'User'} 
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400">
+                                <span className="text-lg">👤</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0 text-left">
+                            <div className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                              {user?.username || 'User'}
+                            </div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                              Free Plan
+                            </div>
+                          </div>
+                        </>
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400">
-                          <span className="text-lg">👤</span>
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-300 dark:bg-slate-600 flex-shrink-0" title={user?.username || 'User'}>
+                          {user?.avatar ? (
+                            <img 
+                              src={user.avatar} 
+                              alt={user.username || 'User'} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400">
+                              <span className="text-lg">👤</span>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-                        {user?.displayName || 'User'}
-                      </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">
-                        Free Plan
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-300 dark:bg-slate-600 flex-shrink-0" title={user?.displayName || 'User'}>
-                    {user?.profileImage ? (
-                      <img 
-                        src={user.profileImage} 
-                        alt={user.displayName || 'User'} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400">
-                        <span className="text-lg">👤</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-              
-              {/* Sign Out Button */}
-              <div className="flex space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => (window.location.href = "/api/auth/logout")}
-                  className={`${isExpanded ? "flex-1 justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 flex items-center`}
-                  title={!isExpanded ? "Sign Out" : ""}
-                >
-                  <span className="text-slate-400 text-2xl">🚪</span>
-                  {isExpanded && <span className="ml-2">Sign Out</span>}
-                </Button>
-              </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => setShowBilling(true)}
+                    className="cursor-pointer"
+                  >
+                    <span className="mr-2">⬆️</span>
+                    Upgrade plan
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setShowSettings(true)}
+                    className="cursor-pointer"
+                  >
+                    <span className="mr-2">⚙️</span>
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => window.open('https://josudo.com/learn', '_blank')}
+                    className="cursor-pointer"
+                  >
+                    <span className="mr-2">📚</span>
+                    Learn more
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => (window.location.href = "/api/auth/logout")}
+                    className="cursor-pointer text-red-600 dark:text-red-400"
+                  >
+                    <span className="mr-2">🚪</span>
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         )}

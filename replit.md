@@ -51,6 +51,12 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
+- August 21, 2025. Enhanced user profile display and default theme settings
+  - Set light mode as the default theme for both pre-login and post-login states
+  - Added user profile dropdown in sidebar bottom-left with options: Upgrade plan, Settings, Learn more, Log out
+  - Fixed TypeScript errors by updating user field references (avatar, username instead of profileImage, displayName)
+  - User image and name now appear correctly after sign-in with clickable dropdown functionality
+
 - August 21, 2025. Fixed critical JSX syntax error in MessageInput component
   - Resolved JSX structure issue in AI model dropdown that prevented app from starting
   - Fixed unclosed div element that was causing build failures
