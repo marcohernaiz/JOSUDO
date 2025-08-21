@@ -48,3 +48,16 @@ The application is structured into distinct service layers:
 - **Database Hosting**: Neon Database (PostgreSQL).
 - **Icons & Logos**: react-icons/si for company logos.
 - **MCP Servers (Integration Examples)**: GitHub, Slack, Notion, Jira, Discord, Trello, Asana.
+
+## Recent Changes
+
+- August 21, 2025. Implemented ChatGPT-style clean light mode interface
+  - Removed background image and video effects in light mode for clean white background
+  - Maintained cyberpunk animations and background image only in dark mode
+  - Updated sidebar styling with solid backgrounds in light mode instead of translucent
+  - Light mode now matches ChatGPT's clean, distraction-free aesthetic
+  - Dark mode preserves the original futuristic design with animations
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
