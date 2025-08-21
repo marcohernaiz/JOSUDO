@@ -200,7 +200,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                 <>
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
                   <span className="text-sm text-slate-700 dark:text-slate-300">
-                    Grok (Free)
+                    Josudo (Free)
                   </span>
                 </>
               )}

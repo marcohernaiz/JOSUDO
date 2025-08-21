@@ -51,6 +51,13 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
+- August 21, 2025. Updated branding consistency for default AI model
+  - Default DeepSeek V3 model now displays as "Josudo" throughout the user interface
+  - Updated sidebar active configuration to show "Josudo (Free)"
+  - Updated AI model selection dropdown to display "Josudo" instead of "DeepSeek V3"
+  - Updated server fallback messages to show "Josudo" instead of "DeepSeek"
+  - Technical model routing remains unchanged (still uses deepseek-v3 internally)
+
 - August 21, 2025. Implemented ChatGPT-style clean light mode interface
   - Removed background image and video effects in light mode for clean white background
   - Maintained cyberpunk animations and background image only in dark mode

@@ -53,7 +53,7 @@ import {
 } from 'react-icons/si';
 
 const AI_MODELS = [
-  { id: 'deepseek-v3', name: 'DeepSeek V3', description: 'Advanced DeepSeek V3 model', icon: Bot, isFree: true },
+  { id: 'deepseek-v3', name: 'Josudo', description: 'Advanced AI model', icon: Bot, isFree: true },
   { id: 'mixtral-8x7b', name: 'Mixtral', description: 'Free Mixtral model', icon: Zap, isFree: true },
   { id: 'claude-3-haiku-replicate', name: 'Claude 3 Haiku', description: 'Fast Claude via Replicate', icon: SiAnthropic, isFree: false },
   { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', description: 'Meta Llama 3.1 8B via Replicate', icon: SiMeta, isFree: false },

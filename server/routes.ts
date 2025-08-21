@@ -488,7 +488,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Update monthly usage for billing
                 await storage.updateMonthlyUsage(userId, cost);
                 
-                console.log(`✅ DeepSeek V3 usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}`);
+                console.log(`✅ Josudo usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}`);
                 console.log(`💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`);
               } catch (error) {
                 console.error("Failed to log Replicate usage:", error);
@@ -754,7 +754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           choices: [
             {
               message: {
-                content: `[Fallback to DeepSeek - ${model} unavailable]\n\n${serviceResponse.response}`,
+                content: `[Fallback to Josudo - ${model} unavailable]\n\n${serviceResponse.response}`,
               },
             },
           ],
