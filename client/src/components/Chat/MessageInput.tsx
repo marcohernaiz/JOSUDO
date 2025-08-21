@@ -59,7 +59,6 @@ const AI_MODELS = [
   { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: SiGoogle, isFree: false },
   { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude Direct API', icon: SiAnthropic, isFree: false },
   { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: SiOpenai, isFree: false },
-  { id: 'claude-3-haiku-replicate', name: 'Claude 3 Haiku', description: 'Fast Claude via Replicate', icon: SiAnthropic, isFree: false },
   { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', description: 'Meta Llama 3.1 8B via Replicate', icon: SiMeta, isFree: false },
   { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet', description: 'Premium Claude via Replicate', icon: SiAnthropic, isFree: false },
   { id: 'gpt-5', name: 'GPT-5', description: 'OpenAI GPT-5 via Replicate', icon: SiOpenai, isFree: false },
@@ -338,7 +337,7 @@ export const MessageInput: React.FC = () => {
                       </div>
                     </DropdownMenuItem>
                   )}
-                  {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 7)).map((model) => (
+                  {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 6)).map((model) => (
                     <DropdownMenuItem
                       key={model.id}
                       onClick={() => setSelectedModel(model.id)}
