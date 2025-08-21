@@ -51,8 +51,9 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
-- August 21, 2025. Enhanced user profile display and default theme settings
-  - Set light mode as the default theme for both pre-login and post-login states
+- August 21, 2025. Enhanced user profile display and enforced light mode default
+  - Enforced light mode as the absolute default theme, clearing any stored dark mode preferences
+  - Added explicit localStorage clearing and CSS rules to prevent dark mode on startup
   - Added user profile dropdown in sidebar bottom-left with options: Upgrade plan, Settings, Learn more, Log out
   - Fixed TypeScript errors by updating user field references (avatar, username instead of profileImage, displayName)
   - User image and name now appear correctly after sign-in with clickable dropdown functionality

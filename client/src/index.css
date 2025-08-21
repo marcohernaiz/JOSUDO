@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force light mode as default */
+html, body {
+  background-color: white;
+  color: black;
+}
+
+html.dark, html.dark body {
+  background-color: #0a0a0a;
+  color: white;
+}
+
 /* Google Sign-In Button Styles */
 .gsi-material-button {
   -moz-user-select: none;
