@@ -344,25 +344,27 @@ export const MessageInput: React.FC = () => {
                       onClick={() => setSelectedModel(model.id)}
                       className="ai-dropdown-item group relative p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
-                      {/* Connect button in upper right corner */}
-                      <div className="absolute top-2 right-2 group/connect">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Handle connect logic here
-                          }}
-                          className="h-6 w-6 p-1 bg-green-600 hover:bg-green-700 rounded-full text-white"
-                        >
-                          <Plug className="w-3 h-3" />
-                        </Button>
-                        <div className="absolute top-full left-0 mt-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover/connect:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
-                          Link your account
+                      {/* Connect button in upper right corner - only for non-free models */}
+                      {!model.isFree && (
+                        <div className="absolute top-2 right-2 group/connect">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Handle connect logic here
+                            }}
+                            className="h-6 w-6 p-1 bg-green-800 hover:bg-green-900 rounded-full text-white"
+                          >
+                            <Plug className="w-3 h-3" />
+                          </Button>
+                          <div className="absolute top-full right-0 mt-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover/connect:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                            Link your account
+                          </div>
                         </div>
-                      </div>
+                      )}
 
-                      <div className="flex items-center justify-between pr-8">
+                      <div className="flex items-center justify-between pr-8"></div>
                         <div className="flex items-center space-x-3 flex-1">
                           <model.icon className="text-sky-400 text-sm" />
                           <div className="flex-1">
