@@ -59,7 +59,6 @@ const AI_MODELS = [
   { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: SiGoogle, isFree: false },
   { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude Direct API', icon: SiAnthropic, isFree: false },
   { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: SiOpenai, isFree: false },
-  { id: 'mixtral-8x7b', name: 'Mixtral', description: 'Free Mixtral model', icon: Zap, isFree: true },
   { id: 'claude-3-haiku-replicate', name: 'Claude 3 Haiku', description: 'Fast Claude via Replicate', icon: SiAnthropic, isFree: false },
   { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', description: 'Meta Llama 3.1 8B via Replicate', icon: SiMeta, isFree: false },
   { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet', description: 'Premium Claude via Replicate', icon: SiAnthropic, isFree: false },
