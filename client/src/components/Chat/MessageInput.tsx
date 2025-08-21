@@ -325,7 +325,7 @@ export const MessageInput: React.FC = () => {
                         <model.icon className="text-sky-400 text-sm" />
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
-                            <span className="font-semibold text-slate-600 dark:text-white">{model.name}</span>
+                            <span className="font-semibold text-slate-600 dark:text-white ai-model-name">{model.name}</span>
                             {model.isFree && (
                               <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
                                 Free
@@ -337,7 +337,7 @@ export const MessageInput: React.FC = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-slate-600 dark:text-slate-300 group-hover:text-slate-500 dark:group-hover:text-slate-200 mt-1 leading-relaxed">{model.description}</p>
+                          <p className="text-xs text-slate-600 dark:text-slate-300 group-hover:text-slate-500 dark:group-hover:text-slate-200 mt-1 leading-relaxed ai-model-description">{model.description}</p>
                         </div>
                       </div>
                       {selectedModel === model.id && (

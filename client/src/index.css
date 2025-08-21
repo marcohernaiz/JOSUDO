@@ -757,7 +757,7 @@ html {
   .mobile-hidden {
     @apply hidden;
   }
-  
+
   .mobile-full {
     @apply w-full;
   }
