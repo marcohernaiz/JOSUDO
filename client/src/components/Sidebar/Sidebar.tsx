@@ -182,45 +182,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
           
         </div>
 
-        {/* Active Configuration */}
-        <div className="px-4 py-3 bg-slate-200 dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700">
-          {isExpanded && (
-            <div className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
-              ACTIVE CONFIGURATION
-            </div>
-          )}
-          <div className="space-y-2">
-            <div
-              className={`flex items-center ${isExpanded ? "space-x-2" : "justify-center"}`}
-            >
-              <span className="text-blue-400 text-2xl flex-shrink-0">🤖</span>
-              {isExpanded && (
-                <>
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm text-slate-700 dark:text-slate-300">
-                    Josudo (Free)
-                  </span>
-                </>
-              )}
-            </div>
-            <div
-              className={`flex items-center ${isExpanded ? "space-x-2" : "justify-center"}`}
-            >
-              <span className="text-purple-400 text-2xl flex-shrink-0">💾</span>
-              {isExpanded && (
-                <>
-                  <div
-                    className={`w-2 h-2 rounded-full ${isAuthenticated ? "bg-green-500" : "bg-slate-500"}`}
-                  ></div>
-                  <span className="text-sm text-slate-700 dark:text-slate-300">
-                    {isAuthenticated ? "Google Drive" : "No Storage"}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
         {/* Menu Options */}
         <div className="flex-1 p-4">
           <div className="space-y-1">
