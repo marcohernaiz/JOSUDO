@@ -51,9 +51,12 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
-- August 21, 2025. Enhanced user profile display and enforced light mode default
+- August 21, 2025. Enhanced user interface with blue hover effects and enforced light mode
   - Enforced light mode as the absolute default theme, clearing any stored dark mode preferences
   - Added explicit localStorage clearing and CSS rules to prevent dark mode on startup
+  - Updated sidebar menu items to use blue hover background (blue-50/blue-900) instead of gray
+  - Updated chat history items to use consistent blue hover effects matching selection state
+  - Updated user profile dropdown hover to use blue background for consistency
   - Added user profile dropdown in sidebar bottom-left with options: Upgrade plan, Settings, Learn more, Log out
   - Fixed TypeScript errors by updating user field references (avatar, username instead of profileImage, displayName)
   - User image and name now appear correctly after sign-in with clickable dropdown functionality

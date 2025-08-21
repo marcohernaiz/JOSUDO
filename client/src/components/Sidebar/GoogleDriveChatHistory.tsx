@@ -264,7 +264,7 @@ export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ 
             className={`flex flex-col p-2 rounded cursor-pointer transition-colors ${
               selectedSession === session.id
                 ? "bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700"
-                : "hover:bg-slate-200 dark:hover:bg-slate-800"
+                : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
             }`}
             onClick={() => handleSessionClick(session.id)}
             title={session.title}
