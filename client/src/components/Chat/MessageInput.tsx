@@ -530,7 +530,7 @@ export const MessageInput: React.FC = () => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Voice dictation</p>
+                  <p>Voice message</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
