@@ -66,53 +66,104 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
   return (
     <>
       <div
-        className={`h-full bg-slate-250 dark:bg-slate-900/80 border-r border-slate-300 dark:border-slate-700 flex flex-col transition-all duration-75 ${
+        className={`h-full bg-slate-250 dark:bg-slate-900/80 border-r border-slate-300 dark:border-slate-700 flex flex-col transition-all duration-200 ${
           isExpanded ? "w-64" : "w-16"
         }`}
-        onMouseEnter={() => setIsExpanded(true)}
-        onMouseLeave={() => setIsExpanded(false)}
       >
         {/* Header */}
         <div className="p-4 border-b border-slate-300 dark:border-slate-700">
           <div
-            className={`flex items-center ${isExpanded ? "justify-between" : "justify-center"} mb-4`}
+            className={`flex items-center ${isExpanded ? "justify-between" : "flex-col"} mb-4`}
           >
-            <div
-              className={`flex items-center ${isExpanded ? "space-x-3" : "justify-center"}`}
-            >
-              <div className="relative w-10 h-10 flex items-center justify-center flex-shrink-0">
-                <img
-                  src={josudoLogo}
-                  alt="Josudo Logo"
-                  className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                    e.currentTarget.nextElementSibling.style.display = "block";
-                  }}
-                />
-                <span className="text-amber-400 text-2xl hidden">⚜️</span>
-              </div>
-              {isExpanded && (
-                <img
-                  src={josudoText}
-                  alt="Josudo"
-                  className="h-8 object-contain flex-shrink-0 josudo-text-light"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                    e.currentTarget.nextElementSibling.style.display = "inline";
-                  }}
-                />
-              )}
-              <span className="font-bold text-black dark:text-white hidden">
-                Josudo
-              </span>
-            </div>
+            {!isExpanded ? (
+              <>
+                <div className="w-10 h-10 flex items-center justify-center flex-shrink-0 mb-2">
+                  <img
+                    src={josudoLogo}
+                    alt="Josudo Logo"
+                    className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (nextElement) nextElement.style.display = "block";
+                    }}
+                  />
+                  <span className="text-amber-400 text-2xl hidden">⚜️</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 w-8 h-8 p-0 flex items-center justify-center"
+                  title="Expand sidebar"
+                >
+                  <svg 
+                    className="w-4 h-4" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                  </svg>
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center space-x-3">
+                  <div className="relative w-10 h-10 flex items-center justify-center flex-shrink-0">
+                    <img
+                      src={josudoLogo}
+                      alt="Josudo Logo"
+                      className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (nextElement) nextElement.style.display = "block";
+                      }}
+                    />
+                    <span className="text-amber-400 text-2xl hidden">⚜️</span>
+                  </div>
+                  <img
+                    src={josudoText}
+                    alt="Josudo"
+                    className="h-8 object-contain flex-shrink-0 josudo-text-light"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (nextElement) nextElement.style.display = "inline";
+                    }}
+                  />
+                  <span className="font-bold text-black dark:text-white hidden">
+                    Josudo
+                  </span>
+                </div>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 w-8 h-8 p-0 flex items-center justify-center"
+                  title="Collapse sidebar"
+                >
+                  <svg 
+                    className="w-4 h-4" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M21 19l-7-7 7-7" />
+                  </svg>
+                </Button>
+              </>
+            )}
+            
+            {/* Mobile close button */}
             {isExpanded && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                className="md:hidden text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800"
+                className="md:hidden text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 ml-2"
               >
                 <i className="fas fa-times"></i>
               </Button>
