@@ -26,6 +26,7 @@ import {
   VideoIcon, 
   Settings, 
   Send,
+  Square,
   Bot,
   Brain,
   Sparkles,
@@ -130,8 +131,14 @@ export const MessageInput: React.FC = () => {
 
   const handleSendMessage = () => {
     if ((!currentMessage.trim() && attachedFiles.length === 0) || isLoading) return;
-    sendMessage(selectedModel, attachedFiles);
-    setAttachedFiles([]); // Clear files after sending
+    
+    // Immediately clear input and files before sending
+    const messageToSend = currentMessage;
+    const filesToSend = [...attachedFiles];
+    setCurrentMessage('');
+    setAttachedFiles([]);
+    
+    sendMessage(selectedModel, filesToSend, messageToSend);
   };
 
   const handleFileAttach = () => {
@@ -226,15 +233,19 @@ export const MessageInput: React.FC = () => {
               className="w-full h-14 px-6 pr-14 bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 rounded-lg text-slate-600 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg"
             />
             
-            {/* Send button */}
+            {/* Send/Stop button */}
             <Button
               onClick={handleSendMessage}
-              disabled={(!currentMessage.trim() && attachedFiles.length === 0) || isLoading}
-              className="absolute right-3 top-3 p-2 h-8 w-8 bg-blue-500 hover:bg-blue-600 rounded-md"
+              disabled={(!currentMessage.trim() && attachedFiles.length === 0) && !isLoading}
+              className={`absolute right-3 top-3 p-2 h-8 w-8 rounded-md transition-colors ${
+                isLoading 
+                  ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                  : 'bg-blue-500 hover:bg-blue-600'
+              }`}
               size="sm"
             >
               {isLoading ? (
-                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                <Square className="w-4 h-4 text-white" />
               ) : (
                 <Send className="w-4 h-4 text-white" />
               )}

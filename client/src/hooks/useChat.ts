@@ -21,6 +21,7 @@ export const useChat = () => {
 
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
 
   const sendMessageMutation = useMutation({
     mutationFn: async ({
@@ -218,7 +219,7 @@ export const useChat = () => {
     },
     onSuccess: (data: any) => {
       console.log("Streaming chat completed:", data);
-      setCurrentMessage("");
+      // Don't clear current message here since we clear it immediately when sending
 
       // Update active session if new session created
       if (data.sessionId && !activeSession) {
@@ -247,13 +248,14 @@ export const useChat = () => {
     },
   });
 
-  const sendMessage = async (model?: string, files?: File[]) => {
-    if (!currentMessage.trim() && (!files || files.length === 0)) return;
+  const sendMessage = async (model?: string, files?: File[], message?: string) => {
+    const messageToSend = message || currentMessage;
+    if (!messageToSend.trim() && (!files || files.length === 0)) return;
 
     console.log("Sending message with sessionId:", currentSessionId);
 
     sendMessageMutation.mutate({
-      message: currentMessage,
+      message: messageToSend,
       sessionId: currentSessionId || undefined,
       model,
       files,

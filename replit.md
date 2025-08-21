@@ -51,7 +51,10 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
-- August 21, 2025. Modernized chat input icons and improved user interface
+- August 21, 2025. Implemented real-time chat behavior and modernized interface
+  - Added real-time chat behavior: message immediately moves to chat window on enter
+  - Input field clears instantly when user presses enter, allowing immediate new input
+  - Send button changes to red pulsing stop button during AI response generation
   - Updated chat input icons to match modern AI interfaces (ChatGPT, Claude, etc.)
   - Changed voice dictation icon from emoji to clean Mic icon from Lucide React
   - Changed voice conversation icon from headphones emoji to Phone icon for clarity
