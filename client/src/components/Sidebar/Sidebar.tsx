@@ -21,7 +21,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
   const queryClient = useQueryClient();
   const [showSettings, setShowSettings] = useState(false);
   const [showBilling, setShowBilling] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isLogoHovered, setIsLogoHovered] = useState(false);
 
   const createNewChat = async () => {
     try {
@@ -76,37 +77,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             className={`flex items-center ${isExpanded ? "justify-between" : "flex-col"} mb-4`}
           >
             {!isExpanded ? (
-              <>
-                <div className="w-10 h-10 flex items-center justify-center flex-shrink-0 mb-2">
-                  <img
-                    src={josudoLogo}
-                    alt="Josudo Logo"
-                    className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                      const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                      if (nextElement) nextElement.style.display = "block";
-                    }}
-                  />
-                  <span className="text-amber-400 text-2xl hidden">⚜️</span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 w-8 h-8 p-0 flex items-center justify-center"
-                  title="Expand sidebar"
-                >
+              <div 
+                className="w-10 h-10 flex items-center justify-center flex-shrink-0 cursor-pointer transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md"
+                onClick={() => setIsExpanded(!isExpanded)}
+                onMouseEnter={() => setIsLogoHovered(true)}
+                onMouseLeave={() => setIsLogoHovered(false)}
+                title="Expand sidebar"
+              >
+                {!isLogoHovered ? (
+                  <>
+                    <img
+                      src={josudoLogo}
+                      alt="Josudo Logo"
+                      className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (nextElement) nextElement.style.display = "block";
+                      }}
+                    />
+                    <span className="text-amber-400 text-2xl hidden">⚜️</span>
+                  </>
+                ) : (
                   <svg 
-                    className="w-4 h-4" 
+                    className="w-5 h-5 text-slate-600 dark:text-slate-400" 
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                   </svg>
-                </Button>
-              </>
+                )}
+              </div>
             ) : (
               <>
                 <div className="flex items-center space-x-3">
