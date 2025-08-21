@@ -64,9 +64,12 @@ The application is structured into distinct service layers:
   - Application now starts successfully and runs without errors
 
 - August 21, 2025. Updated branding consistency for default AI model
-  - Default DeepSeek V3 model now displays as "Josudo" throughout the user interface
+  - Default DeepSeek V3 model now displays as "Josudo AI" throughout the user interface
   - Updated sidebar active configuration to show "Josudo (Free)"
   - Updated AI model selection dropdown to display "Josudo" instead of "DeepSeek V3"
+  - Updated chat messages to show "Josudo AI" instead of "DeepSeek V3 (Free)"
+  - Updated badge text to show "Josudo AI" instead of "Premium Account" in chat interface
+  - Updated billing modal to show "Josudo AI" branding
   - Updated server fallback messages to show "Josudo" instead of "DeepSeek"
   - Technical model routing remains unchanged (still uses deepseek-v3 internally)
 

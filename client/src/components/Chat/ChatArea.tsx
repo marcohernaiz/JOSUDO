@@ -178,7 +178,7 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
 const getModelDisplayName = (modelId: string) => {
   switch (modelId) {
     case "deepseek-v3":
-      return "DeepSeek V3 (Free)";
+      return "Josudo AI";
     case "mixtral-8x7b":
       return "Mixtral (Free)";
     case "llama-3.1-8b":
@@ -284,7 +284,7 @@ export const ChatArea: React.FC = () => {
                       {integrations.find(
                         (i) => i.serviceType === "ai_model" && i.isActive,
                       )
-                        ? "Premium Account"
+                        ? "Josudo AI"
                         : "Platform Routing"}
                     </Badge>
                   </div>

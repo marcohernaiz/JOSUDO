@@ -167,7 +167,7 @@ export const BillingModal: React.FC<BillingModalProps> = ({ open, onClose }) => 
                     <i className="fas fa-brain text-green-500"></i>
                     <div>
                       <div className="font-medium text-slate-900">OpenAI GPT-4</div>
-                      <div className="text-sm text-slate-500">Premium Account - Free routing</div>
+                      <div className="text-sm text-slate-500">Josudo AI - Free routing</div>
                     </div>
                   </div>
                   <div className="text-right">
