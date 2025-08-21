@@ -86,7 +86,7 @@ export const MessageInput: React.FC = () => {
   const { integrations } = useAppContext();
   const { isAuthenticated } = useAuth();
   const [selectedModel, setSelectedModel] = useState('deepseek-v3');
-  const [selectedStorage, setSelectedStorage] = useState('google-drive');
+  const [selectedStorage, setSelectedStorage] = useState('');
   const [selectedProcessing, setSelectedProcessing] = useState('josudo');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -98,7 +98,8 @@ export const MessageInput: React.FC = () => {
   // Check if user just connected storage or is authenticated
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('storage') === 'connected') {
+    if (urlParams.get('storage') === 'connected' || isAuthenticated) {
+      setSelectedStorage('google-drive');
       // Clean up URL
       window.history.replaceState({}, '', window.location.pathname);
     }
@@ -195,7 +196,13 @@ export const MessageInput: React.FC = () => {
   const activeModel = integrations.find(i => i.serviceType === 'ai_model' && i.isActive);
   const activeStorage = integrations.find(i => i.serviceType === 'storage' && i.isActive);
   const currentModelInfo = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[0]; // Default to Josudo
-  const currentStorageInfo = STORAGE_OPTIONS.find(s => s.id === selectedStorage) || STORAGE_OPTIONS[0];
+  const currentStorageInfo = STORAGE_OPTIONS.find(s => s.id === selectedStorage) || { 
+    id: 'none', 
+    name: 'No Storage', 
+    description: 'Select storage option', 
+    icon: XCircle, 
+    isConnected: false 
+  };
   const currentProcessingInfo = PROCESSING_PROVIDERS.find(p => p.id === selectedProcessing) || PROCESSING_PROVIDERS[0];
 
   return (
