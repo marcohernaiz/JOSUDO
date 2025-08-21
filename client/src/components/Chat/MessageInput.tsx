@@ -313,17 +313,22 @@ export const MessageInput: React.FC = () => {
             </TooltipProvider>
 
             {/* Tools */}
-            <div className="group relative">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="ai-control-button h-10 w-10 group-hover:w-auto group-hover:px-4 rounded-full flex items-center justify-center transition-all duration-300 overflow-hidden p-0"
-                title="Tools"
-              >
-                <span className="text-slate-600 dark:text-white text-lg flex-shrink-0 ml-3 group-hover:ml-0">🔧</span>
-                <span className="ml-2 text-sm text-slate-600 dark:text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-0 group-hover:w-auto">Tools</span>
-              </Button>
-            </div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                  >
+                    <span className="text-slate-600 dark:text-slate-300 text-lg">🔧</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Tools</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Center - AI Model, Storage, and Processing Selectors */}
