@@ -1,4 +1,3 @@
-import josudoLogo from "@assets/JOSUDO LOGO_1752483631486.png";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -16,12 +15,7 @@ export const Header: React.FC = () => {
 
   return (
     <div className="px-3 relative z-10">
-      <div className="flex items-center justify-between">
-        <img 
-          src={josudoLogo} 
-          alt="Josudo" 
-          className="h-48 w-auto object-contain opacity-90"
-        />
+      <div className="flex items-center justify-end">
         <div className="flex items-center space-x-4">
           {!isAuthenticated && (
             <Button 
