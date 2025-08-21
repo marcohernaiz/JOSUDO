@@ -53,17 +53,18 @@ import {
 } from 'react-icons/si';
 
 const AI_MODELS = [
+  { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: SiOpenai, isFree: false },
+  { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude Direct API', icon: SiAnthropic, isFree: false },
+  { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: SiGoogle, isFree: false },
+  { id: 'grok-beta', name: 'Grok', description: 'xAI Grok', icon: SiX, isFree: false },
+  { id: 'perplexity', name: 'Perplexity', description: 'Perplexity AI Search', icon: Brain, isFree: false },
   { id: 'deepseek-v3', name: 'Josudo', description: 'Advanced AI model', icon: Bot, isFree: true },
   { id: 'mixtral-8x7b', name: 'Mixtral', description: 'Free Mixtral model', icon: Zap, isFree: true },
   { id: 'claude-3-haiku-replicate', name: 'Claude 3 Haiku', description: 'Fast Claude via Replicate', icon: SiAnthropic, isFree: false },
   { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', description: 'Meta Llama 3.1 8B via Replicate', icon: SiMeta, isFree: false },
-  { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: SiOpenai, isFree: false },
   { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet', description: 'Premium Claude via Replicate', icon: SiAnthropic, isFree: false },
   { id: 'gpt-5', name: 'GPT-5', description: 'OpenAI GPT-5 via Replicate', icon: SiOpenai, isFree: false },
-  { id: 'claude-3-5-sonnet', name: 'Claude (Direct)', description: 'Anthropic Claude Direct API', icon: SiAnthropic, isFree: false },
-  { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: SiGoogle, isFree: false },
   { id: 'llama-3', name: 'Llama', description: 'Meta Llama 3', icon: SiMeta, isFree: false },
-  { id: 'grok-beta', name: 'Grok', description: 'xAI Grok', icon: SiX, isFree: false },
 ];
 
 const getStorageOptions = (isAuthenticated: boolean) => [
@@ -86,11 +87,12 @@ export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading } = useChat();
   const { integrations } = useAppContext();
   const { isAuthenticated } = useAuth();
-  const [selectedModel, setSelectedModel] = useState('deepseek-v3');
+  const [selectedModel, setSelectedModel] = useState('gpt-4');
   const [selectedStorage, setSelectedStorage] = useState('none');
   const [selectedProcessing, setSelectedProcessing] = useState('josudo');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [showAllModels, setShowAllModels] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const STORAGE_OPTIONS = getStorageOptions(isAuthenticated);
@@ -315,7 +317,7 @@ export const MessageInput: React.FC = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="ai-dropdown w-64">
-                  {AI_MODELS.map((model) => (
+                  {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 5)).map((model) => (
                     <DropdownMenuItem
                       key={model.id}
                       onClick={() => setSelectedModel(model.id)}
@@ -345,6 +347,28 @@ export const MessageInput: React.FC = () => {
                       )}
                     </DropdownMenuItem>
                   ))}
+                  {!showAllModels && (
+                    <DropdownMenuItem
+                      onClick={() => setShowAllModels(true)}
+                      className="ai-dropdown-item group flex items-center justify-center p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1 border-t border-slate-600 mt-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Plus className="text-sky-400 text-sm" />
+                        <span className="font-medium text-white">Show more models</span>
+                      </div>
+                    </DropdownMenuItem>
+                  )}
+                  {showAllModels && (
+                    <DropdownMenuItem
+                      onClick={() => setShowAllModels(false)}
+                      className="ai-dropdown-item group flex items-center justify-center p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1 border-t border-slate-600 mt-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <XCircle className="text-sky-400 text-sm" />
+                        <span className="font-medium text-white">Show fewer models</span>
+                      </div>
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
