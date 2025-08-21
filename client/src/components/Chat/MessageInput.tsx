@@ -364,7 +364,7 @@ export const MessageInput: React.FC = () => {
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between pr-8"></div>
+                      <div className="flex items-center justify-between pr-8">
                         <div className="flex items-center space-x-3 flex-1">
                           <model.icon className="text-sky-400 text-sm" />
                           <div className="flex-1">

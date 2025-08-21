@@ -51,6 +51,11 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
+- August 21, 2025. Fixed critical JSX syntax error in MessageInput component
+  - Resolved JSX structure issue in AI model dropdown that prevented app from starting
+  - Fixed unclosed div element that was causing build failures
+  - Application now starts successfully and runs without errors
+
 - August 21, 2025. Updated branding consistency for default AI model
   - Default DeepSeek V3 model now displays as "Josudo" throughout the user interface
   - Updated sidebar active configuration to show "Josudo (Free)"
