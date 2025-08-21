@@ -343,7 +343,7 @@ export const MessageInput: React.FC = () => {
                       onClick={() => setSelectedModel(model.id)}
                       className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-3 flex-1">
                         <model.icon className="text-sky-400 text-sm" />
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
@@ -362,9 +362,27 @@ export const MessageInput: React.FC = () => {
                           <p className="text-xs text-slate-300 group-hover:text-slate-100 mt-1 leading-relaxed ai-model-description">{model.description}</p>
                         </div>
                       </div>
-                      {selectedModel === model.id && (
-                        <span className="text-sky-400 text-sm">✓</span>
-                      )}
+                      <div className="flex items-center space-x-2">
+                        <div className="relative group/connect">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Handle connect logic here
+                            }}
+                            className="h-6 w-16 text-xs bg-green-600 hover:bg-green-700 border-green-500 text-white px-2"
+                          >
+                            Connect
+                          </Button>
+                          <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover/connect:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                            Link your account
+                          </div>
+                        </div>
+                        {selectedModel === model.id && (
+                          <span className="text-sky-400 text-sm">✓</span>
+                        )}
+                      </div>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
