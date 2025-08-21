@@ -67,7 +67,6 @@ const AI_MODELS = [
 ];
 
 const getStorageOptions = (isAuthenticated: boolean) => [
-  { id: 'none', name: 'No Storage', description: 'Chat not saved', icon: XCircle, isConnected: false },
   { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: SiGoogledrive, isConnected: isAuthenticated },
   { id: 'icloud', name: 'iCloud', description: 'Save to Apple iCloud', icon: SiIcloud, isConnected: false },
   { id: 'dropbox', name: 'Dropbox', description: 'Save to Dropbox', icon: SiDropbox, isConnected: false },
@@ -87,7 +86,7 @@ export const MessageInput: React.FC = () => {
   const { integrations } = useAppContext();
   const { isAuthenticated } = useAuth();
   const [selectedModel, setSelectedModel] = useState('deepseek-v3');
-  const [selectedStorage, setSelectedStorage] = useState('none');
+  const [selectedStorage, setSelectedStorage] = useState('google-drive');
   const [selectedProcessing, setSelectedProcessing] = useState('josudo');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -99,8 +98,7 @@ export const MessageInput: React.FC = () => {
   // Check if user just connected storage or is authenticated
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('storage') === 'connected' || isAuthenticated) {
-      setSelectedStorage('google-drive');
+    if (urlParams.get('storage') === 'connected') {
       // Clean up URL
       window.history.replaceState({}, '', window.location.pathname);
     }
@@ -420,13 +418,9 @@ export const MessageInput: React.FC = () => {
                         <div className="flex-1">
                           <div className="flex items-center space-x-2">
                             <span className="font-semibold text-white">{storage.name}</span>
-                            {storage.isConnected ? (
+                            {storage.isConnected && (
                               <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
                                 Connected
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-xs bg-red-900/20 text-red-300 border border-red-500/30 px-2 py-0.5 font-medium">
-                                Disconnected
                               </Badge>
                             )}
                           </div>
