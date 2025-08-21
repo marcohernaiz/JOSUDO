@@ -183,7 +183,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
         </div>
 
         {/* Menu Options */}
-        <div className="flex-1 p-4">
+        <div className="p-4">
           <div className="space-y-1">
             <Button
               onClick={createNewChat}
@@ -252,7 +252,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
         </div>
 
         {/* Google Drive Chat History */}
-        {isExpanded && <GoogleDriveChatHistory onSwitchToChat={onSwitchToChat} />}
+        {isExpanded && (
+          <div className="flex-1 overflow-hidden">
+            <GoogleDriveChatHistory onSwitchToChat={onSwitchToChat} />
+          </div>
+        )}
 
         {/* User Profile Section */}
         {isAuthenticated && (
