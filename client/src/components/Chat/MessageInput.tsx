@@ -239,7 +239,7 @@ export const MessageInput: React.FC = () => {
               disabled={(!currentMessage.trim() && attachedFiles.length === 0) && !isLoading}
               className={`absolute right-3 top-3 p-2 h-8 w-8 rounded-md transition-colors ${
                 isLoading 
-                  ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                  ? 'bg-black hover:bg-gray-800 animate-pulse' 
                   : 'bg-blue-500 hover:bg-blue-600'
               }`}
               size="sm"
