@@ -52,8 +52,6 @@ import {
   SiGoogle, 
   SiMeta,
   SiX,
-  SiAmazon,
-
   SiGoogledrive,
   SiIpfs,
   SiIcloud,
@@ -81,12 +79,7 @@ const getStorageOptions = (isAuthenticated: boolean) => [
   { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: SiIpfs, isConnected: false },
 ];
 
-const PROCESSING_PROVIDERS = [
-  { id: 'josudo', name: 'Josudo', description: 'Free processing', icon: () => <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(471%) hue-rotate(349deg) brightness(101%) contrast(101%)' }} />, isFree: true },
-  { id: 'aws', name: 'AWS', description: 'Amazon Web Services', icon: SiAmazon, isFree: false },
-  { id: 'gcp', name: 'Google Cloud', description: 'Google Cloud Platform', icon: SiGoogle, isFree: false },
-  { id: 'azure', name: 'Azure', description: 'Microsoft Azure', icon: Cloud, isFree: false },
-];
+
 
 export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading } = useChat();
@@ -94,7 +87,6 @@ export const MessageInput: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [selectedModel, setSelectedModel] = useState('deepseek-v3');
   const [selectedStorage, setSelectedStorage] = useState('');
-  const [selectedProcessing, setSelectedProcessing] = useState('josudo');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [showAllModels, setShowAllModels] = useState(false);
@@ -218,7 +210,6 @@ export const MessageInput: React.FC = () => {
     icon: XCircle, 
     isConnected: false 
   };
-  const currentProcessingInfo = PROCESSING_PROVIDERS.find(p => p.id === selectedProcessing) || PROCESSING_PROVIDERS[0];
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -468,7 +459,7 @@ export const MessageInput: React.FC = () => {
             </TooltipProvider>
           </div>
 
-          {/* Center - AI Model, Storage, and Processing Selectors */}
+          {/* Right side - AI Model and Storage Selectors */}
           <div className="flex items-center space-x-4">
             {/* AI Model Selector */}
             <div className="relative">
@@ -600,55 +591,6 @@ export const MessageInput: React.FC = () => {
                       </div>
                       {selectedStorage === storage.id && (
                         <span className="text-purple-400 text-sm">✓</span>
-                      )}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {/* Processing Provider Selector */}
-            <div className="relative">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center transition-all duration-300"
-                    title={`Processing: ${currentProcessingInfo.name}`}
-                  >
-                    <currentProcessingInfo.icon className="text-orange-400 text-sm mr-2" />
-                    <span className="text-xs text-slate-600 dark:text-white whitespace-nowrap">{currentProcessingInfo.name}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="ai-dropdown w-64">
-                  {PROCESSING_PROVIDERS.map((provider) => (
-                    <DropdownMenuItem
-                      key={provider.id}
-                      onClick={() => setSelectedProcessing(provider.id)}
-                      className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <provider.icon className="text-orange-400 text-sm" />
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-semibold text-white">{provider.name}</span>
-                            {provider.isFree && (
-                              <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                                Free
-                              </Badge>
-                            )}
-                            {!provider.isFree && (
-                              <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
-                                Premium
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-xs text-slate-300 group-hover:text-slate-200 mt-1 leading-relaxed">{provider.description}</p>
-                        </div>
-                      </div>
-                      {selectedProcessing === provider.id && (
-                        <span className="text-orange-400 text-sm">✓</span>
                       )}
                     </DropdownMenuItem>
                   ))}
