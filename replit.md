@@ -51,7 +51,11 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
-- August 21, 2025. Implemented real-time chat behavior and modernized interface
+- August 21, 2025. Enhanced chat mode selector and implemented real-time chat behavior
+  - Updated chat mode selector to show only selected option by default, expanding to show all options when clicked
+  - Added new "Search existing Digital Personas" option to chat mode selector
+  - Chat mode options: JOSUDO AI assistant, Create New Digital Persona, Search existing Digital Personas, Hire a Virtual employee
+  - Fixed chatMode variable error that was preventing app from launching
   - Added real-time chat behavior: message immediately moves to chat window on enter
   - Input field clears instantly when user presses enter, allowing immediate new input
   - Send button changes to red pulsing stop button during AI response generation
