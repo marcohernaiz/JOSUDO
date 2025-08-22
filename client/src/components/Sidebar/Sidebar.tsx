@@ -12,7 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useQueryClient } from "@tanstack/react-query";
 import josudoLogo from "@assets/JOSUDO ICON_1752512850035.png";
 import josudoText from "@assets/josudo logo just text_1752513004427.png";
@@ -31,7 +30,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
   const [showBilling, setShowBilling] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
-  const [isKnowledgeBaseOpen, setIsKnowledgeBaseOpen] = useState(false);
 
   const createNewChat = async () => {
     try {
@@ -209,10 +207,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             <Button
               variant="ghost"
               className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
+              title={!isExpanded ? "Library" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">📚</span>
+              {isExpanded && <span className="ml-2">Library</span>}
+            </Button>
+
+            <Button
+              variant="ghost"
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
               title={!isExpanded ? "Spaces" : ""}
             >
               <span className="text-slate-400 text-lg flex-shrink-0">🌌</span>
               {isExpanded && <span className="ml-2">Spaces</span>}
+            </Button>
+
+            <Button
+              variant="ghost"
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
+              title={!isExpanded ? "Tools" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">🔧</span>
+              {isExpanded && <span className="ml-2">Tools</span>}
             </Button>
 
             <Button
@@ -227,61 +243,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             <Button
               variant="ghost"
               className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
-              title={!isExpanded ? "Tools" : ""}
+              title={!isExpanded ? "Knowledge Base" : ""}
             >
-              <span className="text-slate-400 text-lg flex-shrink-0">🔧</span>
-              {isExpanded && <span className="ml-2">Tools</span>}
+              <span className="text-slate-400 text-lg flex-shrink-0">📖</span>
+              {isExpanded && <span className="ml-2">Knowledge Base</span>}
             </Button>
-
-            <Collapsible open={isKnowledgeBaseOpen} onOpenChange={setIsKnowledgeBaseOpen}>
-              <CollapsibleTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className={`${isExpanded ? "w-full justify-between" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
-                  title={!isExpanded ? "Knowledge Base" : ""}
-                >
-                  <div className="flex items-center">
-                    <span className="text-slate-400 text-lg flex-shrink-0">📖</span>
-                    {isExpanded && <span className="ml-2">Knowledge Base</span>}
-                  </div>
-                  {isExpanded && (
-                    <svg 
-                      className={`w-4 h-4 transition-transform duration-200 ${isKnowledgeBaseOpen ? 'rotate-180' : ''}`} 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-              {isExpanded && (
-                <CollapsibleContent className="space-y-1 ml-6 mt-1">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-sm text-slate-500 dark:text-slate-500 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4 py-2"
-                  >
-                    <span className="text-slate-400 text-base flex-shrink-0">📚</span>
-                    <span className="ml-2">Library</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-sm text-slate-500 dark:text-slate-500 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4 py-2"
-                  >
-                    <span className="text-slate-400 text-base flex-shrink-0">🌌</span>
-                    <span className="ml-2">Spaces</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-sm text-slate-500 dark:text-slate-500 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4 py-2"
-                  >
-                    <span className="text-slate-400 text-base flex-shrink-0">👥</span>
-                    <span className="ml-2">Virtual Employees</span>
-                  </Button>
-                </CollapsibleContent>
-              )}
-            </Collapsible>
           </div>
         </div>
 
