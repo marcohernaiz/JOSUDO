@@ -98,6 +98,7 @@ export const MessageInput: React.FC = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [showAllModels, setShowAllModels] = useState(false);
+  const [chatMode, setChatMode] = useState('assistant');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const STORAGE_OPTIONS = getStorageOptions(isAuthenticated);
