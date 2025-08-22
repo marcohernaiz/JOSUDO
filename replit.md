@@ -51,7 +51,12 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
-- August 21, 2025. Enhanced chat mode selector and implemented real-time chat behavior
+- August 22, 2025. Redesigned chat interface layout and enhanced user experience
+  - Moved JOSUDO AI Assistant button inside chat box, centered with Josudo logo
+  - Relocated AI model and storage buttons to the right side of the chat box
+  - Chat mode selector now features Josudo logo and is properly sized to match other buttons
+  - Simplified layout: File attachment and tools on left, chat mode in center, AI model/storage/voice controls on right
+  - Voice controls (dictation, conversation, video) moved to right side for better organization
   - Updated chat mode selector to show only selected option by default, expanding to show all options when clicked
   - Added new "Search existing Digital Personas" option to chat mode selector
   - Chat mode options: JOSUDO AI assistant, Create New Digital Persona, Search existing Digital Personas, Hire a Virtual employee

@@ -213,81 +213,7 @@ export const MessageInput: React.FC = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {/* Chat Mode Selector - Outside and above the main input box */}
-      <div className="mb-4">
-        <div className="flex items-center justify-center">
-          <div className="relative">
-            <DropdownMenu open={showChatModeOptions} onOpenChange={setShowChatModeOptions}>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 px-4 rounded-full text-sm font-medium transition-all duration-200 bg-blue-500 text-white hover:bg-blue-600 shadow-sm border border-slate-200/60 dark:border-slate-600/30"
-                >
-                  {chatMode === 'assistant' && 'JOSUDO AI assistant'}
-                  {chatMode === 'persona' && 'Create New Digital Persona'}
-                  {chatMode === 'employee' && 'Hire a Virtual employee'}
-                  {chatMode === 'search' && 'Search existing Digital Personas'}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
-                <DropdownMenuItem
-                  onClick={() => {
-                    setChatMode('assistant');
-                    setShowChatModeOptions(false);
-                  }}
-                  className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
-                    chatMode === 'assistant'
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  JOSUDO AI assistant
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setChatMode('persona');
-                    setShowChatModeOptions(false);
-                  }}
-                  className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
-                    chatMode === 'persona'
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  Create New Digital Persona
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setChatMode('search');
-                    setShowChatModeOptions(false);
-                  }}
-                  className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
-                    chatMode === 'search'
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  Search existing Digital Personas
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setChatMode('employee');
-                    setShowChatModeOptions(false);
-                  }}
-                  className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
-                    chatMode === 'employee'
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  Hire a Virtual employee
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </div>
+
       
       <div className="ai-input-lines bg-slate-250/90 dark:bg-slate-800/60 rounded-xl p-6 border border-slate-200/60 dark:border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
         {/* First Line - Input Box Only */}
@@ -459,8 +385,85 @@ export const MessageInput: React.FC = () => {
             </TooltipProvider>
           </div>
 
+          {/* Center - Chat Mode Selector */}
+          <div className="flex items-center justify-center flex-1">
+            <div className="relative">
+              <DropdownMenu open={showChatModeOptions} onOpenChange={setShowChatModeOptions}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-10 px-4 rounded-full text-sm font-medium transition-all duration-200 bg-blue-500 text-white hover:bg-blue-600 shadow-sm border border-slate-200/60 dark:border-slate-600/30 flex items-center space-x-2"
+                  >
+                    <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }} />
+                    <span>
+                      {chatMode === 'assistant' && 'JOSUDO AI assistant'}
+                      {chatMode === 'persona' && 'Create New Digital Persona'}
+                      {chatMode === 'employee' && 'Hire a Virtual employee'}
+                      {chatMode === 'search' && 'Search existing Digital Personas'}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setChatMode('assistant');
+                      setShowChatModeOptions(false);
+                    }}
+                    className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
+                      chatMode === 'assistant'
+                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    JOSUDO AI assistant
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setChatMode('persona');
+                      setShowChatModeOptions(false);
+                    }}
+                    className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
+                      chatMode === 'persona'
+                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    Create New Digital Persona
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setChatMode('search');
+                      setShowChatModeOptions(false);
+                    }}
+                    className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
+                      chatMode === 'search'
+                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    Search existing Digital Personas
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setChatMode('employee');
+                      setShowChatModeOptions(false);
+                    }}
+                    className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
+                      chatMode === 'employee'
+                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    Hire a Virtual employee
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
           {/* Right side - AI Model and Storage Selectors */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             {/* AI Model Selector */}
             <div className="relative">
               <DropdownMenu>
@@ -597,11 +600,60 @@ export const MessageInput: React.FC = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
 
-          {/* Right side - Additional controls */}
-          <div className="flex items-center space-x-3">
-            {/* Additional controls can be added here if needed */}
+            {/* Voice dictation */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                  >
+                    <Mic className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Voice dictation</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {/* Voice conversation */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                  >
+                    <Phone className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Voice conversation</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {/* Video conversation */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                  >
+                    <VideoIcon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Video conversation</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </div>
