@@ -220,6 +220,50 @@ export const MessageInput: React.FC = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
+      {/* Chat Mode Selector - Outside and above the main input box */}
+      <div className="mb-4">
+        <div className="flex items-center justify-center">
+          <div className="flex items-center space-x-1 bg-slate-200/60 dark:bg-slate-700/60 rounded-full p-1 backdrop-blur-sm border border-slate-200/60 dark:border-slate-600/30">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setChatMode('assistant')}
+              className={`h-8 px-4 rounded-full text-sm font-medium transition-all duration-200 ${
+                chatMode === 'assistant'
+                  ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600'
+              }`}
+            >
+              JOSUDO AI assistant
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setChatMode('persona')}
+              className={`h-8 px-4 rounded-full text-sm font-medium transition-all duration-200 ${
+                chatMode === 'persona'
+                  ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600'
+              }`}
+            >
+              Create New Digital Persona
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setChatMode('employee')}
+              className={`h-8 px-4 rounded-full text-sm font-medium transition-all duration-200 ${
+                chatMode === 'employee'
+                  ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600'
+              }`}
+            >
+              Hire a Virtual employee
+            </Button>
+          </div>
+        </div>
+      </div>
+      
       <div className="ai-input-lines bg-slate-250/90 dark:bg-slate-800/60 rounded-xl p-6 border border-slate-200/60 dark:border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
         {/* First Line - Input Box Only */}
         <div className="flex items-center justify-between w-full">
