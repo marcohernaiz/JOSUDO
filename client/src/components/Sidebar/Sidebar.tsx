@@ -217,10 +217,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
               <span className="text-slate-400 text-lg flex-shrink-0">🏠</span>
               {isExpanded && (
                 <>
-                  <span className="ml-2 flex-1">My private space</span>
+                  <span className="ml-2">My private space</span>
                   {isPrivateSpaceHovered && (
                     <svg 
-                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isPrivateSpaceExpanded ? 'rotate-90' : ''}`}
+                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ml-auto ${isPrivateSpaceExpanded ? 'rotate-90' : ''}`}
                       fill="none" 
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
