@@ -600,60 +600,6 @@ export const MessageInput: React.FC = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-
-            {/* Voice dictation */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
-                  >
-                    <Mic className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Voice dictation</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            {/* Voice conversation */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
-                  >
-                    <Phone className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Voice conversation</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            {/* Video conversation */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
-                  >
-                    <VideoIcon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Video conversation</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
         </div>
       </div>
