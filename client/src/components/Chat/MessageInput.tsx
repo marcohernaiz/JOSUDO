@@ -308,26 +308,85 @@ export const MessageInput: React.FC = () => {
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask me anything..."
-              className="w-full h-14 px-6 pr-14 bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 rounded-lg text-slate-600 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg"
+              className="w-full h-14 px-6 pr-32 bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 rounded-lg text-slate-600 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg"
             />
             
-            {/* Send/Stop button */}
-            <Button
-              onClick={handleSendMessage}
-              disabled={(!currentMessage.trim() && attachedFiles.length === 0) && !isLoading}
-              className={`absolute right-3 top-3 p-2 h-8 w-8 rounded-md transition-colors ${
-                isLoading 
-                  ? 'bg-black hover:bg-gray-800 animate-pulse' 
-                  : 'bg-blue-500 hover:bg-blue-600'
-              }`}
-              size="sm"
-            >
-              {isLoading ? (
-                <Square className="w-4 h-4 text-white" />
+            {/* Right side controls inside input */}
+            <div className="absolute right-3 top-3 flex items-center space-x-1">
+              {currentMessage.trim() || attachedFiles.length > 0 ? (
+                /* Send/Stop button when typing */
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={(!currentMessage.trim() && attachedFiles.length === 0) && !isLoading}
+                  className={`p-2 h-8 w-8 rounded-md transition-colors ${
+                    isLoading 
+                      ? 'bg-black hover:bg-gray-800 animate-pulse' 
+                      : 'bg-blue-500 hover:bg-blue-600'
+                  }`}
+                  size="sm"
+                >
+                  {isLoading ? (
+                    <Square className="w-4 h-4 text-white" />
+                  ) : (
+                    <Send className="w-4 h-4 text-white" />
+                  )}
+                </Button>
               ) : (
-                <Send className="w-4 h-4 text-white" />
+                /* Voice and video controls when not typing */
+                <>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                        >
+                          <Mic className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Dictate</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                        >
+                          <Phone className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Voice conversation</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                        >
+                          <VideoIcon className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Video conversation</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </>
               )}
-            </Button>
+            </div>
           </div>
         </div>
 
@@ -600,61 +659,7 @@ export const MessageInput: React.FC = () => {
 
           {/* Right side - Additional controls */}
           <div className="flex items-center space-x-3">
-            {/* Voice dictation */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
-                  >
-                    <Mic className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Dictate</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            {/* Voice conversation */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
-                  >
-                    <Phone className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Voice conversation</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            {/* Video conversation */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
-                  >
-                    <VideoIcon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Video conversation</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-
+            {/* Additional controls can be added here if needed */}
           </div>
         </div>
       </div>
