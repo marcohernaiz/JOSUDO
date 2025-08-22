@@ -30,7 +30,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
   const [showBilling, setShowBilling] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
-  const [isPrivateSpaceExpanded, setIsPrivateSpaceExpanded] = useState(false);
+  const [isPrivateSpaceExpanded, setIsPrivateSpaceExpanded] = useState(true);
   const [isPrivateSpaceHovered, setIsPrivateSpaceHovered] = useState(false);
 
   const createNewChat = async () => {
