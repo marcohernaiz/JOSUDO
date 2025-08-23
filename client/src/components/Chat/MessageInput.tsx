@@ -93,7 +93,9 @@ export const MessageInput: React.FC = () => {
   const [showAllModels, setShowAllModels] = useState(false);
   const [chatMode, setChatMode] = useState('assistant');
   const [showChatModeOptions, setShowChatModeOptions] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   const STORAGE_OPTIONS = getStorageOptions(isAuthenticated);
 
@@ -106,6 +108,70 @@ export const MessageInput: React.FC = () => {
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, [isAuthenticated]);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      
+      const recognition = recognitionRef.current;
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+
+        if (finalTranscript) {
+          setCurrentMessage(prev => prev + (prev ? ' ' : '') + finalTranscript);
+        }
+      };
+
+      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  const handleDictation = () => {
+    if (!recognitionRef.current) {
+      alert('Speech recognition is not supported in your browser');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
+    }
+  };
 
   const handleStorageSelection = (storage: any) => {
     if (storage.id === 'google-drive' && !storage.isConnected) {
@@ -264,13 +330,22 @@ export const MessageInput: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                          onClick={handleDictation}
+                          className={`h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 ${
+                            isListening 
+                              ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                              : 'hover:bg-slate-100 dark:hover:bg-slate-700'
+                          }`}
                         >
-                          <Mic className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                          <Mic className={`h-4 w-4 ${
+                            isListening 
+                              ? 'text-white' 
+                              : 'text-slate-600 dark:text-slate-300'
+                          }`} />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Dictate</p>
+                        <p>{isListening ? 'Stop dictation' : 'Start dictation'}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
