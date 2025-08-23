@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
 import josudoLogo from "@assets/golden-triquetra-icon.png";
-import josudoText from "@assets/josudo logo just text_1752513004427.png";
+import josudoText from "@assets/josudo-logo-with-tagline.png";
 import folderIcon from "@assets/vecteezy_simple-folder-icon-on-white-background_4693395-1_1755935645704.jpg";
 import { 
   Plus, 
