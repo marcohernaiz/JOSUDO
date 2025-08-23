@@ -471,11 +471,10 @@ export const MessageInput: React.FC = () => {
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center transition-all duration-300"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 p-0"
                     title={`AI Model: ${currentModelInfo.name}`}
                   >
-                    <currentModelInfo.icon className="text-sky-400 text-sm mr-2" />
-                    <span className="text-xs text-slate-600 dark:text-white whitespace-nowrap">{currentModelInfo.name}</span>
+                    <currentModelInfo.icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="ai-dropdown w-64">
@@ -564,11 +563,10 @@ export const MessageInput: React.FC = () => {
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="ai-control-button px-4 h-10 rounded-full flex items-center justify-center transition-all duration-300"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 p-0"
                     title={`Storage: ${currentStorageInfo.name}`}
                   >
-                    <currentStorageInfo.icon className="text-purple-400 text-sm" />
-                    <span className="text-xs text-slate-600 dark:text-white whitespace-nowrap ml-2">{currentStorageInfo.name}</span>
+                    <currentStorageInfo.icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="ai-dropdown w-64">
