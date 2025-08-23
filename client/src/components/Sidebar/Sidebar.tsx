@@ -233,6 +233,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
 
             <Button
               variant="ghost"
+              onClick={() => {/* Handle spaces */}}
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
+              title={!isExpanded ? "Spaces" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">🏢</span>
+              {isExpanded && <span className="ml-2">Spaces</span>}
+            </Button>
+
+            <Button
+              variant="ghost"
               onClick={() => {/* Handle knowledge base */}}
               className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
               title={!isExpanded ? "Knowledge Base" : ""}
