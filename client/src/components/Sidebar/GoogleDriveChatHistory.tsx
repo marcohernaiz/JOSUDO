@@ -250,14 +250,8 @@ export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ 
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="p-4 border-b border-slate-300 dark:border-slate-700">
-        <div className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
-          HISTORY
-        </div>
-      </div>
-
-      <div className="space-y-1 p-2">
+    <div className="max-h-64 overflow-y-auto">
+      <div className="space-y-1 py-1">
         {chatSessions.map((session) => (
           <div
             key={session.id}
