@@ -108,7 +108,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
         {/* Header */}
         <div className="p-4 border-b border-slate-300 dark:border-slate-700">
           <div
-            className={`flex items-center ${isExpanded ? "justify-between" : "flex-col"} mb-4`}
+            className={`flex items-center ${isExpanded ? "justify-between" : "flex-col"}`}
           >
             {!isExpanded ? (
               <div 
@@ -210,7 +210,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
         </div>
 
         {/* Menu Options */}
-        <div className="p-4">
+        <div className="px-4 pt-2 pb-4">
           <div className="space-y-1">
             <Button
               onClick={startNewChat}
