@@ -112,7 +112,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
           >
             {!isExpanded ? (
               <div 
-                className="w-10 h-10 flex items-center justify-center flex-shrink-0 cursor-pointer transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md"
+                className="w-8 h-8 flex items-center justify-center flex-shrink-0 cursor-pointer transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md"
                 onClick={() => setIsExpanded(!isExpanded)}
                 onMouseEnter={() => setIsLogoHovered(true)}
                 onMouseLeave={() => setIsLogoHovered(false)}
@@ -123,7 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                     <img
                       src={josudoLogo}
                       alt="Josudo Logo"
-                      className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light"
+                      className="w-8 h-8 object-contain flex-shrink-0 josudo-logo-light"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                         const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
@@ -146,11 +146,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             ) : (
               <>
                 <div className="flex items-center space-x-3">
-                  <div className="relative w-10 h-10 flex items-center justify-center flex-shrink-0">
+                  <div className="relative w-8 h-8 flex items-center justify-center flex-shrink-0">
                     <img
                       src={josudoLogo}
                       alt="Josudo Logo"
-                      className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light"
+                      className="w-8 h-8 object-contain flex-shrink-0 josudo-logo-light"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
                         const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
