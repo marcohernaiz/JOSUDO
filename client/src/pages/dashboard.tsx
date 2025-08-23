@@ -41,7 +41,7 @@ export default function Dashboard() {
         {/* Desktop Sidebar - Always visible */}
         {!isMobile && (
           <div className="fixed inset-y-0 left-0 z-40">
-            <div className={`h-full border-r shadow-xl ${
+            <div className={`h-full border-r shadow-xl transition-all duration-200 ${
               theme === 'dark' 
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50' 
                 : 'bg-white border-slate-200'
@@ -161,16 +161,18 @@ export default function Dashboard() {
           ></div>
         </div>}
 
-        {/* Main Content - Offset by sidebar width on desktop */}
+        {/* Main Content - Responsive layout based on screen size */}
         <div
-          className={`flex-1 flex flex-col relative z-30 ${!isMobile ? "ml-16" : ""} w-full overflow-hidden`}
+          className={`flex-1 flex flex-col relative z-30 w-full overflow-hidden ${!isMobile ? 'chat-main-content' : ''}`}
         >
           <div className="absolute top-0 left-0 w-full z-40">
             <Header />
           </div>
           <div className="flex-1 flex flex-col justify-end items-center pt-20 h-full">
-            <div className="flex-1 overflow-auto w-full max-h-full">
-              <ChatArea />
+            <div className="flex-1 overflow-auto w-full max-h-full flex justify-center">
+              <div className="w-full max-w-4xl mx-auto px-4">
+                <ChatArea />
+              </div>
             </div>
             <div className="flex-shrink-0 pb-6 w-full flex justify-center">
               <MessageInput />

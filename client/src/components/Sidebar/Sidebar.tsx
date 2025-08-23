@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAppContext } from "@/contexts/AppContext";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -47,12 +47,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
   const queryClient = useQueryClient();
   const [showSettings, setShowSettings] = useState(false);
   const [showBilling, setShowBilling] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(window.innerWidth >= 1200);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [isPrivateSpaceExpanded, setIsPrivateSpaceExpanded] = useState(true);
   const [isPrivateSpaceHovered, setIsPrivateSpaceHovered] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
 
+  // Handle responsive sidebar behavior
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1200) {
+        setIsExpanded(false);
+      } else {
+        setIsExpanded(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const createNewChat = async () => {
     try {
