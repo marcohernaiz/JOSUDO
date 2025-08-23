@@ -367,22 +367,35 @@ export const MessageInput: React.FC = () => {
             </TooltipProvider>
 
             {/* Tools */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-orange-100 dark:hover:bg-orange-800/30 hover:scale-105 group"
-                  >
-                    <span className="text-slate-600 dark:text-slate-300 text-lg">🔧</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Tools</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-orange-100 dark:hover:bg-orange-800/30 hover:scale-105 group"
+                >
+                  <Plus className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
+                <DropdownMenuItem className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <Image className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
+                  Create image
+                </DropdownMenuItem>
+                <DropdownMenuItem className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <Brain className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
+                  Think longer
+                </DropdownMenuItem>
+                <DropdownMenuItem className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <Zap className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
+                  Deep research
+                </DropdownMenuItem>
+                <DropdownMenuItem className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                  <Wifi className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
+                  Search web
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Center - Chat Mode Selector */}
