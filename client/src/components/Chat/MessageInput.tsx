@@ -397,8 +397,7 @@ export const MessageInput: React.FC = () => {
                   >
                     <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }} />
                     <span>
-                      {chatMode === 'assistant' && 'Customize JOSUDO AI assistant'}
-                      {chatMode === 'library' && 'Choose from our library'}
+                      {chatMode === 'assistant' ? 'Customize JOSUDO AI assistant' : 'Choose from our library'}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
