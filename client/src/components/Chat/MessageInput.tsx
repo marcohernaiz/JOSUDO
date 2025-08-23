@@ -393,7 +393,7 @@ export const MessageInput: React.FC = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="group h-10 px-4 rounded-full text-sm font-medium transition-all duration-300 bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-purple-200/50 dark:hover:shadow-purple-500/25 hover:scale-105 active:scale-95 shadow-md border border-indigo-300/50 dark:border-purple-400/30 flex items-center space-x-2 hover:border-indigo-400 dark:hover:border-purple-300 font-semibold"
+                    className="group h-10 px-4 rounded-full text-sm font-medium transition-all duration-300 bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-purple-200/50 dark:hover:shadow-purple-500/25 hover:scale-105 active:scale-95 shadow-md border border-indigo-300/50 dark:border-purple-400/30 flex items-center space-x-2 hover:border-indigo-400 dark:hover:border-purple-300 font-semibold"
                   >
                     <img src={josudoIcon} alt="Josudo" className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }} />
                     <span>
