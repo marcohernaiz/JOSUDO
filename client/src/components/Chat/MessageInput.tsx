@@ -72,11 +72,11 @@ const AI_MODELS = [
 ];
 
 const getStorageOptions = (isAuthenticated: boolean) => [
-  { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: SiGoogledrive, isConnected: isAuthenticated },
-  { id: 'icloud', name: 'iCloud', description: 'Save to Apple iCloud', icon: SiIcloud, isConnected: false },
+  { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: SiIpfs, isConnected: false },
+  { id: 'icloud', name: 'ICloud', description: 'Save to Apple iCloud', icon: SiIcloud, isConnected: false },
   { id: 'dropbox', name: 'Dropbox', description: 'Save to Dropbox', icon: SiDropbox, isConnected: false },
   { id: 'onedrive', name: 'OneDrive', description: 'Save to Microsoft OneDrive', icon: Cloud, isConnected: false },
-  { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: SiIpfs, isConnected: false },
+  { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: SiGoogledrive, isConnected: isAuthenticated },
 ];
 
 
@@ -505,29 +505,26 @@ export const MessageInput: React.FC = () => {
                     <currentStorageInfo.icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="ai-dropdown w-64">
+                <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
                   {STORAGE_OPTIONS.map((storage) => (
                     <DropdownMenuItem
                       key={storage.id}
                       onClick={() => handleStorageSelection(storage)}
-                      className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
+                      className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-3">
-                        <storage.icon className="text-purple-400 text-sm" />
+                        <storage.icon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                         <div className="flex-1">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-semibold text-white">{storage.name}</span>
-                            {storage.isConnected && (
-                              <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
-                                Connected
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-xs text-slate-300 group-hover:text-slate-200 mt-1 leading-relaxed">{storage.description}</p>
+                          <span className="font-medium">{storage.name}</span>
+                          {storage.isConnected && (
+                            <Badge variant="secondary" className="ml-2 text-xs px-2 py-0.5 font-medium">
+                              Connected
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       {selectedStorage === storage.id && (
-                        <span className="text-purple-400 text-sm">✓</span>
+                        <Check className="w-4 h-4 text-blue-500" />
                       )}
                     </DropdownMenuItem>
                   ))}
