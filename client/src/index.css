@@ -4,17 +4,32 @@
   .chat-main-content {
     margin-left: 256px !important;
   }
+  
+  .centered-chat-input {
+    left: calc(256px + (100vw - 256px) / 2) !important;
+    transform: translateX(-50%) translateY(-50%) !important;
+  }
 }
 
 @media (max-width: 1199px) {
   .chat-main-content {
     margin-left: 64px !important;
   }
+  
+  .centered-chat-input {
+    left: calc(64px + (100vw - 64px) / 2) !important;
+    transform: translateX(-50%) translateY(-50%) !important;
+  }
 }
 
 @media (max-width: 768px) {
   .chat-main-content {
     margin-left: 0 !important;
+  }
+  
+  .centered-chat-input {
+    left: 50% !important;
+    transform: translateX(-50%) translateY(-50%) !important;
   }
 }
 
