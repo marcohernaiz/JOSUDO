@@ -465,10 +465,12 @@ export const MessageInput: React.FC = () => {
                   {!showAllModels && (
                     <DropdownMenuItem
                       onClick={() => setShowAllModels(true)}
-                      className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                      className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between"
                     >
-                      <Plus className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
-                      Show more models
+                      <div className="flex items-center space-x-3">
+                        <Plus className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                        <span className="font-medium">More models</span>
+                      </div>
                     </DropdownMenuItem>
                   )}
                   {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 6)).map((model) => (
