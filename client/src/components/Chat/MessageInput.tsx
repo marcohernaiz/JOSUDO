@@ -3,6 +3,7 @@ import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import josudoIcon from '@assets/JOSUDO logo icon_1752491258890.png';
+import voiceConversationIcon from '@assets/generated_images/Voice_conversation_icon_99173636.png';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -276,7 +277,7 @@ export const MessageInput: React.FC = () => {
                           size="sm"
                           className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
                         >
-                          <Phone className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                          <img src={voiceConversationIcon} alt="Voice conversation" className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
