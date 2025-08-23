@@ -3,7 +3,7 @@ import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import josudoIcon from '@assets/JOSUDO logo icon_1752491258890.png';
-import voiceConversationIcon from '@assets/generated_images/Voice_waveform_icon_replica_6758a9ae.png';
+import voiceConversationIcon from '@assets/generated_images/Symmetric_six-line_voice_icon_a7cf4735.png';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
