@@ -277,7 +277,7 @@ export const MessageInput: React.FC = () => {
                           size="sm"
                           className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
                         >
-                          <img src={voiceIcon} alt="Voice conversation" className="h-8 w-8" />
+                          <img src={voiceIcon} alt="Voice conversation" className="h-7 w-7" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
