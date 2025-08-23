@@ -59,12 +59,12 @@ import {
 } from 'react-icons/si';
 
 const AI_MODELS = [
-  { id: 'deepseek-v3', name: 'Josudo', icon: () => <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(471%) hue-rotate(349deg) brightness(101%) contrast(101%)' }} /> },
-  { id: 'gpt-5', name: 'ChatGPT 5.0', icon: SiOpenai },
-  { id: 'claude-3-5-sonnet', name: 'Claude 4.0', icon: SiAnthropic },
-  { id: 'gemini-pro', name: 'Gemini 2.5+', icon: SiGoogle },
-  { id: 'grok-beta', name: 'Grok 4.0', icon: SiX },
   { id: 'perplexity', name: 'Perplexity', icon: Brain },
+  { id: 'grok-beta', name: 'Grok 4.0', icon: SiX },
+  { id: 'gemini-pro', name: 'Gemini 2.5+', icon: SiGoogle },
+  { id: 'claude-3-5-sonnet', name: 'Claude 4.0', icon: SiAnthropic },
+  { id: 'gpt-5', name: 'ChatGPT 5.0', icon: SiOpenai },
+  { id: 'deepseek-v3', name: 'Josudo', icon: () => <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(471%) hue-rotate(349deg) brightness(101%) contrast(101%)' }} /> },
   { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', icon: SiMeta },
   { id: 'gpt-4', name: 'ChatGPT 4.0', icon: SiOpenai },
   { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet', icon: SiAnthropic },
@@ -462,6 +462,15 @@ export const MessageInput: React.FC = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
+                  {!showAllModels && (
+                    <DropdownMenuItem
+                      onClick={() => setShowAllModels(true)}
+                      className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    >
+                      <Plus className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
+                      Show more models
+                    </DropdownMenuItem>
+                  )}
                   {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 6)).map((model) => (
                     <DropdownMenuItem
                       key={model.id}
@@ -477,15 +486,6 @@ export const MessageInput: React.FC = () => {
                       )}
                     </DropdownMenuItem>
                   ))}
-                  {!showAllModels && (
-                    <DropdownMenuItem
-                      onClick={() => setShowAllModels(true)}
-                      className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                    >
-                      <Plus className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
-                      Show more models
-                    </DropdownMenuItem>
-                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
