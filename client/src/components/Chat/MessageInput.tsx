@@ -230,7 +230,7 @@ export const MessageInput: React.FC = () => {
             />
 
             {/* Right side controls inside input */}
-            <div className="absolute right-3 top-3 flex items-center space-x-1">
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center space-x-0.5">
               {currentMessage.trim() || attachedFiles.length > 0 ? (
                 /* Send/Stop button when typing */
                 <Button
@@ -258,9 +258,9 @@ export const MessageInput: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                          className="h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
                         >
-                          <Mic className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                          <Mic className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -292,9 +292,9 @@ export const MessageInput: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                          className="h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
                         >
-                          <VideoIcon className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                          <VideoIcon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
