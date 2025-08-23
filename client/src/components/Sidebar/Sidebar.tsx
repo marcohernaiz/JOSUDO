@@ -15,7 +15,6 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import josudoLogo from "@assets/JOSUDO ICON_1752512850035.png";
 import josudoText from "@assets/josudo logo just text_1752513004427.png";
-import folderIcon from "@assets/folder-icon.png";
 import { 
   Plus, 
   Search, 
@@ -238,7 +237,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
               className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
               title={!isExpanded ? "Spaces" : ""}
             >
-              <img src={folderIcon} alt="Spaces" className="w-4 h-4 flex-shrink-0" />
+              <FolderOpen className="w-4 h-4 flex-shrink-0 text-slate-400" />
               {isExpanded && <span className="ml-2">Spaces</span>}
             </Button>
 
