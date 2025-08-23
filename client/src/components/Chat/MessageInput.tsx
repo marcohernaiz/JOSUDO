@@ -333,7 +333,7 @@ export const MessageInput: React.FC = () => {
                           onClick={handleDictation}
                           className={`h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 ${
                             isListening 
-                              ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                              ? 'bg-blue-500 hover:bg-blue-600 animate-slow-pulse' 
                               : 'hover:bg-slate-100 dark:hover:bg-slate-700'
                           }`}
                         >
