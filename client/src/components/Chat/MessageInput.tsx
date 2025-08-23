@@ -93,7 +93,7 @@ export const MessageInput: React.FC = () => {
   const [chatMode, setChatMode] = useState('assistant');
   const [showChatModeOptions, setShowChatModeOptions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const STORAGE_OPTIONS = getStorageOptions(isAuthenticated);
 
   // Check if user just connected storage or is authenticated
@@ -125,13 +125,13 @@ export const MessageInput: React.FC = () => {
 
   const handleSendMessage = () => {
     if ((!currentMessage.trim() && attachedFiles.length === 0) || isLoading) return;
-    
+
     // Immediately clear input and files before sending
     const messageToSend = currentMessage;
     const filesToSend = [...attachedFiles];
     setCurrentMessage('');
     setAttachedFiles([]);
-    
+
     sendMessage(selectedModel, filesToSend, messageToSend);
   };
 
@@ -156,35 +156,35 @@ export const MessageInput: React.FC = () => {
       const maxSize = 10 * 1024 * 1024; // 10MB
       // Note: Base64 encoding increases size by ~33%, so effective limit is lower
       const effectiveMaxSize = maxSize * 0.75; // ~7.5MB to account for base64 expansion
-      
+
       if (!validTypes.includes(file.type) && !file.name.match(/\.(txt|md|js|ts|jsx|tsx|py|java|cpp|c|h|css|html|xml|yaml|yml|json)$/i)) {
         alert(`File type not supported: ${file.name}`);
         return false;
       }
-      
+
       if (file.size > effectiveMaxSize) {
         alert(`File too large: ${file.name}. Maximum size is ${Math.round(effectiveMaxSize / 1024 / 1024 * 10) / 10}MB (due to encoding overhead).`);
         return false;
       }
-      
+
       return true;
     });
-    
+
     setAttachedFiles(prev => {
       const newFiles = [...prev, ...validFiles];
-      
+
       // Check total payload size
       const totalSize = newFiles.reduce((sum, file) => sum + file.size, 0);
       const maxTotalSize = 20 * 1024 * 1024; // 20MB total limit
-      
+
       if (totalSize > maxTotalSize) {
         alert(`Total file size too large. Please keep total under ${maxTotalSize / 1024 / 1024}MB.`);
         return prev; // Don't add the files
       }
-      
+
       return newFiles;
     });
-    
+
     // Reset the input so the same file can be selected again
     e.target.value = '';
   };
@@ -214,7 +214,7 @@ export const MessageInput: React.FC = () => {
   return (
     <div className="w-full max-w-4xl mx-auto">
 
-      
+
       <div className="ai-input-lines bg-slate-250/90 dark:bg-slate-800/60 rounded-xl p-6 border border-slate-200/60 dark:border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
         {/* First Line - Input Box Only */}
         <div className="flex items-center justify-between w-full">
@@ -227,7 +227,7 @@ export const MessageInput: React.FC = () => {
               placeholder="Ask me anything..."
               className="w-full h-14 px-6 pr-32 bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 rounded-lg text-slate-600 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg"
             />
-            
+
             {/* Right side controls inside input */}
             <div className="absolute right-3 top-3 flex items-center space-x-1">
               {currentMessage.trim() || attachedFiles.length > 0 ? (
@@ -347,7 +347,7 @@ export const MessageInput: React.FC = () => {
                     variant="ghost"
                     size="sm"
                     onClick={handleFileAttach}
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-blue-100 dark:hover:bg-blue-800/30 hover:scale-105 group"
                   >
                     <Paperclip className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                   </Button>
@@ -373,7 +373,7 @@ export const MessageInput: React.FC = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-orange-100 dark:hover:bg-orange-800/30 hover:scale-105 group"
                   >
                     <span className="text-slate-600 dark:text-slate-300 text-lg">🔧</span>
                   </Button>
@@ -442,7 +442,7 @@ export const MessageInput: React.FC = () => {
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 p-0"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 p-0 hover:bg-sky-100 dark:hover:bg-sky-800/30 hover:scale-105 group"
                     title={`AI Model: ${currentModelInfo.name}`}
                   >
                     <currentModelInfo.icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
@@ -534,7 +534,7 @@ export const MessageInput: React.FC = () => {
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 p-0"
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 p-0 hover:bg-purple-100 dark:hover:bg-purple-800/30 hover:scale-105 group"
                     title={`Storage: ${currentStorageInfo.name}`}
                   >
                     <currentStorageInfo.icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
