@@ -393,9 +393,9 @@ export const MessageInput: React.FC = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-10 px-4 rounded-full text-sm font-medium transition-all duration-200 bg-blue-500 text-white hover:bg-blue-600 shadow-sm border border-slate-200/60 dark:border-slate-600/30 flex items-center space-x-2"
+                    className="group h-10 px-4 rounded-full text-sm font-medium transition-all duration-300 bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-200/50 dark:hover:shadow-blue-500/25 hover:scale-105 active:scale-95 shadow-sm border border-slate-200/60 dark:border-slate-600/30 flex items-center space-x-2 hover:border-blue-300 dark:hover:border-blue-400"
                   >
-                    <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }} />
+                    <img src={josudoIcon} alt="Josudo" className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }} />
                     <span>
                       JOSUDO AI assistant
                     </span>
