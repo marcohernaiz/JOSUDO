@@ -15,6 +15,24 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import josudoLogo from "@assets/JOSUDO ICON_1752512850035.png";
 import josudoText from "@assets/josudo logo just text_1752513004427.png";
+import { 
+  Plus, 
+  Search, 
+  FolderOpen, 
+  Settings, 
+  MessageSquare, 
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+  MoreVertical,
+  Edit,
+  X,
+  Loader2,
+  BookOpen,
+  Users,
+  Wrench,
+  History
+} from 'lucide-react';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -32,6 +50,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [isPrivateSpaceExpanded, setIsPrivateSpaceExpanded] = useState(true);
   const [isPrivateSpaceHovered, setIsPrivateSpaceHovered] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+
 
   const createNewChat = async () => {
     try {
@@ -46,7 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
           const data = await response.json();
           console.log("Created new chat session:", data.sessionId);
           setCurrentSessionId(data.sessionId);
-          
+
           // Invalidate chat history to refresh the list
           queryClient.invalidateQueries({ queryKey: ["/api/google-drive/chat-history"] });
         } else {
@@ -71,6 +91,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
       onSwitchToChat?.();
       onClose?.();
     }
+  };
+
+  const startNewChat = () => {
+    createNewChat();
   };
 
   return (
@@ -148,7 +172,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                     Josudo
                   </span>
                 </div>
-                
+
                 <Button
                   variant="ghost"
                   size="sm"
@@ -167,7 +191,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                 </Button>
               </>
             )}
-            
+
             {/* Mobile close button */}
             {isExpanded && (
               <Button
@@ -181,14 +205,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             )}
           </div>
 
-          
+
         </div>
 
         {/* Menu Options */}
         <div className="p-4">
           <div className="space-y-1">
             <Button
-              onClick={createNewChat}
+              onClick={startNewChat}
               variant="ghost"
               className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
               title={!isExpanded ? "New Chat" : ""}
@@ -196,9 +220,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
               <span className="text-slate-400 text-lg flex-shrink-0">💬</span>
               {isExpanded && <span className="ml-2">New Chat</span>}
             </Button>
-            
+
             <Button
               variant="ghost"
+              onClick={() => setShowSearch(!showSearch)}
               className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
               title={!isExpanded ? "Search" : ""}
             >
@@ -208,66 +233,42 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
 
             <Button
               variant="ghost"
-              onClick={() => setIsPrivateSpaceExpanded(!isPrivateSpaceExpanded)}
-              onMouseEnter={() => setIsPrivateSpaceHovered(true)}
-              onMouseLeave={() => setIsPrivateSpaceHovered(false)}
+              onClick={() => {/* Handle knowledge base */}}
               className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
-              title={!isExpanded ? "My private space" : ""}
+              title={!isExpanded ? "Knowledge Base" : ""}
             >
-              <span className="text-slate-400 text-lg flex-shrink-0">🏠</span>
-              {isExpanded && (
-                <>
-                  <span className="ml-2">My private space</span>
-                  {isPrivateSpaceHovered && (
-                    <svg 
-                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ml-auto ${isPrivateSpaceExpanded ? 'rotate-90' : ''}`}
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  )}
-                </>
-              )}
+              <span className="text-slate-400 text-lg flex-shrink-0">📚</span>
+              {isExpanded && <span className="ml-2">Knowledge Base</span>}
             </Button>
-
-            {/* Collapsible subsections */}
-            {isExpanded && isPrivateSpaceExpanded && (
-              <div className="ml-6 space-y-1">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4"
-                >
-                  <span className="text-slate-400 text-lg flex-shrink-0">📚</span>
-                  <span className="ml-2">Knowledge Base</span>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4"
-                >
-                  <span className="text-slate-400 text-lg flex-shrink-0">👥</span>
-                  <span className="ml-2">Digital Personas</span>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4"
-                >
-                  <span className="text-slate-400 text-lg flex-shrink-0">🔧</span>
-                  <span className="ml-2">Tools</span>
-                </Button>
-              </div>
-            )}
 
             <Button
               variant="ghost"
+              onClick={() => {/* Handle digital personas */}}
               className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
-              title={!isExpanded ? "Create shared space" : ""}
+              title={!isExpanded ? "Digital Personas" : ""}
             >
-              <span className="text-slate-400 text-lg flex-shrink-0">➕</span>
-              {isExpanded && <span className="ml-2">Create shared space</span>}
+              <span className="text-slate-400 text-lg flex-shrink-0">👥</span>
+              {isExpanded && <span className="ml-2">Digital Personas</span>}
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() => {/* Handle tools */}}
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
+              title={!isExpanded ? "Tools" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">🔧</span>
+              {isExpanded && <span className="ml-2">Tools</span>}
+            </Button>
+
+            <Button
+              variant="ghost"
+              onClick={() => {/* Handle history */}}
+              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
+              title={!isExpanded ? "History" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">⏳</span>
+              {isExpanded && <span className="ml-2">History</span>}
             </Button>
           </div>
         </div>
@@ -368,7 +369,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             </div>
           </div>
         )}
-        
+
         {/* Sidebar Footer for non-authenticated users */}
         {!isAuthenticated && (
           <div className="p-4 border-t border-slate-300 dark:border-slate-700">
