@@ -9,10 +9,10 @@ export const ThemeToggle: React.FC = () => {
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className="fixed top-2 right-2 z-50 p-2 rounded-full bg-white/10 dark:bg-black/10 backdrop-blur-sm hover:bg-white/20 dark:hover:bg-black/20 transition-all duration-200"
+      className="fixed top-4 right-4 z-50 p-3 rounded-full bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-700 transition-all duration-200 shadow-lg hover:shadow-xl"
       aria-label="Toggle theme"
     >
-      <span className="text-2xl">
+      <span className="text-xl">
         {theme === 'dark' ? '🌙' : '☀️'}
       </span>
     </Button>
