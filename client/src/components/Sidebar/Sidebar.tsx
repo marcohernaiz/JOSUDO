@@ -52,6 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
   const [isPrivateSpaceExpanded, setIsPrivateSpaceExpanded] = useState(true);
   const [isPrivateSpaceHovered, setIsPrivateSpaceHovered] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [isHistoryExpanded, setIsHistoryExpanded] = useState(true);
 
 
   const createNewChat = async () => {
@@ -274,22 +275,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
 
             <Button
               variant="ghost"
-              onClick={() => {/* Handle history */}}
-              className={`${isExpanded ? "w-full justify-start" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
+              onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
+              className={`${isExpanded ? "w-full justify-between" : "w-10 h-10 p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 -mx-2 px-4`}
               title={!isExpanded ? "History" : ""}
             >
-              <span className="text-slate-400 text-lg flex-shrink-0">⏳</span>
-              {isExpanded && <span className="ml-2">History</span>}
+              <div className="flex items-center">
+                <span className="text-slate-400 text-lg flex-shrink-0">⏳</span>
+                {isExpanded && <span className="ml-2">History</span>}
+              </div>
+              {isExpanded && (
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isHistoryExpanded ? 'rotate-0' : '-rotate-90'}`} />
+              )}
             </Button>
           </div>
+        
+          {/* Google Drive Chat History - nested under History */}
+          {isExpanded && isHistoryExpanded && (
+            <div className="px-4 pb-2">
+              <div className="border-l-2 border-slate-200 dark:border-slate-700 ml-2 pl-4">
+                <GoogleDriveChatHistory onSwitchToChat={onSwitchToChat} />
+              </div>
+            </div>
+          )}
         </div>
-
-        {/* Google Drive Chat History */}
-        {isExpanded && (
-          <div className="flex-1 overflow-hidden">
-            <GoogleDriveChatHistory onSwitchToChat={onSwitchToChat} />
-          </div>
-        )}
 
         {/* User Profile Section */}
         {isAuthenticated && (

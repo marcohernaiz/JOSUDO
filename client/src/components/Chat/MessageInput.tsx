@@ -3,7 +3,6 @@ import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import josudoIcon from '@assets/JOSUDO logo icon_1752491258890.png';
-import voiceConversationIcon from '@assets/voice_conversation_icon_new.png';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -60,24 +59,24 @@ import {
 } from 'react-icons/si';
 
 const AI_MODELS = [
-  { id: 'perplexity', name: 'Perplexity', icon: Brain },
-  { id: 'grok-beta', name: 'Grok 4.0', icon: SiX },
-  { id: 'gemini-pro', name: 'Gemini 2.5+', icon: SiGoogle },
-  { id: 'claude-3-5-sonnet', name: 'Claude 4.0', icon: SiAnthropic },
-  { id: 'gpt-5', name: 'ChatGPT 5.0', icon: SiOpenai },
-  { id: 'deepseek-v3', name: 'Josudo', icon: () => <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(471%) hue-rotate(349deg) brightness(101%) contrast(101%)' }} /> },
-  { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', icon: SiMeta },
-  { id: 'gpt-4', name: 'ChatGPT 4.0', icon: SiOpenai },
-  { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet', icon: SiAnthropic },
-  { id: 'llama-3', name: 'Llama 3', icon: SiMeta },
+  { id: 'deepseek-v3', name: 'Josudo', description: 'Advanced AI model', icon: () => <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(471%) hue-rotate(349deg) brightness(101%) contrast(101%)' }} />, isFree: true },
+  { id: 'perplexity', name: 'Perplexity', description: 'Perplexity AI Search', icon: Brain, isFree: false },
+  { id: 'grok-beta', name: 'Grok', description: 'xAI Grok', icon: SiX, isFree: false },
+  { id: 'gemini-pro', name: 'Gemini', description: 'Google Gemini Pro', icon: SiGoogle, isFree: false },
+  { id: 'claude-3-5-sonnet', name: 'Claude', description: 'Anthropic Claude Direct API', icon: SiAnthropic, isFree: false },
+  { id: 'gpt-4', name: 'ChatGPT', description: 'OpenAI GPT-4', icon: SiOpenai, isFree: false },
+  { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', description: 'Meta Llama 3.1 8B via Replicate', icon: SiMeta, isFree: false },
+  { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet', description: 'Premium Claude via Replicate', icon: SiAnthropic, isFree: false },
+  { id: 'gpt-5', name: 'GPT-5', description: 'OpenAI GPT-5 via Replicate', icon: SiOpenai, isFree: false },
+  { id: 'llama-3', name: 'Llama', description: 'Meta Llama 3', icon: SiMeta, isFree: false },
 ];
 
 const getStorageOptions = (isAuthenticated: boolean) => [
-  { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: SiIpfs, isConnected: false },
-  { id: 'icloud', name: 'ICloud', description: 'Save to Apple iCloud', icon: SiIcloud, isConnected: false },
+  { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: SiGoogledrive, isConnected: isAuthenticated },
+  { id: 'icloud', name: 'iCloud', description: 'Save to Apple iCloud', icon: SiIcloud, isConnected: false },
   { id: 'dropbox', name: 'Dropbox', description: 'Save to Dropbox', icon: SiDropbox, isConnected: false },
   { id: 'onedrive', name: 'OneDrive', description: 'Save to Microsoft OneDrive', icon: Cloud, isConnected: false },
-  { id: 'google-drive', name: 'Google Drive', description: 'Save to Google Drive', icon: SiGoogledrive, isConnected: isAuthenticated },
+  { id: 'ipfs', name: 'IPFS', description: 'Decentralized storage', icon: SiIpfs, isConnected: false },
 ];
 
 
@@ -230,7 +229,7 @@ export const MessageInput: React.FC = () => {
             />
 
             {/* Right side controls inside input */}
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center space-x-0.5">
+            <div className="absolute right-3 top-3 flex items-center space-x-1">
               {currentMessage.trim() || attachedFiles.length > 0 ? (
                 /* Send/Stop button when typing */
                 <Button
@@ -258,9 +257,9 @@ export const MessageInput: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                          className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
                         >
-                          <Mic className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                          <Mic className="h-4 w-4 text-slate-600 dark:text-slate-300" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -275,9 +274,9 @@ export const MessageInput: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                          className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
                         >
-                          <img src={voiceConversationIcon} alt="Voice conversation" className="h-10 w-10" />
+                          <Phone className="h-4 w-4 text-slate-600 dark:text-slate-300" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -292,9 +291,9 @@ export const MessageInput: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+                          className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
                         >
-                          <VideoIcon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
+                          <VideoIcon className="h-4 w-4 text-slate-600 dark:text-slate-300" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -381,7 +380,7 @@ export const MessageInput: React.FC = () => {
               <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
                 <DropdownMenuItem className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
                   <Image className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
-                  Create image
+                  Create Image
                 </DropdownMenuItem>
                 <DropdownMenuItem className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
                   <Brain className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
@@ -392,7 +391,7 @@ export const MessageInput: React.FC = () => {
                   Deep research
                 </DropdownMenuItem>
                 <DropdownMenuItem className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
-                  <Wifi className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
+                  <Settings className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
                   Search web
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -462,15 +461,26 @@ export const MessageInput: React.FC = () => {
                     <currentModelInfo.icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
+                <DropdownMenuContent align="start" className="ai-dropdown w-64">
                   {!showAllModels && (
                     <DropdownMenuItem
                       onClick={() => setShowAllModels(true)}
-                      className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between"
+                      className="ai-dropdown-item group flex items-center justify-center p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1 border-b border-slate-600 mb-2"
                     >
-                      <div className="flex items-center space-x-3">
-                        <Plus className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                        <span className="font-medium">More models</span>
+                      <div className="flex items-center space-x-2">
+                        <Plus className="text-sky-400 text-sm" />
+                        <span className="font-medium text-white">Show more models</span>
+                      </div>
+                    </DropdownMenuItem>
+                  )}
+                  {showAllModels && (
+                    <DropdownMenuItem
+                      onClick={() => setShowAllModels(false)}
+                      className="ai-dropdown-item group flex items-center justify-center p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1 border-b border-slate-600 mb-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <XCircle className="text-sky-400 text-sm" />
+                        <span className="font-medium text-white">Show fewer models</span>
                       </div>
                     </DropdownMenuItem>
                   )}
@@ -478,15 +488,52 @@ export const MessageInput: React.FC = () => {
                     <DropdownMenuItem
                       key={model.id}
                       onClick={() => setSelectedModel(model.id)}
-                      className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between"
+                      className="ai-dropdown-item group relative p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
-                      <div className="flex items-center space-x-3">
-                        <model.icon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                        <span className="font-medium">{model.name}</span>
-                      </div>
-                      {selectedModel === model.id && (
-                        <Check className="w-4 h-4 text-blue-500" />
+                      {/* Connect button in upper right corner - only for non-free models */}
+                      {!model.isFree && (
+                        <div className="absolute top-2 right-2 group/connect">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Handle connect logic here
+                            }}
+                            className="h-6 w-6 p-1 bg-green-800 hover:bg-green-900 rounded-full text-white"
+                          >
+                            <Plug className="w-3 h-3" />
+                          </Button>
+                          <div className="absolute top-full right-0 mt-2 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover/connect:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                            Link your account
+                          </div>
+                        </div>
                       )}
+
+                      <div className="flex items-center justify-between pr-8">
+                        <div className="flex items-center space-x-3 flex-1">
+                          <model.icon className="text-sky-400 text-sm" />
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-semibold text-white ai-model-name">{model.name}</span>
+                              {model.isFree && (
+                                <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
+                                  Free
+                                </Badge>
+                              )}
+                              {!model.isFree && (
+                                <Badge variant="outline" className="text-xs bg-amber-900/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 font-medium">
+                                  Premium
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-slate-300 group-hover:text-slate-100 mt-1 leading-relaxed ai-model-description">{model.description}</p>
+                          </div>
+                        </div>
+                        {selectedModel === model.id && (
+                          <span className="text-sky-400 text-sm">✓</span>
+                        )}
+                      </div>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
@@ -506,26 +553,29 @@ export const MessageInput: React.FC = () => {
                     <currentStorageInfo.icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
+                <DropdownMenuContent align="start" className="ai-dropdown w-64">
                   {STORAGE_OPTIONS.map((storage) => (
                     <DropdownMenuItem
                       key={storage.id}
                       onClick={() => handleStorageSelection(storage)}
-                      className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between"
+                      className="ai-dropdown-item group flex items-center justify-between p-3 cursor-pointer transition-all duration-300 rounded-lg mb-1"
                     >
                       <div className="flex items-center space-x-3">
-                        <storage.icon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                        <storage.icon className="text-purple-400 text-sm" />
                         <div className="flex-1">
-                          <span className="font-medium">{storage.name}</span>
-                          {storage.isConnected && (
-                            <Badge variant="secondary" className="ml-2 text-xs px-2 py-0.5 font-medium">
-                              Connected
-                            </Badge>
-                          )}
+                          <div className="flex items-center space-x-2">
+                            <span className="font-semibold text-white">{storage.name}</span>
+                            {storage.isConnected && (
+                              <Badge variant="secondary" className="ai-badge text-xs px-2 py-0.5 font-medium">
+                                Connected
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-300 group-hover:text-slate-200 mt-1 leading-relaxed">{storage.description}</p>
                         </div>
                       </div>
                       {selectedStorage === storage.id && (
-                        <Check className="w-4 h-4 text-blue-500" />
+                        <span className="text-purple-400 text-sm">✓</span>
                       )}
                     </DropdownMenuItem>
                   ))}
