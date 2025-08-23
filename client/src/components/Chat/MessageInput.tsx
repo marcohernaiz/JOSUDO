@@ -288,7 +288,7 @@ export const MessageInput: React.FC = () => {
         : ''
     } ${!hasMessages ? 'centered-chat-input' : ''}`}>
 
-      <div className="ai-input-lines bg-slate-250/90 dark:bg-slate-800/60 rounded-xl p-4 border border-slate-200/60 dark:border-slate-700/30 backdrop-blur-sm shadow-2xl w-full"></div>
+      <div className="ai-input-lines bg-slate-250/90 dark:bg-slate-800/60 rounded-xl p-6 border border-slate-200/60 dark:border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
         {/* First Line - Input Box Only */}
         <div className="flex items-center justify-between w-full">
           <div className="relative flex-1">
@@ -391,7 +391,7 @@ export const MessageInput: React.FC = () => {
 
         {/* Attached Files Preview */}
         {attachedFiles.length > 0 && (
-          <div className="mt-2 p-2 bg-slate-100 dark:bg-slate-700/50 rounded-lg"></div>
+          <div className="mt-4 p-3 bg-slate-100 dark:bg-slate-700/50 rounded-lg">
             <div className="flex flex-wrap gap-2">
               {attachedFiles.map((file, index) => {
                 const FileIconComponent = getFileIcon(file);
@@ -418,7 +418,7 @@ export const MessageInput: React.FC = () => {
         )}
 
         {/* Second Line - All Controls */}
-        <div className="flex items-center justify-between w-full mt-2"></div>
+        <div className="flex items-center justify-between w-full mt-4">
           {/* Left side - Tools */}
           <div className="flex items-center space-x-3">
             {/* File Upload */}
