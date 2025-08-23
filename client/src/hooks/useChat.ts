@@ -38,14 +38,14 @@ export const useChat = () => {
       // Use streaming for all requests
       return new Promise(async (resolve, reject) => {
         setIsStreaming(true);
-        
+
         // Add user message immediately
         let messageContent = message;
         if (files && files.length > 0) {
           const fileList = files.map(f => `📎 ${f.name}`).join('\n');
           messageContent = message + (message ? '\n\n' : '') + `Attached files:\n${fileList}`;
         }
-        
+
         const userMessage: ChatMessage = {
           id: Date.now().toString(),
           role: "user",
@@ -68,7 +68,7 @@ export const useChat = () => {
 
         // Prepare request data - convert files to base64 for simple handling
         let processedFiles: Array<{name: string, content: string, type: string}> = [];
-        
+
         if (files && files.length > 0) {
           // Convert files to base64
           const filePromises = files.map(file => 
@@ -91,7 +91,7 @@ export const useChat = () => {
               reader.readAsDataURL(file);
             })
           );
-          
+
           try {
             processedFiles = await Promise.all(filePromises);
           } catch (error) {
@@ -103,7 +103,7 @@ export const useChat = () => {
         const headers: HeadersInit = {
           'Content-Type': 'application/json',
         };
-        
+
         const body = JSON.stringify({
           message,
           sessionId,
@@ -120,7 +120,7 @@ export const useChat = () => {
         }).then(async response => {
           if (!response.ok) {
             console.error('Network response not ok:', response.status, response.statusText);
-            
+
             // Provide specific error messages for common issues
             let errorMessage = `Network response was not ok: ${response.status}`;
             if (response.status === 413) {
@@ -128,7 +128,7 @@ export const useChat = () => {
             } else if (response.status === 400) {
               errorMessage = 'Bad request. Please check your files and try again.';
             }
-            
+
             throw new Error(errorMessage);
           }
 
@@ -148,22 +148,22 @@ export const useChat = () => {
 
                 const chunk = decoder.decode(value, { stream: true });
                 buffer += chunk;
-                
+
                 // Process complete lines
                 const lines = buffer.split('\n');
                 buffer = lines.pop() || ''; // Keep incomplete line in buffer
 
                 for (const line of lines) {
                   if (line.trim() === '') continue; // Skip empty lines
-                  
+
                   if (line.startsWith('data: ')) {
                     try {
                       const jsonStr = line.slice(6).trim();
                       if (jsonStr === '') continue; // Skip empty data
-                      
+
                       const data = JSON.parse(jsonStr);
                       console.log('Received streaming data:', data);
-                      
+
                       if (data.type === 'chunk') {
                         // Update the streaming message content
                         setMessages((prev) => 
@@ -225,7 +225,7 @@ export const useChat = () => {
       if (data.sessionId && !activeSession) {
         queryClient.invalidateQueries({ queryKey: ["/api/google-drive/chat-history"] });
       }
-      
+
       // Always refresh the current chat session to get updated content
       if (currentSessionId) {
         queryClient.invalidateQueries({ 

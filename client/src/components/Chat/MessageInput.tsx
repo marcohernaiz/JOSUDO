@@ -83,7 +83,7 @@ const getStorageOptions = (isAuthenticated: boolean) => [
 
 
 export const MessageInput: React.FC = () => {
-  const { currentMessage, setCurrentMessage, sendMessage, isLoading } = useChat();
+  const { currentMessage, setCurrentMessage, sendMessage, isLoading, messages } = useChat();
   const { integrations } = useAppContext();
   const { isAuthenticated } = useAuth();
   const [selectedModel, setSelectedModel] = useState('deepseek-v3');
@@ -212,9 +212,15 @@ export const MessageInput: React.FC = () => {
     isConnected: false 
   };
 
-  return (
-    <div className="w-full max-w-4xl mx-auto">
+  // Check if this is the first interaction (no messages sent yet)
+  const hasMessages = messages.length > 0;
 
+  return (
+    <div className={`w-full max-w-4xl mx-auto ${
+      !hasMessages 
+        ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20' 
+        : ''
+    }`}>
 
       <div className="ai-input-lines bg-slate-250/90 dark:bg-slate-800/60 rounded-xl p-6 border border-slate-200/60 dark:border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
         {/* First Line - Input Box Only */}
