@@ -393,10 +393,12 @@ export const MessageInput: React.FC = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
-                    title="JOSUDO AI Assistant"
+                    className="h-10 px-4 rounded-full text-sm font-medium transition-all duration-200 bg-blue-500 text-white hover:bg-blue-600 shadow-sm border border-slate-200/60 dark:border-slate-600/30 flex items-center space-x-2"
                   >
-                    <img src={josudoIcon} alt="Josudo" className="w-5 h-5" style={{ filter: 'brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(471%) hue-rotate(349deg) brightness(101%) contrast(101%)' }} />
+                    <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }} />
+                    <span>
+                      {chatMode === 'assistant' ? 'Customize JOSUDO AI assistant' : 'Choose from our library'}
+                    </span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center" className="w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
@@ -411,7 +413,7 @@ export const MessageInput: React.FC = () => {
                         : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                   >
-                    Customize your AI assistant
+                    Customize JOSUDO AI assistant
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
@@ -424,7 +426,7 @@ export const MessageInput: React.FC = () => {
                         : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                   >
-                    Choose another one from our library
+                    Choose from our library
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
