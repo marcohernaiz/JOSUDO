@@ -8,7 +8,7 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <div className="px-3 relative z-10">
+    <div className="p-3 relative z-10">
       <div className="flex items-center justify-end">
         <div className="flex items-center space-x-4">
           {!isAuthenticated && (
