@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChatMessage } from "@/types";
 import { useEffect, useRef, useState } from "react";
+import { Database, Bot, MessageSquare, Link, Sparkles } from "lucide-react";
 
 // Component to render message content with image detection
 const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ content, isUser }) => {
@@ -232,18 +233,95 @@ export const ChatArea: React.FC = () => {
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center px-6">
-        <div className="text-center max-w-md">
-          <div className="text-6xl mb-4">✨</div>
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">
-            Welcome to Josudo
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-4">
-            Start a new conversation or select a chat from your Google Drive
-            history.
-          </p>
-          <div className="text-sm text-slate-500 dark:text-slate-500">
-            Your conversations are automatically saved to Google Drive.
+      <div className="flex-1 flex items-center justify-center px-6 bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <div className="text-center max-w-6xl w-full">
+          {/* Main Hero Title */}
+          <div className="mb-12">
+            <div className="flex items-center justify-center mb-6">
+              <Sparkles className="w-12 h-12 text-indigo-600 dark:text-indigo-400 mr-3" />
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Welcome to Josudo
+              </h1>
+            </div>
+            <p className="text-xl text-slate-600 dark:text-slate-300 mb-2 max-w-3xl mx-auto">
+              Your AI assistant platform that puts you in control
+            </p>
+            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+              Connect your existing accounts, use any AI model, and keep your data where it belongs—with you.
+            </p>
+          </div>
+
+          {/* 4-Column Grid of Differentiators */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            {/* Own Your Data */}
+            <div className="group bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:border-indigo-300 dark:hover:border-indigo-500">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Database className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-300">
+                  Own Your Data
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  All your chats, docs, and media stay in your cloud (Google, Apple, Microsoft). JOSUDO just connects you.
+                </p>
+              </div>
+            </div>
+
+            {/* One Subscription. All AI Models */}
+            <div className="group bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:border-purple-300 dark:hover:border-purple-500">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Bot className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
+                  One Subscription. All AI Models.
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Use the best AI for every task—without paying for multiple plans.
+                </p>
+              </div>
+            </div>
+
+            {/* Unified Conversations */}
+            <div className="group bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:border-green-300 dark:hover:border-green-500">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <MessageSquare className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+                  Unified Conversations
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Keep all chats and knowledge in one place, searchable and organized.
+                </p>
+              </div>
+            </div>
+
+            {/* Bring Your Own Accounts */}
+            <div className="group bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:border-orange-300 dark:hover:border-orange-500">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Link className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-300">
+                  Bring Your Own Accounts
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Already subscribed? Connect it to JOSUDO—no double-paying.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Call to Action */}
+          <div className="mt-12">
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+              Ready to get started? Type your first message below or browse your chat history.
+            </p>
+            <div className="text-xs text-slate-400 dark:text-slate-500">
+              Your conversations are automatically saved to your connected cloud storage.
+            </div>
           </div>
         </div>
       </div>
