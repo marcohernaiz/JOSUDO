@@ -397,10 +397,8 @@ export const MessageInput: React.FC = () => {
                   >
                     <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }} />
                     <span>
-                      {chatMode === 'assistant' && 'JOSUDO AI assistant'}
-                      {chatMode === 'persona' && 'Create New Digital Persona'}
-                      {chatMode === 'employee' && 'Hire a Virtual employee'}
-                      {chatMode === 'search' && 'Search existing Digital Personas'}
+                      {chatMode === 'assistant' && 'Customize JOSUDO AI assistant'}
+                      {chatMode === 'library' && 'Choose from our library'}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -416,46 +414,20 @@ export const MessageInput: React.FC = () => {
                         : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                   >
-                    JOSUDO AI assistant
+                    Customize JOSUDO AI assistant
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
-                      setChatMode('persona');
+                      setChatMode('library');
                       setShowChatModeOptions(false);
                     }}
                     className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
-                      chatMode === 'persona'
+                      chatMode === 'library'
                         ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
                         : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                     }`}
                   >
-                    Create New Digital Persona
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setChatMode('search');
-                      setShowChatModeOptions(false);
-                    }}
-                    className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
-                      chatMode === 'search'
-                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    Search existing Digital Personas
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setChatMode('employee');
-                      setShowChatModeOptions(false);
-                    }}
-                    className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
-                      chatMode === 'employee'
-                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    Hire a Virtual employee
+                    Choose from our library
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
