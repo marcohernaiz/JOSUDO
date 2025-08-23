@@ -418,7 +418,7 @@ export const MessageInput: React.FC = () => {
         )}
 
         {/* Second Line - All Controls */}
-        <div className="flex items-center justify-between w-full mt-4">
+        <div className="flex items-center justify-between w-full mt-2">
           {/* Left side - Tools */}
           <div className="flex items-center space-x-2">
             {/* File Upload */}
