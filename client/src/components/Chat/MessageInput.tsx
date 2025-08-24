@@ -284,7 +284,7 @@ export const MessageInput: React.FC = () => {
   return (
     <div className={`w-full max-w-4xl ${
       !hasMessages 
-        ? 'fixed bottom-8 left-1/2 transform -translate-x-1/2 z-20' 
+        ? 'MessageInput fixed bottom-8 z-20' 
         : 'relative mx-auto'
     }`}>
 
