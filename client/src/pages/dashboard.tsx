@@ -224,26 +224,29 @@ export default function Dashboard() {
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
                           { 
-                            title: "HR Specialist", 
-                            description: "Expert in human resources, recruitment, and employee relations",
-                            avatar: "https://cdn.heygen.com/avatar/woman_business_casual_talking.gif"
+                            title: "Executive Assistant", 
+                            description: "Specialized AI assistant for executive support and scheduling",
+                            video: "@assets/executive assistant_1756062827363.mp4"
                           },
                           { 
-                            title: "Financial Advisor", 
-                            description: "Professional financial planning and investment guidance specialist",
-                            avatar: "https://cdn.heygen.com/avatar/man_suit_professional_talking.gif"
+                            title: "Sales & Marketing", 
+                            description: "AI-powered sales and marketing automation specialist",
+                            video: "@assets/Sales & Marketing_1756062827363.mp4"
                           },
                           { 
-                            title: "Real Estate Agent", 
-                            description: "Expert in property sales, market analysis, and client relations",
-                            avatar: "https://cdn.heygen.com/avatar/woman_professional_speaking.gif"
+                            title: "Customer Support", 
+                            description: "24/7 AI customer service representative",
+                            video: "@assets/Customer Support_1756062827361.mp4"
                           }
                         ].map((item, index) => (
                           <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
                             <div className="h-20 bg-gradient-to-br from-blue-50 to-purple-50 rounded-md mb-2 flex items-center justify-center overflow-hidden">
-                              <img 
-                                src={item.avatar}
-                                alt={item.title}
+                              <video 
+                                src={item.video}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
                                 className="w-full h-full object-cover rounded-md"
                                 onError={(e) => {
                                   e.currentTarget.style.display = 'none';
@@ -270,26 +273,29 @@ export default function Dashboard() {
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
                           { 
-                            title: "Bank Support Specialist", 
-                            description: "Professional banking assistance and financial services support",
-                            avatar: "https://cdn.heygen.com/avatar/woman_bank_professional_talking.gif"
+                            title: "Elderly Care", 
+                            description: "Compassionate AI companion for elderly support and care",
+                            video: "@assets/Elderly Care_1756062827363.mp4"
                           },
                           { 
-                            title: "Trading Advisor", 
-                            description: "Expert in market analysis, trading strategies, and investment advice",
-                            avatar: "https://cdn.heygen.com/avatar/man_trader_professional_speaking.gif"
+                            title: "Digital Buddy", 
+                            description: "Friendly AI companion for daily conversations and support",
+                            video: "@assets/Digital Buddy_1756062827362.mp4"
                           },
                           { 
-                            title: "Legal Consultant", 
-                            description: "Professional legal advice and consultation services specialist",
-                            avatar: "https://cdn.heygen.com/avatar/woman_lawyer_professional_talking.gif"
+                            title: "AI Girlfriend", 
+                            description: "Personal AI companion for emotional support and companionship",
+                            video: "@assets/AI Girlfriend_1756062827362.mp4"
                           }
                         ].map((item, index) => (
                           <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
                             <div className="h-20 bg-gradient-to-br from-green-50 to-blue-50 rounded-md mb-2 flex items-center justify-center overflow-hidden">
-                              <img 
-                                src={item.avatar}
-                                alt={item.title}
+                              <video 
+                                src={item.video}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
                                 className="w-full h-full object-cover rounded-md"
                                 onError={(e) => {
                                   e.currentTarget.style.display = 'none';
