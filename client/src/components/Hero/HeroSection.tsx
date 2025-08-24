@@ -1,5 +1,5 @@
 
-import brainImage from "@assets/20250824_1046_Digital Brain Dashboard_remix_01k3dm048gfq7892ekr6rvskxn_1756031958536.png";
+import josudoLogoOrange from "@assets/josudo-logo-orange.png";
 
 export const HeroSection: React.FC = () => {
   const handleGoogleSignIn = () => {
@@ -32,12 +32,12 @@ export const HeroSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column - Brain Image */}
+          {/* Right Column - JOSUDO Logo */}
           <div className="order-2 lg:order-2 lg:col-span-2 flex justify-center items-center">
             <div className="relative w-full h-full flex items-center justify-center">
               <img
-                src={brainImage}
-                alt="AI Brain with Connected Services"
+                src={josudoLogoOrange}
+                alt="JOSUDO - Own Your Data"
                 className="w-full h-full max-h-80 object-contain drop-shadow-2xl"
               />
             </div>
