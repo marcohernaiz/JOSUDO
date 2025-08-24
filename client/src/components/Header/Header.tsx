@@ -14,13 +14,8 @@ export const Header: React.FC = () => {
         {/* Left spacer for balance */}
         <div className="flex-1"></div>
         
-        {/* Centered JOSUDO Logo */}
+        {/* Empty center space */}
         <div className="flex-1 flex justify-center">
-          <img
-            src={josudoLogo}
-            alt="JOSUDO - Own Your Data"
-            className="h-10 w-auto object-contain"
-          />
         </div>
         
         {/* Right side - Auth buttons */}

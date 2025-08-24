@@ -238,14 +238,18 @@ export const ChatArea: React.FC = () => {
             {/* Left Column - Hire Virtual Employees */}
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Hire Virtual Employees</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[1, 2, 3, 4].map((index) => (
+              <div className="grid grid-cols-1 gap-4">
+                {[
+                  { title: "Executive Assistant", description: "Specialized AI assistant for executive support and scheduling" },
+                  { title: "Sales & Marketing", description: "AI-powered sales and marketing automation specialist" },
+                  { title: "Customer Support", description: "24/7 AI customer service representative" }
+                ].map((employee, index) => (
                   <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                     <div className="h-32 bg-gray-200 rounded-md mb-4 flex items-center justify-center">
-                      <span className="text-gray-500 text-sm">Employee {index}</span>
+                      <span className="text-gray-500 text-sm">{employee.title}</span>
                     </div>
-                    <h3 className="font-medium text-gray-900 mb-2">Virtual Employee {index}</h3>
-                    <p className="text-sm text-gray-600">Specialized AI assistant for your business needs</p>
+                    <h3 className="font-medium text-gray-900 mb-2">{employee.title}</h3>
+                    <p className="text-sm text-gray-600">{employee.description}</p>
                   </div>
                 ))}
               </div>
@@ -254,14 +258,18 @@ export const ChatArea: React.FC = () => {
             {/* Right Column - Other Digital Personas */}
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Other Digital Personas</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[1, 2, 3, 4].map((index) => (
+              <div className="grid grid-cols-1 gap-4">
+                {[
+                  { title: "Elderly Care", description: "Compassionate AI companion for elderly support and care" },
+                  { title: "Digital Buddy", description: "Friendly AI companion for daily conversations and support" },
+                  { title: "AI Girlfriend", description: "Personal AI companion for emotional support and companionship" }
+                ].map((persona, index) => (
                   <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                     <div className="h-32 bg-gray-200 rounded-md mb-4 flex items-center justify-center">
-                      <span className="text-gray-500 text-sm">Persona {index}</span>
+                      <span className="text-gray-500 text-sm">{persona.title}</span>
                     </div>
-                    <h3 className="font-medium text-gray-900 mb-2">Digital Persona {index}</h3>
-                    <p className="text-sm text-gray-600">AI-powered digital assistant for various tasks</p>
+                    <h3 className="font-medium text-gray-900 mb-2">{persona.title}</h3>
+                    <p className="text-sm text-gray-600">{persona.description}</p>
                   </div>
                 ))}
               </div>
