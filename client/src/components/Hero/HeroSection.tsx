@@ -28,7 +28,7 @@ export const HeroSection: React.FC = () => {
             <img
               src={brainDashboardImage}
               alt="Digital Brain Dashboard - AI Ecosystem"
-              className="w-full max-w-lg h-auto object-contain drop-shadow-2xl"
+              className="w-full max-w-md h-auto object-contain"
             />
           </div>
         </div>
