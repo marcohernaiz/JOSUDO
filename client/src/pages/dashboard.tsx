@@ -42,12 +42,19 @@ export default function Dashboard() {
             variant="outline"
             size="sm"
           >
-            <img
-              src="/attached_assets/JOSUDO%20logo%20icon_1752491258890.png"
-              alt="JOSUDO Menu"
-              className="w-6 h-6 object-contain"
-              style={{ filter: 'brightness(0) saturate(100%) invert(0%)' }}
-            />
+            <svg 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-6 h-6"
+            >
+              <path 
+                d="M12 2C8.5 2 8.5 6 12 6C15.5 6 15.5 2 12 2ZM6 8C2.5 8 2.5 12 6 12C9.5 12 9.5 8 6 8ZM18 8C14.5 8 14.5 12 18 12C21.5 12 21.5 8 18 8ZM12 14C8.5 14 8.5 18 12 18C15.5 18 15.5 14 12 14Z" 
+                fill="currentColor"
+              />
+            </svg>
           </Button>
         )}
 
