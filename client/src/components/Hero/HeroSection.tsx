@@ -13,17 +13,17 @@ export const HeroSection: React.FC = () => {
           {/* Left Column - Text Content */}
           <div className="flex flex-col justify-end items-center text-center lg:col-span-3">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2">
-              The brain that powers your{" "}
+              The Brain that Powers your{" "}
               <span className="text-blue-500">New AI Computer</span>
             </h1>
 
             <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-              All your AI tools in one secure platform, while keeping full control of your data. Access all the latest AI models, create visual content, automate workflows, and put our virtual employees to work for you.
+              All your AI tools in one secure platform, while keeping full control of your data. Access the latest AI models, create visual content, automate workflows, and put our virtual employees to work for you.
             </p>
           </div>
 
           {/* Right Column - Image */}
-          <div className="flex justify-center lg:justify-center lg:col-span-2">
+          <div className="flex justify-center lg:justify-end lg:col-span-2">
             <img
               src={brainDashboardImage}
               alt="Digital Brain Dashboard - AI Ecosystem"
