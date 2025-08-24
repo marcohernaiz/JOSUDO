@@ -9,8 +9,12 @@ import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useChat } from "@/hooks/useChat";
 import sophiaBackground from "@assets/Sophia background_1752487018233.png";
-import customerCareGif from "@assets/Customer Care animated_1756064434699.gif";
-import aiGirlfriendGif from "@assets/AIGirlfriend-ezgif.com-crop_1756063645902.gif";
+import executiveAssistantGif from "@assets/Executive Assistant_1756066904884.gif";
+import salesMarketingGif from "@assets/Sales & Marketing_1756066904883.gif";
+import customerSupportGif from "@assets/Customer Support_1756066904882.gif";
+import elderlyCareGif from "@assets/Elderly Care_1756066904884.gif";
+import digitalBuddyGif from "@assets/Digital Buddy_1756066904884.gif";
+import aiGirlfriendGif from "@assets/AI Girlfriend GIF_1756066904885.gif";
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
@@ -227,50 +231,33 @@ export default function Dashboard() {
                         {[
                           { 
                             title: "Executive Assistant", 
-                            description: "Specialized AI assistant for executive support and scheduling",
-                            video: "@assets/executive assistant_1756062827363.mp4"
+                            description: "",
+                            gif: executiveAssistantGif
                           },
                           { 
                             title: "Sales & Marketing", 
-                            description: "AI-powered sales and marketing automation specialist",
-                            video: "@assets/Sales & Marketing_1756062827363.mp4"
+                            description: "",
+                            gif: salesMarketingGif
                           },
                           { 
                             title: "Customer Support", 
                             description: "",
-                            gif: customerCareGif
+                            gif: customerSupportGif
                           }
                         ].map((item, index) => (
                           <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
                             <div className="h-24 rounded-md mb-2 overflow-hidden">
-                              {item.gif ? (
-                                <img 
-                                  src={item.gif}
-                                  alt={item.title}
-                                  className="w-full h-full object-cover object-center"
-                                  style={{ aspectRatio: '3/4' }}
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                    const fallback = e.currentTarget.parentElement?.nextElementSibling as HTMLElement;
-                                    if (fallback) fallback.style.display = 'flex';
-                                  }}
-                                />
-                              ) : (
-                                <video 
-                                  src={item.video}
-                                  autoPlay
-                                  loop
-                                  muted
-                                  playsInline
-                                  className="w-full h-full object-cover object-center"
-                                  style={{ aspectRatio: '3/4' }}
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                                    if (fallback) fallback.style.display = 'flex';
-                                  }}
-                                />
-                              )}
+                              <img 
+                                src={item.gif}
+                                alt={item.title}
+                                className="w-full h-full object-cover object-center"
+                                style={{ aspectRatio: '3/4' }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.parentElement?.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
                               <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-md items-center justify-center hidden">
                                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
                                   <span className="text-white text-lg font-bold">{item.title.charAt(0)}</span>
@@ -291,13 +278,13 @@ export default function Dashboard() {
                         {[
                           { 
                             title: "Elderly Care", 
-                            description: "Compassionate AI companion for elderly support and care",
-                            video: "@assets/Elderly Care_1756062827363.mp4"
+                            description: "",
+                            gif: elderlyCareGif
                           },
                           { 
                             title: "Digital Buddy", 
-                            description: "Friendly AI companion for daily conversations and support",
-                            video: "@assets/Digital Buddy_1756062827362.mp4"
+                            description: "",
+                            gif: digitalBuddyGif
                           },
                           { 
                             title: "AI Girlfriend", 
@@ -307,34 +294,17 @@ export default function Dashboard() {
                         ].map((item, index) => (
                           <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
                             <div className="h-24 rounded-md mb-2 overflow-hidden">
-                              {item.gif ? (
-                                <img 
-                                  src={item.gif}
-                                  alt={item.title}
-                                  className="w-full h-full object-cover object-center"
-                                  style={{ aspectRatio: '3/4' }}
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                    const fallback = e.currentTarget.parentElement?.nextElementSibling as HTMLElement;
-                                    if (fallback) fallback.style.display = 'flex';
-                                  }}
-                                />
-                              ) : (
-                                <video 
-                                  src={item.video}
-                                  autoPlay
-                                  loop
-                                  muted
-                                  playsInline
-                                  className="w-full h-full object-cover object-center"
-                                  style={{ aspectRatio: '3/4' }}
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                                    if (fallback) fallback.style.display = 'flex';
-                                  }}
-                                />
-                              )}
+                              <img 
+                                src={item.gif}
+                                alt={item.title}
+                                className="w-full h-full object-cover object-center"
+                                style={{ aspectRatio: '3/4' }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.parentElement?.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
                               <div className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 rounded-md items-center justify-center hidden">
                                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center">
                                   <span className="text-white text-lg font-bold">{item.title.charAt(0)}</span>
