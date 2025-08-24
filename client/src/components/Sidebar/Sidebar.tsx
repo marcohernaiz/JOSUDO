@@ -164,7 +164,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                   <img
                     src={josudoLogoMain}
                     alt="JOSUDO - Own Your Data"
-                    className="h-16 w-auto object-contain"
+                    className="h-48 w-auto object-contain"
                   />
                 </div>
 
