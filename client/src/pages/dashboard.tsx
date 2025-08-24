@@ -193,7 +193,7 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* MessageInput for new conversations - centered */}
+            {/* MessageInput for new conversations - bottom positioned */}
             {messages.length === 0 && <MessageInput />}
 
             {/* Section 4: Virtual Employees Section - Only show when no messages */}
