@@ -13,9 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
-import josudoLogo from "@assets/JOSUDO ICON_1752512850035.png";
-import josudoText from "@assets/josudo logo just text_1752513004427.png";
-import josudoLogoMain from "@assets/josudo light background_1756031061697.webp";
+import josudoLogoOrange from "@assets/JOSUDO logo - naranja con Own Your data_1756038073769.png";
 import folderIcon from "@assets/vecteezy_simple-folder-icon-on-white-background_4693395-1_1755935645704.jpg";
 import { 
   Plus, 
@@ -136,8 +134,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                 {!isLogoHovered ? (
                   <>
                     <img
-                      src={josudoLogo}
-                      alt="Josudo Logo"
+                      src={josudoLogoOrange}
+                      alt="JOSUDO - Own Your Data"
                       className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
@@ -162,7 +160,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
               <>
                 <div className="flex items-center w-full">
                   <img
-                    src={josudoLogoMain}
+                    src={josudoLogoOrange}
                     alt="JOSUDO - Own Your Data"
                     className="h-24 w-auto object-contain mx-auto"
                   />

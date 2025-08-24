@@ -1,5 +1,4 @@
 
-import josudoLogoOrange from "@assets/JOSUDO logo - naranja con Own Your data_1756038073769.png";
 
 export const HeroSection: React.FC = () => {
   const handleGoogleSignIn = () => {
@@ -9,9 +8,9 @@ export const HeroSection: React.FC = () => {
   return (
     <section className="bg-white pt-0 pb-0 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
-          {/* Left Column - Text Content */}
-          <div className="order-1 lg:order-1 lg:col-span-3 text-left flex flex-col justify-start">
+        <div className="flex justify-center items-center min-h-[60vh]">
+          {/* Text Content */}
+          <div className="text-center flex flex-col justify-center max-w-4xl">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-4">
               The brain that powers your{" "}
               <span className="text-blue-500">AI Ecosystem</span>
@@ -29,17 +28,6 @@ export const HeroSection: React.FC = () => {
               >
                 Get Started for Free
               </button>
-            </div>
-          </div>
-
-          {/* Right Column - JOSUDO Logo */}
-          <div className="order-2 lg:order-2 lg:col-span-2 flex justify-center items-center">
-            <div className="relative w-full h-full flex items-center justify-center">
-              <img
-                src={josudoLogoOrange}
-                alt="JOSUDO - Own Your Data"
-                className="w-full h-full max-h-80 object-contain drop-shadow-2xl"
-              />
             </div>
           </div>
         </div>
