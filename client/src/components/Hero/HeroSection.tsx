@@ -9,7 +9,7 @@ export const HeroSection: React.FC = () => {
   return (
     <section className="bg-white px-4 sm:px-6 lg:px-8 pt-4">
       <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center pb-3">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 items-center pb-3">
           {/* Left Column - Text Content */}
           <div className="flex flex-col justify-end items-center text-center lg:col-span-3">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2">
@@ -18,8 +18,8 @@ export const HeroSection: React.FC = () => {
             </h1>
 
             <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-              All your AI models and tools in one subscription—chats, images, videos, workflows,
-              and even virtual employees—while your data stays safe in your own cloud.
+            All the latest AI models and tools in one subscription: Chats, Images, Videos, Workflows,
+              and even Virtual Employees, while your data stays safe in your own cloud.
             </p>
           </div>
 
