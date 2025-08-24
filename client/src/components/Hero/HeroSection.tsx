@@ -9,9 +9,9 @@ export const HeroSection: React.FC = () => {
   return (
     <section className="bg-white px-4 sm:px-6 lg:px-8 pt-8">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-end pb-12">
           {/* Left Column - Text Content */}
-          <div className="flex flex-col justify-end items-center text-center lg:items-start lg:text-left lg:col-span-2">
+          <div className="flex flex-col justify-end items-center text-center lg:col-span-3">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2">
               The brain that powers your{" "}
               <span className="text-blue-500">AI Ecosystem</span>
@@ -24,7 +24,7 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* Right Column - Image */}
-          <div className="flex justify-center lg:justify-end lg:col-span-1">
+          <div className="flex justify-center lg:justify-end lg:col-span-2">
             <img
               src={brainDashboardImage}
               alt="Digital Brain Dashboard - AI Ecosystem"
