@@ -1,5 +1,5 @@
 import React from 'react';
-import josudoLogoOrange from '../assets/josudo-logo-orange.svg'; // Assuming this import is correct
+import josudoLogoOrange from '../../assets/josudo-logo-orange.png';
 
 export const HeroSection: React.FC = () => {
   const handleGoogleSignIn = () => {
