@@ -38,11 +38,16 @@ export default function Dashboard() {
         {isMobile && (
           <Button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="fixed top-2 left-2 z-50 bg-slate-800/80 backdrop-blur-sm shadow-lg border border-slate-600 text-slate-200 hover:bg-slate-700/80"
+            className="fixed top-2 left-2 z-50 bg-white/90 backdrop-blur-sm shadow-lg border border-gray-300 hover:bg-gray-50/90 p-2"
             variant="outline"
             size="sm"
           >
-            <i className="fas fa-bars"></i>
+            <img
+              src="/attached_assets/JOSUDO%20logo%20icon_1752491258890.png"
+              alt="JOSUDO Menu"
+              className="w-6 h-6 object-contain"
+              style={{ filter: 'brightness(0) saturate(100%) invert(0%)' }}
+            />
           </Button>
         )}
 
