@@ -232,18 +232,40 @@ export const ChatArea: React.FC = () => {
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center px-6">
-        <div className="text-center max-w-md">
-          <div className="text-6xl mb-4">✨</div>
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">
-            Welcome to Josudo
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-4">
-            Start a new conversation or select a chat from your Google Drive
-            history.
-          </p>
-          <div className="text-sm text-slate-500 dark:text-slate-500">
-            Your conversations are automatically saved to Google Drive.
+      <div className="bg-white py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Left Column - Hire Virtual Employees */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Hire Virtual Employees</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map((index) => (
+                  <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div className="h-32 bg-gray-200 rounded-md mb-4 flex items-center justify-center">
+                      <span className="text-gray-500 text-sm">Employee {index}</span>
+                    </div>
+                    <h3 className="font-medium text-gray-900 mb-2">Virtual Employee {index}</h3>
+                    <p className="text-sm text-gray-600">Specialized AI assistant for your business needs</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column - Other Digital Personas */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Other Digital Personas</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map((index) => (
+                  <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div className="h-32 bg-gray-200 rounded-md mb-4 flex items-center justify-center">
+                      <span className="text-gray-500 text-sm">Persona {index}</span>
+                    </div>
+                    <h3 className="font-medium text-gray-900 mb-2">Digital Persona {index}</h3>
+                    <p className="text-sm text-gray-600">AI-powered digital assistant for various tasks</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

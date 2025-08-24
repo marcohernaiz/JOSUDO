@@ -166,12 +166,12 @@ export default function Dashboard() {
         <div
           className={`flex-1 flex flex-col relative z-30 w-full overflow-hidden ${!isMobile ? 'chat-main-content' : ''}`}
         >
-          <div className="absolute top-0 left-0 w-full z-40">
+          <div className="absolute top-0 left-0 w-full z-40 bg-white shadow-sm">
             <Header />
           </div>
           
           {/* Scrollable content area */}
-          <div className="flex-1 overflow-auto pt-20">
+          <div className="flex-1 overflow-auto pt-16">
             {/* Hero Section */}
             <HeroSection />
             

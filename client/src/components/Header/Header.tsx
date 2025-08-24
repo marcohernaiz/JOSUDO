@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import josudoLogo from "@/assets/josudo-logo.png";
+import josudoLogo from "@assets/josudo light background_1756031061697.webp";
 
 export const Header: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
@@ -9,7 +9,7 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <div className="p-3 relative z-10">
+    <div className="p-2 relative z-10">
       <div className="flex items-center justify-between">
         {/* Left spacer for balance */}
         <div className="flex-1"></div>
@@ -19,7 +19,7 @@ export const Header: React.FC = () => {
           <img
             src={josudoLogo}
             alt="JOSUDO - Own Your Data"
-            className="h-12 w-auto object-contain"
+            className="h-10 w-auto object-contain"
           />
         </div>
         
