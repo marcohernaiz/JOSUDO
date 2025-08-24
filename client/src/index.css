@@ -30,6 +30,10 @@
   .MessageInput {
     left: 50% !important;
     transform: translateX(-50%) !important;
+    position: fixed !important;
+    bottom: 1rem !important;
+    width: calc(100% - 2rem) !important;
+    max-width: calc(100% - 2rem) !important;
   }
 }
 

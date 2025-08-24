@@ -38,7 +38,7 @@ export default function Dashboard() {
         {isMobile && (
           <Button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="fixed top-2 left-2 z-50 bg-white/90 backdrop-blur-sm shadow-lg border border-gray-300 hover:bg-gray-50/90 p-2"
+            className="fixed top-4 left-4 z-50 bg-white/90 backdrop-blur-sm shadow-lg border border-gray-300 hover:bg-gray-50/90 w-12 h-12 p-0 flex items-center justify-center"
             variant="outline"
             size="sm"
           >
