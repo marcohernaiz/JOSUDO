@@ -5,9 +5,9 @@
     margin-left: 256px !important;
   }
   
-  .centered-chat-input {
+  .MessageInput {
     left: calc(256px + (100vw - 256px) / 2) !important;
-    transform: translateX(-50%) translateY(-50%) !important;
+    transform: translateX(-50%) !important;
   }
 }
 
@@ -16,9 +16,9 @@
     margin-left: 64px !important;
   }
   
-  .centered-chat-input {
+  .MessageInput {
     left: calc(64px + (100vw - 64px) / 2) !important;
-    transform: translateX(-50%) translateY(-50%) !important;
+    transform: translateX(-50%) !important;
   }
 }
 
@@ -27,9 +27,9 @@
     margin-left: 0 !important;
   }
   
-  .centered-chat-input {
+  .MessageInput {
     left: 50% !important;
-    transform: translateX(-50%) translateY(-50%) !important;
+    transform: translateX(-50%) !important;
   }
 }
 

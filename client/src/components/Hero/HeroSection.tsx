@@ -8,16 +8,16 @@ export const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="bg-white pt-0 pb-12 px-4 sm:px-6 lg:px-8">
+    <section className="bg-white pt-0 pb-0 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
           {/* Left Column - Text Content with JOSUDO Logo */}
-          <div className="order-1 lg:order-1 text-left flex flex-col justify-start">
+          <div className="order-1 lg:order-1 lg:col-span-3 text-left flex flex-col justify-start">
             <div className="mb-0">
               <img
                 src={josudoLogo}
                 alt="JOSUDO - Own Your Data"
-                className="h-32 w-auto object-contain"
+                className="h-40 w-auto object-contain"
               />
             </div>
             
@@ -31,21 +31,23 @@ export const HeroSection: React.FC = () => {
               and even virtual employees—while your data stays safe in your own cloud.
             </p>
 
-            <button
-              onClick={handleGoogleSignIn}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-200 hover:shadow-xl w-fit"
-            >
-              Get Started for Free
-            </button>
+            <div className="flex justify-center">
+              <button
+                onClick={handleGoogleSignIn}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-200 hover:shadow-xl"
+              >
+                Get Started for Free
+              </button>
+            </div>
           </div>
 
           {/* Right Column - Brain Image */}
-          <div className="order-2 lg:order-2 flex justify-center items-center">
+          <div className="order-2 lg:order-2 lg:col-span-2 flex justify-center items-center">
             <div className="relative w-full h-full flex items-center justify-center">
               <img
                 src={brainImage}
                 alt="AI Brain with Connected Services"
-                className="w-full h-full max-h-96 object-contain drop-shadow-2xl"
+                className="w-full h-full max-h-80 object-contain drop-shadow-2xl"
               />
             </div>
           </div>

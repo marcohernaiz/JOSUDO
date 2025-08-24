@@ -282,10 +282,10 @@ export const MessageInput: React.FC = () => {
   const hasMessages = messages.length > 0;
 
   return (
-    <div className={`w-full max-w-4xl mx-auto ${
+    <div className={`w-full max-w-4xl ${
       !hasMessages 
         ? 'fixed bottom-8 left-1/2 transform -translate-x-1/2 z-20' 
-        : 'relative'
+        : 'relative mx-auto'
     }`}>
 
       <div className="ai-input-lines bg-slate-250/90 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-200/60 dark:border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
