@@ -201,7 +201,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             <Button
               onClick={startNewChat}
               variant="ghost"
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-center rounded-md transition-colors duration-200`}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
               title={!isExpanded ? "New Chat" : ""}
             >
               <span className="text-slate-400 text-lg flex-shrink-0">💬</span>
@@ -211,7 +211,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             <Button
               variant="ghost"
               onClick={() => setShowSearch(!showSearch)}
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-center rounded-md transition-colors duration-200`}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
               title={!isExpanded ? "Search" : ""}
             >
               <span className="text-slate-400 text-lg flex-shrink-0">🔍</span>
@@ -221,7 +221,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             <Button
               variant="ghost"
               onClick={() => {/* Handle spaces */}}
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-center rounded-md transition-colors duration-200`}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
               title={!isExpanded ? "Spaces" : ""}
             >
               <Box className="w-4 h-4 flex-shrink-0 text-slate-400" />
@@ -231,7 +231,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             <Button
               variant="ghost"
               onClick={() => {/* Handle knowledge base */}}
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-center rounded-md transition-colors duration-200`}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
               title={!isExpanded ? "Knowledge Base" : ""}
             >
               <span className="text-slate-400 text-lg flex-shrink-0">📚</span>
@@ -241,7 +241,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             <Button
               variant="ghost"
               onClick={() => {/* Handle digital personas */}}
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-center rounded-md transition-colors duration-200`}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
               title={!isExpanded ? "Digital Personas" : ""}
             >
               <span className="text-slate-400 text-lg flex-shrink-0">👥</span>
@@ -251,7 +251,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             <Button
               variant="ghost"
               onClick={() => {/* Handle tools */}}
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-center rounded-md transition-colors duration-200`}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
               title={!isExpanded ? "Tools" : ""}
             >
               <span className="text-slate-400 text-lg flex-shrink-0">🔧</span>
@@ -261,7 +261,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
             <Button
               variant="ghost"
               onClick={() => {/* Handle history */}}
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center justify-center rounded-md transition-colors duration-200`}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
               title={!isExpanded ? "History" : ""}
             >
               <History className="text-slate-400 w-4 h-4 flex-shrink-0" />
