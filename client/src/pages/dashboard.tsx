@@ -45,8 +45,8 @@ export default function Dashboard() {
         {!isMobile && (
           <div className="fixed inset-y-0 left-0 z-40">
             <div className={`h-full border-r shadow-xl transition-all duration-200 ${
-              theme === 'dark' 
-                ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50' 
+              theme === 'dark'
+                ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
               <Sidebar onClose={() => setIsSidebarOpen(false)} />
@@ -58,13 +58,13 @@ export default function Dashboard() {
         {isMobile && (
           <div
             className={`
-              ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+              ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
               fixed inset-y-0 left-0 z-40 transition-transform duration-300 ease-in-out
             `}
           >
             <div className={`h-full border-r shadow-xl ${
-              theme === 'dark' 
-                ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50' 
+              theme === 'dark'
+                ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
               <Sidebar onClose={() => setIsSidebarOpen(false)} />
@@ -176,24 +176,29 @@ export default function Dashboard() {
                 <HeroSection />
               </div>
             )}
-            
+
             {/* Section 3: Chat Box Section */}
-            <div className="bg-white py-8">
-              <div className="w-full max-w-4xl mx-auto px-4">
-                <div className="flex flex-col h-96">
-                  <div className="flex-1">
-                    <ChatArea />
-                  </div>
-                  <div className="flex-shrink-0 pt-4">
-                    <MessageInput />
+            {messages.length > 0 && (
+              <div className="bg-white">
+                <div className="w-full max-w-4xl mx-auto px-4">
+                  <div className="flex flex-col min-h-screen">
+                    <div className="flex-1">
+                      <ChatArea />
+                    </div>
+                    <div className="flex-shrink-0 py-4">
+                      <MessageInput />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
+            )}
+
+            {/* MessageInput for new conversations - centered */}
+            {messages.length === 0 && <MessageInput />}
+
             {/* Section 4: Virtual Employees Section - Only show when no messages */}
             {messages.length === 0 && (
-              <div className="bg-gray-50 py-8">
+              <div className="bg-gray-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     {/* Left Section - Hire Virtual Employees */}

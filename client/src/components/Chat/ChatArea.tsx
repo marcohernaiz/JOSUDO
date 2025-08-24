@@ -231,13 +231,7 @@ export const ChatArea: React.FC = () => {
   };
 
   if (messages.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center text-gray-500">
-          <p>Start a conversation by typing a message below</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
