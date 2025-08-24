@@ -55,11 +55,11 @@ html.dark, html.dark body {
   -webkit-user-select: none;
   -ms-user-select: none;
   -webkit-appearance: none;
-  background-color: WHITE;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   background-image: none;
-  border: 1px solid #dadce0;
-  border-radius: 4px;
-  color: #3c4043;
+  border: none;
+  border-radius: 8px;
+  color: white;
   cursor: pointer;
   font-family: arial,sans-serif;
   font-size: 14px;
@@ -70,7 +70,7 @@ html.dark, html.dark body {
   padding: 0 12px;
   position: relative;
   text-align: center;
-  transition: background-color .218s, border-color .218s, box-shadow .218s;
+  transition: background .218s, border-color .218s, box-shadow .218s;
   vertical-align: middle;
   white-space: nowrap;
   width: auto;
@@ -112,6 +112,7 @@ html.dark, html.dark body {
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: top;
+  color: white;
 }
 
 .gsi-material-button .gsi-material-button-state {
