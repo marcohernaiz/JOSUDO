@@ -203,7 +203,7 @@ export default function Dashboard() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     {/* Left Section - Hire Virtual Employees */}
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900 text-center">Hire Virtual Employees</h2>
+                      <h2 className="text-xl font-bold text-gray-900 mb-1 text-center">Hire Virtual Employees</h2>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
                           { title: "Executive Assistant", description: "Specialized AI assistant for executive support and scheduling" },
@@ -223,7 +223,7 @@ export default function Dashboard() {
 
                     {/* Right Section - Other Digital Personas */}
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900 text-center">Other Digital Personas</h2>
+                      <h2 className="text-xl font-bold text-gray-900 mb-1 text-center">Other Digital Personas</h2>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
                           { title: "Elderly Care", description: "Compassionate AI companion for elderly support and care" },
