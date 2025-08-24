@@ -168,26 +168,77 @@ export default function Dashboard() {
         <div
           className={`flex-1 flex flex-col relative z-30 w-full overflow-hidden ${!isMobile ? 'chat-main-content' : ''}`}
         >
-          <div className="absolute top-0 left-0 w-full z-40 bg-white shadow-sm">
-            <Header />
-          </div>
-          
           {/* Scrollable content area */}
-          <div className="flex-1 overflow-auto pt-16">
-            {/* Hero Section - Only show when no messages */}
-            {messages.length === 0 && <HeroSection />}
+          <div className="flex-1 overflow-auto">
+            {/* Section 2: Hero Section - Only show when no messages */}
+            {messages.length === 0 && (
+              <div className="bg-white">
+                <HeroSection />
+              </div>
+            )}
             
-            {/* Chat Area */}
-            <div className="flex flex-col" style={{ minHeight: messages.length === 0 ? 'auto' : '100vh' }}>
-              <div className="flex-1 w-full flex justify-center">
-                <div className="w-full max-w-4xl mx-auto px-4">
-                  <ChatArea />
+            {/* Section 3: Chat Box Section */}
+            <div className="bg-white py-8">
+              <div className="w-full max-w-4xl mx-auto px-4">
+                <div className="flex flex-col h-96">
+                  <div className="flex-1">
+                    <ChatArea />
+                  </div>
+                  <div className="flex-shrink-0 pt-4">
+                    <MessageInput />
+                  </div>
                 </div>
               </div>
-              <div className="flex-shrink-0 pb-4 w-full flex justify-center" style={{ marginTop: messages.length === 0 ? '2rem' : 'auto' }}>
-                <MessageInput />
-              </div>
             </div>
+            
+            {/* Section 4: Virtual Employees Section - Only show when no messages */}
+            {messages.length === 0 && (
+              <div className="bg-gray-50 py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    {/* Left Section - Hire Virtual Employees */}
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">Hire Virtual Employees</h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {[
+                          { title: "Executive Assistant", description: "Specialized AI assistant for executive support and scheduling" },
+                          { title: "Sales & Marketing", description: "AI-powered sales and marketing automation specialist" },
+                          { title: "Customer Support", description: "24/7 AI customer service representative" }
+                        ].map((item, index) => (
+                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                            <div className="h-16 bg-gray-200 rounded-md mb-2 flex items-center justify-center">
+                              <span className="text-gray-500 text-xs text-center">{item.title}</span>
+                            </div>
+                            <h3 className="font-medium text-gray-900 mb-1 text-xs">{item.title}</h3>
+                            <p className="text-xs text-gray-600 leading-tight">{item.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right Section - Other Digital Personas */}
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">Other Digital Personas</h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {[
+                          { title: "Elderly Care", description: "Compassionate AI companion for elderly support and care" },
+                          { title: "Digital Buddy", description: "Friendly AI companion for daily conversations and support" },
+                          { title: "AI Girlfriend", description: "Personal AI companion for emotional support and companionship" }
+                        ].map((item, index) => (
+                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                            <div className="h-16 bg-gray-200 rounded-md mb-2 flex items-center justify-center">
+                              <span className="text-gray-500 text-xs text-center">{item.title}</span>
+                            </div>
+                            <h3 className="font-medium text-gray-900 mb-1 text-xs">{item.title}</h3>
+                            <p className="text-xs text-gray-600 leading-tight">{item.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
