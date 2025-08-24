@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import brainImage from "@assets/brain-ai-connections.png";
+import brainImage from "@assets/20250824_1046_Digital Brain Dashboard_remix_01k3dm048gfq7892ekr6rvskxn_1756029501198.png";
 
 export const HeroSection: React.FC = () => {
   const { isAuthenticated } = useAuth();
