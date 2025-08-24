@@ -4,24 +4,25 @@ import brainImage from "@assets/20250824_1046_Digital Brain Dashboard_remix_01k3
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="bg-white py-16 px-4 sm:px-6 lg:px-8">
+    <section className="bg-white pt-0 pb-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Left Column - Text Content with JOSUDO Logo */}
           <div className="order-1 lg:order-1 text-left">
-            <div className="flex items-center mb-4">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mr-6">
-                The brain that powers your{" "}
-                <span className="text-blue-500">AI Ecosystem</span>
-              </h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2">
+              The brain that powers your{" "}
+              <span className="text-blue-500">AI Ecosystem</span>
+            </h1>
+            
+            <div className="mb-4">
               <img
                 src={josudoLogo}
                 alt="JOSUDO - Own Your Data"
-                className="h-16 w-auto object-contain"
+                className="h-12 w-auto object-contain"
               />
             </div>
             
-            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl">
               All your AI models and tools in one subscription—chats, images, videos, workflows, 
               and even virtual employees—while your data stays safe in your own cloud.
             </p>
@@ -29,7 +30,7 @@ export const HeroSection: React.FC = () => {
 
           {/* Right Column - Brain Image */}
           <div className="order-2 lg:order-2 flex justify-center">
-            <div className="relative w-full max-w-md">
+            <div className="relative w-full max-w-sm">
               <img
                 src={brainImage}
                 alt="AI Brain with Connected Services"

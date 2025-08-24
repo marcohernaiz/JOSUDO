@@ -232,24 +232,24 @@ export const ChatArea: React.FC = () => {
 
   if (messages.length === 0) {
     return (
-      <div className="bg-white py-16 px-4 sm:px-6 lg:px-8">
+      <div className="bg-white py-4 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Column - Hire Virtual Employees */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Hire Virtual Employees</h2>
-              <div className="grid grid-cols-1 gap-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Hire Virtual Employees</h2>
+              <div className="grid grid-cols-1 gap-3">
                 {[
                   { title: "Executive Assistant", description: "Specialized AI assistant for executive support and scheduling" },
                   { title: "Sales & Marketing", description: "AI-powered sales and marketing automation specialist" },
                   { title: "Customer Support", description: "24/7 AI customer service representative" }
                 ].map((employee, index) => (
-                  <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                    <div className="h-32 bg-gray-200 rounded-md mb-4 flex items-center justify-center">
-                      <span className="text-gray-500 text-sm">{employee.title}</span>
+                  <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="h-20 bg-gray-200 rounded-md mb-3 flex items-center justify-center">
+                      <span className="text-gray-500 text-xs">{employee.title}</span>
                     </div>
-                    <h3 className="font-medium text-gray-900 mb-2">{employee.title}</h3>
-                    <p className="text-sm text-gray-600">{employee.description}</p>
+                    <h3 className="font-medium text-gray-900 mb-1 text-sm">{employee.title}</h3>
+                    <p className="text-xs text-gray-600">{employee.description}</p>
                   </div>
                 ))}
               </div>
@@ -257,19 +257,19 @@ export const ChatArea: React.FC = () => {
 
             {/* Right Column - Other Digital Personas */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Other Digital Personas</h2>
-              <div className="grid grid-cols-1 gap-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Other Digital Personas</h2>
+              <div className="grid grid-cols-1 gap-3">
                 {[
                   { title: "Elderly Care", description: "Compassionate AI companion for elderly support and care" },
                   { title: "Digital Buddy", description: "Friendly AI companion for daily conversations and support" },
                   { title: "AI Girlfriend", description: "Personal AI companion for emotional support and companionship" }
                 ].map((persona, index) => (
-                  <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                    <div className="h-32 bg-gray-200 rounded-md mb-4 flex items-center justify-center">
-                      <span className="text-gray-500 text-sm">{persona.title}</span>
+                  <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="h-20 bg-gray-200 rounded-md mb-3 flex items-center justify-center">
+                      <span className="text-gray-500 text-xs">{persona.title}</span>
                     </div>
-                    <h3 className="font-medium text-gray-900 mb-2">{persona.title}</h3>
-                    <p className="text-sm text-gray-600">{persona.description}</p>
+                    <h3 className="font-medium text-gray-900 mb-1 text-sm">{persona.title}</h3>
+                    <p className="text-xs text-gray-600">{persona.description}</p>
                   </div>
                 ))}
               </div>

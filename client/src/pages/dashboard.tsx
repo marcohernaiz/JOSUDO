@@ -176,13 +176,13 @@ export default function Dashboard() {
             <HeroSection />
             
             {/* Chat Area */}
-            <div className="min-h-screen flex flex-col justify-end items-center">
-              <div className="flex-1 overflow-auto w-full max-h-full flex justify-center">
+            <div className="flex flex-col h-full">
+              <div className="flex-1 w-full flex justify-center">
                 <div className="w-full max-w-4xl mx-auto px-4">
                   <ChatArea />
                 </div>
               </div>
-              <div className="flex-shrink-0 pb-6 w-full flex justify-center">
+              <div className="flex-shrink-0 pb-4 w-full flex justify-center">
                 <MessageInput />
               </div>
             </div>
