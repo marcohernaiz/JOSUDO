@@ -237,17 +237,18 @@ export default function Dashboard() {
                           },
                           { 
                             title: "Customer Support", 
-                            description: "24/7 AI customer service representative",
+                            description: "",
                             gif: customerCareGif
                           }
                         ].map((item, index) => (
                           <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
-                            <div className="h-20 bg-gradient-to-br from-blue-50 to-purple-50 rounded-md mb-2 flex items-center justify-center overflow-hidden">
+                            <div className="h-24 rounded-md mb-2 overflow-hidden">
                               {item.gif ? (
                                 <img 
                                   src={item.gif}
                                   alt={item.title}
-                                  className="w-full h-full object-cover rounded-md"
+                                  className="w-full h-full object-cover object-center"
+                                  style={{ aspectRatio: '3/4' }}
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                     const fallback = e.currentTarget.parentElement?.nextElementSibling as HTMLElement;
@@ -261,7 +262,8 @@ export default function Dashboard() {
                                   loop
                                   muted
                                   playsInline
-                                  className="w-full h-full object-cover rounded-md"
+                                  className="w-full h-full object-cover object-center"
+                                  style={{ aspectRatio: '3/4' }}
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                     const fallback = e.currentTarget.nextElementSibling as HTMLElement;
@@ -304,12 +306,13 @@ export default function Dashboard() {
                           }
                         ].map((item, index) => (
                           <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
-                            <div className="h-20 bg-gradient-to-br from-green-50 to-blue-50 rounded-md mb-2 flex items-center justify-center overflow-hidden">
+                            <div className="h-24 rounded-md mb-2 overflow-hidden">
                               {item.gif ? (
                                 <img 
                                   src={item.gif}
                                   alt={item.title}
-                                  className="w-full h-full object-cover rounded-md"
+                                  className="w-full h-full object-cover object-center"
+                                  style={{ aspectRatio: '3/4' }}
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                     const fallback = e.currentTarget.parentElement?.nextElementSibling as HTMLElement;
@@ -323,7 +326,8 @@ export default function Dashboard() {
                                   loop
                                   muted
                                   playsInline
-                                  className="w-full h-full object-cover rounded-md"
+                                  className="w-full h-full object-cover object-center"
+                                  style={{ aspectRatio: '3/4' }}
                                   onError={(e) => {
                                     e.currentTarget.style.display = 'none';
                                     const fallback = e.currentTarget.nextElementSibling as HTMLElement;
