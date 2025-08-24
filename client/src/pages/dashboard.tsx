@@ -284,25 +284,38 @@ export default function Dashboard() {
                           },
                           { 
                             title: "AI Girlfriend", 
-                            description: "Personal AI companion for emotional support and companionship",
-                            video: "@assets/AI Girlfriend_1756062827362.mp4"
+                            description: "",
+                            gif: "@assets/AIGirlfriend-ezgif.com-crop_1756063645902.gif"
                           }
                         ].map((item, index) => (
                           <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
                             <div className="h-20 bg-gradient-to-br from-green-50 to-blue-50 rounded-md mb-2 flex items-center justify-center overflow-hidden">
-                              <video 
-                                src={item.video}
-                                autoPlay
-                                loop
-                                muted
-                                playsInline
-                                className="w-full h-full object-cover rounded-md"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                                  if (fallback) fallback.style.display = 'flex';
-                                }}
-                              />
+                              {item.gif ? (
+                                <img 
+                                  src={item.gif}
+                                  alt={item.title}
+                                  className="w-full h-full object-cover rounded-md"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    const fallback = e.currentTarget.parentElement?.nextElementSibling as HTMLElement;
+                                    if (fallback) fallback.style.display = 'flex';
+                                  }}
+                                />
+                              ) : (
+                                <video 
+                                  src={item.video}
+                                  autoPlay
+                                  loop
+                                  muted
+                                  playsInline
+                                  className="w-full h-full object-cover rounded-md"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                    if (fallback) fallback.style.display = 'flex';
+                                  }}
+                                />
+                              )}
                               <div className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 rounded-md items-center justify-center hidden">
                                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center">
                                   <span className="text-white text-lg font-bold">{item.title.charAt(0)}</span>
@@ -310,7 +323,7 @@ export default function Dashboard() {
                               </div>
                             </div>
                             <h3 className="font-medium text-gray-900 mb-1 text-xs">{item.title}</h3>
-                            <p className="text-xs text-gray-600 leading-tight">{item.description}</p>
+                            {item.description && <p className="text-xs text-gray-600 leading-tight">{item.description}</p>}
                           </div>
                         ))}
                       </div>
