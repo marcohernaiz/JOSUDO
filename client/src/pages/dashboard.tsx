@@ -178,13 +178,13 @@ export default function Dashboard() {
             {messages.length === 0 && <HeroSection />}
             
             {/* Chat Area */}
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col" style={{ minHeight: messages.length === 0 ? 'auto' : '100vh' }}>
               <div className="flex-1 w-full flex justify-center">
                 <div className="w-full max-w-4xl mx-auto px-4">
                   <ChatArea />
                 </div>
               </div>
-              <div className="flex-shrink-0 pb-4 w-full flex justify-center">
+              <div className="flex-shrink-0 pb-4 w-full flex justify-center" style={{ marginTop: messages.length === 0 ? '2rem' : 'auto' }}>
                 <MessageInput />
               </div>
             </div>

@@ -232,26 +232,48 @@ export const ChatArea: React.FC = () => {
 
   if (messages.length === 0) {
     return (
-      <div className="bg-white py-4 px-4 sm:px-6 lg:px-8">
+      <div className="bg-white py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          {/* Single Row with All Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {[
-              { title: "Executive Assistant", description: "Specialized AI assistant for executive support and scheduling", category: "Virtual Employee" },
-              { title: "Sales & Marketing", description: "AI-powered sales and marketing automation specialist", category: "Virtual Employee" },
-              { title: "Customer Support", description: "24/7 AI customer service representative", category: "Virtual Employee" },
-              { title: "Elderly Care", description: "Compassionate AI companion for elderly support and care", category: "Digital Persona" },
-              { title: "Digital Buddy", description: "Friendly AI companion for daily conversations and support", category: "Digital Persona" },
-              { title: "AI Girlfriend", description: "Personal AI companion for emotional support and companionship", category: "Digital Persona" }
-            ].map((item, index) => (
-              <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
-                <div className="h-16 bg-gray-200 rounded-md mb-2 flex items-center justify-center">
-                  <span className="text-gray-500 text-xs text-center">{item.title}</span>
-                </div>
-                <h3 className="font-medium text-gray-900 mb-1 text-xs">{item.title}</h3>
-                <p className="text-xs text-gray-600 leading-tight">{item.description}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Left Section - Hire Virtual Employees */}
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">Hire Virtual Employees</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                  { title: "Executive Assistant", description: "Specialized AI assistant for executive support and scheduling" },
+                  { title: "Sales & Marketing", description: "AI-powered sales and marketing automation specialist" },
+                  { title: "Customer Support", description: "24/7 AI customer service representative" }
+                ].map((item, index) => (
+                  <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                    <div className="h-16 bg-gray-200 rounded-md mb-2 flex items-center justify-center">
+                      <span className="text-gray-500 text-xs text-center">{item.title}</span>
+                    </div>
+                    <h3 className="font-medium text-gray-900 mb-1 text-xs">{item.title}</h3>
+                    <p className="text-xs text-gray-600 leading-tight">{item.description}</p>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* Right Section - Other Digital Personas */}
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">Other Digital Personas</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                  { title: "Elderly Care", description: "Compassionate AI companion for elderly support and care" },
+                  { title: "Digital Buddy", description: "Friendly AI companion for daily conversations and support" },
+                  { title: "AI Girlfriend", description: "Personal AI companion for emotional support and companionship" }
+                ].map((item, index) => (
+                  <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                    <div className="h-16 bg-gray-200 rounded-md mb-2 flex items-center justify-center">
+                      <span className="text-gray-500 text-xs text-center">{item.title}</span>
+                    </div>
+                    <h3 className="font-medium text-gray-900 mb-1 text-xs">{item.title}</h3>
+                    <p className="text-xs text-gray-600 leading-tight">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
