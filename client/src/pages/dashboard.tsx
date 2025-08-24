@@ -7,12 +7,14 @@ import { HeroSection } from "@/components/Hero/HeroSection";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useChat } from "@/hooks/useChat";
 import sophiaBackground from "@assets/Sophia background_1752487018233.png";
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { theme } = useTheme();
+  const { messages } = useChat();
 
   return (
     <div className="h-screen w-full bg-white dark:bg-black overflow-hidden">
@@ -172,8 +174,8 @@ export default function Dashboard() {
           
           {/* Scrollable content area */}
           <div className="flex-1 overflow-auto pt-16">
-            {/* Hero Section */}
-            <HeroSection />
+            {/* Hero Section - Only show when no messages */}
+            {messages.length === 0 && <HeroSection />}
             
             {/* Chat Area */}
             <div className="flex flex-col h-full">

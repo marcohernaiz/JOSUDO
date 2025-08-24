@@ -13,7 +13,7 @@ export const HeroSection: React.FC = () => {
               <img
                 src={josudoLogo}
                 alt="JOSUDO - Own Your Data"
-                className="h-20 w-auto object-contain"
+                className="h-60 w-auto object-contain"
               />
             </div>
             
