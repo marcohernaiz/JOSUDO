@@ -223,13 +223,39 @@ export default function Dashboard() {
                       <h2 className="text-xl font-bold text-gray-900 mb-1 text-center">Hire Virtual Employees</h2>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
-                          { title: "Executive Assistant", description: "Specialized AI assistant for executive support and scheduling" },
-                          { title: "Sales & Marketing", description: "AI-powered sales and marketing automation specialist" },
-                          { title: "Customer Support", description: "24/7 AI customer service representative" }
+                          { 
+                            title: "HR Specialist", 
+                            description: "Expert in human resources, recruitment, and employee relations",
+                            avatar: "https://cdn.heygen.com/avatar/woman_business_casual_talking.gif"
+                          },
+                          { 
+                            title: "Financial Advisor", 
+                            description: "Professional financial planning and investment guidance specialist",
+                            avatar: "https://cdn.heygen.com/avatar/man_suit_professional_talking.gif"
+                          },
+                          { 
+                            title: "Real Estate Agent", 
+                            description: "Expert in property sales, market analysis, and client relations",
+                            avatar: "https://cdn.heygen.com/avatar/woman_professional_speaking.gif"
+                          }
                         ].map((item, index) => (
-                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
-                            <div className="h-16 bg-gray-200 rounded-md mb-2 flex items-center justify-center">
-                              <span className="text-gray-500 text-xs text-center">{item.title}</span>
+                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
+                            <div className="h-20 bg-gradient-to-br from-blue-50 to-purple-50 rounded-md mb-2 flex items-center justify-center overflow-hidden">
+                              <img 
+                                src={item.avatar}
+                                alt={item.title}
+                                className="w-full h-full object-cover rounded-md"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
+                              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-md items-center justify-center hidden">
+                                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                  <span className="text-white text-lg font-bold">{item.title.charAt(0)}</span>
+                                </div>
+                              </div>
                             </div>
                             <h3 className="font-medium text-gray-900 mb-1 text-xs">{item.title}</h3>
                             <p className="text-xs text-gray-600 leading-tight">{item.description}</p>
@@ -243,13 +269,39 @@ export default function Dashboard() {
                       <h2 className="text-xl font-bold text-gray-900 mb-1 text-center">Other Digital Personas</h2>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
-                          { title: "Elderly Care", description: "Compassionate AI companion for elderly support and care" },
-                          { title: "Digital Buddy", description: "Friendly AI companion for daily conversations and support" },
-                          { title: "AI Girlfriend", description: "Personal AI companion for emotional support and companionship" }
+                          { 
+                            title: "Bank Support Specialist", 
+                            description: "Professional banking assistance and financial services support",
+                            avatar: "https://cdn.heygen.com/avatar/woman_bank_professional_talking.gif"
+                          },
+                          { 
+                            title: "Trading Advisor", 
+                            description: "Expert in market analysis, trading strategies, and investment advice",
+                            avatar: "https://cdn.heygen.com/avatar/man_trader_professional_speaking.gif"
+                          },
+                          { 
+                            title: "Legal Consultant", 
+                            description: "Professional legal advice and consultation services specialist",
+                            avatar: "https://cdn.heygen.com/avatar/woman_lawyer_professional_talking.gif"
+                          }
                         ].map((item, index) => (
-                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
-                            <div className="h-16 bg-gray-200 rounded-md mb-2 flex items-center justify-center">
-                              <span className="text-gray-500 text-xs text-center">{item.title}</span>
+                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
+                            <div className="h-20 bg-gradient-to-br from-green-50 to-blue-50 rounded-md mb-2 flex items-center justify-center overflow-hidden">
+                              <img 
+                                src={item.avatar}
+                                alt={item.title}
+                                className="w-full h-full object-cover rounded-md"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
+                              <div className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 rounded-md items-center justify-center hidden">
+                                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                                  <span className="text-white text-lg font-bold">{item.title.charAt(0)}</span>
+                                </div>
+                              </div>
                             </div>
                             <h3 className="font-medium text-gray-900 mb-1 text-xs">{item.title}</h3>
                             <p className="text-xs text-gray-600 leading-tight">{item.description}</p>
