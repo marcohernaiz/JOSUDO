@@ -14,12 +14,11 @@ export const HeroSection: React.FC = () => {
           <div className="flex flex-col justify-end items-center text-center lg:col-span-3">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2">
               The brain that powers your{" "}
-              <span className="text-blue-500">AI Ecosystem</span>
+              <span className="text-blue-500">New AI Computer</span>
             </h1>
 
             <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-            All the latest AI models and tools in one subscription: Chats, Images, Videos, Workflows,
-              and even Virtual Employees, while your data stays safe in your own cloud.
+              All your AI tools in one secure platform, while keeping full control of your data. Access all the latest AI models, create visual content, automate workflows, and put our virtual employees to work for you.
             </p>
           </div>
 
