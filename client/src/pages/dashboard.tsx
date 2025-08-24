@@ -245,27 +245,28 @@ export default function Dashboard() {
                             gif: customerSupportGif
                           }
                         ].map((item, index) => (
-                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
-                            <div className="h-24 rounded-md mb-2 overflow-hidden">
+                          <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                            <div className="w-full">
                               <img 
                                 src={item.gif}
                                 alt={item.title}
-                                className="w-full h-full object-cover object-center"
-                                style={{ aspectRatio: '3/4' }}
+                                className="w-full h-auto object-contain"
                                 onError={(e) => {
                                   e.currentTarget.style.display = 'none';
                                   const fallback = e.currentTarget.parentElement?.nextElementSibling as HTMLElement;
                                   if (fallback) fallback.style.display = 'flex';
                                 }}
                               />
-                              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-md items-center justify-center hidden">
+                              <div className="w-full h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-md items-center justify-center hidden">
                                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
                                   <span className="text-white text-lg font-bold">{item.title.charAt(0)}</span>
                                 </div>
                               </div>
                             </div>
-                            <h3 className="font-medium text-gray-900 mb-1 text-xs">{item.title}</h3>
-                            {item.description && <p className="text-xs text-gray-600 leading-tight">{item.description}</p>}
+                            <div className="p-2">
+                              <h3 className="font-medium text-gray-900 text-xs text-center">{item.title}</h3>
+                              {item.description && <p className="text-xs text-gray-600 leading-tight text-center">{item.description}</p>}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -292,27 +293,28 @@ export default function Dashboard() {
                             gif: aiGirlfriendGif
                           }
                         ].map((item, index) => (
-                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
-                            <div className="h-24 rounded-md mb-2 overflow-hidden">
+                          <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                            <div className="w-full">
                               <img 
                                 src={item.gif}
                                 alt={item.title}
-                                className="w-full h-full object-cover object-center"
-                                style={{ aspectRatio: '3/4' }}
+                                className="w-full h-auto object-contain"
                                 onError={(e) => {
                                   e.currentTarget.style.display = 'none';
                                   const fallback = e.currentTarget.parentElement?.nextElementSibling as HTMLElement;
                                   if (fallback) fallback.style.display = 'flex';
                                 }}
                               />
-                              <div className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 rounded-md items-center justify-center hidden">
+                              <div className="w-full h-32 bg-gradient-to-br from-green-100 to-blue-100 rounded-md items-center justify-center hidden">
                                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center">
                                   <span className="text-white text-lg font-bold">{item.title.charAt(0)}</span>
                                 </div>
                               </div>
                             </div>
-                            <h3 className="font-medium text-gray-900 mb-1 text-xs">{item.title}</h3>
-                            {item.description && <p className="text-xs text-gray-600 leading-tight">{item.description}</p>}
+                            <div className="p-2">
+                              <h3 className="font-medium text-gray-900 text-xs text-center">{item.title}</h3>
+                              {item.description && <p className="text-xs text-gray-600 leading-tight text-center">{item.description}</p>}
+                            </div>
                           </div>
                         ))}
                       </div>
