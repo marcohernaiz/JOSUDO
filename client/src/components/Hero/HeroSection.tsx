@@ -23,7 +23,7 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* Right Column - Image */}
-          <div className="flex justify-center lg:justify-end lg:col-span-2">
+          <div className="flex justify-center lg:justify-center lg:col-span-2">
             <img
               src={brainDashboardImage}
               alt="Digital Brain Dashboard - AI Ecosystem"
