@@ -270,16 +270,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
           </div>
         </div>
 
-        {/* Google Drive Chat History */}
-        {isExpanded && (
-          <div className="flex-1 overflow-hidden">
-            <GoogleDriveChatHistory onSwitchToChat={onSwitchToChat} />
-          </div>
-        )}
+        {/* Google Drive Chat History - Takes remaining space */}
+        <div className="flex-1 overflow-hidden">
+          {isExpanded && <GoogleDriveChatHistory onSwitchToChat={onSwitchToChat} />}
+        </div>
 
-        {/* User Profile Section */}
+        {/* User Profile Section - Fixed at bottom */}
         {isAuthenticated && (
-          <div className="p-4 border-t border-slate-300 dark:border-slate-700">
+          <div className={`${isExpanded ? "p-4" : "p-2"} border-t border-slate-300 dark:border-slate-700`}>
             <div className={`${isExpanded ? "space-y-3" : "space-y-2"}`}>
               {/* User Info with Dropdown */}
               <DropdownMenu>
@@ -287,6 +285,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                   <Button
                     variant="ghost"
                     className={`${isExpanded ? "w-full justify-start p-3" : "w-10 h-10 p-0 justify-center"} hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors`}
+                    title={!isExpanded ? (user?.username || 'User Profile') : ""}
                   >
                     <div className={`flex items-center ${isExpanded ? "space-x-3" : "justify-center"}`}>
                       {isExpanded ? (
@@ -314,7 +313,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                           </div>
                         </>
                       ) : (
-                        <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-300 dark:bg-slate-600 flex-shrink-0" title={user?.username || 'User'}>
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-300 dark:bg-slate-600 flex-shrink-0">
                           {user?.avatar ? (
                             <img 
                               src={user.avatar} 
@@ -367,7 +366,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
           </div>
         )}
 
-        {/* Sidebar Footer for non-authenticated users */}
+        {/* Sidebar Footer for non-authenticated users - Fixed at bottom */}
         {!isAuthenticated && (
           <div className={`${isExpanded ? "p-4" : "p-2"} border-t border-slate-300 dark:border-slate-700`}>
             <div className={`${isExpanded ? "space-y-2" : ""}`}>
@@ -399,6 +398,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                   <button
                     className="w-8 h-8 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 flex items-center justify-center rounded-md transition-colors"
                     onClick={() => window.location.href = '/api/auth/google'}
+                    title="Sign in with Google"
                   >
                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlnsXlink="http://www.w3.org/1999/xlink" className="w-4 h-4">
                       <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
