@@ -3,6 +3,7 @@ import { Sidebar } from "@/components/Sidebar/Sidebar";
 import { Header } from "@/components/Header/Header";
 import { ChatArea } from "@/components/Chat/ChatArea";
 import { MessageInput } from "@/components/Chat/MessageInput";
+import { HeroSection } from "@/components/Hero/HeroSection";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -168,14 +169,22 @@ export default function Dashboard() {
           <div className="absolute top-0 left-0 w-full z-40">
             <Header />
           </div>
-          <div className="flex-1 flex flex-col justify-end items-center pt-20 h-full">
-            <div className="flex-1 overflow-auto w-full max-h-full flex justify-center">
-              <div className="w-full max-w-4xl mx-auto px-4">
-                <ChatArea />
+          
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-auto pt-20">
+            {/* Hero Section */}
+            <HeroSection />
+            
+            {/* Chat Area */}
+            <div className="min-h-screen flex flex-col justify-end items-center">
+              <div className="flex-1 overflow-auto w-full max-h-full flex justify-center">
+                <div className="w-full max-w-4xl mx-auto px-4">
+                  <ChatArea />
+                </div>
               </div>
-            </div>
-            <div className="flex-shrink-0 pb-6 w-full flex justify-center">
-              <MessageInput />
+              <div className="flex-shrink-0 pb-6 w-full flex justify-center">
+                <MessageInput />
+              </div>
             </div>
           </div>
         </div>
