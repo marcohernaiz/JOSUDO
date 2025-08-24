@@ -9,6 +9,8 @@ import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useChat } from "@/hooks/useChat";
 import sophiaBackground from "@assets/Sophia background_1752487018233.png";
+import customerCareGif from "@assets/Customer Care animated_1756064434699.gif";
+import aiGirlfriendGif from "@assets/AIGirlfriend-ezgif.com-crop_1756063645902.gif";
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
@@ -236,7 +238,7 @@ export default function Dashboard() {
                           { 
                             title: "Customer Support", 
                             description: "24/7 AI customer service representative",
-                            gif: "/attached_assets/Customer Care animated_1756064434699.gif"
+                            gif: customerCareGif
                           }
                         ].map((item, index) => (
                           <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
@@ -298,7 +300,7 @@ export default function Dashboard() {
                           { 
                             title: "AI Girlfriend", 
                             description: "",
-                            gif: "/attached_assets/AIGirlfriend-ezgif.com-crop_1756063645902.gif"
+                            gif: aiGirlfriendGif
                           }
                         ].map((item, index) => (
                           <div key={index} className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer">
