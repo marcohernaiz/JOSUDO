@@ -7,9 +7,9 @@ export const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="bg-white pt-2.5 pb-2.5 px-4 sm:px-6 lg:px-8">
+    <section className="bg-white px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center min-h-[60vh]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center py-12">
           {/* Left Column - Text Content */}
           <div className="flex flex-col justify-center">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-6">

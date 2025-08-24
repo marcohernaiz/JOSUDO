@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
 import josudoLogoOrange from "@assets/JOSUDO logo - naranja con Own Your data_1756038073769.png";
+import josudoIcon from "@assets/JOSUDO logo icon_1752491258890.png";
 import folderIcon from "@assets/vecteezy_simple-folder-icon-on-white-background_4693395-1_1755935645704.jpg";
 import { 
   Plus, 
@@ -132,19 +133,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                 title="Expand sidebar"
               >
                 {!isLogoHovered ? (
-                  <>
-                    <img
-                      src={josudoLogoOrange}
-                      alt="JOSUDO - Own Your Data"
-                      className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                        const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                        if (nextElement) nextElement.style.display = "block";
-                      }}
-                    />
-                    <span className="text-amber-400 text-2xl hidden">⚜️</span>
-                  </>
+                  <img
+                    src={josudoIcon}
+                    alt="JOSUDO"
+                    className="w-6 h-6 object-contain flex-shrink-0"
+                    style={{ filter: 'brightness(0) saturate(100%) invert(0%)' }}
+                  />
                 ) : (
                   <svg 
                     className="w-5 h-5 text-slate-600 dark:text-slate-400" 
