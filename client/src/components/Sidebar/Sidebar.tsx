@@ -15,6 +15,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import josudoLogo from "@assets/JOSUDO ICON_1752512850035.png";
 import josudoText from "@assets/josudo logo just text_1752513004427.png";
+import josudoLogoMain from "@assets/josudo light background_1756031061697.webp";
 import folderIcon from "@assets/vecteezy_simple-folder-icon-on-white-background_4693395-1_1755935645704.jpg";
 import { 
   Plus, 
@@ -159,33 +160,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
               </div>
             ) : (
               <>
-                <div className="flex items-center space-x-3">
-                  <div className="relative w-10 h-10 flex items-center justify-center flex-shrink-0">
-                    <img
-                      src={josudoLogo}
-                      alt="Josudo Logo"
-                      className="w-10 h-10 object-contain flex-shrink-0 josudo-logo-light"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                        const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                        if (nextElement) nextElement.style.display = "block";
-                      }}
-                    />
-                    <span className="text-amber-400 text-2xl hidden">⚜️</span>
-                  </div>
+                <div className="flex items-center space-x-3 w-full">
                   <img
-                    src={josudoText}
-                    alt="Josudo"
-                    className="h-8 object-contain flex-shrink-0 josudo-text-light"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                      const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                      if (nextElement) nextElement.style.display = "inline";
-                    }}
+                    src={josudoLogoMain}
+                    alt="JOSUDO - Own Your Data"
+                    className="h-16 w-auto object-contain"
                   />
-                  <span className="font-bold text-black dark:text-white hidden">
-                    Josudo
-                  </span>
                 </div>
 
                 <Button

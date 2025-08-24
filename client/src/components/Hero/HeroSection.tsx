@@ -1,5 +1,4 @@
 
-import josudoLogo from "@assets/josudo light background_1756031061697.webp";
 import brainImage from "@assets/20250824_1046_Digital Brain Dashboard_remix_01k3dm048gfq7892ekr6rvskxn_1756031958536.png";
 
 export const HeroSection: React.FC = () => {
@@ -11,17 +10,9 @@ export const HeroSection: React.FC = () => {
     <section className="bg-white pt-0 pb-0 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
-          {/* Left Column - Text Content with JOSUDO Logo */}
+          {/* Left Column - Text Content */}
           <div className="order-1 lg:order-1 lg:col-span-3 text-left flex flex-col justify-start">
-            <div className="mb-0">
-              <img
-                src={josudoLogo}
-                alt="JOSUDO - Own Your Data"
-                className="h-40 w-auto object-contain"
-              />
-            </div>
-            
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-4 -mt-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-4">
               The brain that powers your{" "}
               <span className="text-blue-500">AI Ecosystem</span>
             </h1>
