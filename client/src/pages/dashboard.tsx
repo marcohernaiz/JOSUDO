@@ -16,6 +16,11 @@ export default function Dashboard() {
   const { theme } = useTheme();
   const { messages } = useChat();
 
+  // Dummy function to satisfy the original Sidebar prop, assuming it's needed elsewhere
+  const handleSwitchToChat = () => {
+    console.log("Switching to chat...");
+  };
+
   return (
     <div className="h-screen w-full bg-white dark:bg-black overflow-hidden">
       <div
@@ -49,7 +54,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} />
             </div>
           </div>
         )}
@@ -67,7 +72,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} />
             </div>
           </div>
         )}
