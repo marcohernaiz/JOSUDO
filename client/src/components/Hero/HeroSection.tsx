@@ -11,25 +11,16 @@ export const HeroSection: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center pb-12">
           {/* Left Column - Text Content */}
-          <div className="flex flex-col justify-center lg:col-span-2">
+          <div className="flex flex-col justify-center items-center text-center lg:items-start lg:text-left lg:col-span-2">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-6">
               The brain that powers your{" "}
               <span className="text-blue-500">AI Ecosystem</span>
             </h1>
 
-            <p className="text-base sm:text-lg text-gray-600 leading-relaxed mb-8">
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
               All your AI models and tools in one subscription—chats, images, videos, workflows,
               and even virtual employees—while your data stays safe in your own cloud.
             </p>
-
-            <div className="flex">
-              <button
-                onClick={handleGoogleSignIn}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-200 hover:shadow-xl"
-              >
-                Get Started for Free
-              </button>
-            </div>
           </div>
 
           {/* Right Column - Image */}
