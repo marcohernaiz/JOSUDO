@@ -9,18 +9,18 @@ export const HeroSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Left Column - Text Content with JOSUDO Logo */}
           <div className="order-1 lg:order-1 text-left">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2">
-              The brain that powers your{" "}
-              <span className="text-blue-500">AI Ecosystem</span>
-            </h1>
-            
             <div className="mb-4">
               <img
                 src={josudoLogo}
                 alt="JOSUDO - Own Your Data"
-                className="h-12 w-auto object-contain"
+                className="h-20 w-auto object-contain"
               />
             </div>
+            
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight mb-2">
+              The brain that powers your{" "}
+              <span className="text-blue-500">AI Ecosystem</span>
+            </h1>
             
             <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl">
               All your AI models and tools in one subscription—chats, images, videos, workflows, 
