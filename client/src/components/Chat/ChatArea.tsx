@@ -23,7 +23,7 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
   ];
 
   const handleImageError = (url: string) => {
-    setImageErrors(prev => new Set([...prev, url]));
+    setImageErrors(prev => new Set(Array.from(prev).concat(url)));
   };
 
   const renderContentWithImages = (text: string) => {
@@ -46,10 +46,10 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
     }
     
     // Check main image regex
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = imageUrlRegex.exec(text)) !== null) {
       // Skip if this URL is already captured by markdown
-      const isAlreadyCaptured = allMatches.some(m => m.url === match[0]);
+      const isAlreadyCaptured = allMatches.some(m => m.url === match![0]);
       if (!isAlreadyCaptured) {
         allMatches.push({
           url: match[0],
@@ -61,10 +61,10 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
     
     // Check AI image patterns
     aiImagePatterns.forEach(pattern => {
-      let aiMatch;
+      let aiMatch: RegExpExecArray | null;
       while ((aiMatch = pattern.exec(text)) !== null) {
         // Skip if this URL is already captured
-        const isAlreadyCaptured = allMatches.some(m => m.url === aiMatch[0]);
+        const isAlreadyCaptured = allMatches.some(m => m.url === aiMatch![0]);
         if (!isAlreadyCaptured) {
           allMatches.push({
             url: aiMatch[0],

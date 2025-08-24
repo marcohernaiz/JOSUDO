@@ -1,5 +1,5 @@
 
-import josudoLogoOrange from "@assets/josudo-logo-orange.png";
+import josudoLogoOrange from "@assets/JOSUDO logo - naranja con Own Your data_1756038073769.png";
 
 export const HeroSection: React.FC = () => {
   const handleGoogleSignIn = () => {
