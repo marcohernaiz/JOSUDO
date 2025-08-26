@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, ArrowLeft, Zap } from 'lucide-react';
 
 export const PaymentSuccess: React.FC = () => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [, navigate] = useLocation();
   const [credits, setCredits] = useState<number>(0);
 
   useEffect(() => {
     // Extract payment_intent from URL if present
-    const paymentIntent = searchParams.get('payment_intent');
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentIntent = urlParams.get('payment_intent');
     if (paymentIntent) {
       // You could fetch payment details here if needed
       console.log('Payment Intent:', paymentIntent);
     }
-  }, [searchParams]);
+  }, []);
 
   const handleBackToApp = () => {
     navigate('/dashboard');
