@@ -23,7 +23,6 @@ interface PaymentModalProps {
 
 const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string | null, onClose: () => void, setSelectedPackage: (id: string) => void }> = ({ packages, selectedPackage, onClose, setSelectedPackage }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [postalCode, setPostalCode] = useState('');
   const { user } = useAppContext();
   const { toast } = useToast();
   const stripe = useStripe();
@@ -31,16 +30,6 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
 
   const handlePayment = async () => {
     if (!selectedPackage || !stripe || !elements) return;
-    
-    // Validate postal code
-    if (!postalCode.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Please enter a valid postal code",
-        variant: "destructive",
-      });
-      return;
-    }
 
     setIsProcessing(true);
     try {
@@ -71,9 +60,6 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
 
       // Confirm card payment
       console.log('Confirming card payment with client secret:', clientSecret.substring(0, 20) + '...');
-      console.log('Postal code being sent:', postalCode);
-      console.log('Postal code length:', postalCode.length);
-      console.log('Postal code trimmed:', postalCode.trim());
       
       const { error, paymentIntent } = await stripe.confirmPayment({
         clientSecret,
@@ -82,9 +68,6 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
             card: cardElement,
             billing_details: {
               email: user?.email || '',
-              address: {
-                postal_code: postalCode.trim(),
-              },
             },
           },
           return_url: `${window.location.origin}/payment-success`,
@@ -193,24 +176,11 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
             />
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor="postal-code" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-              Postal Code
-            </label>
-            <input
-              id="postal-code"
-              type="text"
-              value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
-              placeholder="Enter your postal code"
-              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
+
 
                   <Button
             onClick={handlePayment}
-            disabled={!selectedPackage || isProcessing || !stripe || !postalCode.trim()}
+            disabled={!selectedPackage || isProcessing || !stripe}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             size="lg"
           >
