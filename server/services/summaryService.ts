@@ -34,9 +34,15 @@ export class SummaryService {
         .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
         .join('\n');
 
-      const summaryPrompt = `Please provide a brief, descriptive title (maximum 50 characters) for this conversation based on the first few messages. The title should capture the main topic or theme. Return only the title, nothing else.
+      const summaryPrompt = `Create a short title (max 25 chars) for this conversation. Focus on the user's main question/topic. Return ONLY the title.
 
-Conversation:
+Examples:
+- "AI Strategy"
+- "Code Help"
+- "Project Plan"
+- "Tech Support"
+
+User messages:
 ${conversationText}
 
 Title:`;
@@ -53,9 +59,9 @@ Title:`;
         
         // Clean up the response and ensure it's not too long
         const summary = response.choices[0]?.message?.content?.trim() || "";
-        const cleanSummary = summary.replace(/^["']|["']$/g, '').substring(0, 50);
-        if (cleanSummary.length > 47) {
-          return cleanSummary.substring(0, 47) + '...';
+        const cleanSummary = summary.replace(/^["']|["']$/g, '').substring(0, 25);
+        if (cleanSummary.length > 22) {
+          return cleanSummary.substring(0, 22) + '...';
         }
         return cleanSummary || this.generateFallbackSummary(conversationMessages);
       }
@@ -90,10 +96,16 @@ Title:`;
     // Try to use the first user message as a summary
     const firstUserMessage = messages.find(msg => msg.role === "user");
     if (firstUserMessage && firstUserMessage.content.trim()) {
-      let summary = firstUserMessage.content.trim().substring(0, 50);
-      if (summary.length === 50) {
-        summary = summary.substring(0, 47) + '...';
+      let content = firstUserMessage.content.trim();
+      
+      // Extract first few words and limit to 25 characters
+      const words = content.split(' ').slice(0, 4).join(' ');
+      let summary = words.substring(0, 25);
+      
+      if (summary.length === 25 && content.length > 25) {
+        summary = summary.substring(0, 22) + '...';
       }
+      
       return summary;
     }
     return "New conversation";

@@ -138,7 +138,9 @@ class GoogleDriveService {
         // Generate summary if this is the first message or every 4 messages
         if (currentData.messages.length <= 2 || currentData.messages.length % 8 === 0) {
           try {
-            currentData.summary = await SummaryService.generateChatSummary(currentData.messages);
+            // Only use user messages for summary generation to avoid AI responses being used as titles
+            const userMessages = currentData.messages.filter(msg => msg.role === "user");
+            currentData.summary = await SummaryService.generateChatSummary(userMessages);
           } catch (error) {
             console.error("Failed to generate summary:", error);
             // Keep existing summary or use fallback
@@ -167,7 +169,9 @@ class GoogleDriveService {
 
         // Generate initial summary
         try {
-          newData.summary = await SummaryService.generateChatSummary(newData.messages);
+          // Only use user messages for summary generation to avoid AI responses being used as titles
+          const userMessages = newData.messages.filter(msg => msg.role === "user");
+          newData.summary = await SummaryService.generateChatSummary(userMessages);
         } catch (error) {
           console.error("Failed to generate initial summary:", error);
         }
@@ -403,8 +407,11 @@ class GoogleDriveService {
 
       if (files.data.files && files.data.files.length > 0) {
         const fileId = files.data.files[0].id;
+        if (!fileId) {
+          return "Chat Session";
+        }
         const fileContent = await drive.files.get({
-          fileId: fileId!,
+          fileId,
           alt: "media",
         });
 
@@ -422,7 +429,9 @@ class GoogleDriveService {
           // Old format - generate summary from messages
           if (parsedContent.length > 0) {
             try {
-              return await SummaryService.generateChatSummary(parsedContent);
+              // Only use user messages for summary generation
+              const userMessages = parsedContent.filter((msg: any) => msg.role === "user");
+              return await SummaryService.generateChatSummary(userMessages);
             } catch (error) {
               console.error("Failed to generate summary for old format:", error);
               return "Chat Session";
@@ -431,11 +440,28 @@ class GoogleDriveService {
           return "New conversation";
         } else if (parsedContent.messages) {
           // New format - return stored summary or generate new one
-          if (parsedContent.summary) {
+          if (parsedContent.summary && parsedContent.summary.length <= 30) {
+            // Only use stored summary if it's reasonable length
             return parsedContent.summary;
           } else if (parsedContent.messages.length > 0) {
             try {
-              return await SummaryService.generateChatSummary(parsedContent.messages);
+              // Only use user messages for summary generation
+              const userMessages = parsedContent.messages.filter((msg: any) => msg.role === "user");
+              return await SummaryService.generateChatSummary(userMessages);
+                              // Regenerate summary if current one is too long
+                if (parsedContent.summary && parsedContent.summary.length > 30) {
+                  const newSummary = await SummaryService.generateChatSummary(userMessages);
+                  // Update the file with the new summary
+                  parsedContent.summary = newSummary;
+                  await drive.files.update({
+                    fileId: fileId as string,
+                    media: {
+                      mimeType: "application/json",
+                      body: JSON.stringify(parsedContent, null, 2),
+                    },
+                  });
+                  return newSummary;
+                }
             } catch (error) {
               console.error("Failed to generate summary for new format:", error);
               return "Chat Session";

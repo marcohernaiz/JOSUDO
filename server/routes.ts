@@ -1630,6 +1630,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
+  // Endpoint to regenerate chat session summaries
+  app.post(
+    "/api/google-drive/regenerate-summaries",
+    authenticateUser,
+    async (req, res) => {
+      try {
+        const userId = (req.user as any)?.id;
+        console.log("Regenerating chat session summaries for userId:", userId);
+
+        // Get user's Google Drive credentials
+        const integration = await storage.getIntegration(
+          userId,
+          "google-drive",
+        );
+        if (!integration) {
+          console.log("No Google Drive integration found for userId:", userId);
+          return res
+            .status(404)
+            .json({ error: "Google Drive integration not found" });
+        }
+
+        console.log("Found Google Drive integration for userId:", userId);
+        const credentials = JSON.parse(integration.credentialsEncrypted);
+        
+        // Get all chat sessions
+        const chatSessions = await googleDriveService.getChatHistoryFiles(
+          JSON.stringify(credentials)
+        );
+
+        let updatedCount = 0;
+        for (const session of chatSessions) {
+          try {
+            // This will automatically regenerate summaries for sessions with long titles
+            await googleDriveService.getChatSessionSummary(
+              session.name?.replace("chat_session_", "").replace(".json", "") || "",
+              JSON.stringify(credentials)
+            );
+            updatedCount++;
+          } catch (error) {
+            console.error("Failed to regenerate summary for session:", session.name, error);
+          }
+        }
+
+        res.json({ 
+          success: true, 
+          message: `Regenerated summaries for ${updatedCount} chat sessions`,
+          updatedCount 
+        });
+      } catch (error) {
+        console.error("Failed to regenerate summaries:", error);
+        res.status(500).json({
+          error: "Failed to regenerate summaries",
+          details: error instanceof Error ? error.message : String(error),
+        });
+      }
+    },
+  );
+
   // Non-authenticated version for testing (remove in production)
   app.get(
     "/api/google-drive/chat-session-test/:sessionId",

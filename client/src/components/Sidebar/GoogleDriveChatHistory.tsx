@@ -255,8 +255,39 @@ export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ 
     );
   }
 
+  const handleRegenerateSummaries = async () => {
+    try {
+      const response = await fetch("/api/google-drive/regenerate-summaries", {
+        method: "POST",
+        credentials: "include",
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Summaries regenerated:", data);
+        // Refresh the chat history to show updated titles
+        refetch();
+      } else {
+        console.error("Failed to regenerate summaries");
+      }
+    } catch (error) {
+      console.error("Error regenerating summaries:", error);
+    }
+  };
+
   return (
     <div className="flex-1 overflow-y-auto">
+      <div className="p-2 border-b border-slate-200 dark:border-slate-700">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRegenerateSummaries}
+          className="w-full text-xs"
+          title="Regenerate chat titles to fix long summaries"
+        >
+          🔄 Fix Chat Titles
+        </Button>
+      </div>
 
       <div className="space-y-1 p-2">
         {chatSessions.map((session) => (
