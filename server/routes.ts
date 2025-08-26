@@ -1077,18 +1077,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
           type: 'complete', 
           response: fullResponse,
           tokens: finalTokens,
-          model: model
+          model: model,
+          sessionId: sessionId || (userId ? userId.toString() : undefined)
         })}\n\n`);
 
         // Save the complete conversation to Google Drive (only if authenticated)
         if (integration && userId) {
           try {
+            // Generate a new session ID if none exists
+            const finalSessionId = sessionId || `new_session_${Date.now()}_${userId}`;
+            
             await googleDriveService.saveChatMessage(
-              sessionId || userId.toString(),
+              finalSessionId,
               message, // Save original user message (not enhanced with files)
               fullResponse,
               integration.credentialsEncrypted
             );
+            
+            // Update the sessionId in the response to include the generated one
+            if (!sessionId) {
+              // Send an additional data event with the new session ID
+              res.write(`data: ${JSON.stringify({ 
+                type: 'session_created', 
+                sessionId: finalSessionId 
+              })}\n\n`);
+            }
           } catch (error) {
             console.error("Failed to save message to Google Drive:", error);
           }

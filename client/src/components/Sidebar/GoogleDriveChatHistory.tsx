@@ -159,7 +159,13 @@ export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ 
       // Only clear messages if we're switching to a different session and it has no content yet
       // This prevents clearing messages for the current active session
       setMessages([]);
+    } else if (selectedSession && !selectedChatContent && selectedSession === currentSessionId) {
+      // Don't clear messages if we're in the current session but have no content yet
+      // This prevents clearing messages when creating a new session or when the session is empty
+      console.log("Preventing message clearing for current session:", selectedSession);
     }
+    // Don't clear messages if we're in the same session but have no content yet
+    // This prevents clearing messages when creating a new session
   }, [selectedChatContent, selectedSession, setMessages, currentSessionId]);
 
   const formatDate = (dateString: string) => {

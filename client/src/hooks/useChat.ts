@@ -68,37 +68,9 @@ export const useChat = () => {
         setStreamingMessageId(aiMessageId);
         setMessages((prev) => [...prev, userMessage, aiMessage]);
 
-        // If no sessionId is provided and user is authenticated, create a new chat session
+        // Don't create session on client side - let server handle it
+        // This prevents interference with the current chat state
         let finalSessionId = sessionId;
-        if (!finalSessionId && isAuthenticated) {
-          try {
-            console.log("No session ID provided, creating new chat session...");
-            const response = await fetch("/api/google-drive/new-chat", {
-              method: "POST",
-              credentials: "include",
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              finalSessionId = data.sessionId;
-              console.log("Created new chat session:", finalSessionId);
-              
-              // Update the current session ID in context
-              setCurrentSessionId(finalSessionId as string);
-              
-              // Invalidate chat history to refresh the list
-              queryClient.invalidateQueries({ queryKey: ["/api/google-drive/chat-history"] });
-            } else {
-              console.error("Failed to create new chat session");
-              // Continue without session ID if creation fails
-            }
-          } catch (error) {
-            console.error("Error creating new chat session:", error);
-            // Continue without session ID if creation fails
-          }
-        } else if (!finalSessionId && !isAuthenticated) {
-          console.log("User not authenticated, continuing without session ID");
-        }
 
         // Prepare request data - convert files to base64 for simple handling
         let processedFiles: Array<{name: string, content: string, type: string}> = [];
@@ -225,6 +197,14 @@ export const useChat = () => {
                         setStreamingMessageId(null);
                         resolve(data);
                         return;
+                      } else if (data.type === 'session_created') {
+                        // Handle new session creation
+                        console.log("New session created:", data.sessionId);
+                        if (data.sessionId && !currentSessionId) {
+                          setCurrentSessionId(data.sessionId);
+                          // Invalidate chat history to refresh the list
+                          queryClient.invalidateQueries({ queryKey: ["/api/google-drive/chat-history"] });
+                        }
                       } else if (data.type === 'error') {
                         throw new Error(data.error);
                       }
