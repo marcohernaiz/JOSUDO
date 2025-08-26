@@ -17,6 +17,7 @@ export const useChat = () => {
     currentSessionId,
     setCurrentSessionId,
     isAuthenticated,
+    selectedModel,
   } = useAppContext();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -29,12 +30,10 @@ export const useChat = () => {
     mutationFn: async ({
       message,
       sessionId,
-      model,
       files,
     }: {
       message: string;
       sessionId?: string | number;
-      model?: string;
       files?: File[];
     }) => {
       // Use streaming for all requests
@@ -62,7 +61,7 @@ export const useChat = () => {
           role: "assistant",
           content: "",
           timestamp: new Date(),
-          model: model || "deepseek-chat",
+          model: selectedModel,
         };
 
         setStreamingMessageId(aiMessageId);
@@ -113,7 +112,7 @@ export const useChat = () => {
         const body = JSON.stringify({
           message,
           sessionId: finalSessionId,
-          model: model || "deepseek-chat",
+          model: selectedModel,
           files: processedFiles.length > 0 ? processedFiles : undefined,
         });
 
@@ -193,6 +192,17 @@ export const useChat = () => {
                               : msg
                           )
                         );
+                        
+                        // If we received a sessionId in the completion event, set it
+                        if (data.sessionId && !currentSessionId) {
+                          console.log("Setting currentSessionId from completion event:", data.sessionId);
+                          setCurrentSessionId(data.sessionId as string);
+                          // Invalidate chat history to refresh the list with a small delay to ensure Google Drive save is complete
+                          setTimeout(() => {
+                            queryClient.invalidateQueries({ queryKey: ["/api/google-drive/chat-history"] });
+                          }, 500);
+                        }
+                        
                         setIsStreaming(false);
                         setStreamingMessageId(null);
                         resolve(data);
@@ -202,8 +212,10 @@ export const useChat = () => {
                         console.log("New session created:", data.sessionId);
                         if (data.sessionId && !currentSessionId) {
                           setCurrentSessionId(data.sessionId);
-                          // Invalidate chat history to refresh the list
-                          queryClient.invalidateQueries({ queryKey: ["/api/google-drive/chat-history"] });
+                          // Invalidate chat history to refresh the list with a small delay to ensure Google Drive save is complete
+                          setTimeout(() => {
+                            queryClient.invalidateQueries({ queryKey: ["/api/google-drive/chat-history"] });
+                          }, 500);
                         }
                       } else if (data.type === 'error') {
                         throw new Error(data.error);
@@ -237,6 +249,7 @@ export const useChat = () => {
 
       // Update active session if new session created
       if (data.sessionId && !activeSession) {
+        console.log("New session created in onSuccess, invalidating chat history");
         queryClient.invalidateQueries({ queryKey: ["/api/google-drive/chat-history"] });
       }
 
@@ -262,7 +275,7 @@ export const useChat = () => {
     },
   });
 
-  const sendMessage = async (model?: string, files?: File[], message?: string) => {
+  const sendMessage = async (files?: File[], message?: string) => {
     const messageToSend = message || currentMessage;
     if (!messageToSend.trim() && (!files || files.length === 0)) return;
 
@@ -271,7 +284,6 @@ export const useChat = () => {
     sendMessageMutation.mutate({
       message: messageToSend,
       sessionId: currentSessionId || undefined,
-      model,
       files,
     });
   };

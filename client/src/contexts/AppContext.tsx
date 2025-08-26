@@ -29,28 +29,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   // Add current session ID for Google Drive
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  // Add AI model selection state
+  const [selectedModel, setSelectedModel] = useState<string>('deepseek-v3');
 
   // Query user authentication status
-  const { data: user, isLoading: isUserLoading } = useQuery({
+  const { data: user, isLoading: isUserLoading } = useQuery<User>({
     queryKey: ["/api/auth/user"],
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Only fetch user-specific data if authenticated
-  const { data: integrations = [] } = useQuery({
+  const { data: integrations = [] } = useQuery<Integration[]>({
     queryKey: ["/api/integrations"],
     enabled: !!user,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
-  const { data: chatSessions = [] } = useQuery({
+  const { data: chatSessions = [] } = useQuery<ChatSession[]>({
     queryKey: ["/api/chat-sessions"],
     enabled: !!user,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
-  const { data: billing = null } = useQuery({
+  const { data: billing = null } = useQuery<Billing>({
     queryKey: ["/api/billing"],
     enabled: !!user,
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -89,11 +91,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     refreshIntegrations,
     refreshChatSessions,
     refreshBilling,
-    // Add these for chat state
     messages,
     setMessages,
     currentSessionId,
     setCurrentSessionId,
+    selectedModel,
+    setSelectedModel,
   };
 
   return (

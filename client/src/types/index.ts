@@ -77,4 +77,7 @@ export interface AppContextType {
   setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   currentSessionId: string | null;
   setCurrentSessionId: (sessionId: string | null) => void;
+  // Add AI model selection
+  selectedModel: string;
+  setSelectedModel: (model: string) => void;
 }

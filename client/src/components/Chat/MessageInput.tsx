@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -59,6 +59,48 @@ import {
   SiDropbox
 } from 'react-icons/si';
 
+// Add SpeechRecognition type definitions
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
+}
+
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
 const AI_MODELS = [
   { id: 'perplexity', name: 'Perplexity', icon: Brain },
   { id: 'grok-beta', name: 'Grok 4.0', icon: SiX },
@@ -84,9 +126,8 @@ const getStorageOptions = (isAuthenticated: boolean) => [
 
 export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading, messages } = useChat();
-  const { integrations } = useAppContext();
+  const { integrations, selectedModel, setSelectedModel } = useAppContext();
   const { isAuthenticated } = useAuth();
-  const [selectedModel, setSelectedModel] = useState('deepseek-v3');
   const [selectedStorage, setSelectedStorage] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -116,40 +157,42 @@ export const MessageInput: React.FC = () => {
       recognitionRef.current = new SpeechRecognition();
 
       const recognition = recognitionRef.current;
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      if (recognition) {
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
 
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
+        recognition.onstart = () => {
+          setIsListening(true);
+        };
 
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
-        let finalTranscript = '';
-        let interimTranscript = '';
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
+          let finalTranscript = '';
+          let interimTranscript = '';
 
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-          } else {
-            interimTranscript += transcript;
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
           }
-        }
 
-        if (finalTranscript) {
-          setCurrentMessage(prev => prev + (prev ? ' ' : '') + finalTranscript);
-        }
-      };
+          if (finalTranscript) {
+            setCurrentMessage(prev => prev + (prev ? ' ' : '') + finalTranscript);
+          }
+        };
 
-      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
+        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+        };
 
-      recognition.onend = () => {
-        setIsListening(false);
-      };
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+      }
     }
 
     return () => {
@@ -199,7 +242,7 @@ export const MessageInput: React.FC = () => {
     setCurrentMessage('');
     setAttachedFiles([]);
 
-    sendMessage(selectedModel, filesToSend, messageToSend);
+    sendMessage(filesToSend, messageToSend);
   };
 
   const handleFileAttach = () => {

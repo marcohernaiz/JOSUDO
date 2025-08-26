@@ -1072,14 +1072,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        // Send completion signal
-        res.write(`data: ${JSON.stringify({ 
-          type: 'complete', 
-          response: fullResponse,
-          tokens: finalTokens,
-          model: model,
-          sessionId: sessionId || (userId ? userId.toString() : undefined)
-        })}\n\n`);
+        // Completion signal will be sent after Google Drive save (if authenticated) or here (if not authenticated)
 
         // Save the complete conversation to Google Drive (only if authenticated)
         if (integration && userId) {
@@ -1102,9 +1095,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 sessionId: finalSessionId 
               })}\n\n`);
             }
+            
+            // Store the finalSessionId for use in the completion response
+            const effectiveSessionId = finalSessionId;
+            
+            // Send completion signal with the effective session ID
+            res.write(`data: ${JSON.stringify({ 
+              type: 'complete', 
+              response: fullResponse,
+              tokens: finalTokens,
+              model: model,
+              sessionId: effectiveSessionId
+            })}\n\n`);
           } catch (error) {
             console.error("Failed to save message to Google Drive:", error);
           }
+        } else {
+          // Send completion signal for non-authenticated users
+          res.write(`data: ${JSON.stringify({ 
+            type: 'complete', 
+            response: fullResponse,
+            tokens: finalTokens,
+            model: model,
+            sessionId: sessionId
+          })}\n\n`);
         }
 
         res.end();
@@ -1549,16 +1563,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
               ?.replace("chat_session_", "")
               .replace(".json", "") || "";
             
-            // Get summary for each session
-            let title = `Chat Session ${sessionId}`;
-            try {
-              title = await googleDriveService.getChatSessionSummary(
-                sessionId,
-                JSON.stringify(credentials)
-              );
-            } catch (error) {
-              console.error("Failed to get summary for session:", sessionId, error);
-            }
+                         // Get summary for each session
+             let title = `Chat Session ${sessionId}`;
+             try {
+               title = await googleDriveService.getChatSessionSummary(
+                 sessionId,
+                 JSON.stringify(credentials),
+                 false // Don't force regenerate, just use existing or auto-regenerate if problematic
+               );
+             } catch (error) {
+               console.error("Failed to get summary for session:", sessionId, error);
+             }
             
             return {
               id: sessionId,
@@ -1662,10 +1677,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let updatedCount = 0;
         for (const session of chatSessions) {
           try {
-            // This will automatically regenerate summaries for sessions with long titles
+            // Force regenerate summary by temporarily clearing it
+            const sessionId = session.name?.replace("chat_session_", "").replace(".json", "") || "";
+            
+            // Force regenerate summary by calling getChatSessionSummary with forceRegenerate=true
             await googleDriveService.getChatSessionSummary(
-              session.name?.replace("chat_session_", "").replace(".json", "") || "",
-              JSON.stringify(credentials)
+              sessionId,
+              JSON.stringify(credentials),
+              true // forceRegenerate
             );
             updatedCount++;
           } catch (error) {

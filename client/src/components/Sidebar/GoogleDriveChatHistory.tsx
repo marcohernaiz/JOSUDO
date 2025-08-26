@@ -33,6 +33,14 @@ export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ 
   } = useAppContext();
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
 
+  // Debug logging for chat sessions changes
+  React.useEffect(() => {
+    console.log("Chat sessions updated:", chatSessions?.length || 0, "sessions");
+    if (chatSessions) {
+      console.log("Session titles:", chatSessions.map(s => ({ id: s.id, title: s.title })));
+    }
+  }, [chatSessions]);
+
   // Reset selected session when messages are cleared (new chat started)
   React.useEffect(() => {
     if (messages.length === 0) {
@@ -58,6 +66,7 @@ export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ 
     staleTime: 30 * 1000, // 30 seconds
     refetchInterval: 2000, // Refetch every 2 seconds to catch new sessions quickly
     queryFn: async () => {
+      console.log("Fetching chat history...");
       const response = await fetch("/api/google-drive/chat-history", {
         credentials: "include",
       });
@@ -66,7 +75,9 @@ export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ 
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return response.json();
+      const data = await response.json();
+      console.log("Chat history fetched:", data.length, "sessions");
+      return data;
     },
   });
 
