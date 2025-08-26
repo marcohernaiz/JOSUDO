@@ -20,6 +20,7 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   username: text("username").notNull(),
   avatar: text("avatar"),
+  credits: integer("credits").default(0), // AI credits balance
   createdAt: timestamp("created_at").defaultNow(),
   subscriptionStatus: text("subscription_status").default("active"),
   stripeCustomerId: text("stripe_customer_id"),

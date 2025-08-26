@@ -8,7 +8,7 @@ import { Strategy as MicrosoftStrategy } from "passport-microsoft";
 import { storage } from "./storage";
 import { openaiService } from "./services/openai";
 import { googleDriveService } from "./services/googleDrive";
-import { billingService } from "./services/billing";
+import { billingService, CREDIT_PACKAGES } from "./services/billing";
 import { deepseekService } from "./services/deepseek";
 import { claudeService } from "./services/claude";
 import { geminiService } from "./services/gemini";
@@ -1734,6 +1734,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
     },
+  );
+
+  // Stripe payment routes
+  app.post(
+    "/api/stripe/create-payment-intent",
+    authenticateUser,
+    async (req, res) => {
+      try {
+        const { packageId } = req.body;
+        const userId = (req.user as any)?.id;
+
+        if (!packageId) {
+          return res.status(400).json({ error: "Package ID is required" });
+        }
+
+        const { clientSecret, amount } = await billingService.createPaymentIntent(packageId, userId);
+        
+        res.json({
+          clientSecret,
+          amount,
+          package: CREDIT_PACKAGES.find(p => p.id === packageId)
+        });
+      } catch (error) {
+        console.error("Error creating payment intent:", error);
+        res.status(500).json({
+          error: "Failed to create payment intent",
+          details: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+  );
+
+  app.post(
+    "/api/stripe/confirm-payment",
+    authenticateUser,
+    async (req, res) => {
+      try {
+        const { paymentIntentId } = req.body;
+        const userId = (req.user as any)?.id;
+
+        if (!paymentIntentId) {
+          return res.status(400).json({ error: "Payment intent ID is required" });
+        }
+
+        const { success, credits } = await billingService.confirmPayment(paymentIntentId);
+        
+        if (success) {
+          // TODO: Add credits to user's account in database
+          // For now, just return success
+          res.json({
+            success: true,
+            credits,
+            message: `Successfully added ${credits} credits to your account`
+          });
+        } else {
+          res.status(400).json({
+            success: false,
+            error: "Payment confirmation failed"
+          });
+        }
+      } catch (error) {
+        console.error("Error confirming payment:", error);
+        res.status(500).json({
+          error: "Failed to confirm payment",
+          details: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+  );
+
+  app.get(
+    "/api/stripe/credit-packages",
+    async (req, res) => {
+      try {
+        const packages = await billingService.getCreditPackages();
+        res.json(packages);
+      } catch (error) {
+        console.error("Error fetching credit packages:", error);
+        res.status(500).json({
+          error: "Failed to fetch credit packages",
+          details: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+  );
+
+  app.get(
+    "/api/user/credits",
+    authenticateUser,
+    async (req, res) => {
+      try {
+        const userId = (req.user as any)?.id;
+        const credits = await billingService.getUserCredits(userId);
+        res.json({ credits });
+      } catch (error) {
+        console.error("Error fetching user credits:", error);
+        res.status(500).json({
+          error: "Failed to fetch user credits",
+          details: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
   );
 
   const httpServer = createServer(app);

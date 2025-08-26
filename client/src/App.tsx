@@ -8,6 +8,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Dashboard from "./pages/dashboard";
 import Auth from "./pages/auth";
 import NotFound from "@/pages/not-found";
+import { PaymentSuccess } from "./pages/payment-success";
 
 function Router() {
   return (
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/auth" component={Auth} />
+      <Route path="/payment-success" component={PaymentSuccess} />
       <Route component={NotFound} />
     </Switch>
   );

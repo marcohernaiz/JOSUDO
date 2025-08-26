@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { SettingsModal } from "@/components/Modals/SettingsModal";
 import { BillingModal } from "@/components/Modals/BillingModal";
 import { GoogleDriveChatHistory } from "@/components/Sidebar/GoogleDriveChatHistory";
+import { PaymentModal } from "@/components/Modals/PaymentModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,6 +54,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
   const [isPrivateSpaceExpanded, setIsPrivateSpaceExpanded] = useState(true);
   const [isPrivateSpaceHovered, setIsPrivateSpaceHovered] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [userCredits, setUserCredits] = useState<number>(0);
+
+  // Fetch user credits
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      fetchUserCredits();
+    }
+  }, [isAuthenticated, user]);
+
+  const fetchUserCredits = async () => {
+    try {
+      const response = await fetch('/api/user/credits', {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUserCredits(data.credits);
+      }
+    } catch (error) {
+      console.error('Error fetching user credits:', error);
+    }
+  };
 
   // Handle responsive sidebar behavior
   useEffect(() => {
@@ -308,7 +331,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
                               {user?.username || 'User'}
                             </div>
                             <div className="text-xs text-slate-500 dark:text-slate-400">
-                              Free Plan
+                              {userCredits} credits available
                             </div>
                           </div>
                         </>
@@ -419,7 +442,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
         open={showSettings}
         onClose={() => setShowSettings(false)}
       />
-      <BillingModal open={showBilling} onClose={() => setShowBilling(false)} />
+      <PaymentModal 
+        open={showBilling} 
+        onClose={() => {
+          setShowBilling(false);
+          // Refresh credits after payment
+          if (isAuthenticated && user) {
+            fetchUserCredits();
+          }
+        }} 
+      />
     </>
   );
 };
