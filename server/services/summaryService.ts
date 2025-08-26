@@ -63,16 +63,26 @@ Title:`;
         if (cleanSummary.length > 22) {
           return cleanSummary.substring(0, 22) + '...';
         }
-        return cleanSummary || this.generateFallbackSummary(conversationMessages);
+        return cleanSummary || await this.generateFallbackSummary(conversationMessages);
       }
       
       // Fallback to DeepSeek if OpenAI is not available
       console.log("OpenAI not available, using DeepSeek for summary generation");
-      return await this.generateSummaryWithDeepSeek(summaryPrompt, conversationMessages);
+      try {
+        const summary = await this.generateSummaryWithDeepSeek(summaryPrompt, conversationMessages);
+        if (summary && summary !== "Chat Summary" && !summary.includes("Great question about AI and business")) {
+          return summary;
+        }
+      } catch (error) {
+        console.error("Error generating summary with DeepSeek:", error);
+      }
+      
+      // Use our improved fallback instead of problematic DeepSeek responses
+      return await this.generateFallbackSummary(conversationMessages);
       
     } catch (error) {
       console.error("Error generating chat summary:", error);
-      return this.generateFallbackSummary(messages);
+      return await this.generateFallbackSummary(messages);
     }
   }
 
@@ -85,29 +95,57 @@ Title:`;
       
       // Use DeepSeek's specialized summary generation method
       const summary = await deepseekService.generateSummary(conversationText);
-      return summary || this.generateFallbackSummary(conversationMessages);
+      
+      // Check if the summary is valid and not a generic response
+      if (summary && summary !== "Chat Summary" && !summary.includes("Great question about AI and business")) {
+        return summary;
+      }
+      
+      // Use our improved fallback instead of problematic DeepSeek responses
+      return await this.generateFallbackSummary(conversationMessages);
     } catch (error) {
       console.error("Error generating summary with DeepSeek:", error);
-      return this.generateFallbackSummary(conversationMessages);
+      return await this.generateFallbackSummary(conversationMessages);
     }
   }
 
-  private static generateFallbackSummary(messages: Array<{ role: string; content: string }>): string {
-    // Try to use the first user message as a summary
-    const firstUserMessage = messages.find(msg => msg.role === "user");
-    if (firstUserMessage && firstUserMessage.content.trim()) {
-      let content = firstUserMessage.content.trim();
-      
-      // Extract first few words and limit to 25 characters
-      const words = content.split(' ').slice(0, 4).join(' ');
-      let summary = words.substring(0, 25);
-      
-      if (summary.length === 25 && content.length > 25) {
-        summary = summary.substring(0, 22) + '...';
+  private static generateFallbackSummary(messages: Array<{ role: string; content: string }>): Promise<string> {
+    return new Promise((resolve) => {
+      // Try to use the first user message as a summary
+      const firstUserMessage = messages.find(msg => msg.role === "user");
+      if (firstUserMessage && firstUserMessage.content.trim()) {
+        let content = firstUserMessage.content.trim();
+        
+        // Extract first few words and limit to 25 characters
+        const words = content.split(' ').slice(0, 4).join(' ');
+        let summary = words.substring(0, 25);
+        
+        if (summary.length === 25 && content.length > 25) {
+          summary = summary.substring(0, 22) + '...';
+        }
+        
+        resolve(summary);
+        return;
       }
       
-      return summary;
-    }
-    return "New conversation";
+      // If no user message, try to create a summary from the conversation
+      if (messages.length > 0) {
+        const firstMessage = messages[0];
+        if (firstMessage.content) {
+          let content = firstMessage.content.trim();
+          const words = content.split(' ').slice(0, 3).join(' ');
+          let summary = words.substring(0, 25);
+          
+          if (summary.length === 25 && content.length > 25) {
+            summary = summary.substring(0, 22) + '...';
+          }
+          
+          resolve(summary);
+          return;
+        }
+      }
+      
+      resolve("New conversation");
+    });
   }
 }

@@ -472,12 +472,18 @@ class GoogleDriveService {
               if (forceRegenerate || 
                   !parsedContent.summary || 
                   parsedContent.summary.length > 25 || 
+                  parsedContent.summary.includes("Great question about AI and business") ||
+                  parsedContent.summary.includes("Great question about AI") ||
                   parsedContent.summary.includes("Great question") ||
                   parsedContent.summary.includes("That's a great") ||
                   parsedContent.summary.includes("I'd be happy") ||
                   parsedContent.summary.includes("Let me help") ||
                   parsedContent.summary.includes("I can help") ||
-                  parsedContent.summary.includes("That's an excellent")) {
+                  parsedContent.summary.includes("That's an excellent") ||
+                  parsedContent.summary.includes("Thank you for your") ||
+                  parsedContent.summary.includes("I'm here to help") ||
+                  parsedContent.summary.includes("I understand you're") ||
+                  parsedContent.summary.includes("Your message:")) {
                 
                 const newSummary = await SummaryService.generateChatSummary(userMessages);
                 
@@ -608,6 +614,43 @@ class GoogleDriveService {
       throw new Error(
         `Failed to get chat session content: ${error instanceof Error ? error.message : String(error)}`,
       );
+    }
+  }
+
+  // Force regeneration of all chat session summaries
+  async regenerateAllChatSummaries(credentials: string): Promise<{ success: number; failed: number }> {
+    try {
+      const drive = this.getDriveClient(credentials);
+      const folderId = await this.getOrCreateJosudoFolder(credentials);
+      
+      // Get all chat session files
+      const files = await drive.files.list({
+        q: `'${folderId}' in parents and name contains 'chat_session_' and mimeType='application/json'`,
+        fields: "files(id, name)",
+      });
+
+      let successCount = 0;
+      let failedCount = 0;
+
+      if (files.data.files) {
+        for (const file of files.data.files) {
+          try {
+            if (file.id && file.name) {
+              // Force regeneration of summary for each file
+              await this.getChatSessionSummary(file.name.replace('chat_session_', '').replace('.json', ''), credentials, true);
+              successCount++;
+            }
+          } catch (error) {
+            console.error(`Failed to regenerate summary for file ${file.name || 'unknown'}:`, error);
+            failedCount++;
+          }
+        }
+      }
+
+      return { success: successCount, failed: failedCount };
+    } catch (error) {
+      console.error("Error regenerating all chat summaries:", error);
+      throw new Error("Failed to regenerate chat summaries");
     }
   }
 }

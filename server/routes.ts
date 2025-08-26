@@ -1667,35 +1667,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         console.log("Found Google Drive integration for userId:", userId);
-        const credentials = JSON.parse(integration.credentialsEncrypted);
+        const credentials = JSON.stringify(integration.credentialsEncrypted);
         
-        // Get all chat sessions
-        const chatSessions = await googleDriveService.getChatHistoryFiles(
-          JSON.stringify(credentials)
-        );
-
-        let updatedCount = 0;
-        for (const session of chatSessions) {
-          try {
-            // Force regenerate summary by temporarily clearing it
-            const sessionId = session.name?.replace("chat_session_", "").replace(".json", "") || "";
-            
-            // Force regenerate summary by calling getChatSessionSummary with forceRegenerate=true
-            await googleDriveService.getChatSessionSummary(
-              sessionId,
-              JSON.stringify(credentials),
-              true // forceRegenerate
-            );
-            updatedCount++;
-          } catch (error) {
-            console.error("Failed to regenerate summary for session:", session.name, error);
-          }
-        }
-
+        // Use the new bulk method to regenerate all summaries
+        const result = await googleDriveService.regenerateAllChatSummaries(credentials);
+        
         res.json({ 
           success: true, 
-          message: `Regenerated summaries for ${updatedCount} chat sessions`,
-          updatedCount 
+          message: `Regenerated summaries for ${result.success} chat sessions`,
+          updatedCount: result.success,
+          failedCount: result.failed
         });
       } catch (error) {
         console.error("Failed to regenerate summaries:", error);
