@@ -61,16 +61,12 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
       // Confirm card payment
       console.log('Confirming card payment with client secret:', clientSecret.substring(0, 20) + '...');
       
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        clientSecret,
-        confirmParams: {
-          payment_method: {
-            card: cardElement,
-            billing_details: {
-              email: user?.email || '',
-            },
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            email: user?.email || '',
           },
-          return_url: `${window.location.origin}/payment-success`,
         },
       });
 
