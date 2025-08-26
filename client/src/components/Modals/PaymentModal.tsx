@@ -70,10 +70,13 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ open, onClose }) => 
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create payment intent');
+        const errorText = await response.text();
+        console.error('Payment intent creation failed:', response.status, errorText);
+        throw new Error(`Failed to create payment intent: ${response.status} ${errorText}`);
       }
 
       const { clientSecret, amount, package: packageData } = await response.json();
+      console.log('Payment intent created successfully:', { amount, packageId: packageData?.id });
 
       // Load Stripe
       const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -82,6 +85,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ open, onClose }) => 
       }
 
       // Confirm payment
+      console.log('Confirming payment with client secret:', clientSecret.substring(0, 20) + '...');
+      
       const { error, paymentIntent } = await stripe.confirmPayment({
         clientSecret,
         confirmParams: {
@@ -90,7 +95,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ open, onClose }) => 
       });
 
       if (error) {
-        throw new Error(error.message);
+        console.error('Stripe confirmation error:', error);
+        throw new Error(`Payment confirmation failed: ${error.message}`);
       }
 
       // Confirm payment on backend
