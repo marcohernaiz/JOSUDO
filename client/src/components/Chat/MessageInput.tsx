@@ -137,6 +137,7 @@ export const MessageInput: React.FC = () => {
   const [chatMode, setChatMode] = useState('assistant');
   const [showChatModeOptions, setShowChatModeOptions] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [showAuthNotice, setShowAuthNotice] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
@@ -149,6 +150,11 @@ export const MessageInput: React.FC = () => {
       setSelectedStorage('google-drive');
       // Clean up URL
       window.history.replaceState({}, '', window.location.pathname);
+    }
+    
+    // Hide auth notice when user becomes authenticated
+    if (isAuthenticated) {
+      setShowAuthNotice(false);
     }
   }, [isAuthenticated]);
 
@@ -240,6 +246,7 @@ export const MessageInput: React.FC = () => {
 
     // Check if user is authenticated
     if (!isAuthenticated) {
+      setShowAuthNotice(true);
       toast({
         title: "Authentication Required",
         description: "Please login with Google to continue using the AI assistant.",
@@ -345,15 +352,23 @@ export const MessageInput: React.FC = () => {
 
       <div className="ai-input-lines bg-slate-250/90 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-200/60 dark:border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
         {/* Authentication Notice */}
-        {!isAuthenticated && (
+        {showAuthNotice && !isAuthenticated && (
           <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
-            <div className="flex items-center space-x-2 text-amber-800 dark:text-amber-200">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              <span className="text-sm font-medium">
-                Please login with Google to continue using the AI assistant
-              </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-amber-800 dark:text-amber-200">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm font-medium">
+                  Please login with Google to continue using the AI assistant
+                </span>
+              </div>
+              <button
+                onClick={() => setShowAuthNotice(false)}
+                className="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-200 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </div>
         )}
