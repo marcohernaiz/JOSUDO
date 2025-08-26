@@ -971,3 +971,16 @@ html {
 .scrollbar-track-slate-800 {
   scrollbar-color: rgb(71, 85, 105) rgb(30, 41, 59);
 }
+
+.scrollbar-thumb-slate-300 {
+  scrollbar-color: rgb(203, 213, 225) transparent;
+}
+
+.scrollbar-thumb-slate-300::-webkit-scrollbar-thumb {
+  background: rgb(203, 213, 225);
+  border-radius: 4px;
+}
+
+.scrollbar-thumb-slate-300::-webkit-scrollbar-thumb:hover {
+  background: rgb(148, 163, 184);
+}

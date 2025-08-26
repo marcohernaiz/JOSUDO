@@ -267,71 +267,41 @@ export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ 
     );
   }
 
-  const handleRegenerateSummaries = async () => {
-    try {
-      const response = await fetch("/api/google-drive/regenerate-summaries", {
-        method: "POST",
-        credentials: "include",
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Summaries regenerated:", data);
-        // Refresh the chat history to show updated titles
-        refetch();
-      } else {
-        console.error("Failed to regenerate summaries");
-      }
-    } catch (error) {
-      console.error("Error regenerating summaries:", error);
-    }
-  };
-
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="p-2 border-b border-slate-200 dark:border-slate-700">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRegenerateSummaries}
-          className="w-full text-xs"
-          title="Regenerate chat titles to fix long summaries"
-        >
-          🔄 Fix Chat Titles
-        </Button>
-      </div>
-
-      <div className="space-y-1 p-2">
-        {chatSessions.map((session) => (
-          <div
-            key={session.id}
-            className={`flex flex-col p-2 rounded cursor-pointer transition-colors ${
-              selectedSession === session.id
-                ? "bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700"
-                : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
-            }`}
-            onClick={() => handleSessionClick(session.id)}
-            title={session.title}
-          >
-            <div className="flex items-center space-x-2">
-              <span className="text-blue-500 text-lg flex-shrink-0">💬</span>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm text-slate-700 dark:text-slate-300 truncate font-medium">
-                  {session.title}
-                </div>
-                <div className="text-xs text-slate-500 dark:text-slate-500">
-                  {formatDate(session.modifiedTime)}
-                  {session.size && (
-                    <>
-                      <span className="mx-1">•</span>
-                      <span>{formatFileSize(session.size)}</span>
-                    </>
-                  )}
+    <div className="flex-1 flex flex-col min-h-0">
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600 scrollbar-track-transparent">
+        <div className="space-y-1 p-2">
+          {chatSessions.map((session) => (
+            <div
+              key={session.id}
+              className={`flex flex-col p-2 rounded cursor-pointer transition-colors ${
+                selectedSession === session.id
+                  ? "bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700"
+                  : "hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              }`}
+              onClick={() => handleSessionClick(session.id)}
+              title={session.title}
+            >
+              <div className="flex items-center space-x-2">
+                <span className="text-blue-500 text-lg flex-shrink-0">💬</span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm text-slate-700 dark:text-slate-300 truncate font-medium">
+                    {session.title}
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-500">
+                    {formatDate(session.modifiedTime)}
+                    {session.size && (
+                      <>
+                        <span className="mx-1">•</span>
+                        <span>{formatFileSize(session.size)}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
