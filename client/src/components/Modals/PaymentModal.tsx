@@ -31,6 +31,16 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
 
   const handlePayment = async () => {
     if (!selectedPackage || !stripe || !elements) return;
+    
+    // Validate postal code
+    if (!postalCode.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a valid postal code",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsProcessing(true);
     try {
@@ -61,16 +71,23 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
 
       // Confirm card payment
       console.log('Confirming card payment with client secret:', clientSecret.substring(0, 20) + '...');
+      console.log('Postal code being sent:', postalCode);
+      console.log('Postal code length:', postalCode.length);
+      console.log('Postal code trimmed:', postalCode.trim());
       
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement,
-          billing_details: {
-            email: user?.email || '',
-            address: {
-              postal_code: postalCode,
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        clientSecret,
+        confirmParams: {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              email: user?.email || '',
+              address: {
+                postal_code: postalCode.trim(),
+              },
             },
           },
+          return_url: `${window.location.origin}/payment-success`,
         },
       });
 
