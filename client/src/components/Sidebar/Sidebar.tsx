@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
   return (
     <>
       <div
-        className={`h-full bg-slate-250 dark:bg-slate-900/80 border-r border-slate-300 dark:border-slate-700 flex flex-col transition-all duration-200 ${
+        className={`h-full bg-slate-250 dark:bg-slate-900/80 border-r border-slate-300 dark:border-slate-700 flex flex-col transition-all duration-200 border border-yellow-500 ${
           isExpanded ? "w-64" : "w-16"
         }`}
       >
@@ -271,7 +271,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
         </div>
 
         {/* Google Drive Chat History - Takes remaining space */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden min-h-0 border border-green-500">
           {isExpanded && <GoogleDriveChatHistory onSwitchToChat={onSwitchToChat} />}
         </div>
 

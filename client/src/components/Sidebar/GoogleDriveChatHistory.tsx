@@ -268,9 +268,16 @@ export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ 
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600 scrollbar-track-transparent">
+    <div className="h-full flex flex-col min-h-0 border border-red-500">
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600 scrollbar-track-transparent min-h-0 border border-blue-500" style={{ maxHeight: '100%' }}>
         <div className="space-y-1 p-2">
+          {/* Temporary test content to ensure scrolling works */}
+          {Array.from({ length: 20 }, (_, i) => (
+            <div key={`test-${i}`} className="p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs text-gray-600 dark:text-gray-400">
+              Test Item {i + 1} - This is to test scrolling
+            </div>
+          ))}
+          
           {chatSessions.map((session) => (
             <div
               key={session.id}
