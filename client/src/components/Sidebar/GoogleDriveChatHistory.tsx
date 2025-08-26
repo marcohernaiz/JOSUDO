@@ -33,14 +33,6 @@ export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ 
   } = useAppContext();
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
 
-  // Debug logging for chat sessions changes
-  React.useEffect(() => {
-    console.log("Chat sessions updated:", chatSessions?.length || 0, "sessions");
-    if (chatSessions) {
-      console.log("Session titles:", chatSessions.map(s => ({ id: s.id, title: s.title })));
-    }
-  }, [chatSessions]);
-
   // Reset selected session when messages are cleared (new chat started)
   React.useEffect(() => {
     if (messages.length === 0) {
@@ -80,6 +72,15 @@ export const GoogleDriveChatHistory: React.FC<GoogleDriveChatHistoryProps> = ({ 
       return data;
     },
   });
+
+  // Debug logging for chat sessions changes - moved after useQuery declaration
+  React.useEffect(() => {
+    // Only run when chatSessions is properly initialized and has data
+    if (chatSessions && Array.isArray(chatSessions) && chatSessions.length > 0) {
+      console.log("Chat sessions updated:", chatSessions.length, "sessions");
+      console.log("Session titles:", chatSessions.map(s => ({ id: s.id, title: s.title })));
+    }
+  }, [chatSessions]); // Keep the original dependency but with better null checking
 
   const { data: selectedChatContent, error: sessionError } = useQuery<
     ChatMessage[]
