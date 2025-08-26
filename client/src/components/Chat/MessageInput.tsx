@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import josudoIcon from '@assets/JOSUDO logo icon_1752491258890.png';
 import voiceIcon from '@assets/voice-icon.svg';
 import { Button } from '@/components/ui/button';
@@ -128,6 +129,7 @@ export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading, messages } = useChat();
   const { integrations, selectedModel, setSelectedModel } = useAppContext();
   const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
   const [selectedStorage, setSelectedStorage] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
@@ -236,6 +238,16 @@ export const MessageInput: React.FC = () => {
   const handleSendMessage = () => {
     if ((!currentMessage.trim() && attachedFiles.length === 0) || isLoading) return;
 
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login with Google to continue using the AI assistant.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Immediately clear input and files before sending
     const messageToSend = currentMessage;
     const filesToSend = [...attachedFiles];
@@ -332,6 +344,20 @@ export const MessageInput: React.FC = () => {
     }`}>
 
       <div className="ai-input-lines bg-slate-250/90 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-200/60 dark:border-slate-700/30 backdrop-blur-sm shadow-2xl w-full">
+        {/* Authentication Notice */}
+        {!isAuthenticated && (
+          <div className="mb-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+            <div className="flex items-center space-x-2 text-amber-800 dark:text-amber-200">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              <span className="text-sm font-medium">
+                Please login with Google to continue using the AI assistant
+              </span>
+            </div>
+          </div>
+        )}
+        
         {/* First Line - Input Box Only */}
         <div className="flex items-center justify-between w-full">
           <div className="relative flex-1">
@@ -340,8 +366,13 @@ export const MessageInput: React.FC = () => {
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask me anything..."
-              className="w-full h-14 px-6 pr-32 bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 rounded-lg text-slate-600 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg"
+              placeholder={isAuthenticated ? "Ask me anything..." : "Please login to continue..."}
+              disabled={!isAuthenticated}
+              className={`w-full h-14 px-6 pr-32 border rounded-lg text-lg transition-colors ${
+                isAuthenticated 
+                  ? 'bg-white dark:bg-slate-700 border-slate-100 dark:border-slate-600 text-slate-600 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent' 
+                  : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 placeholder-slate-400 dark:placeholder-slate-500 cursor-not-allowed'
+              }`}
             />
 
             {/* Right side controls inside input */}
