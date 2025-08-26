@@ -23,6 +23,7 @@ interface PaymentModalProps {
 
 const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string | null, onClose: () => void, setSelectedPackage: (id: string) => void }> = ({ packages, selectedPackage, onClose, setSelectedPackage }) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [postalCode, setPostalCode] = useState('');
   const { user } = useAppContext();
   const { toast } = useToast();
   const stripe = useStripe();
@@ -66,6 +67,9 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
           card: cardElement,
           billing_details: {
             email: user?.email || '',
+            address: {
+              postal_code: postalCode,
+            },
           },
         },
       });
@@ -152,32 +156,47 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
         ))}
       </div>
 
-      <div className="space-y-4">
-        <div className="border border-slate-300 dark:border-slate-600 rounded-md p-3 bg-white dark:bg-slate-800">
-          <CardElement
-            options={{
-              style: {
-                base: {
-                  fontSize: '16px',
-                  color: '#374151',
-                  '::placeholder': {
-                    color: '#9CA3AF',
+              <div className="space-y-4">
+          <div className="border border-slate-300 dark:border-slate-600 rounded-md p-3 bg-white dark:bg-slate-800">
+            <CardElement
+              options={{
+                style: {
+                  base: {
+                    fontSize: '16px',
+                    color: '#374151',
+                    '::placeholder': {
+                      color: '#9CA3AF',
+                    },
+                  },
+                  invalid: {
+                    color: '#EF4444',
                   },
                 },
-                invalid: {
-                  color: '#EF4444',
-                },
-              },
-            }}
-          />
-        </div>
+              }}
+            />
+          </div>
 
-        <Button
-          onClick={handlePayment}
-          disabled={!selectedPackage || isProcessing || !stripe}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-          size="lg"
-        >
+          <div className="space-y-2">
+            <label htmlFor="postal-code" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Postal Code
+            </label>
+            <input
+              id="postal-code"
+              type="text"
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
+              placeholder="Enter your postal code"
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+                  <Button
+            onClick={handlePayment}
+            disabled={!selectedPackage || isProcessing || !stripe || !postalCode.trim()}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            size="lg"
+          >
           {isProcessing ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
