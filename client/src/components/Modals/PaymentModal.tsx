@@ -76,7 +76,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ open, onClose }) => 
       const { clientSecret, amount, package: packageData } = await response.json();
 
       // Load Stripe
-      const stripe = await loadStripe(process.env.VITE_STRIPE_PUBLISHABLE_KEY!);
+      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
       if (!stripe) {
         throw new Error('Stripe failed to load');
       }
