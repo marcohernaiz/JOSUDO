@@ -211,6 +211,32 @@ export const DigitalPersonasSection: React.FC = () => {
       ],
       category: 'industry-experts',
     },
+    {
+      id: 'maria',
+      name: 'María',
+      role: 'Language Teacher',
+      avatar: executiveAssistantGif,
+      tools: [
+        { name: 'lessons', color: 'bg-blue-100 text-blue-800' },
+        { name: 'pronunciation', color: 'bg-green-100 text-green-800' },
+        { name: 'grammar', color: 'bg-yellow-100 text-yellow-800' },
+        { name: 'progress tracking', color: 'bg-purple-100 text-purple-800' },
+      ],
+      category: 'industry-experts',
+    },
+    {
+      id: 'alex',
+      name: 'Alex',
+      role: 'Life Coach',
+      avatar: digitalBuddyGif,
+      tools: [
+        { name: 'goal setting', color: 'bg-orange-100 text-orange-800' },
+        { name: 'motivation', color: 'bg-green-100 text-green-800' },
+        { name: 'calendar', color: 'bg-blue-100 text-blue-800' },
+        { name: 'progress tracking', color: 'bg-purple-100 text-purple-800' },
+      ],
+      category: 'industry-experts',
+    },
 
     // Personal Companion
     {
