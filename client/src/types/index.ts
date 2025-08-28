@@ -60,6 +60,80 @@ export interface UsageLog {
   isPremiumAccount: boolean;
 }
 
+// Import spaces-related types from shared schema
+export interface Space {
+  id: number;
+  userId: number;
+  name: string;
+  description?: string;
+  coverImage?: string;
+  iconType: string;
+  isDefault: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Source {
+  id: number;
+  spaceId: number;
+  title: string;
+  type: string;
+  content?: string;
+  fileUrl?: string;
+  metadata?: any;
+  isInKnowledgeBase: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Note {
+  id: number;
+  spaceId: number;
+  title: string;
+  content: string;
+  isInKnowledgeBase: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Task {
+  id: number;
+  spaceId: number;
+  title: string;
+  description?: string;
+  status: string;
+  priority: string;
+  assignedToEmployeeId?: number;
+  createdByTool?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Tool {
+  id: number;
+  spaceId: number;
+  name: string;
+  description?: string;
+  type: string;
+  configuration?: any;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface VirtualEmployee {
+  id: number;
+  spaceId: number;
+  name: string;
+  role: string;
+  avatar?: string;
+  assignedTools?: string[];
+  configuration?: any;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface AppContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -83,4 +157,8 @@ export interface AppContextType {
   // Add active section state
   activeSection: string;
   setActiveSection: (section: string) => void;
+  // Add spaces state
+  spaces: Space[];
+  currentSpace: Space | null;
+  setCurrentSpace: (space: Space | null) => void;
 }

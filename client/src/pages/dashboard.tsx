@@ -17,13 +17,16 @@ import elderlyCareGif from "@assets/Elderly Care_1756066904884.gif";
 import digitalBuddyGif from "@assets/Digital Buddy_1756066904884.gif";
 import aiGirlfriendGif from "@assets/AI Girlfriend GIF_1756066904885.gif";
 import { DigitalPersonasSection } from "@/components/DigitalPersonas/DigitalPersonasSection";
+import { SpacesSection } from "@/components/Spaces/SpacesSection";
+import { SpaceWorkspace } from "@/components/Spaces/SpaceWorkspace";
+import { Space } from "@/types";
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { theme } = useTheme();
   const { messages } = useChat();
-  const { activeSection, setActiveSection } = useAppContext();
+  const { activeSection, setActiveSection, currentSpace, setCurrentSpace } = useAppContext();
 
   // Function to handle section switching
   const handleSwitchToChat = () => {
@@ -247,10 +250,18 @@ export default function Dashboard() {
             )}
             
             {activeSection === 'spaces' && (
-              <div className="bg-white h-full p-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">Spaces</h1>
-                <p className="text-gray-600">Coming soon...</p>
-              </div>
+              <>
+                {currentSpace ? (
+                  <SpaceWorkspace 
+                    space={currentSpace} 
+                    onBack={() => setCurrentSpace(null)} 
+                  />
+                ) : (
+                  <SpacesSection 
+                    onSpaceSelect={(space) => setCurrentSpace(space)} 
+                  />
+                )}
+              </>
             )}
             
             {activeSection === 'tools' && (

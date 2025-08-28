@@ -20,9 +20,21 @@ import {
   insertChatSessionSchema,
   insertIntegrationSchema,
   insertUsageLogSchema,
+  insertSpaceSchema,
+  insertSourceSchema,
+  insertNoteSchema,
+  insertTaskSchema,
+  insertToolSchema,
+  insertVirtualEmployeeSchema,
   usageLogs,
   users,
   billing,
+  spaces,
+  sources,
+  notes,
+  tasks,
+  tools,
+  virtualEmployees,
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from './db';
@@ -1348,6 +1360,170 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to confirm payment" });
+    }
+  });
+
+  // Spaces API routes
+  app.get("/api/spaces", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      const userSpaces = await db.select().from(spaces).where(eq(spaces.userId, userId));
+      
+      // If no spaces exist, create default spaces
+      if (userSpaces.length === 0) {
+        const defaultSpaces = [
+          {
+            userId,
+            name: "My Personal Space",
+            description: "Your personal workspace for individual projects and ideas",
+            isDefault: true,
+          },
+          {
+            userId,
+            name: "My Workspace",
+            description: "Professional workspace for work-related projects",
+            isDefault: true,
+          }
+        ];
+
+        for (const spaceData of defaultSpaces) {
+          const [newSpace] = await db.insert(spaces).values(spaceData).returning();
+          
+          // Create default virtual employee for each space
+          await db.insert(virtualEmployees).values({
+            spaceId: newSpace.id,
+            name: "Sophia",
+            role: "Executive Assistant",
+            assignedTools: ["task_management", "calendar", "notes"],
+            isActive: true,
+          });
+
+          // Create default tools
+          const defaultTools = [
+            { name: "Audio Summary", type: "audio_summary", spaceId: newSpace.id },
+            { name: "Video Summary", type: "video_summary", spaceId: newSpace.id },
+            { name: "Mind Map", type: "mind_map", spaceId: newSpace.id },
+            { name: "Reports", type: "report", spaceId: newSpace.id },
+          ];
+          
+          for (const tool of defaultTools) {
+            await db.insert(tools).values(tool);
+          }
+        }
+
+        // Re-fetch spaces after creating defaults
+        const createdSpaces = await db.select().from(spaces).where(eq(spaces.userId, userId));
+        return res.json(createdSpaces);
+      }
+      
+      res.json(userSpaces);
+    } catch (error) {
+      console.error("Error fetching spaces:", error);
+      res.status(500).json({ error: "Failed to fetch spaces" });
+    }
+  });
+
+  app.post("/api/spaces", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      const spaceData = insertSpaceSchema.parse({ ...req.body, userId });
+      const [newSpace] = await db.insert(spaces).values(spaceData).returning();
+      
+      res.status(201).json(newSpace);
+    } catch (error) {
+      console.error("Error creating space:", error);
+      res.status(500).json({ error: "Failed to create space" });
+    }
+  });
+
+  // Sources routes
+  app.get("/api/spaces/:spaceId/sources", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user;
+      const { spaceId } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      // Verify space ownership
+      const space = await db.select().from(spaces).where(
+        and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId))
+      );
+      
+      if (space.length === 0) {
+        return res.status(404).json({ error: "Space not found" });
+      }
+
+      const spaceSources = await db.select().from(sources).where(eq(sources.spaceId, parseInt(spaceId)));
+      res.json(spaceSources);
+    } catch (error) {
+      console.error("Error fetching sources:", error);
+      res.status(500).json({ error: "Failed to fetch sources" });
+    }
+  });
+
+  // Notes routes
+  app.get("/api/spaces/:spaceId/notes", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user;
+      const { spaceId } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      // Verify space ownership
+      const space = await db.select().from(spaces).where(
+        and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId))
+      );
+      
+      if (space.length === 0) {
+        return res.status(404).json({ error: "Space not found" });
+      }
+
+      const spaceNotes = await db.select().from(notes).where(eq(notes.spaceId, parseInt(spaceId)));
+      res.json(spaceNotes);
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+      res.status(500).json({ error: "Failed to fetch notes" });
+    }
+  });
+
+  // Virtual Employees routes
+  app.get("/api/spaces/:spaceId/virtual-employees", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user;
+      const { spaceId } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      // Verify space ownership
+      const space = await db.select().from(spaces).where(
+        and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId))
+      );
+      
+      if (space.length === 0) {
+        return res.status(404).json({ error: "Space not found" });
+      }
+
+      const employees = await db.select().from(virtualEmployees).where(eq(virtualEmployees.spaceId, parseInt(spaceId)));
+      res.json(employees);
+    } catch (error) {
+      console.error("Error fetching virtual employees:", error);
+      res.status(500).json({ error: "Failed to fetch virtual employees" });
     }
   });
 
