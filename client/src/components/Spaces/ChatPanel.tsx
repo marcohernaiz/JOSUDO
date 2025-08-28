@@ -14,7 +14,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ space }) => {
 
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200" style={{marginTop: '10px'}}>
         <h2 className="text-lg font-semibold text-gray-900">Chat</h2>
         <p className="text-sm text-gray-600">Context: {space.name}</p>
       </div>

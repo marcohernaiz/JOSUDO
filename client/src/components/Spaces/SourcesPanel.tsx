@@ -25,11 +25,7 @@ export const SourcesPanel: React.FC<SourcesPanelProps> = ({ spaceId }) => {
 
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Sources</h2>
-      </div>
-
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden" style={{marginTop: '10px'}}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
           <TabsList className="grid w-full grid-cols-2 mx-4 mt-4">
             <TabsTrigger value="knowledge-base">Knowledge Base</TabsTrigger>

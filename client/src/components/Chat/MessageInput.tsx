@@ -382,7 +382,7 @@ export const MessageInput: React.FC = () => {
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={isAuthenticated ? "Ask me anything..." : "Please login to continue..."}
-              disabled={!isAuthenticated}
+              disabled={false}
               className={`w-full h-14 px-6 pr-32 border rounded-lg text-lg transition-colors ${
                 isAuthenticated 
                   ? 'bg-white dark:bg-slate-700 border-slate-100 dark:border-slate-600 text-slate-600 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent' 

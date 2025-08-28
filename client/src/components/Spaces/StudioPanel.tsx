@@ -13,7 +13,7 @@ interface StudioPanelProps {
 export const StudioPanel: React.FC<StudioPanelProps> = ({ spaceId }) => {
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200" style={{marginTop: '10px'}}>
         <h2 className="text-lg font-semibold text-gray-900">Studio</h2>
       </div>
 
