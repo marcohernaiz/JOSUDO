@@ -37,22 +37,6 @@ export default function Dashboard() {
     setActiveSection(section);
   };
 
-  const handleSpaceSelect = async (spaceId: number) => {
-    try {
-      const response = await fetch(`/api/spaces`);
-      if (response.ok) {
-        const spaces = await response.json();
-        const selectedSpace = spaces.find((space: Space) => space.id === spaceId);
-        if (selectedSpace) {
-          setCurrentSpace(selectedSpace);
-          setActiveSection('spaces');
-        }
-      }
-    } catch (error) {
-      console.error('Error selecting space:', error);
-    }
-  };
-
   return (
     <div className="h-screen w-full bg-white dark:bg-black overflow-hidden">
       <div
@@ -98,7 +82,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} onSpaceSelect={handleSpaceSelect} activeSection={activeSection} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} activeSection={activeSection} />
             </div>
           </div>
         )}
@@ -116,7 +100,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} onSpaceSelect={handleSpaceSelect} activeSection={activeSection} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} activeSection={activeSection} />
             </div>
           </div>
         )}
@@ -233,10 +217,6 @@ export default function Dashboard() {
                 {messages.length === 0 && (
                   <div className="bg-white">
                     <HeroSection />
-                    {/* Digital Personas Section - Virtual Employees */}
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-                      <DigitalPersonasSection />
-                    </div>
                   </div>
                 )}
 
@@ -291,6 +271,110 @@ export default function Dashboard() {
               </div>
             )}
 
+            {/* Section 4: Virtual Employees Section - Only show when no messages */}
+            {messages.length === 0 && (
+              <div className="bg-white">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    {/* Left Section - Hire Virtual Employees */}
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-1 text-center">Hire Virtual Employees</h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {[
+                          { 
+                            title: "Executive Assistant", 
+                            description: "",
+                            gif: executiveAssistantGif
+                          },
+                          { 
+                            title: "Sales & Marketing", 
+                            description: "",
+                            gif: salesMarketingGif
+                          },
+                          { 
+                            title: "Customer Support", 
+                            description: "",
+                            gif: customerSupportGif
+                          }
+                        ].map((item, index) => (
+                          <div key={index} onClick={() => handleSectionChange('digital-personas')} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                            <div className="w-full">
+                              <img 
+                                src={item.gif}
+                                alt={item.title}
+                                className="w-full h-auto object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.parentElement?.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
+                              <div className="w-full h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-md items-center justify-center hidden">
+                                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                  <span className="text-white text-lg font-bold">{item.title.charAt(0)}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-2">
+                              <h3 className="font-medium text-gray-900 text-xs text-center">{item.title}</h3>
+                              {item.description && <p className="text-xs text-gray-600 leading-tight text-center">{item.description}</p>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right Section - Other Digital Personas */}
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 mb-1 text-center">Other Digital Personas</h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {[
+                          { 
+                            title: "Elderly Care", 
+                            description: "",
+                            gif: elderlyCareGif
+                          },
+                          { 
+                            title: "Digital Buddy", 
+                            description: "",
+                            gif: digitalBuddyGif
+                          },
+                          { 
+                            title: "AI Girlfriend", 
+                            description: "",
+                            gif: aiGirlfriendGif
+                          }
+                        ].map((item, index) => (
+                          <div key={index} onClick={() => handleSectionChange('digital-personas')} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                            <div className="w-full">
+                              <img 
+                                src={item.gif}
+                                alt={item.title}
+                                className="w-full h-auto object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                  const fallback = e.currentTarget.parentElement?.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
+                              <div className="w-full h-32 bg-gradient-to-br from-green-100 to-blue-100 rounded-md items-center justify-center hidden">
+                                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                                  <span className="text-white text-lg font-bold">{item.title.charAt(0)}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="p-2">
+                              <h3 className="font-medium text-gray-900 text-xs text-center">{item.title}</h3>
+                              {item.description && <p className="text-xs text-gray-600 leading-tight text-center">{item.description}</p>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

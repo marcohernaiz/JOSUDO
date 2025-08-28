@@ -41,11 +41,10 @@ interface SidebarProps {
   onClose?: () => void;
   onSwitchToChat?: () => void;
   onSectionChange?: (section: 'chat' | 'digital-personas' | 'knowledge-base' | 'spaces' | 'tools') => void;
-  onSpaceSelect?: (spaceId: number) => void;
   activeSection?: string;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSectionChange, onSpaceSelect, activeSection }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSectionChange, activeSection }) => {
   const { setActiveSession, setMessages, setCurrentSessionId, user } =
     useAppContext();
   const { isAuthenticated } = useAuth();
@@ -282,6 +281,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
               )}
             </div>
 
+            <Button
+              variant="ghost"
+              onClick={() => onSectionChange?.('knowledge-base')}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 ${
+                activeSection === 'knowledge-base' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''
+              }`}
+              title={!isExpanded ? "Knowledge Base" : ""}
+            >
+              <span className="text-slate-400 text-lg flex-shrink-0">📚</span>
+              {isExpanded && <span className="ml-2">Knowledge Base</span>}
+            </Button>
 
             <Button
               variant="ghost"
