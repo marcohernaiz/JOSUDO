@@ -259,6 +259,19 @@ const DigitalPersonas: React.FC = () => {
       ],
       category: 'personal-companion',
     },
+    {
+      id: 'gabriel',
+      name: 'Gabriel',
+      role: 'Spiritual Counselor',
+      avatar: elderlyCareGif,
+      tools: [
+        { name: 'meditation', color: 'bg-purple-100 text-purple-800' },
+        { name: 'prayer', color: 'bg-blue-100 text-blue-800' },
+        { name: 'guidance', color: 'bg-green-100 text-green-800' },
+        { name: 'chat', color: 'bg-indigo-100 text-indigo-800' },
+      ],
+      category: 'personal-companion',
+    },
   ];
 
   const categories = [
@@ -292,7 +305,7 @@ const DigitalPersonas: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white p-6 overflow-y-auto">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <motion.div
