@@ -39,32 +39,6 @@ export const SpaceWorkspace: React.FC<SpaceWorkspaceProps> = ({ space, onBack })
             </Button>
           </div>
 
-          {/* Cover Image */}
-          <div className="relative mb-6">
-            <div className="w-full h-32 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-              {space.coverImage ? (
-                <img 
-                  src={space.coverImage} 
-                  alt="Space cover" 
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              ) : (
-                <div className="flex items-center text-white">
-                  <Image className="w-8 h-8 mr-2" />
-                  <span className="text-lg font-medium">Add Cover Image</span>
-                </div>
-              )}
-            </div>
-            {isEditingHeader && (
-              <Button
-                size="sm"
-                className="absolute top-2 right-2 bg-white text-gray-900 hover:bg-gray-100"
-              >
-                <Upload className="w-4 h-4 mr-1" />
-                Change
-              </Button>
-            )}
-          </div>
 
           {/* Workspace Details */}
           <div>

@@ -41,10 +41,11 @@ interface SidebarProps {
   onClose?: () => void;
   onSwitchToChat?: () => void;
   onSectionChange?: (section: 'chat' | 'digital-personas' | 'knowledge-base' | 'spaces' | 'tools') => void;
+  onSpaceSelect?: (spaceId: number) => void;
   activeSection?: string;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSectionChange, activeSection }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSectionChange, onSpaceSelect, activeSection }) => {
   const { setActiveSession, setMessages, setCurrentSessionId, user } =
     useAppContext();
   const { isAuthenticated } = useAuth();
@@ -263,7 +264,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
                 <div className="ml-6 mt-2 space-y-1">
                   <Button
                     variant="ghost"
-                    onClick={() => onSectionChange?.('spaces')}
+                    onClick={() => { onSectionChange?.('spaces'); onSpaceSelect?.(1); }}
                     className="w-full justify-start px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
                   >
                     <span className="text-slate-400 text-sm mr-2">👤</span>
@@ -271,7 +272,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
                   </Button>
                   <Button
                     variant="ghost"
-                    onClick={() => onSectionChange?.('spaces')}
+                    onClick={() => { onSectionChange?.('spaces'); onSpaceSelect?.(2); }}
                     className="w-full justify-start px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
                   >
                     <span className="text-slate-400 text-sm mr-2">💼</span>

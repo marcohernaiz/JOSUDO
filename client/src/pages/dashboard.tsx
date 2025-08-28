@@ -37,6 +37,22 @@ export default function Dashboard() {
     setActiveSection(section);
   };
 
+  const handleSpaceSelect = async (spaceId: number) => {
+    try {
+      const response = await fetch(`/api/spaces`);
+      if (response.ok) {
+        const spaces = await response.json();
+        const selectedSpace = spaces.find((space: Space) => space.id === spaceId);
+        if (selectedSpace) {
+          setCurrentSpace(selectedSpace);
+          setActiveSection('spaces');
+        }
+      }
+    } catch (error) {
+      console.error('Error selecting space:', error);
+    }
+  };
+
   return (
     <div className="h-screen w-full bg-white dark:bg-black overflow-hidden">
       <div
@@ -82,7 +98,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} activeSection={activeSection} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} onSpaceSelect={handleSpaceSelect} activeSection={activeSection} />
             </div>
           </div>
         )}
@@ -100,7 +116,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} activeSection={activeSection} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} onSpaceSelect={handleSpaceSelect} activeSection={activeSection} />
             </div>
           </div>
         )}
