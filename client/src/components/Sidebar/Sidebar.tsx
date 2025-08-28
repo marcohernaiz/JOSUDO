@@ -40,9 +40,11 @@ import {
 interface SidebarProps {
   onClose?: () => void;
   onSwitchToChat?: () => void;
+  onSectionChange?: (section: 'chat' | 'digital-personas' | 'knowledge-base' | 'spaces' | 'tools') => void;
+  activeSection?: string;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSectionChange, activeSection }) => {
   const { setActiveSession, setMessages, setCurrentSessionId, user } =
     useAppContext();
   const { isAuthenticated } = useAuth();
@@ -222,9 +224,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
         <div className="px-2 py-0">
           <div className="space-y-1">
             <Button
-              onClick={startNewChat}
+              onClick={() => { startNewChat(); onSectionChange?.('chat'); }}
               variant="ghost"
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 ${
+                activeSection === 'chat' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''
+              }`}
               title={!isExpanded ? "New Chat" : ""}
             >
               <span className="text-slate-400 text-lg flex-shrink-0">💬</span>
@@ -243,8 +247,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
 
             <Button
               variant="ghost"
-              onClick={() => {/* Handle spaces */}}
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
+              onClick={() => onSectionChange?.('spaces')}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 ${
+                activeSection === 'spaces' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''
+              }`}
               title={!isExpanded ? "Spaces" : ""}
             >
               <Box className="w-4 h-4 flex-shrink-0 text-slate-400" />
@@ -253,8 +259,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
 
             <Button
               variant="ghost"
-              onClick={() => {/* Handle knowledge base */}}
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
+              onClick={() => onSectionChange?.('knowledge-base')}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 ${
+                activeSection === 'knowledge-base' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''
+              }`}
               title={!isExpanded ? "Knowledge Base" : ""}
             >
               <span className="text-slate-400 text-lg flex-shrink-0">📚</span>
@@ -263,8 +271,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
 
             <Button
               variant="ghost"
-              onClick={() => window.location.href = '/digital-personas'}
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
+              onClick={() => onSectionChange?.('digital-personas')}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 ${
+                activeSection === 'digital-personas' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''
+              }`}
               title={!isExpanded ? "Digital Personas" : ""}
             >
               <span className="text-slate-400 text-lg flex-shrink-0">👥</span>
@@ -273,8 +283,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
 
             <Button
               variant="ghost"
-              onClick={() => {/* Handle tools */}}
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
+              onClick={() => onSectionChange?.('tools')}
+              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 ${
+                activeSection === 'tools' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''
+              }`}
               title={!isExpanded ? "Tools" : ""}
             >
               <span className="text-slate-400 text-lg flex-shrink-0">🔧</span>
@@ -295,7 +307,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
 
         {/* Google Drive Chat History - Takes remaining space */}
         <div className="flex-1 overflow-hidden min-h-0">
-          {isExpanded && <GoogleDriveChatHistory onSwitchToChat={onSwitchToChat} />}
+          {isExpanded && <GoogleDriveChatHistory onSwitchToChat={() => { onSwitchToChat?.(); onSectionChange?.('chat'); }} />}
         </div>
 
         {/* User Profile Section - Fixed at bottom */}

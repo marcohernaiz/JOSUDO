@@ -15,16 +15,22 @@ import customerSupportGif from "@assets/Customer Support_1756066904882.gif";
 import elderlyCareGif from "@assets/Elderly Care_1756066904884.gif";
 import digitalBuddyGif from "@assets/Digital Buddy_1756066904884.gif";
 import aiGirlfriendGif from "@assets/AI Girlfriend GIF_1756066904885.gif";
+import { DigitalPersonasSection } from "@/components/DigitalPersonas/DigitalPersonasSection";
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<'chat' | 'digital-personas' | 'knowledge-base' | 'spaces' | 'tools'>('chat');
   const { theme } = useTheme();
   const { messages } = useChat();
 
-  // Dummy function to satisfy the original Sidebar prop, assuming it's needed elsewhere
+  // Function to handle section switching
   const handleSwitchToChat = () => {
-    console.log("Switching to chat...");
+    setActiveSection('chat');
+  };
+
+  const handleSectionChange = (section: 'chat' | 'digital-personas' | 'knowledge-base' | 'spaces' | 'tools') => {
+    setActiveSection(section);
   };
 
   return (
@@ -72,7 +78,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} activeSection={activeSection} />
             </div>
           </div>
         )}
@@ -90,7 +96,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} activeSection={activeSection} />
             </div>
           </div>
         )}
@@ -193,31 +199,65 @@ export default function Dashboard() {
         >
           {/* Scrollable content area */}
           <div className="flex-1 overflow-auto">
-            {/* Section 2: Hero Section - Only show when no messages */}
-            {messages.length === 0 && (
-              <div className="bg-white">
-                <HeroSection />
+            {/* Digital Personas Section */}
+            {activeSection === 'digital-personas' && (
+              <div className="bg-white h-full">
+                <DigitalPersonasSection />
               </div>
             )}
 
-            {/* Section 3: Chat Box Section */}
-            {messages.length > 0 && (
-              <div className="bg-white">
-                <div className="w-full max-w-4xl mx-auto px-4">
-                  <div className="flex flex-col min-h-screen">
-                    <div className="flex-1">
-                      <ChatArea />
-                    </div>
-                    <div className="flex-shrink-0 py-4">
-                      <MessageInput />
+            {/* Chat Section */}
+            {activeSection === 'chat' && (
+              <>
+                {/* Section 2: Hero Section - Only show when no messages */}
+                {messages.length === 0 && (
+                  <div className="bg-white">
+                    <HeroSection />
+                  </div>
+                )}
+
+                {/* Section 3: Chat Box Section */}
+                {messages.length > 0 && (
+                  <div className="bg-white">
+                    <div className="w-full max-w-4xl mx-auto px-4">
+                      <div className="flex flex-col min-h-screen">
+                        <div className="flex-1">
+                          <ChatArea />
+                        </div>
+                        <div className="flex-shrink-0 py-4">
+                          <MessageInput />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {/* MessageInput for new conversations - bottom positioned */}
+                {messages.length === 0 && <MessageInput />}
+              </>
+            )}
+            
+            {/* Other sections can be added here */}
+            {activeSection === 'knowledge-base' && (
+              <div className="bg-white h-full p-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">Knowledge Base</h1>
+                <p className="text-gray-600">Coming soon...</p>
               </div>
             )}
-
-            {/* MessageInput for new conversations - bottom positioned */}
-            {messages.length === 0 && <MessageInput />}
+            
+            {activeSection === 'spaces' && (
+              <div className="bg-white h-full p-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">Spaces</h1>
+                <p className="text-gray-600">Coming soon...</p>
+              </div>
+            )}
+            
+            {activeSection === 'tools' && (
+              <div className="bg-white h-full p-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">Tools</h1>
+                <p className="text-gray-600">Coming soon...</p>
+              </div>
+            )}
 
             {/* Section 4: Virtual Employees Section - Only show when no messages */}
             {messages.length === 0 && (
