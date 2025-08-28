@@ -16,57 +16,6 @@ export const SpaceWorkspace: React.FC<SpaceWorkspaceProps> = ({ space, onBack })
 
   return (
     <div className="h-full bg-white flex flex-col">
-      {/* Workspace Header */}
-      <div className="border-b border-gray-200 bg-gray-50">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onBack}
-              className="flex items-center text-gray-600 hover:text-gray-900"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Spaces
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsEditingHeader(!isEditingHeader)}
-              className="text-gray-600 hover:text-gray-900"
-            >
-              <Settings className="w-4 h-4" />
-            </Button>
-          </div>
-
-
-          {/* Workspace Details */}
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {isEditingHeader ? (
-                <input
-                  type="text"
-                  defaultValue={space.name}
-                  className="bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none"
-                />
-              ) : (
-                space.name
-              )}
-            </h1>
-            <p className="text-gray-600">
-              {isEditingHeader ? (
-                <textarea
-                  defaultValue={space.description || "Add a description for this space..."}
-                  className="w-full bg-transparent border border-gray-300 rounded p-2 focus:border-blue-500 outline-none resize-none"
-                  rows={2}
-                />
-              ) : (
-                space.description || "Add a description for this space..."
-              )}
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Three-Panel Layout */}
       <div className="flex-1 flex overflow-hidden">

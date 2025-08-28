@@ -20,6 +20,7 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({ spaceId }) => {
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         <ToolsSection spaceId={spaceId} />
         <TasksSection spaceId={spaceId} />
+        <VirtualEmployeesSection spaceId={spaceId} />
       </div>
     </div>
   );
