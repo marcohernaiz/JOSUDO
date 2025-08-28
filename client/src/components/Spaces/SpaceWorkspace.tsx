@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Space } from '@/types';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Settings, Upload, Image } from 'lucide-react';
-import { SourcesPanel } from './SourcesPanel';
-import { ChatPanel } from './ChatPanel';
-import { StudioPanel } from './StudioPanel';
+import { SourcesPanel } from '@/components/Spaces/SourcesPanel';
+import { ChatPanel } from '@/components/Spaces/ChatPanel';
+import { StudioPanel } from '@/components/Spaces/StudioPanel';
 
 interface SpaceWorkspaceProps {
   space: Space;
