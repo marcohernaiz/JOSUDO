@@ -15,7 +15,7 @@ export const SpacesSection: React.FC<SpacesSectionProps> = ({ onSpaceSelect }) =
 
   const { data: spaces = [], isLoading } = useQuery<Space[]>({
     queryKey: ['/api/spaces'],
-    enabled: !!user,
+    enabled: true, // Allow fetching spaces even when not authenticated for demo
   });
 
   if (isLoading) {

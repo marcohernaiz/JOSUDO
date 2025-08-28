@@ -245,17 +245,41 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
               {isExpanded && <span className="ml-2">Search</span>}
             </Button>
 
-            <Button
-              variant="ghost"
-              onClick={() => onSectionChange?.('spaces')}
-              className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 ${
-                activeSection === 'spaces' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''
-              }`}
-              title={!isExpanded ? "Spaces" : ""}
-            >
-              <Box className="w-4 h-4 flex-shrink-0 text-slate-400" />
-              {isExpanded && <span className="ml-2">Spaces</span>}
-            </Button>
+            <div>
+              <Button
+                variant="ghost"
+                onClick={() => onSectionChange?.('spaces')}
+                className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 ${
+                  activeSection === 'spaces' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''
+                }`}
+                title={!isExpanded ? "Spaces" : ""}
+              >
+                <Box className="w-4 h-4 flex-shrink-0 text-slate-400" />
+                {isExpanded && <span className="ml-2">Spaces</span>}
+              </Button>
+              
+              {/* Expandable Spaces List */}
+              {isExpanded && activeSection === 'spaces' && (
+                <div className="ml-6 mt-2 space-y-1">
+                  <Button
+                    variant="ghost"
+                    onClick={() => onSectionChange?.('spaces')}
+                    className="w-full justify-start px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+                  >
+                    <span className="text-slate-400 text-sm mr-2">👤</span>
+                    My Personal Space
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => onSectionChange?.('spaces')}
+                    className="w-full justify-start px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+                  >
+                    <span className="text-slate-400 text-sm mr-2">💼</span>
+                    My Workspace
+                  </Button>
+                </div>
+              )}
+            </div>
 
             <Button
               variant="ghost"
