@@ -263,7 +263,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat }) => 
 
             <Button
               variant="ghost"
-              onClick={() => {/* Handle digital personas */}}
+              onClick={() => window.location.href = '/digital-personas'}
               className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
               title={!isExpanded ? "Digital Personas" : ""}
             >

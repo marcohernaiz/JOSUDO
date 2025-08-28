@@ -1,0 +1,49 @@
+Create a new screen in React with Tailwind for JOSUDO called Digital Persona Manager.
+
+📌 Behavior:
+	•	When the user clicks on Digital Persona in the sidebar, this screen opens.
+	•	Top section:
+	•	Title: “Your Digital Personas”
+	•	Display the existing configured personas in cards.
+	•	Each card shows:
+	•	Animated GIF avatar (from home page assets).
+	•	Persona Name.
+	•	Role (e.g., Executive Assistant, Sales Manager, etc).
+	•	List of configured tools (badges or pill-style chips: e-mail, phone, calendar, Google Drive, etc.).
+	•	By default, only Sophia (Executive Assistant) is pre-configured.
+	•	Next to Sophia, add a Create New Digital Persona card with no image, just a plus icon and text.
+	•	Second section:
+	•	Title: “Choose from Existing Templates”
+	•	Categories displayed as expandable sections (accordion or collapsible panels):
+	•	Virtual Employees
+	•	Industry Experts
+	•	Personal Companion
+	•	Inside each category, display persona cards horizontally (carousel or responsive grid).
+	•	Templates (each as a card with animated gif, name, role, and suggested tools):
+	•	Virtual Employees (5 personas):
+	•	Executive Assistant (Sophia, tools: email, calendar, drive, phone)
+	•	Sales Manager (Carlos, tools: CRM, email, phone, calendar)
+	•	Marketing Manager (Aisha, tools: analytics, social media, drive, email)
+	•	Head of Customer Support (Liam, tools: ticketing, chat, knowledge base, phone)
+	•	Head of Human Resources (Emma, tools: HRIS, email, calendar, docs)
+	•	Industry Experts (6 personas):
+	•	Coach (Diego, tools: calendar, chat, docs)
+	•	Legal Counsel (Amira, tools: legal db, email, drive)
+	•	Tax Consultant (John, tools: spreadsheets, email, drive)
+	•	Language Teacher (Yuki, tools: chat, docs, video call)
+	•	Real Estate Assistant (Lucía, tools: CRM, email, phone, maps)
+	•	Interpreter (Hassan, tools: chat, video, translation db)
+	•	Personal Companion (5 personas):
+	•	Elderly Care (Marta, tools: reminders, calendar, chat, phone)
+	•	Wellness Companion (Arun, tools: meditation app, health tracker, calendar)
+	•	AI Girlfriend (Luna, tools: chat, voice, calendar)
+	•	Digital Nanny (Sofia, tools: parental control, calendar, chat, camera)
+	•	Digital Buddy (Max, tools: chat, games, music)
+
+📌 Design requirements:
+	•	Clean, grid-based layout.
+	•	Smooth animations with Framer Motion.
+	•	Rounded corners (2xl) and soft shadows on cards.
+	•	Animated hover effects on persona cards.
+	•	Search/filter input on top of templates section.
+	•	Keep the style aligned with JOSUDO branding (modern, minimal, polished).
