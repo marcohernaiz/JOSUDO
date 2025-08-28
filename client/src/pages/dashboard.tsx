@@ -233,6 +233,10 @@ export default function Dashboard() {
                 {messages.length === 0 && (
                   <div className="bg-white">
                     <HeroSection />
+                    {/* Digital Personas Section - Virtual Employees */}
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+                      <DigitalPersonasSection />
+                    </div>
                   </div>
                 )}
 
