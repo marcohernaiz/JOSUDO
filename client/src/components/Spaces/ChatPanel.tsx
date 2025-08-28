@@ -15,8 +15,12 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ space }) => {
   return (
     <div className="h-full flex flex-col bg-white">
       <div className="p-4 border-b border-gray-200" style={{marginTop: '10px'}}>
-        <h2 className="text-lg font-semibold text-gray-900">Chat</h2>
-        <p className="text-sm text-gray-600">Context: {space.name}</p>
+        <div className="flex flex-col items-center">
+          <h2 className="text-lg font-semibold text-gray-900">Chat</h2>
+          <div className="mt-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+            <span className="text-sm font-medium text-blue-800">📁 {space.name}</span>
+          </div>
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Wrench, CheckSquare, Users, Play, Settings } from 'lucide-react';
+import executiveAssistantGif from '@assets/Executive Assistant_1756066904884.gif';
 
 interface StudioPanelProps {
   spaceId: number;
@@ -17,10 +18,16 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({ spaceId }) => {
         <h2 className="text-lg font-semibold text-gray-900">Studio</h2>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        <ToolsSection spaceId={spaceId} />
-        <TasksSection spaceId={spaceId} />
-        <VirtualEmployeesSection spaceId={spaceId} />
+      <div className="flex-1 overflow-y-auto p-4 space-y-8">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+          <ToolsSection spaceId={spaceId} />
+        </div>
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+          <TasksSection spaceId={spaceId} />
+        </div>
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
+          <VirtualEmployeesSection spaceId={spaceId} />
+        </div>
       </div>
     </div>
   );
@@ -139,8 +146,12 @@ const VirtualEmployeesSection: React.FC<VirtualEmployeesSectionProps> = ({ space
       <Card className="cursor-pointer hover:shadow-md transition-shadow">
         <CardContent className="p-4">
           <div className="flex items-start space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">S</span>
+            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+              <img 
+                src={executiveAssistantGif} 
+                alt="Sophia" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="text-sm font-medium text-gray-900">{defaultEmployee.name}</h4>
