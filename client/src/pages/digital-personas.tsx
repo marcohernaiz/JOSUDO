@@ -31,8 +31,8 @@ const DigitalPersonas: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     'virtual-employees': true,
-    'industry-experts': false,
-    'personal-companion': false,
+    'industry-experts': true,
+    'personal-companion': true,
   });
 
   // Pre-configured personas
@@ -312,7 +312,7 @@ const DigitalPersonas: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-12"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-3">
             {/* Existing Personas */}
             {configuredPersonas.map((persona) => (
               <PersonaCard key={persona.id} persona={persona} isConfigured />
@@ -322,13 +322,13 @@ const DigitalPersonas: React.FC = () => {
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 min-h-[300px]"
+              className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl p-3 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 aspect-square"
             >
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <Plus className="w-8 h-8 text-blue-600" />
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                <Plus className="w-4 h-4 text-blue-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Create New Digital Persona</h3>
-              <p className="text-sm text-gray-500">Add a custom AI assistant tailored to your needs</p>
+              <h3 className="text-sm font-semibold text-gray-700 mb-1">Create New</h3>
+              <p className="text-xs text-gray-500">Custom assistant</p>
             </motion.div>
           </div>
         </motion.div>
@@ -387,7 +387,7 @@ const DigitalPersonas: React.FC = () => {
                     transition={{ duration: 0.3 }}
                     className="px-6 pb-6"
                   >
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-3">
                       {filteredTemplates
                         .filter(persona => persona.category === category.id)
                         .map((persona) => (
@@ -415,11 +415,11 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false
     <motion.div
       whileHover={{ scale: 1.02, y: -2 }}
       whileTap={{ scale: 0.98 }}
-      className={`bg-white border rounded-2xl p-4 cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md ${
+      className={`bg-white border rounded-lg p-2 cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md ${
         isConfigured ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200 hover:border-blue-300'
       }`}
     >
-      <div className="aspect-square w-full mb-4 rounded-xl overflow-hidden bg-gray-100">
+      <div className="aspect-square w-full mb-2 rounded-lg overflow-hidden bg-gray-100">
         <img
           src={persona.avatar}
           alt={persona.name}
@@ -427,39 +427,34 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false
         />
       </div>
       
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div>
-          <h3 className="font-semibold text-gray-900 text-lg">{persona.name}</h3>
-          <p className="text-sm text-gray-600">{persona.role}</p>
+          <h3 className="font-semibold text-gray-900 text-sm leading-tight">{persona.name}</h3>
+          <p className="text-xs text-gray-600 leading-tight">{persona.role}</p>
         </div>
         
         <div className="flex flex-wrap gap-1">
-          {persona.tools.map((tool, index) => (
+          {persona.tools.slice(0, 2).map((tool, index) => (
             <Badge
               key={index}
               variant="secondary"
-              className={`text-xs px-2 py-1 ${tool.color}`}
+              className={`text-xs px-1 py-0.5 ${tool.color}`}
             >
               {tool.name}
             </Badge>
           ))}
+          {persona.tools.length > 2 && (
+            <Badge variant="secondary" className="text-xs px-1 py-0.5 bg-gray-100 text-gray-600">
+              +{persona.tools.length - 2}
+            </Badge>
+          )}
         </div>
 
-        {isConfigured && (
-          <div className="pt-2">
-            <Button size="sm" className="w-full">
-              Configure
-            </Button>
-          </div>
-        )}
-
-        {!isConfigured && (
-          <div className="pt-2">
-            <Button size="sm" variant="outline" className="w-full">
-              Use Template
-            </Button>
-          </div>
-        )}
+        <div className="pt-1">
+          <Button size="sm" variant={isConfigured ? "default" : "outline"} className="w-full text-xs py-1 h-6">
+            {isConfigured ? "Configure" : "Use"}
+          </Button>
+        </div>
       </div>
     </motion.div>
   );
