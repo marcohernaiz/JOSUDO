@@ -127,7 +127,7 @@ const getStorageOptions = (isAuthenticated: boolean) => [
 
 export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading, messages } = useChat();
-  const { integrations, selectedModel, setSelectedModel } = useAppContext();
+  const { integrations, selectedModel, setSelectedModel, setActiveSection } = useAppContext();
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [selectedStorage, setSelectedStorage] = useState('');
@@ -603,6 +603,7 @@ export const MessageInput: React.FC = () => {
                     onClick={() => {
                       setChatMode('library');
                       setShowChatModeOptions(false);
+                      setActiveSection('digital-personas');
                     }}
                     className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
                       chatMode === 'library'

@@ -80,4 +80,7 @@ export interface AppContextType {
   // Add AI model selection
   selectedModel: string;
   setSelectedModel: (model: string) => void;
+  // Add active section state
+  activeSection: string;
+  setActiveSection: (section: string) => void;
 }

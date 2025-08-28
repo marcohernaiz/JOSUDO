@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useChat } from "@/hooks/useChat";
+import { useAppContext } from "@/contexts/AppContext";
 import sophiaBackground from "@assets/Sophia background_1752487018233.png";
 import executiveAssistantGif from "@assets/Executive Assistant_1756066904884.gif";
 import salesMarketingGif from "@assets/Sales & Marketing_1756066904883.gif";
@@ -20,16 +21,16 @@ import { DigitalPersonasSection } from "@/components/DigitalPersonas/DigitalPers
 export default function Dashboard() {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<'chat' | 'digital-personas' | 'knowledge-base' | 'spaces' | 'tools'>('chat');
   const { theme } = useTheme();
   const { messages } = useChat();
+  const { activeSection, setActiveSection } = useAppContext();
 
   // Function to handle section switching
   const handleSwitchToChat = () => {
     setActiveSection('chat');
   };
 
-  const handleSectionChange = (section: 'chat' | 'digital-personas' | 'knowledge-base' | 'spaces' | 'tools') => {
+  const handleSectionChange = (section: string) => {
     setActiveSection(section);
   };
 
@@ -285,7 +286,7 @@ export default function Dashboard() {
                             gif: customerSupportGif
                           }
                         ].map((item, index) => (
-                          <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                          <div key={index} onClick={() => handleSectionChange('digital-personas')} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
                             <div className="w-full">
                               <img 
                                 src={item.gif}
@@ -333,7 +334,7 @@ export default function Dashboard() {
                             gif: aiGirlfriendGif
                           }
                         ].map((item, index) => (
-                          <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                          <div key={index} onClick={() => handleSectionChange('digital-personas')} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
                             <div className="w-full">
                               <img 
                                 src={item.gif}

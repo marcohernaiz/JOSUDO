@@ -31,6 +31,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   // Add AI model selection state
   const [selectedModel, setSelectedModel] = useState<string>('deepseek-v3');
+  // Add active section state
+  const [activeSection, setActiveSection] = useState<string>('chat');
 
   // Query user authentication status
   const { data: user, isLoading: isUserLoading } = useQuery<User>({
@@ -97,6 +99,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     setCurrentSessionId,
     selectedModel,
     setSelectedModel,
+    activeSection,
+    setActiveSection,
   };
 
   return (
