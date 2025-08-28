@@ -16,20 +16,6 @@ export const SpaceWorkspace: React.FC<SpaceWorkspaceProps> = ({ space, onBack })
 
   return (
     <div className="h-full bg-white flex flex-col">
-      {/* Simple Header with Back Button */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="p-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="flex items-center text-gray-600 hover:text-gray-900"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Spaces
-          </Button>
-        </div>
-      </div>
 
       {/* Three-Panel Layout */}
       <div className="flex-1 flex overflow-hidden">

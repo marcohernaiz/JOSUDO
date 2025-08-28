@@ -41,10 +41,11 @@ interface SidebarProps {
   onClose?: () => void;
   onSwitchToChat?: () => void;
   onSectionChange?: (section: 'chat' | 'digital-personas' | 'knowledge-base' | 'spaces' | 'tools') => void;
+  onSpaceSelect?: (spaceId: number) => void;
   activeSection?: string;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSectionChange, activeSection }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSectionChange, onSpaceSelect, activeSection }) => {
   const { setActiveSession, setMessages, setCurrentSessionId, user } =
     useAppContext();
   const { isAuthenticated } = useAuth();
