@@ -4,7 +4,8 @@ import { Source, Note } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Search, FileText, BookOpen, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Search, FileText, BookOpen, ToggleLeft, ToggleRight, MessageSquare } from 'lucide-react';
+import { GoogleDriveChatHistory } from '@/components/Sidebar/GoogleDriveChatHistory';
 
 interface SourcesPanelProps {
   spaceId: number;
@@ -27,9 +28,10 @@ export const SourcesPanel: React.FC<SourcesPanelProps> = ({ spaceId }) => {
     <div className="h-full flex flex-col bg-white">
       <div className="flex-1 overflow-hidden" style={{marginTop: '10px'}}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-2 mx-4 mt-4">
+          <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
             <TabsTrigger value="knowledge-base">Knowledge Base</TabsTrigger>
             <TabsTrigger value="notes">Notes</TabsTrigger>
+            <TabsTrigger value="chat-history">Chat History</TabsTrigger>
           </TabsList>
 
           <TabsContent value="knowledge-base" className="flex-1 p-4 mt-0">
@@ -90,6 +92,20 @@ export const SourcesPanel: React.FC<SourcesPanelProps> = ({ spaceId }) => {
                     <NoteItem key={note.id} note={note} />
                   ))
                 )}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="chat-history" className="flex-1 p-4 mt-0">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-gray-900 flex items-center">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Chat History
+                </h3>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <GoogleDriveChatHistory />
               </div>
             </div>
           </TabsContent>
