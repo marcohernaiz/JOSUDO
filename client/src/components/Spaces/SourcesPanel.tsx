@@ -11,7 +11,7 @@ interface SourcesPanelProps {
 }
 
 export const SourcesPanel: React.FC<SourcesPanelProps> = ({ spaceId }) => {
-  const [activeTab, setActiveTab] = useState("knowledge-base");
+  const [activeTab, setActiveTab] = useState("sources");
 
   const { data: sources = [] } = useQuery<Source[]>({
     queryKey: ['/api/spaces', spaceId, 'sources'],
@@ -25,18 +25,16 @@ export const SourcesPanel: React.FC<SourcesPanelProps> = ({ spaceId }) => {
 
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Sources</h2>
-      </div>
 
       <div className="flex-1 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-2 mx-4 mt-4">
-            <TabsTrigger value="knowledge-base">Knowledge Base</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
+            <TabsTrigger value="sources">Sources</TabsTrigger>
             <TabsTrigger value="notes">Notes</TabsTrigger>
+            <TabsTrigger value="chats">Chats</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="knowledge-base" className="flex-1 p-4 mt-0">
+          <TabsContent value="sources" className="flex-1 p-4 mt-0">
             <div className="space-y-4">
               <div className="flex space-x-2">
                 <Button size="sm" className="flex items-center">
@@ -94,6 +92,19 @@ export const SourcesPanel: React.FC<SourcesPanelProps> = ({ spaceId }) => {
                     <NoteItem key={note.id} note={note} />
                   ))
                 )}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="chats" className="flex-1 p-4 mt-0">
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="text-center py-8 text-gray-500">
+                  <BookOpen className="w-8 h-8 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">
+                    Chat history for this space will appear here.
+                  </p>
+                </div>
               </div>
             </div>
           </TabsContent>
