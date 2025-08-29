@@ -155,7 +155,7 @@ const NoteItem: React.FC<NoteItemProps> = ({ note }) => {
           <div className="flex-1">
             <h4 className="text-sm font-medium text-gray-900 mb-1">{note.title}</h4>
             <p className="text-xs text-gray-600 line-clamp-2">
-              {note.content.substring(0, 100)}...
+              {note.content ? note.content.substring(0, 100) + '...' : 'No content'}
             </p>
           </div>
           <div className="ml-2">
