@@ -20,23 +20,23 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ space }) => {
       </div>
 
       <div className="flex-1 flex flex-col min-h-0">
-        {messages.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center p-6">
-            <div className="text-center">
-              <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Upload a source to get started</h3>
-              <p className="text-gray-600 max-w-sm">
-                Add sources to your Knowledge Base or create notes to start a conversation with context.
-              </p>
+        <div className="flex-1 min-h-0 flex flex-col">
+          {messages.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center p-6">
+              <div className="text-center">
+                <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Upload a source to get started</h3>
+                <p className="text-gray-600 max-w-sm">
+                  Add sources to your Knowledge Base or create notes to start a conversation with context.
+                </p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex-1 min-h-0 flex flex-col">
+          ) : (
             <div className="flex-1 overflow-auto">
               <ChatArea />
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="flex-shrink-0 border-t border-gray-200 p-4">
           <MessageInput />
