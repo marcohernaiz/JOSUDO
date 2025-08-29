@@ -14,14 +14,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ space }) => {
 
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="p-4 border-b border-gray-200" style={{marginTop: '10px'}}>
+      <div className="px-6 py-4 border-b border-gray-200" style={{marginTop: '10px'}}>
         <h1 className="text-2xl font-bold text-gray-900">{space.name}</h1>
         <p className="text-sm text-gray-600">Chat with context from this space</p>
       </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0">
         {messages.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center p-6">
             <div className="text-center">
               <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">Upload a source to get started</h3>
@@ -31,12 +31,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ space }) => {
             </div>
           </div>
         ) : (
-          <div className="flex-1 overflow-hidden">
-            <ChatArea />
+          <div className="flex-1 min-h-0 flex flex-col">
+            <div className="flex-1 overflow-auto">
+              <ChatArea />
+            </div>
           </div>
         )}
 
-        <div className="border-t border-gray-200 p-4">
+        <div className="flex-shrink-0 border-t border-gray-200 p-4">
           <MessageInput />
         </div>
       </div>
