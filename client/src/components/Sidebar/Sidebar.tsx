@@ -58,6 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
   const [isPrivateSpaceExpanded, setIsPrivateSpaceExpanded] = useState(true);
   const [isPrivateSpaceHovered, setIsPrivateSpaceHovered] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [spacesExpanded, setSpacesExpanded] = useState(true);
   const [userCredits, setUserCredits] = useState<number>(0);
 
   // Fetch user credits
@@ -250,23 +251,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
             <div>
               <Button
                 variant="ghost"
-                onClick={() => onSectionChange?.('spaces')}
-                className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200 ${
-                  activeSection === 'spaces' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''
-                }`}
+                onClick={() => {
+                  setSpacesExpanded(!spacesExpanded);
+                  onSectionChange?.('spaces');
+                }}
+                className={`${isExpanded ? "w-full justify-start px-4" : "w-12 h-12 mx-auto p-0 justify-center"} text-sm text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center rounded-md transition-colors duration-200`}
                 title={!isExpanded ? "Spaces" : ""}
               >
                 <Box className="w-4 h-4 flex-shrink-0 text-slate-400" />
-                {isExpanded && <span className="ml-2">{currentSpace ? currentSpace.name : 'Spaces'}</span>}
+                {isExpanded && <span className="ml-2">Spaces</span>}
+                {isExpanded && (
+                  spacesExpanded ? 
+                    <ChevronDown className="w-3 h-3 ml-auto text-slate-400" /> : 
+                    <ChevronRight className="w-3 h-3 ml-auto text-slate-400" />
+                )}
               </Button>
               
               {/* Expandable Spaces List */}
-              {isExpanded && activeSection === 'spaces' && (
+              {isExpanded && spacesExpanded && (
                 <div className="ml-6 mt-2 space-y-1">
                   <Button
                     variant="ghost"
                     onClick={() => { onSectionChange?.('spaces'); onSpaceSelect?.(1); }}
-                    className="w-full justify-start px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+                    className={`w-full justify-start px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors ${
+                      currentSpace?.id === 1 ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''
+                    }`}
                   >
                     <span className="text-slate-400 text-sm mr-2">👤</span>
                     My Personal Space
@@ -274,7 +283,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
                   <Button
                     variant="ghost"
                     onClick={() => { onSectionChange?.('spaces'); onSpaceSelect?.(2); }}
-                    className="w-full justify-start px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
+                    className={`w-full justify-start px-3 py-2 text-xs text-slate-500 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors ${
+                      currentSpace?.id === 2 ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : ''
+                    }`}
                   >
                     <span className="text-slate-400 text-sm mr-2">💼</span>
                     My Workspace
@@ -424,10 +435,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
                 {isExpanded ? "Sign in to save your chats" : ""}
               </div>
               {isExpanded ? (
-                <button 
-                  className="gsi-material-button w-full" 
-                  onClick={() => window.location.href = '/api/auth/google'}
-                >
+                <div className="flex justify-center">
+                  <button 
+                    className="gsi-material-button" 
+                    onClick={() => window.location.href = '/api/auth/google'}
+                  >
                   <div className="gsi-material-button-state"></div>
                   <div className="gsi-material-button-content-wrapper">
                     <div className="gsi-material-button-icon">
@@ -442,7 +454,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
                     <span className="gsi-material-button-contents">Sign in with Google</span>
                     <span style={{display: 'none'}}>Sign in with Google</span>
                   </div>
-                </button>
+                  </button>
+                </div>
               ) : (
                 <div className="flex justify-center">
                   <button
