@@ -43,9 +43,10 @@ interface SidebarProps {
   onSectionChange?: (section: 'chat' | 'digital-personas' | 'knowledge-base' | 'spaces' | 'tools') => void;
   onSpaceSelect?: (spaceId: number) => void;
   activeSection?: string;
+  currentSpace?: any;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSectionChange, onSpaceSelect, activeSection }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSectionChange, onSpaceSelect, activeSection, currentSpace }) => {
   const { setActiveSession, setMessages, setCurrentSessionId, user } =
     useAppContext();
   const { isAuthenticated } = useAuth();
@@ -256,7 +257,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
                 title={!isExpanded ? "Spaces" : ""}
               >
                 <Box className="w-4 h-4 flex-shrink-0 text-slate-400" />
-                {isExpanded && <span className="ml-2">Spaces</span>}
+                {isExpanded && <span className="ml-2">{currentSpace ? currentSpace.name : 'Spaces'}</span>}
               </Button>
               
               {/* Expandable Spaces List */}

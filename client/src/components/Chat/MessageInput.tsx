@@ -244,16 +244,6 @@ export const MessageInput: React.FC = () => {
   const handleSendMessage = () => {
     if ((!currentMessage.trim() && attachedFiles.length === 0) || isLoading) return;
 
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      setShowAuthNotice(true);
-      toast({
-        title: "Authentication Required",
-        description: "Please login with Google to continue using the AI assistant.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     // Immediately clear input and files before sending
     const messageToSend = currentMessage;

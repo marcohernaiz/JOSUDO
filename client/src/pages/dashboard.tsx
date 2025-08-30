@@ -89,7 +89,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} onSpaceSelect={handleSpaceSelect} activeSection={activeSection} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} onSpaceSelect={handleSpaceSelect} activeSection={activeSection} currentSpace={currentSpace} />
             </div>
           </div>
         )}
@@ -107,7 +107,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} onSpaceSelect={handleSpaceSelect} activeSection={activeSection} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} onSpaceSelect={handleSpaceSelect} activeSection={activeSection} currentSpace={currentSpace} />
             </div>
           </div>
         )}
