@@ -4,6 +4,7 @@ import { Search, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { PersonaConfiguration } from './PersonaConfiguration';
 
 // Import GIF assets from the virtual employees section
 import executiveAssistantGif from '@assets/Executive Assistant_1756066629512.gif';
@@ -29,14 +30,8 @@ interface Persona {
 
 export const DigitalPersonasSection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
-    'virtual-employees': true,
-    'industry-experts': true,
-    'personal-companion': true,
-  });
-
-  // Pre-configured personas
-  const configuredPersonas: Persona[] = [
+  const [selectedPersona, setSelectedPersona] = useState<string | null>(null);
+  const [configuredPersonas, setConfiguredPersonas] = useState<Persona[]>([
     {
       id: 'sophia',
       name: 'Sophia',
@@ -50,7 +45,13 @@ export const DigitalPersonasSection: React.FC = () => {
       ],
       category: 'virtual-employees',
     },
-  ];
+  ]);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
+    'virtual-employees': true,
+    'industry-experts': true,
+    'personal-companion': true,
+  });
+
 
   // Template personas
   const templatePersonas: Persona[] = [
@@ -346,6 +347,31 @@ export const DigitalPersonasSection: React.FC = () => {
     persona.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleUseTemplate = (persona: Persona) => {
+    // Copy template to configured personas
+    const newPersona = {
+      ...persona,
+      id: `${persona.id}-${Date.now()}`, // Generate unique ID
+    };
+    setConfiguredPersonas(prev => [...prev, newPersona]);
+    // Open configuration
+    setSelectedPersona(newPersona.id);
+  };
+
+  const handleConfigurePersona = (personaId: string) => {
+    setSelectedPersona(personaId);
+  };
+
+  // Show configuration if a persona is selected
+  if (selectedPersona) {
+    return (
+      <PersonaConfiguration 
+        personaId={selectedPersona} 
+        onClose={() => setSelectedPersona(null)} 
+      />
+    );
+  }
+
   return (
     <div className="h-full overflow-y-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -370,7 +396,12 @@ export const DigitalPersonasSection: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-3">
             {/* Existing Personas */}
             {configuredPersonas.map((persona) => (
-              <PersonaCard key={persona.id} persona={persona} isConfigured />
+              <PersonaCard 
+                key={persona.id} 
+                persona={persona} 
+                isConfigured 
+                onConfigure={() => handleConfigurePersona(persona.id)}
+              />
             ))}
 
             {/* Create New Persona Card */}
@@ -446,7 +477,11 @@ export const DigitalPersonasSection: React.FC = () => {
                       {filteredTemplates
                         .filter(persona => persona.category === category.id)
                         .map((persona) => (
-                          <PersonaCard key={persona.id} persona={persona} />
+                          <PersonaCard 
+                            key={persona.id} 
+                            persona={persona} 
+                            onUse={() => handleUseTemplate(persona)}
+                          />
                         ))}
                     </div>
                   </motion.div>
@@ -463,9 +498,11 @@ export const DigitalPersonasSection: React.FC = () => {
 interface PersonaCardProps {
   persona: Persona;
   isConfigured?: boolean;
+  onUse?: () => void;
+  onConfigure?: () => void;
 }
 
-const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false }) => {
+const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false, onUse, onConfigure }) => {
   return (
     <motion.div
       whileHover={{ scale: 1.02, y: -2 }}
@@ -506,7 +543,12 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false
         </div>
 
         <div className="pt-1">
-          <Button size="sm" variant={isConfigured ? "default" : "outline"} className="w-full text-xs py-1 h-6">
+          <Button 
+            size="sm" 
+            variant={isConfigured ? "default" : "outline"} 
+            className="w-full text-xs py-1 h-6"
+            onClick={isConfigured ? onConfigure : onUse}
+          >
             {isConfigured ? "Configure" : "Use"}
           </Button>
         </div>
