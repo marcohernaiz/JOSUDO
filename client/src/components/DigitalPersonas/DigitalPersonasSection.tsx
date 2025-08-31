@@ -192,12 +192,16 @@ export const DigitalPersonasSection: React.FC = () => {
     setSelectedPersona(personaId);
   };
 
+  // Check if the selected persona is a user-configured persona or a template
+  const isUserPersona = selectedPersona && configuredPersonas.some(p => p.id === selectedPersona);
+
   // Show configuration if a persona is selected
   if (selectedPersona) {
     return (
       <PersonaConfiguration 
         personaId={selectedPersona} 
         onClose={() => setSelectedPersona(null)} 
+        isExistingPersona={isUserPersona}
       />
     );
   }
