@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Search, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { PersonaConfiguration } from '@/components/DigitalPersonas/PersonaConfiguration';
+import { PersonaTemplate, DigitalPersona } from '@shared/schema';
 
 // Import GIF assets from the virtual employees section
 import executiveAssistantGif from '@assets/Executive Assistant_1756066629512.gif';
@@ -24,271 +27,161 @@ interface Persona {
   role: string;
   avatar: string;
   tools: PersonaTool[];
-  category: 'virtual-employees' | 'industry-experts' | 'personal-companion';
+  category: 'virtual_employees' | 'industry_experts' | 'personal_companion';
 }
+
+// Helper function to assign colors to skills
+const getSkillColor = (skill: string): string => {
+  const colorMap: Record<string, string> = {
+    'email': 'bg-blue-100 text-blue-800',
+    'calendar': 'bg-green-100 text-green-800',
+    'drive': 'bg-yellow-100 text-yellow-800',
+    'phone': 'bg-purple-100 text-purple-800',
+    'CRM': 'bg-red-100 text-red-800',
+    'analytics': 'bg-orange-100 text-orange-800',
+    'social media': 'bg-pink-100 text-pink-800',
+    'ticketing': 'bg-teal-100 text-teal-800',
+    'chat': 'bg-indigo-100 text-indigo-800',
+    'knowledge base': 'bg-cyan-100 text-cyan-800',
+    'HRIS': 'bg-rose-100 text-rose-800',
+    'docs': 'bg-gray-100 text-gray-800',
+    'medical records': 'bg-red-100 text-red-800',
+    'scheduling': 'bg-blue-100 text-blue-800',
+    'reminders': 'bg-amber-100 text-amber-800',
+    'portfolio': 'bg-green-100 text-green-800',
+    'reports': 'bg-blue-100 text-blue-800',
+    'contracts': 'bg-indigo-100 text-indigo-800',
+    'research': 'bg-green-100 text-green-800',
+    'lesson plans': 'bg-yellow-100 text-yellow-800',
+    'progress tracking': 'bg-green-100 text-green-800',
+    'resources': 'bg-blue-100 text-blue-800',
+    'troubleshooting': 'bg-red-100 text-red-800',
+    'documentation': 'bg-blue-100 text-blue-800',
+    'remote access': 'bg-purple-100 text-purple-800',
+    'maps': 'bg-lime-100 text-lime-800',
+    'translation db': 'bg-sky-100 text-sky-800',
+    'video': 'bg-violet-100 text-violet-800',
+    'lessons': 'bg-blue-100 text-blue-800',
+    'pronunciation': 'bg-green-100 text-green-800',
+    'grammar': 'bg-yellow-100 text-yellow-800',
+    'goal setting': 'bg-orange-100 text-orange-800',
+    'motivation': 'bg-green-100 text-green-800',
+    'meditation app': 'bg-green-100 text-green-800',
+    'health tracker': 'bg-red-100 text-red-800',
+    'voice': 'bg-pink-100 text-pink-800',
+    'parental control': 'bg-orange-100 text-orange-800',
+    'camera': 'bg-gray-100 text-gray-800',
+    'games': 'bg-purple-100 text-purple-800',
+    'music': 'bg-pink-100 text-pink-800',
+    'meditation': 'bg-purple-100 text-purple-800',
+    'prayer': 'bg-blue-100 text-blue-800',
+    'guidance': 'bg-green-100 text-green-800',
+    'legal db': 'bg-slate-100 text-slate-800',
+    'spreadsheets': 'bg-emerald-100 text-emerald-800',
+    'video call': 'bg-violet-100 text-violet-800',
+  };
+  return colorMap[skill] || 'bg-gray-100 text-gray-800';
+};
+
+// Helper function to map template names to GIF avatars
+const getAvatarForTemplate = (name: string): string => {
+  const avatarMap: Record<string, string> = {
+    'Sophia': executiveAssistantGif,
+    'Carlos': salesMarketingGif,
+    'Carlitos': salesMarketingGif,
+    'Aisha': salesMarketingGif,
+    'Liam': customerSupportGif,
+    'Emma': executiveAssistantGif,
+    'Maya': elderlyCareGif,
+    'Ben': salesMarketingGif,
+    'Priya': executiveAssistantGif,
+    'David': digitalBuddyGif,
+    'Zara': customerSupportGif,
+    'Lucia': salesMarketingGif,
+    'Hassan': digitalBuddyGif,
+    'Maria': executiveAssistantGif,
+    'Alex': digitalBuddyGif,
+    'Ryan': digitalBuddyGif,
+    'Jordan': digitalBuddyGif,
+    'Riley': digitalBuddyGif,
+    'Sam': elderlyCareGif,
+    'Taylor': aiGirlfriendGif,
+    // Additional mappings from existing personas
+    'Diego': digitalBuddyGif,
+    'Amira': executiveAssistantGif,
+    'John': digitalBuddyGif,
+    'Yuki': aiGirlfriendGif,
+    'Marta': elderlyCareGif,
+    'Arun': digitalBuddyGif,
+    'Luna': aiGirlfriendGif,
+    'Sofia': aiGirlfriendGif,
+    'Max': digitalBuddyGif,
+    'Gabriel': elderlyCareGif,
+  };
+  return avatarMap[name] || executiveAssistantGif;
+};
 
 const DigitalPersonas: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
-    'virtual-employees': true,
-    'industry-experts': true,
-    'personal-companion': true,
+  const [selectedPersona, setSelectedPersona] = useState<string | null>(null);
+
+  // Load user's configured personas from database
+  const { data: userPersonas = [] } = useQuery<DigitalPersona[]>({
+    queryKey: ['/api/digital-personas'],
   });
 
-  // Pre-configured personas
-  const configuredPersonas: Persona[] = [
-    {
-      id: 'sophia',
-      name: 'Sophia',
-      role: 'Executive Assistant',
-      avatar: executiveAssistantGif,
-      tools: [
-        { name: 'email', color: 'bg-blue-100 text-blue-800' },
-        { name: 'calendar', color: 'bg-green-100 text-green-800' },
-        { name: 'drive', color: 'bg-yellow-100 text-yellow-800' },
-        { name: 'phone', color: 'bg-purple-100 text-purple-800' },
-      ],
-      category: 'virtual-employees',
-    },
-  ];
+  // Load templates from admin database
+  const { data: templates = [] } = useQuery<PersonaTemplate[]>({
+    queryKey: ['/api/admin/persona-templates'],
+  });
 
-  // Template personas
-  const templatePersonas: Persona[] = [
-    // Virtual Employees
-    {
-      id: 'sophia-template',
-      name: 'Sophia',
-      role: 'Executive Assistant',
-      avatar: executiveAssistantGif,
-      tools: [
-        { name: 'email', color: 'bg-blue-100 text-blue-800' },
-        { name: 'calendar', color: 'bg-green-100 text-green-800' },
-        { name: 'drive', color: 'bg-yellow-100 text-yellow-800' },
-        { name: 'phone', color: 'bg-purple-100 text-purple-800' },
-      ],
-      category: 'virtual-employees',
-    },
-    {
-      id: 'carlos',
-      name: 'Carlos',
-      role: 'Sales Manager',
-      avatar: salesMarketingGif,
-      tools: [
-        { name: 'CRM', color: 'bg-red-100 text-red-800' },
-        { name: 'email', color: 'bg-blue-100 text-blue-800' },
-        { name: 'phone', color: 'bg-purple-100 text-purple-800' },
-        { name: 'calendar', color: 'bg-green-100 text-green-800' },
-      ],
-      category: 'virtual-employees',
-    },
-    {
-      id: 'aisha',
-      name: 'Aisha',
-      role: 'Marketing Manager',
-      avatar: salesMarketingGif,
-      tools: [
-        { name: 'analytics', color: 'bg-orange-100 text-orange-800' },
-        { name: 'social media', color: 'bg-pink-100 text-pink-800' },
-        { name: 'drive', color: 'bg-yellow-100 text-yellow-800' },
-        { name: 'email', color: 'bg-blue-100 text-blue-800' },
-      ],
-      category: 'virtual-employees',
-    },
-    {
-      id: 'liam',
-      name: 'Liam',
-      role: 'Head of Customer Support',
-      avatar: customerSupportGif,
-      tools: [
-        { name: 'ticketing', color: 'bg-teal-100 text-teal-800' },
-        { name: 'chat', color: 'bg-indigo-100 text-indigo-800' },
-        { name: 'knowledge base', color: 'bg-cyan-100 text-cyan-800' },
-        { name: 'phone', color: 'bg-purple-100 text-purple-800' },
-      ],
-      category: 'virtual-employees',
-    },
-    {
-      id: 'emma',
-      name: 'Emma',
-      role: 'Head of Human Resources',
-      avatar: executiveAssistantGif,
-      tools: [
-        { name: 'HRIS', color: 'bg-rose-100 text-rose-800' },
-        { name: 'email', color: 'bg-blue-100 text-blue-800' },
-        { name: 'calendar', color: 'bg-green-100 text-green-800' },
-        { name: 'docs', color: 'bg-gray-100 text-gray-800' },
-      ],
-      category: 'virtual-employees',
-    },
+  // Convert user personas to display format
+  const configuredPersonas: Persona[] = userPersonas.map(persona => ({
+    id: persona.id.toString(),
+    name: persona.name,
+    role: persona.role,
+    avatar: persona.avatar || executiveAssistantGif,
+    tools: (persona.skills || []).map(skill => ({
+      name: skill,
+      color: getSkillColor(skill)
+    })),
+    category: 'virtual_employees', // Default category for user personas
+  }));
 
-    // Industry Experts
-    {
-      id: 'diego',
-      name: 'Diego',
-      role: 'Coach',
-      avatar: digitalBuddyGif,
-      tools: [
-        { name: 'calendar', color: 'bg-green-100 text-green-800' },
-        { name: 'chat', color: 'bg-indigo-100 text-indigo-800' },
-        { name: 'docs', color: 'bg-gray-100 text-gray-800' },
-      ],
-      category: 'industry-experts',
-    },
-    {
-      id: 'amira',
-      name: 'Amira',
-      role: 'Legal Counsel',
-      avatar: executiveAssistantGif,
-      tools: [
-        { name: 'legal db', color: 'bg-slate-100 text-slate-800' },
-        { name: 'email', color: 'bg-blue-100 text-blue-800' },
-        { name: 'drive', color: 'bg-yellow-100 text-yellow-800' },
-      ],
-      category: 'industry-experts',
-    },
-    {
-      id: 'john',
-      name: 'John',
-      role: 'Tax Consultant',
-      avatar: digitalBuddyGif,
-      tools: [
-        { name: 'spreadsheets', color: 'bg-emerald-100 text-emerald-800' },
-        { name: 'email', color: 'bg-blue-100 text-blue-800' },
-        { name: 'drive', color: 'bg-yellow-100 text-yellow-800' },
-      ],
-      category: 'industry-experts',
-    },
-    {
-      id: 'yuki',
-      name: 'Yuki',
-      role: 'Language Teacher',
-      avatar: aiGirlfriendGif,
-      tools: [
-        { name: 'chat', color: 'bg-indigo-100 text-indigo-800' },
-        { name: 'docs', color: 'bg-gray-100 text-gray-800' },
-        { name: 'video call', color: 'bg-violet-100 text-violet-800' },
-      ],
-      category: 'industry-experts',
-    },
-    {
-      id: 'lucia',
-      name: 'Lucía',
-      role: 'Real Estate Assistant',
-      avatar: salesMarketingGif,
-      tools: [
-        { name: 'CRM', color: 'bg-red-100 text-red-800' },
-        { name: 'email', color: 'bg-blue-100 text-blue-800' },
-        { name: 'phone', color: 'bg-purple-100 text-purple-800' },
-        { name: 'maps', color: 'bg-lime-100 text-lime-800' },
-      ],
-      category: 'industry-experts',
-    },
-    {
-      id: 'hassan',
-      name: 'Hassan',
-      role: 'Interpreter',
-      avatar: digitalBuddyGif,
-      tools: [
-        { name: 'chat', color: 'bg-indigo-100 text-indigo-800' },
-        { name: 'video', color: 'bg-violet-100 text-violet-800' },
-        { name: 'translation db', color: 'bg-sky-100 text-sky-800' },
-      ],
-      category: 'industry-experts',
-    },
+  // Convert templates to display format
+  const templatePersonas: Persona[] = templates.map(template => ({
+    id: template.id.toString(),
+    name: template.name,
+    role: template.role,
+    avatar: getAvatarForTemplate(template.name),
+    tools: (template.skills || []).map(skill => ({
+      name: skill,
+      color: getSkillColor(skill)
+    })),
+    category: template.category as 'virtual_employees' | 'industry_experts' | 'personal_companion',
+  }));
 
-    // Personal Companion
-    {
-      id: 'marta',
-      name: 'Marta',
-      role: 'Elderly Care',
-      avatar: elderlyCareGif,
-      tools: [
-        { name: 'reminders', color: 'bg-amber-100 text-amber-800' },
-        { name: 'calendar', color: 'bg-green-100 text-green-800' },
-        { name: 'chat', color: 'bg-indigo-100 text-indigo-800' },
-        { name: 'phone', color: 'bg-purple-100 text-purple-800' },
-      ],
-      category: 'personal-companion',
-    },
-    {
-      id: 'arun',
-      name: 'Arun',
-      role: 'Wellness Companion',
-      avatar: digitalBuddyGif,
-      tools: [
-        { name: 'meditation app', color: 'bg-green-100 text-green-800' },
-        { name: 'health tracker', color: 'bg-red-100 text-red-800' },
-        { name: 'calendar', color: 'bg-green-100 text-green-800' },
-      ],
-      category: 'personal-companion',
-    },
-    {
-      id: 'luna',
-      name: 'Luna',
-      role: 'AI Girlfriend',
-      avatar: aiGirlfriendGif,
-      tools: [
-        { name: 'chat', color: 'bg-indigo-100 text-indigo-800' },
-        { name: 'voice', color: 'bg-pink-100 text-pink-800' },
-        { name: 'calendar', color: 'bg-green-100 text-green-800' },
-      ],
-      category: 'personal-companion',
-    },
-    {
-      id: 'sofia',
-      name: 'Sofia',
-      role: 'Digital Nanny',
-      avatar: aiGirlfriendGif,
-      tools: [
-        { name: 'parental control', color: 'bg-orange-100 text-orange-800' },
-        { name: 'calendar', color: 'bg-green-100 text-green-800' },
-        { name: 'chat', color: 'bg-indigo-100 text-indigo-800' },
-        { name: 'camera', color: 'bg-gray-100 text-gray-800' },
-      ],
-      category: 'personal-companion',
-    },
-    {
-      id: 'max',
-      name: 'Max',
-      role: 'Digital Buddy',
-      avatar: digitalBuddyGif,
-      tools: [
-        { name: 'chat', color: 'bg-indigo-100 text-indigo-800' },
-        { name: 'games', color: 'bg-purple-100 text-purple-800' },
-        { name: 'music', color: 'bg-pink-100 text-pink-800' },
-      ],
-      category: 'personal-companion',
-    },
-    {
-      id: 'gabriel',
-      name: 'Gabriel',
-      role: 'Spiritual Counselor',
-      avatar: elderlyCareGif,
-      tools: [
-        { name: 'meditation', color: 'bg-purple-100 text-purple-800' },
-        { name: 'prayer', color: 'bg-blue-100 text-blue-800' },
-        { name: 'guidance', color: 'bg-green-100 text-green-800' },
-        { name: 'chat', color: 'bg-indigo-100 text-indigo-800' },
-      ],
-      category: 'personal-companion',
-    },
-  ];
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
+    'virtual_employees': true,
+    'industry_experts': true,
+    'personal_companion': true,
+  });
 
   const categories = [
     {
-      id: 'virtual-employees',
+      id: 'virtual_employees',
       title: 'Virtual Employees',
-      count: templatePersonas.filter(p => p.category === 'virtual-employees').length,
+      count: templatePersonas.filter(p => p.category === 'virtual_employees').length,
     },
     {
-      id: 'industry-experts',
+      id: 'industry_experts',
       title: 'Industry Experts',
-      count: templatePersonas.filter(p => p.category === 'industry-experts').length,
+      count: templatePersonas.filter(p => p.category === 'industry_experts').length,
     },
     {
-      id: 'personal-companion',
+      id: 'personal_companion',
       title: 'Personal Companion',
-      count: templatePersonas.filter(p => p.category === 'personal-companion').length,
+      count: templatePersonas.filter(p => p.category === 'personal_companion').length,
     },
   ];
 
@@ -304,9 +197,28 @@ const DigitalPersonas: React.FC = () => {
     persona.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleUseTemplate = (persona: Persona) => {
+    // When user clicks "Use" on a template, open configuration for that template
+    setSelectedPersona(persona.id);
+  };
+
+  const handleConfigurePersona = (personaId: string) => {
+    setSelectedPersona(personaId);
+  };
+
+  // Show configuration if a persona is selected
+  if (selectedPersona) {
+    return (
+      <PersonaConfiguration 
+        personaId={selectedPersona} 
+        onClose={() => setSelectedPersona(null)} 
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-white p-6 overflow-y-auto">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white overflow-y-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -326,9 +238,14 @@ const DigitalPersonas: React.FC = () => {
           className="mb-12"
         >
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-3">
-            {/* Existing Personas */}
+            {/* Existing User Personas */}
             {configuredPersonas.map((persona) => (
-              <PersonaCard key={persona.id} persona={persona} isConfigured />
+              <PersonaCard 
+                key={persona.id} 
+                persona={persona} 
+                isConfigured 
+                onConfigure={() => handleConfigurePersona(persona.id)}
+              />
             ))}
 
             {/* Create New Persona Card */}
@@ -404,7 +321,11 @@ const DigitalPersonas: React.FC = () => {
                       {filteredTemplates
                         .filter(persona => persona.category === category.id)
                         .map((persona) => (
-                          <PersonaCard key={persona.id} persona={persona} />
+                          <PersonaCard 
+                            key={persona.id} 
+                            persona={persona} 
+                            onUse={() => handleUseTemplate(persona)}
+                          />
                         ))}
                     </div>
                   </motion.div>
@@ -421,9 +342,11 @@ const DigitalPersonas: React.FC = () => {
 interface PersonaCardProps {
   persona: Persona;
   isConfigured?: boolean;
+  onUse?: () => void;
+  onConfigure?: () => void;
 }
 
-const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false }) => {
+const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false, onUse, onConfigure }) => {
   return (
     <motion.div
       whileHover={{ scale: 1.02, y: -2 }}
@@ -431,6 +354,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false
       className={`bg-white border rounded-lg p-2 cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md ${
         isConfigured ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200 hover:border-blue-300'
       }`}
+      onClick={isConfigured ? onConfigure : onUse}
     >
       <div className="aspect-square w-full mb-2 rounded-lg overflow-hidden bg-gray-100">
         <img
@@ -464,7 +388,19 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false
         </div>
 
         <div className="pt-1">
-          <Button size="sm" variant={isConfigured ? "default" : "outline"} className="w-full text-xs py-1 h-6">
+          <Button 
+            size="sm" 
+            variant={isConfigured ? "default" : "outline"} 
+            className="w-full text-xs py-1 h-6"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isConfigured && onConfigure) {
+                onConfigure();
+              } else if (onUse) {
+                onUse();
+              }
+            }}
+          >
             {isConfigured ? "Configure" : "Use"}
           </Button>
         </div>
