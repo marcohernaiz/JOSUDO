@@ -1630,6 +1630,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/digital-personas/:id", async (req, res) => {
+    try {
+      // Get user ID from authenticated session
+      let userId = (req as any).session?.passport?.user;
+      
+      // Check for Google OAuth authentication
+      if (req.isAuthenticated() && req.user) {
+        userId = (req.user as any).id;
+      }
+      
+      // Check for session-based authentication
+      if (!userId && (req as any).session?.userId) {
+        userId = (req as any).session.userId;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const { id } = req.params;
+      
+      const [deletedPersona] = await db
+        .delete(digitalPersonas)
+        .where(and(eq(digitalPersonas.id, parseInt(id)), eq(digitalPersonas.userId, userId)))
+        .returning();
+
+      if (!deletedPersona) {
+        return res.status(404).json({ error: "Digital persona not found" });
+      }
+
+      res.json({ message: "Digital persona deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting digital persona:", error);
+      res.status(500).json({ error: "Failed to delete digital persona" });
+    }
+  });
+
   // Admin Persona Templates routes (hidden admin section)
   app.get("/api/admin/persona-templates", async (req, res) => {
     try {

@@ -124,6 +124,7 @@ const getAvatarForTemplate = (name: string): string => {
 const DigitalPersonas: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPersona, setSelectedPersona] = useState<string | null>(null);
+  const [selectedPersonaType, setSelectedPersonaType] = useState<'template' | 'existing'>('template');
 
   // Load user's configured personas from database
   const { data: userPersonas = [] } = useQuery<DigitalPersona[]>({
@@ -195,12 +196,14 @@ const DigitalPersonas: React.FC = () => {
   );
 
   const handleUseTemplate = (persona: Persona) => {
-    // When user clicks "Use" on a template, open configuration for that template
+    // When user clicks on a template, open configuration for that template
     setSelectedPersona(persona.id);
+    setSelectedPersonaType('template');
   };
 
   const handleConfigurePersona = (personaId: string) => {
     setSelectedPersona(personaId);
+    setSelectedPersonaType('existing');
   };
 
   // Show configuration if a persona is selected
@@ -208,7 +211,8 @@ const DigitalPersonas: React.FC = () => {
     return (
       <PersonaConfiguration 
         personaId={selectedPersona} 
-        onClose={() => setSelectedPersona(null)} 
+        onClose={() => setSelectedPersona(null)}
+        isExistingPersona={selectedPersonaType === 'existing'}
       />
     );
   }
@@ -384,23 +388,6 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false
           )}
         </div>
 
-        <div className="pt-1">
-          <Button 
-            size="sm" 
-            variant={isConfigured ? "default" : "outline"} 
-            className="w-full text-xs py-1 h-6"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isConfigured && onConfigure) {
-                onConfigure();
-              } else if (onUse) {
-                onUse();
-              }
-            }}
-          >
-            {isConfigured ? "Configure" : "Use"}
-          </Button>
-        </div>
       </div>
     </motion.div>
   );

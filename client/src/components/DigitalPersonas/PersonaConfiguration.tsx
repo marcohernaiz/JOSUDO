@@ -17,9 +17,10 @@ import { useToast } from '@/hooks/use-toast';
 interface PersonaConfigurationProps {
   personaId: string;
   onClose: () => void;
+  isExistingPersona?: boolean; // To distinguish between template configuration and existing persona editing
 }
 
-export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ personaId, onClose }) => {
+export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ personaId, onClose, isExistingPersona = false }) => {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [greeting, setGreeting] = useState("");
@@ -144,6 +145,60 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
       });
     },
   });
+
+  // Mutation for deleting digital persona
+  const deletePersonaMutation = useMutation({
+    mutationFn: async (personaId: string) => {
+      if (!isAuthenticated) {
+        throw new Error('User must be authenticated to delete persona');
+      }
+      return await apiRequest('DELETE', `/api/digital-personas/${personaId}`);
+    },
+    onSuccess: () => {
+      // Invalidate queries to refresh the digital personas list
+      queryClient.invalidateQueries({ queryKey: ['/api/digital-personas'] });
+      
+      toast({
+        title: 'Success',
+        description: 'Digital persona deleted successfully!',
+        variant: 'default',
+      });
+      
+      onClose();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to delete persona: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleDelete = async () => {
+    if (!isAuthenticated) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please log in to delete personas.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!isExistingPersona) {
+      toast({
+        title: 'Cannot Delete',
+        description: 'This is a template configuration. You can only delete saved personas.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Confirm deletion
+    if (window.confirm('Are you sure you want to delete this digital persona? This action cannot be undone.')) {
+      deletePersonaMutation.mutate(personaId);
+    }
+  };
 
   const handleSave = async () => {
     if (!isAuthenticated) {
@@ -417,15 +472,26 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
               </CardContent>
             </Card>
             
-            {/* Save Button at Bottom */}
-            <div className="pt-6">
+            {/* Save and Delete Buttons at Bottom */}
+            <div className="pt-6 flex gap-3">
               <Button 
-                className="bg-blue-600 hover:bg-blue-700 w-full" 
+                className="bg-blue-600 hover:bg-blue-700 flex-1" 
                 onClick={handleSave}
                 disabled={savePersonaMutation.isPending}
               >
                 {savePersonaMutation.isPending ? 'Saving...' : 'Save Configuration'}
               </Button>
+              
+              {isExistingPersona && (
+                <Button 
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={deletePersonaMutation.isPending}
+                  className="flex-shrink-0"
+                >
+                  {deletePersonaMutation.isPending ? 'Deleting...' : 'Delete'}
+                </Button>
+              )}
             </div>
           </div>
         </div>
