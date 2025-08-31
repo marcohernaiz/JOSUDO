@@ -35,6 +35,8 @@ Tracking: Track recurring events & deadlines.`);
 Ethics & Confidentiality: Treat all data as confidential. Use discretion in all recommendations. Avoid unnecessary speculation. Maintain professional boundaries.
 
 Technical Constraints: Responses are spoken aloud. Do not read code, URLs, or symbols aloud. If asked: reply "It's hard to read out code in plain English, but you can check [website name] for examples." For lists: pause naturally between items.`);
+  const [showOwnResources, setShowOwnResources] = useState(false);
+  const [showOtherResources, setShowOtherResources] = useState(false);
   
   const [personaData, setPersonaData] = useState({
     name: 'Sophia',
@@ -107,41 +109,34 @@ Technical Constraints: Responses are spoken aloud. Do not read code, URLs, or sy
 
   return (
     <div className="h-full bg-gray-50 overflow-hidden">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Digital Personas
-          </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            Save Configuration
-          </Button>
-        </div>
-      </div>
 
       {/* Main Content */}
-      <div className="h-full flex overflow-hidden">
+      <div className="h-full flex overflow-hidden relative">
+        {/* Close Button - Floating */}
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={onClose}
+          className="absolute top-4 left-4 z-10"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        
         {/* Left Area - Persona Basics */}
-        <div className="w-80 bg-white border-r border-gray-200 p-6 overflow-y-auto">
+        <div className="w-80 bg-white border-r border-gray-200 p-6 pt-16 overflow-y-auto">
           {/* Avatar */}
           <div className="mb-6">
-            <Label className="text-sm font-medium text-gray-700 mb-2 block">Avatar</Label>
-            <div className="w-32 h-32 mx-auto rounded-lg overflow-hidden bg-gray-100 mb-3">
+            <div className="w-32 h-32 mx-auto rounded-lg overflow-hidden bg-gray-100 cursor-pointer hover:opacity-80 transition-opacity">
               <img
                 src={personaData.avatar}
                 alt={personaData.name}
                 className="w-full h-full object-cover"
               />
             </div>
-            <Button variant="outline" size="sm" className="w-full">
-              Change Avatar
-            </Button>
           </div>
 
           {/* Voice Button */}
           <div className="mb-6">
-            <Label className="text-sm font-medium text-gray-700 mb-2 block">Voice</Label>
             <Button variant="outline" className="w-full justify-start">
               <Mic className="w-4 h-4 mr-2" />
               {personaData.voiceId}
@@ -150,22 +145,28 @@ Technical Constraints: Responses are spoken aloud. Do not read code, URLs, or sy
 
           {/* Name */}
           <div className="mb-6">
-            <Label htmlFor="name" className="text-sm font-medium text-gray-700 mb-2 block">Name</Label>
-            <Input
-              id="name"
-              value={personaData.name}
-              onChange={(e) => setPersonaData(prev => ({ ...prev, name: e.target.value }))}
-            />
+            <div className="flex items-center space-x-3">
+              <Label htmlFor="name" className="text-sm font-medium text-gray-700 w-12">Name</Label>
+              <Input
+                id="name"
+                value={personaData.name}
+                onChange={(e) => setPersonaData(prev => ({ ...prev, name: e.target.value }))}
+                className="flex-1"
+              />
+            </div>
           </div>
 
           {/* Role */}
           <div className="mb-6">
-            <Label htmlFor="role" className="text-sm font-medium text-gray-700 mb-2 block">Role</Label>
-            <Input
-              id="role"
-              value={personaData.role}
-              onChange={(e) => setPersonaData(prev => ({ ...prev, role: e.target.value }))}
-            />
+            <div className="flex items-center space-x-3">
+              <Label htmlFor="role" className="text-sm font-medium text-gray-700 w-12">Role</Label>
+              <Input
+                id="role"
+                value={personaData.role}
+                onChange={(e) => setPersonaData(prev => ({ ...prev, role: e.target.value }))}
+                className="flex-1"
+              />
+            </div>
           </div>
 
           {/* Multimodal Conversations */}
@@ -198,36 +199,40 @@ Technical Constraints: Responses are spoken aloud. Do not read code, URLs, or sy
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <Label className="text-sm font-medium text-gray-700">Persona's Own Resources</Label>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={() => setShowOwnResources(!showOwnResources)}>
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
-            <div className="space-y-2">
-              {availableResources.slice(0, 4).map((resource) => (
-                <div key={resource.id} className="flex items-center space-x-2 text-sm text-gray-600">
-                  <resource.icon className="w-4 h-4" />
-                  <span>{resource.name}</span>
-                </div>
-              ))}
-            </div>
+            {showOwnResources && (
+              <div className="space-y-2">
+                {availableResources.slice(0, 4).map((resource) => (
+                  <div key={resource.id} className="flex items-center space-x-2 text-sm text-gray-600">
+                    <resource.icon className="w-4 h-4" />
+                    <span>{resource.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Connect to Other Resources */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <Label className="text-sm font-medium text-gray-700">Connect to Other Resources</Label>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={() => setShowOtherResources(!showOtherResources)}>
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
-            <div className="space-y-2">
-              {availableResources.slice(4).map((resource) => (
-                <div key={resource.id} className="flex items-center space-x-2 text-sm text-gray-600">
-                  <resource.icon className="w-4 h-4" />
-                  <span>{resource.name}</span>
-                </div>
-              ))}
-            </div>
+            {showOtherResources && (
+              <div className="space-y-2">
+                {availableResources.slice(4).map((resource) => (
+                  <div key={resource.id} className="flex items-center space-x-2 text-sm text-gray-600">
+                    <resource.icon className="w-4 h-4" />
+                    <span>{resource.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -308,6 +313,13 @@ Technical Constraints: Responses are spoken aloud. Do not read code, URLs, or sy
                 />
               </CardContent>
             </Card>
+            
+            {/* Save Button at Bottom */}
+            <div className="pt-6">
+              <Button className="bg-blue-600 hover:bg-blue-700 w-full">
+                Save Configuration
+              </Button>
+            </div>
           </div>
         </div>
       </div>
