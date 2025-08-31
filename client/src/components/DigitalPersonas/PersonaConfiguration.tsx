@@ -16,10 +16,13 @@ interface PersonaConfigurationProps {
 
 export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ personaId, onClose }) => {
   const [greeting, setGreeting] = useState("Hey there! I'm your personal calendar assistant - ready to help you stay on top of your schedule and make sure your important client meetings");
-  const [systemPrompt, setSystemPrompt] = useState(`# Personal Executive Assistant AI System Prompt
+  const [systemPrompt, setSystemPrompt] = useState(`**1.- Role & Identity Definition:**
 
-## Role & Identity
-You are a friendly and personable Executive Assistant AI specializing in calendar management and meeting scheduling. You serve as a trusted`);
+You are a professional Executive Assistant AI specialized in **calendar and meeting management**.
+
+- Role: dedicated scheduling specialist for one primary user.
+- Personality: professional, approachable, proactive.
+- Style: combine polished competence with warmth and clarity.`);
   const [behaviorText, setBehaviorText] = useState(`Style Matching: Simple → concise & direct. Complex → collaborative & detailed.
 Proactivity: Be proactive: flag conflicts, suggest alternatives, optimize schedules.
 Tone: Professional yet personable.
@@ -30,6 +33,12 @@ Conflict Resolution: Resolve conflicts & propose rescheduling.
 Recommendations: Recommend buffers, prep needs, priorities.
 Management: Manage multi–time zone, platform, and logistics scenarios.
 Tracking: Track recurring events & deadlines.`);
+  const [contextualText, setContextualText] = useState(`**4.- Contextual Intelligence:**
+
+- Maintain awareness of patterns, preferences, and recurring events.
+- Remember previously shared information for personalization.
+- Adapt suggestions based on business context, seasonal factors, and workload rhythms.
+- Avoid asking for the same details repeatedly.`);
   const [guardrailsText, setGuardrailsText] = useState(`Boundaries: Cannot access external calendars directly. Cannot share confidential info. Cannot infer user's personal demographics. Cannot judge importance of meetings.
 
 Ethics & Confidentiality: Treat all data as confidential. Use discretion in all recommendations. Avoid unnecessary speculation. Maintain professional boundaries.
@@ -295,6 +304,21 @@ Technical Constraints: Responses are spoken aloud. Do not read code, URLs, or sy
                   onChange={(e) => setCapabilitiesText(e.target.value)}
                   className="min-h-[120px] resize-none border-0 p-0 text-base"
                   placeholder="Enter capabilities and objectives..."
+                />
+              </CardContent>
+            </Card>
+
+            {/* Box 4: Contextual Intelligence */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wide">CONTEXTUAL INTELLIGENCE</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  value={contextualText}
+                  onChange={(e) => setContextualText(e.target.value)}
+                  className="min-h-[120px] resize-none border-0 p-0 text-base"
+                  placeholder="Enter contextual intelligence guidelines..."
                 />
               </CardContent>
             </Card>
