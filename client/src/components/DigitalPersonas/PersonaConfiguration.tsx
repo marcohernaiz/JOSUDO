@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface PersonaConfigurationProps {
   personaId: string;
@@ -16,6 +15,27 @@ interface PersonaConfigurationProps {
 }
 
 export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ personaId, onClose }) => {
+  const [greeting, setGreeting] = useState("Hey there! I'm your personal calendar assistant - ready to help you stay on top of your schedule and make sure your important client meetings");
+  const [systemPrompt, setSystemPrompt] = useState(`# Personal Executive Assistant AI System Prompt
+
+## Role & Identity
+You are a friendly and personable Executive Assistant AI specializing in calendar management and meeting scheduling. You serve as a trusted`);
+  const [behaviorText, setBehaviorText] = useState(`Style Matching: Simple → concise & direct. Complex → collaborative & detailed.
+Proactivity: Be proactive: flag conflicts, suggest alternatives, optimize schedules.
+Tone: Professional yet personable.
+Response Length: Scale from short (routine tasks) to long (strategic planning).
+Context Handling: Avoid repeating user input; build on context.`);
+  const [capabilitiesText, setCapabilitiesText] = useState(`Primary: Optimize schedules & layouts.
+Conflict Resolution: Resolve conflicts & propose rescheduling.
+Recommendations: Recommend buffers, prep needs, priorities.
+Management: Manage multi–time zone, platform, and logistics scenarios.
+Tracking: Track recurring events & deadlines.`);
+  const [guardrailsText, setGuardrailsText] = useState(`Boundaries: Cannot access external calendars directly. Cannot share confidential info. Cannot infer user's personal demographics. Cannot judge importance of meetings.
+
+Ethics & Confidentiality: Treat all data as confidential. Use discretion in all recommendations. Avoid unnecessary speculation. Maintain professional boundaries.
+
+Technical Constraints: Responses are spoken aloud. Do not read code, URLs, or symbols aloud. If asked: reply "It's hard to read out code in plain English, but you can check [website name] for examples." For lists: pause naturally between items.`);
+  
   const [personaData, setPersonaData] = useState({
     name: 'Sophia',
     role: 'Executive Assistant',
@@ -90,16 +110,10 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Digital Personas
-            </Button>
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">Configure {personaData.name}</h1>
-              <p className="text-sm text-gray-600">{personaData.role}</p>
-            </div>
-          </div>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Digital Personas
+          </Button>
           <Button className="bg-blue-600 hover:bg-blue-700">
             Save Configuration
           </Button>
@@ -219,307 +233,82 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
 
         {/* Right Area - Configuration Panels */}
         <div className="flex-1 p-6 overflow-y-auto">
-          <Tabs defaultValue="role" className="h-full">
-            <TabsList className="grid w-full grid-cols-5 mb-6">
-              <TabsTrigger value="role">Role & Identity</TabsTrigger>
-              <TabsTrigger value="behavior">Behavior</TabsTrigger>
-              <TabsTrigger value="capabilities">Capabilities</TabsTrigger>
-              <TabsTrigger value="context">Context</TabsTrigger>
-              <TabsTrigger value="guardrails">Guardrails</TabsTrigger>
-            </TabsList>
+          <div className="space-y-4">
+            {/* Box 1: GREETING */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wide">GREETING</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  value={greeting}
+                  onChange={(e) => setGreeting(e.target.value)}
+                  className="min-h-[80px] resize-none border-0 p-0 text-base"
+                  placeholder="Enter greeting message..."
+                />
+              </CardContent>
+            </Card>
 
-            {/* Panel 1: Role & Identity Definition */}
-            <TabsContent value="role" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Role & Identity Definition</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="role-desc">Role</Label>
-                    <Textarea
-                      id="role-desc"
-                      value={personaData.roleIdentity.role}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        roleIdentity: { ...prev.roleIdentity, role: e.target.value }
-                      }))}
-                      rows={3}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="identity-desc">Identity</Label>
-                    <Textarea
-                      id="identity-desc"
-                      value={personaData.roleIdentity.identity}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        roleIdentity: { ...prev.roleIdentity, identity: e.target.value }
-                      }))}
-                      rows={2}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="personality">Personality</Label>
-                    <Input
-                      id="personality"
-                      value={personaData.roleIdentity.personality}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        roleIdentity: { ...prev.roleIdentity, personality: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="style">Style</Label>
-                    <Input
-                      id="style"
-                      value={personaData.roleIdentity.style}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        roleIdentity: { ...prev.roleIdentity, style: e.target.value }
-                      }))}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+            {/* Box 2: SYSTEM PROMPT */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wide">SYSTEM PROMPT</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  value={systemPrompt}
+                  onChange={(e) => setSystemPrompt(e.target.value)}
+                  className="min-h-[120px] resize-none border-0 p-0 text-base font-mono"
+                  placeholder="Enter system prompt..."
+                />
+              </CardContent>
+            </Card>
 
-            {/* Panel 2: Behavior & Communication */}
-            <TabsContent value="behavior" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Behavior & Communication</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="style-matching">Style Matching</Label>
-                    <Textarea
-                      id="style-matching"
-                      value={personaData.behaviorCommunication.styleMatching}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        behaviorCommunication: { ...prev.behaviorCommunication, styleMatching: e.target.value }
-                      }))}
-                      rows={2}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="proactivity">Proactivity</Label>
-                    <Input
-                      id="proactivity"
-                      value={personaData.behaviorCommunication.proactivity}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        behaviorCommunication: { ...prev.behaviorCommunication, proactivity: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="tone">Tone</Label>
-                    <Input
-                      id="tone"
-                      value={personaData.behaviorCommunication.tone}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        behaviorCommunication: { ...prev.behaviorCommunication, tone: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="response-length">Response Length</Label>
-                    <Input
-                      id="response-length"
-                      value={personaData.behaviorCommunication.responseLength}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        behaviorCommunication: { ...prev.behaviorCommunication, responseLength: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="context-handling">Context Handling</Label>
-                    <Input
-                      id="context-handling"
-                      value={personaData.behaviorCommunication.contextHandling}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        behaviorCommunication: { ...prev.behaviorCommunication, contextHandling: e.target.value }
-                      }))}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+            {/* Box 3: Behavior & Communication */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wide">BEHAVIOR & COMMUNICATION</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  value={behaviorText}
+                  onChange={(e) => setBehaviorText(e.target.value)}
+                  className="min-h-[120px] resize-none border-0 p-0 text-base"
+                  placeholder="Enter behavior and communication guidelines..."
+                />
+              </CardContent>
+            </Card>
 
-            {/* Panel 3: Capabilities & Objectives */}
-            <TabsContent value="capabilities" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Capabilities & Objectives</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="primary-cap">Primary Capabilities</Label>
-                    <Input
-                      id="primary-cap"
-                      value={personaData.capabilities.primary}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        capabilities: { ...prev.capabilities, primary: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="conflict-res">Conflict Resolution</Label>
-                    <Input
-                      id="conflict-res"
-                      value={personaData.capabilities.conflict}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        capabilities: { ...prev.capabilities, conflict: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="recommendations">Recommendations</Label>
-                    <Input
-                      id="recommendations"
-                      value={personaData.capabilities.recommendations}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        capabilities: { ...prev.capabilities, recommendations: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="management">Management</Label>
-                    <Input
-                      id="management"
-                      value={personaData.capabilities.management}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        capabilities: { ...prev.capabilities, management: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="tracking">Tracking</Label>
-                    <Input
-                      id="tracking"
-                      value={personaData.capabilities.tracking}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        capabilities: { ...prev.capabilities, tracking: e.target.value }
-                      }))}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+            {/* Box 4: Capabilities & Objectives */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wide">CAPABILITIES & OBJECTIVES</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  value={capabilitiesText}
+                  onChange={(e) => setCapabilitiesText(e.target.value)}
+                  className="min-h-[120px] resize-none border-0 p-0 text-base"
+                  placeholder="Enter capabilities and objectives..."
+                />
+              </CardContent>
+            </Card>
 
-            {/* Panel 4: Contextual Intelligence */}
-            <TabsContent value="context" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Contextual Intelligence</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="awareness">Awareness</Label>
-                    <Input
-                      id="awareness"
-                      value={personaData.contextualIntelligence.awareness}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        contextualIntelligence: { ...prev.contextualIntelligence, awareness: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="personalization">Personalization</Label>
-                    <Input
-                      id="personalization"
-                      value={personaData.contextualIntelligence.personalization}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        contextualIntelligence: { ...prev.contextualIntelligence, personalization: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="adaptation">Adaptation</Label>
-                    <Input
-                      id="adaptation"
-                      value={personaData.contextualIntelligence.adaptation}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        contextualIntelligence: { ...prev.contextualIntelligence, adaptation: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="efficiency">Efficiency</Label>
-                    <Input
-                      id="efficiency"
-                      value={personaData.contextualIntelligence.efficiency}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        contextualIntelligence: { ...prev.contextualIntelligence, efficiency: e.target.value }
-                      }))}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Panel 5: Guardrails */}
-            <TabsContent value="guardrails" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Guardrails</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="boundaries">Boundaries</Label>
-                    <Textarea
-                      id="boundaries"
-                      value={personaData.guardrails.boundaries}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        guardrails: { ...prev.guardrails, boundaries: e.target.value }
-                      }))}
-                      rows={4}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="ethics">Ethics & Confidentiality</Label>
-                    <Textarea
-                      id="ethics"
-                      value={personaData.guardrails.ethics}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        guardrails: { ...prev.guardrails, ethics: e.target.value }
-                      }))}
-                      rows={4}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="technical">Technical Constraints</Label>
-                    <Textarea
-                      id="technical"
-                      value={personaData.guardrails.technical}
-                      onChange={(e) => setPersonaData(prev => ({
-                        ...prev,
-                        guardrails: { ...prev.guardrails, technical: e.target.value }
-                      }))}
-                      rows={6}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+            {/* Box 5: Guardrails */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wide">GUARDRAILS</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  value={guardrailsText}
+                  onChange={(e) => setGuardrailsText(e.target.value)}
+                  className="min-h-[150px] resize-none border-0 p-0 text-base"
+                  placeholder="Enter guardrails and constraints..."
+                />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
