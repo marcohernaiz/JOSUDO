@@ -135,16 +135,13 @@ const DigitalPersonas: React.FC = () => {
     queryKey: ['/api/admin/persona-templates'],
   });
 
-  // Convert user personas to display format
+  // Convert user personas to display format (user personas don't have skills, just basic info)
   const configuredPersonas: Persona[] = userPersonas.map(persona => ({
     id: persona.id.toString(),
     name: persona.name,
     role: persona.role,
     avatar: persona.avatar || executiveAssistantGif,
-    tools: (persona.skills || []).map(skill => ({
-      name: skill,
-      color: getSkillColor(skill)
-    })),
+    tools: [], // User personas don't have predefined tools
     category: 'virtual_employees', // Default category for user personas
   }));
 
@@ -154,7 +151,7 @@ const DigitalPersonas: React.FC = () => {
     name: template.name,
     role: template.role,
     avatar: getAvatarForTemplate(template.name),
-    tools: (template.skills || []).map(skill => ({
+    tools: (template.skills || []).map((skill: string) => ({
       name: skill,
       color: getSkillColor(skill)
     })),
@@ -217,7 +214,7 @@ const DigitalPersonas: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white overflow-y-auto">
+    <div className="h-full bg-white overflow-y-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <motion.div

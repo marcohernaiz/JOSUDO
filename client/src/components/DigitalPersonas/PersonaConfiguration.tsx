@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Mic, Phone, Video, Mail, MessageSquare, Calendar, Slack, Users, Settings, Plus, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PersonaTemplate } from '@shared/schema';
 
 interface PersonaConfigurationProps {
   personaId: string;
@@ -16,43 +18,47 @@ interface PersonaConfigurationProps {
 
 export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ personaId, onClose }) => {
   const [isSaving, setIsSaving] = useState(false);
-  const [greeting, setGreeting] = useState("Hey there! I'm your personal calendar assistant - ready to help you stay on top of your schedule and make sure your important client meetings");
-  const [systemPrompt, setSystemPrompt] = useState(`**1.- Role & Identity Definition:**
-
-You are a professional Executive Assistant AI specialized in **calendar and meeting management**.
-
-- Role: dedicated scheduling specialist for one primary user.
-- Personality: professional, approachable, proactive.
-- Style: combine polished competence with warmth and clarity.`);
-  const [behaviorText, setBehaviorText] = useState(`Style Matching: Simple → concise & direct. Complex → collaborative & detailed.
-Proactivity: Be proactive: flag conflicts, suggest alternatives, optimize schedules.
-Tone: Professional yet personable.
-Response Length: Scale from short (routine tasks) to long (strategic planning).
-Context Handling: Avoid repeating user input; build on context.`);
-  const [capabilitiesText, setCapabilitiesText] = useState(`Primary: Optimize schedules & layouts.
-Conflict Resolution: Resolve conflicts & propose rescheduling.
-Recommendations: Recommend buffers, prep needs, priorities.
-Management: Manage multi–time zone, platform, and logistics scenarios.
-Tracking: Track recurring events & deadlines.`);
-  const [contextualText, setContextualText] = useState(`**4.- Contextual Intelligence:**
-
-- Maintain awareness of patterns, preferences, and recurring events.
-- Remember previously shared information for personalization.
-- Adapt suggestions based on business context, seasonal factors, and workload rhythms.
-- Avoid asking for the same details repeatedly.`);
-  const [guardrailsText, setGuardrailsText] = useState(`Boundaries: Cannot access external calendars directly. Cannot share confidential info. Cannot infer user's personal demographics. Cannot judge importance of meetings.
-
-Ethics & Confidentiality: Treat all data as confidential. Use discretion in all recommendations. Avoid unnecessary speculation. Maintain professional boundaries.
-
-Technical Constraints: Responses are spoken aloud. Do not read code, URLs, or symbols aloud. If asked: reply "It's hard to read out code in plain English, but you can check [website name] for examples." For lists: pause naturally between items.`);
+  const [greeting, setGreeting] = useState("");
+  const [systemPrompt, setSystemPrompt] = useState("");
+  const [behaviorText, setBehaviorText] = useState("");
+  const [capabilitiesText, setCapabilitiesText] = useState("");
+  const [contextualText, setContextualText] = useState("");
+  const [guardrailsText, setGuardrailsText] = useState("");
   const [showOwnResources, setShowOwnResources] = useState(false);
   const [showOtherResources, setShowOtherResources] = useState(false);
+
+  // Load templates from admin database
+  const { data: templates = [] } = useQuery<PersonaTemplate[]>({
+    queryKey: ['/api/admin/persona-templates'],
+  });
+  
+  // Find the selected template
+  const selectedTemplate = templates.find(template => template.id.toString() === personaId);
+  
+  // Load template data into form fields when template is found
+  useEffect(() => {
+    if (selectedTemplate) {
+      setPersonaData(prev => ({
+        ...prev,
+        name: selectedTemplate.name,
+        role: selectedTemplate.role,
+        avatar: selectedTemplate.avatar || '',
+        voiceId: selectedTemplate.voiceId || '',
+      }));
+      setGreeting(selectedTemplate.greeting || '');
+      setSystemPrompt(selectedTemplate.systemPrompt || '');
+      setBehaviorText(selectedTemplate.behaviorText || '');
+      setCapabilitiesText(selectedTemplate.capabilitiesText || '');
+      setContextualText(selectedTemplate.contextualText || '');
+      setGuardrailsText(selectedTemplate.guardrailsText || '');
+    }
+  }, [selectedTemplate]);
   
   const [personaData, setPersonaData] = useState({
-    name: 'Sophia',
-    role: 'Executive Assistant',
-    avatar: '/assets/Executive Assistant_1756066629512.gif',
-    voiceId: 'Executive Assistant voice',
+    name: '',
+    role: '',
+    avatar: '',
+    voiceId: '',
     
     // Multimodal toggles
     webChat: true,
