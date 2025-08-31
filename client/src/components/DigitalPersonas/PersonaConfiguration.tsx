@@ -263,17 +263,17 @@ Technical Constraints: Responses are spoken aloud. Do not read code, URLs, or sy
               </CardContent>
             </Card>
 
-            {/* Box 2: SYSTEM PROMPT */}
+            {/* Box 2: ROLE & IDENTITY DEFINITION */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wide">SYSTEM PROMPT</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-500 uppercase tracking-wide">ROLE & IDENTITY DEFINITION</CardTitle>
               </CardHeader>
               <CardContent>
                 <Textarea
                   value={systemPrompt}
                   onChange={(e) => setSystemPrompt(e.target.value)}
-                  className="min-h-[120px] resize-none border-0 p-0 text-base font-mono"
-                  placeholder="Enter system prompt..."
+                  className="min-h-[120px] resize-none border-0 p-0 text-base"
+                  placeholder="Enter role and identity definition..."
                 />
               </CardContent>
             </Card>
