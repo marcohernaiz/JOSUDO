@@ -1530,7 +1530,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Digital Personas routes
   app.get("/api/digital-personas", async (req, res) => {
     try {
-      const userId = (req as any).session?.passport?.user || 1; // Use default user ID for demo
+      // Get user ID from authenticated session
+      let userId = (req as any).session?.passport?.user;
+      
+      // Check for Google OAuth authentication
+      if (req.isAuthenticated() && req.user) {
+        userId = (req.user as any).id;
+      }
+      
+      // Check for session-based authentication
+      if (!userId && (req as any).session?.userId) {
+        userId = (req as any).session.userId;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
       
       const userPersonas = await db.select().from(digitalPersonas).where(eq(digitalPersonas.userId, userId));
       res.json(userPersonas);
@@ -1542,7 +1557,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/digital-personas", async (req, res) => {
     try {
-      const userId = (req as any).session?.passport?.user || 1; // Use default user ID for demo
+      // Get user ID from authenticated session
+      let userId = (req as any).session?.passport?.user;
+      
+      // Check for Google OAuth authentication
+      if (req.isAuthenticated() && req.user) {
+        userId = (req.user as any).id;
+      }
+      
+      // Check for session-based authentication
+      if (!userId && (req as any).session?.userId) {
+        userId = (req as any).session.userId;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
       
       const validatedData = insertDigitalPersonaSchema.parse({
         ...req.body,
@@ -1559,7 +1589,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/digital-personas/:id", async (req, res) => {
     try {
-      const userId = (req as any).session?.passport?.user || 1; // Use default user ID for demo
+      // Get user ID from authenticated session
+      let userId = (req as any).session?.passport?.user;
+      
+      // Check for Google OAuth authentication
+      if (req.isAuthenticated() && req.user) {
+        userId = (req.user as any).id;
+      }
+      
+      // Check for session-based authentication
+      if (!userId && (req as any).session?.userId) {
+        userId = (req as any).session.userId;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
       const { id } = req.params;
       
       const validatedData = insertDigitalPersonaSchema.parse({

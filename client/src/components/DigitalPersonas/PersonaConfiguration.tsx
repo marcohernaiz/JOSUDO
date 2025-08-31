@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Mic, Phone, Video, Mail, MessageSquare, Calendar, Slack, Users, Settings, Plus, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PersonaTemplate } from '@shared/schema';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 interface PersonaConfigurationProps {
   personaId: string;
@@ -17,7 +20,8 @@ interface PersonaConfigurationProps {
 }
 
 export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ personaId, onClose }) => {
-  const [isSaving, setIsSaving] = useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
   const [greeting, setGreeting] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [behaviorText, setBehaviorText] = useState("");
@@ -112,54 +116,72 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
     }
   });
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      // Prepare the persona data for saving
-      const personaToSave = {
-        name: personaData.name,
-        role: personaData.role,
-        avatar: personaData.avatar,
-        voiceId: personaData.voiceId,
-        greeting,
-        systemPrompt,
-        behaviorText,
-        capabilitiesText,
-        contextualText,
-        guardrailsText,
-        multimodalConfig: {
-          webChat: personaData.webChat,
-          webAudio: personaData.webAudio,
-          webVideo: personaData.webVideo,
-          phoneCalls: personaData.phoneCalls,
-          whatsapp: personaData.whatsapp,
-          email: personaData.email,
-        },
-        resourcesConfig: {
-          ownResources: showOwnResources,
-          otherResources: showOtherResources,
-        },
-      };
-
-      const response = await fetch('/api/digital-personas', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(personaToSave),
-      });
-
-      if (response.ok) {
-        // Success - close the configuration
-        onClose();
-      } else {
-        console.error('Failed to save persona');
+  // Mutation for saving digital persona
+  const savePersonaMutation = useMutation({
+    mutationFn: async (personaData: any) => {
+      if (!isAuthenticated) {
+        throw new Error('User must be authenticated to save persona');
       }
-    } catch (error) {
-      console.error('Error saving persona:', error);
-    } finally {
-      setIsSaving(false);
+      return await apiRequest('POST', '/api/digital-personas', personaData);
+    },
+    onSuccess: () => {
+      // Invalidate queries to refresh the digital personas list
+      queryClient.invalidateQueries({ queryKey: ['/api/digital-personas'] });
+      
+      toast({
+        title: 'Success',
+        description: 'Digital persona saved to your profile successfully!',
+        variant: 'default',
+      });
+      
+      onClose();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to save persona: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleSave = async () => {
+    if (!isAuthenticated) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please log in to save personas to your profile.',
+        variant: 'destructive',
+      });
+      return;
     }
+
+    // Prepare the persona data for saving
+    const personaToSave = {
+      name: personaData.name,
+      role: personaData.role,
+      avatar: personaData.avatar,
+      voiceId: personaData.voiceId,
+      greeting,
+      systemPrompt,
+      behaviorText,
+      capabilitiesText,
+      contextualText,
+      guardrailsText,
+      multimodalConfig: {
+        webChat: personaData.webChat,
+        webAudio: personaData.webAudio,
+        webVideo: personaData.webVideo,
+        phoneCalls: personaData.phoneCalls,
+        whatsapp: personaData.whatsapp,
+        email: personaData.email,
+      },
+      resourcesConfig: {
+        ownResources: showOwnResources,
+        otherResources: showOtherResources,
+      },
+    };
+
+    savePersonaMutation.mutate(personaToSave);
   };
 
   const availableResources = [
@@ -400,9 +422,9 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 w-full" 
                 onClick={handleSave}
-                disabled={isSaving}
+                disabled={savePersonaMutation.isPending}
               >
-                {isSaving ? 'Saving...' : 'Save Configuration'}
+                {savePersonaMutation.isPending ? 'Saving...' : 'Save Configuration'}
               </Button>
             </div>
           </div>
