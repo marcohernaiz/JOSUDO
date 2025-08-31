@@ -174,9 +174,10 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden shadow-2xl relative z-[10000]">
-        <div className="h-full flex overflow-hidden relative bg-gray-50">
+    <div className="h-full bg-gray-50 overflow-hidden">
+
+      {/* Main Content */}
+      <div className="h-full flex overflow-hidden relative">
         {/* Close Button - Floating */}
         <Button 
           variant="ghost" 
@@ -264,32 +265,18 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <Label className="text-sm font-medium text-gray-700">Persona's Own Resources</Label>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-xs px-2" 
-                onClick={() => setShowOwnResources(!showOwnResources)}
-              >
-                <Plus className="w-3 h-3 mr-1" />
-                Add
+              <Button variant="ghost" size="sm" onClick={() => setShowOwnResources(!showOwnResources)}>
+                <Plus className="w-4 h-4" />
               </Button>
             </div>
             {showOwnResources && (
-              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                <h4 className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Select Own Resources:</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {availableResources.slice(0, 4).map((resource) => (
-                    <Button
-                      key={resource.id}
-                      variant="outline"
-                      size="sm"
-                      className="justify-start h-8 text-xs"
-                    >
-                      <resource.icon className="h-3 w-3 mr-2" />
-                      {resource.name}
-                    </Button>
-                  ))}
-                </div>
+              <div className="space-y-2">
+                {availableResources.slice(0, 4).map((resource) => (
+                  <div key={resource.id} className="flex items-center space-x-2 text-sm text-gray-600">
+                    <resource.icon className="w-4 h-4" />
+                    <span>{resource.name}</span>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -298,32 +285,18 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
           <div>
             <div className="flex items-center justify-between mb-3">
               <Label className="text-sm font-medium text-gray-700">Connect to Other Resources</Label>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-xs px-2" 
-                onClick={() => setShowOtherResources(!showOtherResources)}
-              >
-                <Plus className="w-3 h-3 mr-1" />
-                Add
+              <Button variant="ghost" size="sm" onClick={() => setShowOtherResources(!showOtherResources)}>
+                <Plus className="w-4 h-4" />
               </Button>
             </div>
             {showOtherResources && (
-              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                <h4 className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Connect to Other Resources:</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {availableResources.slice(4).map((resource) => (
-                    <Button
-                      key={resource.id}
-                      variant="outline"
-                      size="sm"
-                      className="justify-start h-8 text-xs"
-                    >
-                      <resource.icon className="h-3 w-3 mr-2" />
-                      {resource.name}
-                    </Button>
-                  ))}
-                </div>
+              <div className="space-y-2">
+                {availableResources.slice(4).map((resource) => (
+                  <div key={resource.id} className="flex items-center space-x-2 text-sm text-gray-600">
+                    <resource.icon className="w-4 h-4" />
+                    <span>{resource.name}</span>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -433,7 +406,6 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
               </Button>
             </div>
           </div>
-        </div>
         </div>
       </div>
     </div>
