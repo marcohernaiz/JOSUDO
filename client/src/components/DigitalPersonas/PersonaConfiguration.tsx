@@ -15,6 +15,7 @@ interface PersonaConfigurationProps {
 }
 
 export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ personaId, onClose }) => {
+  const [isSaving, setIsSaving] = useState(false);
   const [greeting, setGreeting] = useState("Hey there! I'm your personal calendar assistant - ready to help you stay on top of your schedule and make sure your important client meetings");
   const [systemPrompt, setSystemPrompt] = useState(`**1.- Role & Identity Definition:**
 
@@ -104,6 +105,56 @@ Technical Constraints: Responses are spoken aloud. Do not read code, URLs, or sy
       technical: 'Responses are spoken aloud. Do not read code, URLs, or symbols aloud. If asked: reply "It\'s hard to read out code in plain English, but you can check [website name] for examples." For lists: pause naturally between items.'
     }
   });
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Prepare the persona data for saving
+      const personaToSave = {
+        name: personaData.name,
+        role: personaData.role,
+        avatar: personaData.avatar,
+        voiceId: personaData.voiceId,
+        greeting,
+        systemPrompt,
+        behaviorText,
+        capabilitiesText,
+        contextualText,
+        guardrailsText,
+        multimodalConfig: {
+          webChat: personaData.webChat,
+          webAudio: personaData.webAudio,
+          webVideo: personaData.webVideo,
+          phoneCalls: personaData.phoneCalls,
+          whatsapp: personaData.whatsapp,
+          email: personaData.email,
+        },
+        resourcesConfig: {
+          ownResources: showOwnResources,
+          otherResources: showOtherResources,
+        },
+      };
+
+      const response = await fetch('/api/digital-personas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(personaToSave),
+      });
+
+      if (response.ok) {
+        // Success - close the configuration
+        onClose();
+      } else {
+        console.error('Failed to save persona');
+      }
+    } catch (error) {
+      console.error('Error saving persona:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const availableResources = [
     { id: 'phone', name: 'Phone Number', icon: Phone },
@@ -340,8 +391,12 @@ Technical Constraints: Responses are spoken aloud. Do not read code, URLs, or sy
             
             {/* Save Button at Bottom */}
             <div className="pt-6">
-              <Button className="bg-blue-600 hover:bg-blue-700 w-full">
-                Save Configuration
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 w-full" 
+                onClick={handleSave}
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : 'Save Configuration'}
               </Button>
             </div>
           </div>

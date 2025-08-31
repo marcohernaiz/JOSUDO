@@ -26,6 +26,7 @@ import {
   insertTaskSchema,
   insertToolSchema,
   insertVirtualEmployeeSchema,
+  insertDigitalPersonaSchema,
   usageLogs,
   users,
   billing,
@@ -35,6 +36,7 @@ import {
   tasks,
   tools,
   virtualEmployees,
+  digitalPersonas,
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from './db';
@@ -1520,6 +1522,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching virtual employees:", error);
       res.status(500).json({ error: "Failed to fetch virtual employees" });
+    }
+  });
+
+  // Digital Personas routes
+  app.get("/api/digital-personas", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user || 1; // Use default user ID for demo
+      
+      const userPersonas = await db.select().from(digitalPersonas).where(eq(digitalPersonas.userId, userId));
+      res.json(userPersonas);
+    } catch (error) {
+      console.error("Error fetching digital personas:", error);
+      res.status(500).json({ error: "Failed to fetch digital personas" });
+    }
+  });
+
+  app.post("/api/digital-personas", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user || 1; // Use default user ID for demo
+      
+      const validatedData = insertDigitalPersonaSchema.parse({
+        ...req.body,
+        userId,
+      });
+
+      const [newPersona] = await db.insert(digitalPersonas).values(validatedData).returning();
+      res.json(newPersona);
+    } catch (error) {
+      console.error("Error creating digital persona:", error);
+      res.status(500).json({ error: "Failed to create digital persona" });
+    }
+  });
+
+  app.put("/api/digital-personas/:id", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user || 1; // Use default user ID for demo
+      const { id } = req.params;
+      
+      const validatedData = insertDigitalPersonaSchema.parse({
+        ...req.body,
+        userId,
+      });
+
+      const [updatedPersona] = await db
+        .update(digitalPersonas)
+        .set(validatedData)
+        .where(and(eq(digitalPersonas.id, parseInt(id)), eq(digitalPersonas.userId, userId)))
+        .returning();
+
+      if (!updatedPersona) {
+        return res.status(404).json({ error: "Digital persona not found" });
+      }
+
+      res.json(updatedPersona);
+    } catch (error) {
+      console.error("Error updating digital persona:", error);
+      res.status(500).json({ error: "Failed to update digital persona" });
     }
   });
 

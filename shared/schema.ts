@@ -190,6 +190,28 @@ export const virtualEmployees = pgTable("virtual_employees", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const digitalPersonas = pgTable("digital_personas", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  avatar: text("avatar"),
+  voiceId: text("voice_id"),
+  greeting: text("greeting"),
+  systemPrompt: text("system_prompt"),
+  behaviorText: text("behavior_text"),
+  capabilitiesText: text("capabilities_text"),
+  contextualText: text("contextual_text"),
+  guardrailsText: text("guardrails_text"),
+  multimodalConfig: json("multimodal_config"), // stores web chat, audio, video, phone, etc.
+  resourcesConfig: json("resources_config"), // stores own resources and connected resources
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const integrationsRelations = relations(integrations, ({ one }) => ({
   user: one(users, {
     fields: [integrations.userId],
@@ -274,6 +296,13 @@ export const virtualEmployeesRelations = relations(virtualEmployees, ({ one }) =
   }),
 }));
 
+export const digitalPersonasRelations = relations(digitalPersonas, ({ one }) => ({
+  user: one(users, {
+    fields: [digitalPersonas.userId],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -339,6 +368,12 @@ export const insertVirtualEmployeeSchema = createInsertSchema(virtualEmployees).
   updatedAt: true,
 });
 
+export const insertDigitalPersonaSchema = createInsertSchema(digitalPersonas).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -364,3 +399,5 @@ export type Tool = typeof tools.$inferSelect;
 export type InsertTool = z.infer<typeof insertToolSchema>;
 export type VirtualEmployee = typeof virtualEmployees.$inferSelect;
 export type InsertVirtualEmployee = z.infer<typeof insertVirtualEmployeeSchema>;
+export type DigitalPersona = typeof digitalPersonas.$inferSelect;
+export type InsertDigitalPersona = z.infer<typeof insertDigitalPersonaSchema>;
