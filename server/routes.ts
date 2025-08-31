@@ -27,6 +27,7 @@ import {
   insertToolSchema,
   insertVirtualEmployeeSchema,
   insertDigitalPersonaSchema,
+  insertPersonaTemplateSchema,
   usageLogs,
   users,
   billing,
@@ -37,6 +38,7 @@ import {
   tools,
   virtualEmployees,
   digitalPersonas,
+  personaTemplates,
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from './db';
@@ -1579,6 +1581,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating digital persona:", error);
       res.status(500).json({ error: "Failed to update digital persona" });
+    }
+  });
+
+  // Admin Persona Templates routes (hidden admin section)
+  app.get("/api/admin/persona-templates", async (req, res) => {
+    try {
+      // In a real app, you'd check for admin privileges here
+      const templates = await db.select().from(personaTemplates);
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching persona templates:", error);
+      res.status(500).json({ error: "Failed to fetch persona templates" });
+    }
+  });
+
+  app.post("/api/admin/persona-templates", async (req, res) => {
+    try {
+      // In a real app, you'd check for admin privileges here
+      const validatedData = insertPersonaTemplateSchema.parse(req.body);
+      const [newTemplate] = await db.insert(personaTemplates).values(validatedData).returning();
+      res.json(newTemplate);
+    } catch (error) {
+      console.error("Error creating persona template:", error);
+      res.status(500).json({ error: "Failed to create persona template" });
+    }
+  });
+
+  app.put("/api/admin/persona-templates/:id", async (req, res) => {
+    try {
+      // In a real app, you'd check for admin privileges here
+      const { id } = req.params;
+      const validatedData = insertPersonaTemplateSchema.parse(req.body);
+
+      const [updatedTemplate] = await db
+        .update(personaTemplates)
+        .set(validatedData)
+        .where(eq(personaTemplates.id, parseInt(id)))
+        .returning();
+
+      if (!updatedTemplate) {
+        return res.status(404).json({ error: "Persona template not found" });
+      }
+
+      res.json(updatedTemplate);
+    } catch (error) {
+      console.error("Error updating persona template:", error);
+      res.status(500).json({ error: "Failed to update persona template" });
+    }
+  });
+
+  app.get("/api/persona-templates", async (req, res) => {
+    try {
+      const templates = await db.select().from(personaTemplates);
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching persona templates:", error);
+      res.status(500).json({ error: "Failed to fetch persona templates" });
     }
   });
 

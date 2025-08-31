@@ -212,6 +212,27 @@ export const digitalPersonas = pgTable("digital_personas", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const personaTemplates = pgTable("persona_templates", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  role: text("role").notNull(),
+  category: text("category").notNull(), // 'virtual_employees', 'industry_experts', 'personal_companion'
+  avatar: text("avatar"),
+  voiceId: text("voice_id"),
+  greeting: text("greeting"),
+  systemPrompt: text("system_prompt"),
+  behaviorText: text("behavior_text"),
+  capabilitiesText: text("capabilities_text"),
+  contextualText: text("contextual_text"),
+  guardrailsText: text("guardrails_text"),
+  multimodalConfig: json("multimodal_config"),
+  resourcesConfig: json("resources_config"),
+  skills: text("skills").array(), // Array of skills like ['email', 'calendar', 'CRM']
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const integrationsRelations = relations(integrations, ({ one }) => ({
   user: one(users, {
     fields: [integrations.userId],
@@ -374,6 +395,12 @@ export const insertDigitalPersonaSchema = createInsertSchema(digitalPersonas).om
   updatedAt: true,
 });
 
+export const insertPersonaTemplateSchema = createInsertSchema(personaTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -401,3 +428,5 @@ export type VirtualEmployee = typeof virtualEmployees.$inferSelect;
 export type InsertVirtualEmployee = z.infer<typeof insertVirtualEmployeeSchema>;
 export type DigitalPersona = typeof digitalPersonas.$inferSelect;
 export type InsertDigitalPersona = z.infer<typeof insertDigitalPersonaSchema>;
+export type PersonaTemplate = typeof personaTemplates.$inferSelect;
+export type InsertPersonaTemplate = z.infer<typeof insertPersonaTemplateSchema>;
