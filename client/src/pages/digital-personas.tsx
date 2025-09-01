@@ -181,7 +181,7 @@ const DigitalPersonas: React.FC = () => {
     id: template.id.toString(),
     name: template.name,
     role: template.role,
-    avatar: getAvatarForTemplate(template.name),
+    avatar: resolveAvatarPath(template.avatar || getAvatarForTemplate(template.name)),
     tools: (template.skills || []).map((skill: string) => ({
       name: skill,
       color: getSkillColor(skill)

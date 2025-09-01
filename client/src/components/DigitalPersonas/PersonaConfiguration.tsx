@@ -14,6 +14,43 @@ import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
+// Import organized avatars for path resolution
+import executiveAssistantAvatar from '@assets/avatars/executive-assistant.png';
+import salesMarketingAvatar from '@assets/avatars/sales-marketing.png';
+import customerSupportAvatar from '@assets/avatars/customer-support.png';
+import elderlyCareAvatar from '@assets/avatars/elderly-care.gif';
+import digitalBuddyAvatar from '@assets/avatars/digital-buddy.gif';
+import aiGirlfriendAvatar from '@assets/avatars/ai-girlfriend.gif';
+
+// Avatar mapping for asset imports
+const avatarAssets: Record<string, string> = {
+  'executive-assistant.png': executiveAssistantAvatar,
+  'sales-marketing.png': salesMarketingAvatar,
+  'customer-support.png': customerSupportAvatar,
+  'elderly-care.gif': elderlyCareAvatar,
+  'digital-buddy.gif': digitalBuddyAvatar,
+  'ai-girlfriend.gif': aiGirlfriendAvatar,
+};
+
+// Helper function to resolve avatar path to actual image URL
+const resolveAvatarPath = (avatarPath: string): string => {
+  if (!avatarPath) return executiveAssistantAvatar;
+  
+  // If it's an asset import path like @assets/avatars/filename
+  if (avatarPath.startsWith('@assets/avatars/')) {
+    const filename = avatarPath.replace('@assets/avatars/', '');
+    return avatarAssets[filename] || executiveAssistantAvatar;
+  }
+  
+  // If it's an API URL, use it directly
+  if (avatarPath.startsWith('/api/avatar-library/')) {
+    return avatarPath;
+  }
+  
+  // If it's already a resolved asset path, use it
+  return avatarPath;
+};
+
 interface PersonaConfigurationProps {
   personaId: string;
   onClose: () => void;
@@ -280,7 +317,7 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
               onClick={() => setShowAvatarLibrary(true)}
             >
               <img
-                src={personaData.avatar}
+                src={resolveAvatarPath(personaData.avatar)}
                 alt={personaData.name}
                 className="w-full h-full object-cover"
               />
