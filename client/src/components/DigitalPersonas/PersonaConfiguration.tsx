@@ -31,10 +31,16 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
   const [guardrailsText, setGuardrailsText] = useState("");
   const [showOwnResources, setShowOwnResources] = useState(false);
   const [showOtherResources, setShowOtherResources] = useState(false);
+  const [showAvatarLibrary, setShowAvatarLibrary] = useState(false);
 
   // Load templates from admin database
   const { data: templates = [] } = useQuery<PersonaTemplate[]>({
     queryKey: ['/api/admin/persona-templates'],
+  });
+
+  // Load avatar library
+  const { data: avatarLibrary = [] } = useQuery<{ filename: string; url: string }[]>({
+    queryKey: ['/api/avatar-library'],
   });
   
   // Find the selected template
@@ -269,13 +275,17 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
         <div className="w-80 bg-white border-r border-gray-200 p-6 pt-16 overflow-y-auto">
           {/* Avatar */}
           <div className="mb-6">
-            <div className="w-32 h-32 mx-auto rounded-lg overflow-hidden bg-gray-100 cursor-pointer hover:opacity-80 transition-opacity">
+            <div 
+              className="w-32 h-32 mx-auto rounded-lg overflow-hidden bg-gray-100 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => setShowAvatarLibrary(true)}
+            >
               <img
                 src={personaData.avatar}
                 alt={personaData.name}
                 className="w-full h-full object-cover"
               />
             </div>
+            <p className="text-xs text-gray-500 text-center mt-2">Click to change avatar</p>
           </div>
 
           {/* Voice Button */}
@@ -496,6 +506,49 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
           </div>
         </div>
       </div>
+
+      {/* Avatar Library Modal */}
+      {showAvatarLibrary && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold">Choose Avatar</h3>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowAvatarLibrary(false)}
+              >
+                ×
+              </Button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+                {avatarLibrary.map((avatar) => (
+                  <div
+                    key={avatar.filename}
+                    className="aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
+                    onClick={() => {
+                      setPersonaData(prev => ({ ...prev, avatar: avatar.url }));
+                      setShowAvatarLibrary(false);
+                    }}
+                  >
+                    <img
+                      src={avatar.url}
+                      alt={avatar.filename}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+              {avatarLibrary.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  No avatars available in the library
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

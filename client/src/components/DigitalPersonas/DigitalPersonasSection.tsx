@@ -8,13 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { PersonaConfiguration } from './PersonaConfiguration';
 import { PersonaTemplate, DigitalPersona } from '@shared/schema';
 
-// Import GIF assets from the virtual employees section
-import executiveAssistantGif from '@assets/Executive Assistant_1756066629512.gif';
-import salesMarketingGif from '@assets/Sales & Marketing_1756066629511.gif';
-import customerSupportGif from '@assets/Customer Support_1756066629511.gif';
-import elderlyCareGif from '@assets/Elderly Care_1756066629513.gif';
-import digitalBuddyGif from '@assets/Digital Buddy_1756066629512.gif';
-import aiGirlfriendGif from '@assets/AI Girlfriend GIF_1756066629513.gif';
+// Import GIF assets from attached_assets folder
+import executiveAssistantGif from '@assets/Executive Assistant_1756066904884.gif';
+import salesMarketingGif from '@assets/Sales & Marketing_1756066904883.gif';
+import customerSupportGif from '@assets/Customer Support_1756066904882.gif';
+import elderlyCareGif from '@assets/Elderly Care_1756066904884.gif';
+import digitalBuddyGif from '@assets/Digital Buddy_1756066904884.gif';
+import aiGirlfriendGif from '@assets/AI Girlfriend GIF_1756066904885.gif';
 
 interface PersonaTool {
   name: string;
@@ -127,10 +127,7 @@ export const DigitalPersonasSection: React.FC = () => {
     name: persona.name,
     role: persona.role,
     avatar: persona.avatar || executiveAssistantGif,
-    tools: (persona.skills || []).map(skill => ({
-      name: skill,
-      color: getSkillColor(skill)
-    })),
+    tools: [],
     category: 'virtual_employees', // Default category for user personas
   }));
 
@@ -201,7 +198,7 @@ export const DigitalPersonasSection: React.FC = () => {
       <PersonaConfiguration 
         personaId={selectedPersona} 
         onClose={() => setSelectedPersona(null)} 
-        isExistingPersona={isUserPersona}
+        isExistingPersona={!!isUserPersona}
       />
     );
   }
@@ -344,6 +341,7 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false
       className={`bg-white border rounded-lg p-2 cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md ${
         isConfigured ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200 hover:border-blue-300'
       }`}
+      onClick={isConfigured ? onConfigure : onUse}
     >
       <div className="aspect-square w-full mb-2 rounded-lg overflow-hidden bg-gray-100">
         <img
@@ -376,16 +374,6 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false
           )}
         </div>
 
-        <div className="pt-1">
-          <Button 
-            size="sm" 
-            variant={isConfigured ? "default" : "outline"} 
-            className="w-full text-xs py-1 h-6"
-            onClick={isConfigured ? onConfigure : onUse}
-          >
-            {isConfigured ? "Configure" : "Use"}
-          </Button>
-        </div>
       </div>
     </motion.div>
   );

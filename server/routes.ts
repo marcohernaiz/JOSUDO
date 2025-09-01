@@ -2211,6 +2211,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+  // Avatar Library endpoint - Serve avatar images
+  app.get('/api/avatar-library/:filename', (req, res) => {
+    const { filename } = req.params;
+    const path = require('path');
+    const fs = require('fs');
+    
+    const avatarPath = path.join(__dirname, 'avatar-library', filename);
+    
+    // Check if file exists
+    if (!fs.existsSync(avatarPath)) {
+      return res.status(404).json({ error: 'Avatar not found' });
+    }
+    
+    // Serve the file
+    res.sendFile(avatarPath);
+  });
+
+  // Get list of available avatars
+  app.get('/api/avatar-library', (req, res) => {
+    const path = require('path');
+    const fs = require('fs');
+    
+    try {
+      const avatarDir = path.join(__dirname, 'avatar-library');
+      const files = fs.readdirSync(avatarDir)
+        .filter((file: string) => file.match(/\.(png|jpg|jpeg|gif)$/i))
+        .map((file: string) => ({
+          filename: file,
+          url: `/api/avatar-library/${file}`
+        }));
+      
+      res.json(files);
+    } catch (error) {
+      console.error('Error reading avatar library:', error);
+      res.status(500).json({ error: 'Failed to load avatar library' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

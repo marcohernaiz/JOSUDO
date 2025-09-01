@@ -8,13 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { PersonaConfiguration } from '@/components/DigitalPersonas/PersonaConfiguration';
 import { PersonaTemplate, DigitalPersona } from '@shared/schema';
 
-// Import GIF assets from the virtual employees section
-import executiveAssistantGif from '@assets/Executive Assistant_1756066629512.gif';
-import salesMarketingGif from '@assets/Sales & Marketing_1756066629511.gif';
-import customerSupportGif from '@assets/Customer Support_1756066629511.gif';
-import elderlyCareGif from '@assets/Elderly Care_1756066629513.gif';
-import digitalBuddyGif from '@assets/Digital Buddy_1756066629512.gif';
-import aiGirlfriendGif from '@assets/AI Girlfriend GIF_1756066629513.gif';
+// Import GIF assets from attached_assets folder
+import executiveAssistantGif from '@assets/Executive Assistant_1756066904884.gif';
+import salesMarketingGif from '@assets/Sales & Marketing_1756066904883.gif';
+import customerSupportGif from '@assets/Customer Support_1756066904882.gif';
+import elderlyCareGif from '@assets/Elderly Care_1756066904884.gif';
+import digitalBuddyGif from '@assets/Digital Buddy_1756066904884.gif';
+import aiGirlfriendGif from '@assets/AI Girlfriend GIF_1756066904885.gif';
 
 interface PersonaTool {
   name: string;
