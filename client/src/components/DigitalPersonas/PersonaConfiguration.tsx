@@ -528,7 +528,9 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
                     key={avatar.filename}
                     className="aspect-square rounded-lg overflow-hidden bg-gray-100 cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
                     onClick={() => {
-                      setPersonaData(prev => ({ ...prev, avatar: avatar.url }));
+                      // Convert API URL to asset import path
+                      const assetPath = `@assets/avatars/${avatar.filename}`;
+                      setPersonaData(prev => ({ ...prev, avatar: assetPath }));
                       setShowAvatarLibrary(false);
                     }}
                   >
