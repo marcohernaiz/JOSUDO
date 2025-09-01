@@ -69,6 +69,9 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
   const [showOwnResources, setShowOwnResources] = useState(false);
   const [showOtherResources, setShowOtherResources] = useState(false);
   const [showAvatarLibrary, setShowAvatarLibrary] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [originalData, setOriginalData] = useState<any>(null);
+
 
   // Load templates from admin database
   const { data: templates = [] } = useQuery<PersonaTemplate[]>({
@@ -106,6 +109,20 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
       setCapabilitiesText(selectedTemplate.capabilitiesText || '');
       setContextualText(selectedTemplate.contextualText || '');
       setGuardrailsText(selectedTemplate.guardrailsText || '');
+      
+      // Store original data for change detection
+      setOriginalData({
+        name: selectedTemplate.name,
+        role: selectedTemplate.role,
+        avatar: selectedTemplate.avatar || '',
+        voiceId: selectedTemplate.voiceId || '',
+        greeting: selectedTemplate.greeting || '',
+        systemPrompt: selectedTemplate.systemPrompt || '',
+        behaviorText: selectedTemplate.behaviorText || '',
+        capabilitiesText: selectedTemplate.capabilitiesText || '',
+        contextualText: selectedTemplate.contextualText || '',
+        guardrailsText: selectedTemplate.guardrailsText || '',
+      });
     }
   }, [selectedTemplate, isExistingPersona]);
 
@@ -131,6 +148,26 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
       setCapabilitiesText(selectedUserPersona.capabilitiesText || '');
       setContextualText(selectedUserPersona.contextualText || '');
       setGuardrailsText(selectedUserPersona.guardrailsText || '');
+      
+      // Store original data for change detection
+      setOriginalData({
+        name: selectedUserPersona.name,
+        role: selectedUserPersona.role,
+        avatar: selectedUserPersona.avatar || '',
+        voiceId: selectedUserPersona.voiceId || '',
+        greeting: selectedUserPersona.greeting || '',
+        systemPrompt: selectedUserPersona.systemPrompt || '',
+        behaviorText: selectedUserPersona.behaviorText || '',
+        capabilitiesText: selectedUserPersona.capabilitiesText || '',
+        contextualText: selectedUserPersona.contextualText || '',
+        guardrailsText: selectedUserPersona.guardrailsText || '',
+        webChat: selectedUserPersona.multimodalConfig?.webChat ?? true,
+        webAudio: selectedUserPersona.multimodalConfig?.webAudio ?? true,
+        webVideo: selectedUserPersona.multimodalConfig?.webVideo ?? false,
+        phoneCalls: selectedUserPersona.multimodalConfig?.phoneCalls ?? true,
+        whatsapp: selectedUserPersona.multimodalConfig?.whatsapp ?? true,
+        email: selectedUserPersona.multimodalConfig?.email ?? true,
+      });
     }
   }, [selectedUserPersona, isExistingPersona]);
   
@@ -191,6 +228,33 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
       technical: 'Responses are spoken aloud. Do not read code, URLs, or symbols aloud. If asked: reply "It\'s hard to read out code in plain English, but you can check [website name] for examples." For lists: pause naturally between items.'
     }
   });
+
+  // Check for changes whenever form data changes
+  useEffect(() => {
+    if (!originalData) return;
+
+    const currentData = {
+      name: personaData.name,
+      role: personaData.role,
+      avatar: personaData.avatar,
+      voiceId: personaData.voiceId,
+      greeting,
+      systemPrompt,
+      behaviorText,
+      capabilitiesText,
+      contextualText,
+      guardrailsText,
+      webChat: personaData.webChat,
+      webAudio: personaData.webAudio,
+      webVideo: personaData.webVideo,
+      phoneCalls: personaData.phoneCalls,
+      whatsapp: personaData.whatsapp,
+      email: personaData.email,
+    };
+
+    const hasChanged = JSON.stringify(currentData) !== JSON.stringify(originalData);
+    setHasChanges(hasChanged);
+  }, [originalData, personaData, greeting, systemPrompt, behaviorText, capabilitiesText, contextualText, guardrailsText]);
 
   // Mutation for saving digital persona
   const savePersonaMutation = useMutation({
@@ -334,21 +398,32 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
 
   return (
     <div className="h-full bg-gray-50 overflow-hidden">
-
-      {/* Main Content */}
-      <div className="h-full flex overflow-hidden relative">
-        {/* Close Button - Floating */}
+      {/* Top Button Bar */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={onClose}
-          className="absolute top-4 left-4 z-10"
+          className="flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
+          Go Back
         </Button>
         
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700" 
+          onClick={handleSave}
+          disabled={!hasChanges || savePersonaMutation.isPending}
+        >
+          {savePersonaMutation.isPending ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </div>
+
+      {/* Main Content */}
+      <div className="h-full flex overflow-hidden relative">
+        
         {/* Left Area - Persona Basics */}
-        <div className="w-80 bg-white border-r border-gray-200 p-6 pt-16 overflow-y-auto">
+        <div className="w-80 bg-white border-r border-gray-200 p-6 overflow-y-auto">
           {/* Avatar */}
           <div className="mb-6">
             <div 
@@ -558,27 +633,19 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
               </CardContent>
             </Card>
             
-            {/* Save and Delete Buttons at Bottom */}
-            <div className="pt-6 flex gap-3">
-              <Button 
-                className="bg-blue-600 hover:bg-blue-700 flex-1" 
-                onClick={handleSave}
-                disabled={savePersonaMutation.isPending}
-              >
-                {savePersonaMutation.isPending ? 'Saving...' : 'Save Configuration'}
-              </Button>
-              
-              {isExistingPersona && (
+            {/* Delete Button at Bottom */}
+            {isExistingPersona && (
+              <div className="pt-6">
                 <Button 
                   variant="destructive"
                   onClick={handleDelete}
                   disabled={deletePersonaMutation.isPending}
-                  className="flex-shrink-0"
+                  className="w-full"
                 >
-                  {deletePersonaMutation.isPending ? 'Deleting...' : 'Delete'}
+                  {deletePersonaMutation.isPending ? 'Deleting...' : 'Delete Persona'}
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
