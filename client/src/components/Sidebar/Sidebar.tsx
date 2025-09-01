@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
 import josudoLogoOrange from "@assets/JOSUDO logo - naranja con Own Your data_1756038073769.png";
+import josudoTextLogo from "@assets/josudo text logo black_1756723676896.png";
 import josudoIcon from "@assets/JOSUDO logo icon_1752491258890.png";
 import folderIcon from "@assets/vecteezy_simple-folder-icon-on-white-background_4693395-1_1755935645704.jpg";
 import { 
@@ -182,9 +183,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
               <>
                 <div className="flex items-center w-full">
                   <img
-                    src={josudoLogoOrange}
-                    alt="JOSUDO - Own Your Data"
-                    className="h-24 w-auto object-contain mx-auto"
+                    src={josudoTextLogo}
+                    alt="JOSUDO"
+                    className="h-8 w-auto object-contain mx-auto"
                   />
                 </div>
 
