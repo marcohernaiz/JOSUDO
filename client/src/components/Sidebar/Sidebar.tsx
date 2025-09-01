@@ -181,7 +181,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
               </div>
             ) : (
               <>
-                <div className="flex items-center w-full gap-3">
+                <div className="flex items-center w-full gap-3 py-2">
                   <div 
                     className="w-8 h-8 flex items-center justify-center flex-shrink-0 cursor-pointer transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md"
                     onClick={() => setIsExpanded(!isExpanded)}
@@ -193,11 +193,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
                       <img
                         src={josudoIcon}
                         alt="JOSUDO Icon"
-                        className="w-5 h-5 object-contain"
+                        className="w-6 h-6 object-contain"
                       />
                     ) : (
                       <svg 
-                        className="w-4 h-4 text-slate-600 dark:text-slate-400" 
+                        className="w-5 h-5 text-slate-600 dark:text-slate-400" 
                         fill="none" 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
@@ -209,7 +209,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
                   <img
                     src={josudoTextLogo}
                     alt="JOSUDO"
-                    className="h-4 w-auto object-contain"
+                    className="h-5 w-auto object-contain"
                   />
                 </div>
               </>
