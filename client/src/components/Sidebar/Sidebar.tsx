@@ -181,11 +181,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
               </div>
             ) : (
               <>
-                <div className="flex items-center w-full">
+                <div className="flex items-center w-full gap-2">
+                  <img
+                    src={josudoIcon}
+                    alt="JOSUDO Icon"
+                    className="w-6 h-6 object-contain flex-shrink-0"
+                  />
                   <img
                     src={josudoTextLogo}
                     alt="JOSUDO"
-                    className="h-8 w-auto object-contain mx-auto"
+                    className="h-6 w-auto object-contain"
                   />
                 </div>
 
