@@ -8,13 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { PersonaConfiguration } from './PersonaConfiguration';
 import { PersonaTemplate, DigitalPersona } from '@shared/schema';
 
-// Import GIF assets from attached_assets folder
-import executiveAssistantGif from '@assets/Executive Assistant_1756066904884.gif';
-import salesMarketingGif from '@assets/Sales & Marketing_1756066904883.gif';
-import customerSupportGif from '@assets/Customer Support_1756066904882.gif';
-import elderlyCareGif from '@assets/Elderly Care_1756066904884.gif';
-import digitalBuddyGif from '@assets/Digital Buddy_1756066904884.gif';
-import aiGirlfriendGif from '@assets/AI Girlfriend GIF_1756066904885.gif';
 
 interface PersonaTool {
   name: string;
@@ -80,31 +73,39 @@ const getSkillColor = (skill: string): string => {
   return colorMap[skill] || 'bg-gray-100 text-gray-800';
 };
 
-// Helper function to map template names to GIF avatars
+// Import organized avatars from attached_assets/avatars folder
+import executiveAssistantAvatar from '@assets/avatars/executive-assistant.png';
+import salesMarketingAvatar from '@assets/avatars/sales-marketing.png';
+import customerSupportAvatar from '@assets/avatars/customer-support.png';
+import elderlyCareAvatar from '@assets/avatars/elderly-care.gif';
+import digitalBuddyAvatar from '@assets/avatars/digital-buddy.gif';
+import aiGirlfriendAvatar from '@assets/avatars/ai-girlfriend.gif';
+
+// Helper function to map template names to organized avatars
 const getAvatarForTemplate = (name: string): string => {
   const avatarMap: Record<string, string> = {
-    'Sophia': executiveAssistantGif,
-    'Carlos': salesMarketingGif,
-    'Carlitos': salesMarketingGif,
-    'Aisha': salesMarketingGif,
-    'Liam': customerSupportGif,
-    'Emma': executiveAssistantGif,
-    'Maya': elderlyCareGif,
-    'Ben': salesMarketingGif,
-    'Priya': executiveAssistantGif,
-    'David': digitalBuddyGif,
-    'Zara': customerSupportGif,
-    'Lucia': salesMarketingGif,
-    'Hassan': digitalBuddyGif,
-    'Maria': executiveAssistantGif,
-    'Alex': digitalBuddyGif,
-    'Ryan': digitalBuddyGif,
-    'Jordan': digitalBuddyGif,
-    'Riley': digitalBuddyGif,
-    'Sam': elderlyCareGif,
-    'Taylor': aiGirlfriendGif,
+    'Sophia': executiveAssistantAvatar,
+    'Carlos': salesMarketingAvatar,
+    'Carlitos': salesMarketingAvatar,
+    'Aisha': salesMarketingAvatar,
+    'Liam': customerSupportAvatar,
+    'Emma': executiveAssistantAvatar,
+    'Maya': elderlyCareAvatar,
+    'Ben': salesMarketingAvatar,
+    'Priya': executiveAssistantAvatar,
+    'David': digitalBuddyAvatar,
+    'Zara': customerSupportAvatar,
+    'Lucia': salesMarketingAvatar,
+    'Hassan': digitalBuddyAvatar,
+    'Maria': executiveAssistantAvatar,
+    'Alex': digitalBuddyAvatar,
+    'Ryan': digitalBuddyAvatar,
+    'Jordan': digitalBuddyAvatar,
+    'Riley': digitalBuddyAvatar,
+    'Sam': elderlyCareAvatar,
+    'Taylor': aiGirlfriendAvatar,
   };
-  return avatarMap[name] || executiveAssistantGif;
+  return avatarMap[name] || executiveAssistantAvatar;
 };
 
 export const DigitalPersonasSection: React.FC = () => {
@@ -126,7 +127,7 @@ export const DigitalPersonasSection: React.FC = () => {
     id: persona.id.toString(),
     name: persona.name,
     role: persona.role,
-    avatar: persona.avatar || executiveAssistantGif,
+    avatar: persona.avatar || executiveAssistantAvatar,
     tools: [],
     category: 'virtual_employees', // Default category for user personas
   }));

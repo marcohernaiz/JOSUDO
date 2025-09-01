@@ -2211,13 +2211,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  // Avatar Library endpoint - Serve avatar images
+  // Avatar Library endpoint - Serve avatar images from attached_assets/avatars
   app.get('/api/avatar-library/:filename', (req, res) => {
     const { filename } = req.params;
     const path = require('path');
     const fs = require('fs');
     
-    const avatarPath = path.join(__dirname, 'avatar-library', filename);
+    const avatarPath = path.join(process.cwd(), 'attached_assets', 'avatars', filename);
     
     // Check if file exists
     if (!fs.existsSync(avatarPath)) {
@@ -2234,7 +2234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const fs = require('fs');
     
     try {
-      const avatarDir = path.join(__dirname, 'avatar-library');
+      const avatarDir = path.join(process.cwd(), 'attached_assets', 'avatars');
       const files = fs.readdirSync(avatarDir)
         .filter((file: string) => file.match(/\.(png|jpg|jpeg|gif)$/i))
         .map((file: string) => ({
