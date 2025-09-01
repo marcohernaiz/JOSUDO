@@ -72,12 +72,11 @@ export interface AppContextType {
   refreshIntegrations: () => Promise<void>;
   refreshChatSessions: () => Promise<void>;
   refreshBilling: () => Promise<void>;
-  // Add these for chat state
   messages: ChatMessage[];
-  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  setMessages: (messages: ChatMessage[]) => void;
   currentSessionId: string | null;
-  setCurrentSessionId: (sessionId: string | null) => void;
-  // Add AI model selection
+  setCurrentSessionId: (id: string | null) => void;
   selectedModel: string;
   setSelectedModel: (model: string) => void;
+  logout: () => void;
 }

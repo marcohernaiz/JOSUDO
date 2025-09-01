@@ -5,7 +5,7 @@ import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, CheckCircle, CreditCard, Zap } from 'lucide-react';
+import { Loader2, CheckCircle, CreditCard, Zap, BarChart3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface CreditPackage {
@@ -19,14 +19,37 @@ interface CreditPackage {
 interface PaymentModalProps {
   open: boolean;
   onClose: () => void;
+  onShowUsage?: () => void;
 }
 
-const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string | null, onClose: () => void, setSelectedPackage: (id: string) => void }> = ({ packages, selectedPackage, onClose, setSelectedPackage }) => {
+const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string | null, onClose: () => void, setSelectedPackage: (id: string) => void, onShowUsage?: () => void }> = ({ packages, selectedPackage, onClose, setSelectedPackage, onShowUsage }) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentCredits, setCurrentCredits] = useState(0);
   const { user } = useAppContext();
   const { toast } = useToast();
   const stripe = useStripe();
   const elements = useElements();
+
+  // Fetch current credit balance
+  useEffect(() => {
+    if (user?.id) {
+      fetchCurrentCredits();
+    }
+  }, [user?.id]);
+
+  const fetchCurrentCredits = async () => {
+    try {
+      const response = await fetch('/api/user/credits', {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentCredits(data.credits);
+      }
+    } catch (error) {
+      console.error('Error fetching credits:', error);
+    }
+  };
 
   const handlePayment = async () => {
     if (!selectedPackage || !stripe || !elements) return;
@@ -92,6 +115,9 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
           description: `Added ${confirmData.credits} credits to your account`,
           variant: "default",
         });
+        
+        // Refresh credit balance
+        await fetchCurrentCredits();
         onClose();
       } else {
         throw new Error('Payment confirmation failed');
@@ -115,6 +141,27 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
 
   return (
     <>
+      {/* Current Credit Balance */}
+      <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">Current Balance</h3>
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{currentCredits.toLocaleString()} credits</p>
+          </div>
+          <div className="flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onShowUsage}
+              className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              View Usage
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-4 mb-6">
         {packages.map((pkg) => (
           <Card
@@ -130,7 +177,7 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">{pkg.name}</CardTitle>
                 <Badge variant="secondary" className="text-sm">
-                  {pkg.credits} credits
+                  {pkg.credits.toLocaleString()} credits
                 </Badge>
               </div>
               <CardDescription>{pkg.description}</CardDescription>
@@ -152,34 +199,32 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
         ))}
       </div>
 
-              <div className="space-y-4">
-          <div className="border border-slate-300 dark:border-slate-600 rounded-md p-3 bg-white dark:bg-slate-800">
-            <CardElement
-              options={{
-                style: {
-                  base: {
-                    fontSize: '16px',
-                    color: '#374151',
-                    '::placeholder': {
-                      color: '#9CA3AF',
-                    },
-                  },
-                  invalid: {
-                    color: '#EF4444',
+      <div className="space-y-4">
+        <div className="border border-slate-300 dark:border-slate-600 rounded-md p-3 bg-white dark:bg-slate-800">
+          <CardElement
+            options={{
+              style: {
+                base: {
+                  fontSize: '16px',
+                  color: '#374151',
+                  '::placeholder': {
+                    color: '#9CA3AF',
                   },
                 },
-              }}
-            />
-          </div>
+                invalid: {
+                  color: '#EF4444',
+                },
+              },
+            }}
+          />
+        </div>
 
-
-
-                  <Button
-            onClick={handlePayment}
-            disabled={!selectedPackage || isProcessing || !stripe}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            size="lg"
-          >
+        <Button
+          onClick={handlePayment}
+          disabled={!selectedPackage || isProcessing || !stripe}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          size="lg"
+        >
           {isProcessing ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -201,7 +246,7 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
   );
 };
 
-export const PaymentModal: React.FC<PaymentModalProps> = ({ open, onClose }) => {
+export const PaymentModal: React.FC<PaymentModalProps> = ({ open, onClose, onShowUsage }) => {
   const [packages, setPackages] = useState<CreditPackage[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -225,10 +270,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ open, onClose }) => 
     } catch (error) {
       console.error('Error fetching credit packages:', error);
     }
-  };
-
-  const formatPrice = (priceInCents: number) => {
-    return `$${(priceInCents / 100).toFixed(2)}`;
   };
 
   if (!open) return null;
@@ -258,6 +299,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ open, onClose }) => 
             selectedPackage={selectedPackage} 
             onClose={onClose}
             setSelectedPackage={setSelectedPackage}
+            onShowUsage={onShowUsage}
           />
         </Elements>
       </div>

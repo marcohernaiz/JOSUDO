@@ -79,6 +79,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const logout = () => {
+    // Clear local state
+    setActiveSession(null);
+    setMessages([]);
+    setCurrentSessionId(null);
+    
+    // Redirect to logout endpoint
+    window.location.href = "/api/auth/logout";
+  };
+
   const contextValue: AppContextType = {
     user: user || null,
     isAuthenticated: !!user,
@@ -97,6 +107,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     setCurrentSessionId,
     selectedModel,
     setSelectedModel,
+    logout,
   };
 
   return (
