@@ -181,35 +181,37 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
               </div>
             ) : (
               <>
-                <div className="flex items-center w-full gap-2">
-                  <img
-                    src={josudoIcon}
-                    alt="JOSUDO Icon"
-                    className="w-6 h-6 object-contain flex-shrink-0"
-                  />
+                <div className="flex items-center w-full gap-3">
+                  <div 
+                    className="w-8 h-8 flex items-center justify-center flex-shrink-0 cursor-pointer transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    onMouseEnter={() => setIsLogoHovered(true)}
+                    onMouseLeave={() => setIsLogoHovered(false)}
+                    title="Collapse sidebar"
+                  >
+                    {!isLogoHovered ? (
+                      <img
+                        src={josudoIcon}
+                        alt="JOSUDO Icon"
+                        className="w-5 h-5 object-contain"
+                      />
+                    ) : (
+                      <svg 
+                        className="w-4 h-4 text-slate-600 dark:text-slate-400" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M21 19l-7-7 7-7" />
+                      </svg>
+                    )}
+                  </div>
                   <img
                     src={josudoTextLogo}
                     alt="JOSUDO"
-                    className="h-6 w-auto object-contain"
+                    className="h-4 w-auto object-contain"
                   />
                 </div>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 w-8 h-8 p-0 flex items-center justify-center"
-                  title="Collapse sidebar"
-                >
-                  <svg 
-                    className="w-4 h-4" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M21 19l-7-7 7-7" />
-                  </svg>
-                </Button>
               </>
             )}
 
