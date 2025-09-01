@@ -347,6 +347,11 @@ export const MessageInput: React.FC = () => {
         <div className="flex items-center justify-between w-full">
           <div className="relative flex-1">
             <input
+              ref={(input) => {
+                if (input && !hasMessages) {
+                  setTimeout(() => input.focus(), 100);
+                }
+              }}
               type="text"
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}

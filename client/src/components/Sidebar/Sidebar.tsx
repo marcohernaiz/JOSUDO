@@ -209,7 +209,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
                   <img
                     src={josudoTextLogo}
                     alt="JOSUDO"
-                    className="h-5 w-auto object-contain"
+                    className="h-5 w-auto object-contain cursor-pointer"
+                    onClick={() => { onSectionChange?.('chat'); }}
+                    title="Go to Home"
                   />
                 </div>
               </>
