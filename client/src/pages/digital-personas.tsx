@@ -77,18 +77,18 @@ const getSkillColor = (skill: string): string => {
 };
 
 // Import organized avatars from attached_assets/avatars folder
-import executiveAssistantAvatar from '@assets/avatars/executive-assistant.png';
-import salesMarketingAvatar from '@assets/avatars/sales-marketing.png';
-import customerSupportAvatar from '@assets/avatars/customer-support.png';
+import executiveAssistantAvatar from '@assets/avatars/executive-assistant.gif';
+import salesMarketingAvatar from '@assets/avatars/sales-marketing.gif';
+import customerSupportAvatar from '@assets/avatars/customer-support.gif';
 import elderlyCareAvatar from '@assets/avatars/elderly-care.gif';
 import digitalBuddyAvatar from '@assets/avatars/digital-buddy.gif';
 import aiGirlfriendAvatar from '@assets/avatars/ai-girlfriend.gif';
 
 // Avatar mapping for asset imports
 const avatarAssets: Record<string, string> = {
-  'executive-assistant.png': executiveAssistantAvatar,
-  'sales-marketing.png': salesMarketingAvatar,
-  'customer-support.png': customerSupportAvatar,
+  'executive-assistant.gif': executiveAssistantAvatar,
+  'sales-marketing.gif': salesMarketingAvatar,
+  'customer-support.gif': customerSupportAvatar,
   'elderly-care.gif': elderlyCareAvatar,
   'digital-buddy.gif': digitalBuddyAvatar,
   'ai-girlfriend.gif': aiGirlfriendAvatar,

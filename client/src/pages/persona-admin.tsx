@@ -8,15 +8,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PersonaTemplate } from '@shared/schema';
-import { Settings, User, Save, Plus } from 'lucide-react';
+import { Settings, User, Save, Plus, Image, Check, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const PersonaAdmin = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<PersonaTemplate | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [showAvatarLibrary, setShowAvatarLibrary] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: templates = [], isLoading } = useQuery<PersonaTemplate[]>({
     queryKey: ['/api/admin/persona-templates'],
+  });
+
+  // Load avatar library
+  const { data: avatarLibrary = [] } = useQuery<{ filename: string; url: string }[]>({
+    queryKey: ['/api/avatar-library'],
   });
 
   const updateTemplateMutation = useMutation({
@@ -85,6 +92,16 @@ const PersonaAdmin = () => {
       isActive: true,
     };
     createTemplateMutation.mutate(newTemplate);
+  };
+
+  const handleAvatarSelect = (avatarPath: string) => {
+    if (selectedTemplate && isEditing) {
+      setSelectedTemplate({
+        ...selectedTemplate,
+        avatar: avatarPath
+      });
+      setShowAvatarLibrary(false);
+    }
   };
 
   if (isLoading) {
@@ -235,15 +252,72 @@ const PersonaAdmin = () => {
                         </div>
                         <div>
                           <label className="text-sm font-medium">Avatar Path</label>
-                          <Input
-                            value={selectedTemplate.avatar || ''}
-                            onChange={(e) => isEditing && setSelectedTemplate({
-                              ...selectedTemplate,
-                              avatar: e.target.value
-                            })}
-                            disabled={!isEditing}
-                            placeholder="/avatars/persona.jpg"
-                          />
+                          <div className="flex gap-2">
+                            <Input
+                              value={selectedTemplate.avatar || ''}
+                              onChange={(e) => isEditing && setSelectedTemplate({
+                                ...selectedTemplate,
+                                avatar: e.target.value
+                              })}
+                              disabled={!isEditing}
+                              placeholder="/avatars/persona.jpg"
+                              className="flex-1"
+                            />
+                            {isEditing && (
+                              <Dialog open={showAvatarLibrary} onOpenChange={setShowAvatarLibrary}>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    <Image className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                                  <DialogHeader>
+                                    <DialogTitle>Choose Avatar from Library</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                                    {avatarLibrary.map((avatar) => (
+                                      <div 
+                                        key={avatar.filename}
+                                        className="relative group cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-lg overflow-hidden"
+                                        onClick={() => handleAvatarSelect(avatar.url)}
+                                      >
+                                        <div className="aspect-square">
+                                          <img
+                                            src={avatar.url}
+                                            alt={avatar.filename}
+                                            className="w-full h-full object-cover"
+                                          />
+                                        </div>
+                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+                                          <Check className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                                        </div>
+                                        <div className="p-2 bg-white dark:bg-gray-800">
+                                          <p className="text-xs font-medium truncate">{avatar.filename}</p>
+                                          <p className="text-xs text-gray-500 truncate">{avatar.url}</p>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </div>
+                          {/* Avatar Preview */}
+                          {selectedTemplate.avatar && (
+                            <div className="mt-2">
+                              <label className="text-xs text-gray-500">Avatar Preview:</label>
+                              <div className="mt-1 w-16 h-16 rounded-lg overflow-hidden border bg-gray-100">
+                                <img
+                                  src={selectedTemplate.avatar}
+                                  alt="Avatar preview"
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.src = '/api/avatar-library/' + (selectedTemplate.avatar || '').split('/').pop();
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
