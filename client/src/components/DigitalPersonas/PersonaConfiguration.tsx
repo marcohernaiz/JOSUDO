@@ -79,13 +79,20 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
   const { data: avatarLibrary = [] } = useQuery<{ filename: string; url: string }[]>({
     queryKey: ['/api/avatar-library'],
   });
+
+  // Load user's personas for editing existing personas
+  const { data: userPersonas = [] } = useQuery<any[]>({
+    queryKey: ['/api/digital-personas'],
+    enabled: isExistingPersona, // Only load when editing existing persona
+  });
   
-  // Find the selected template
-  const selectedTemplate = templates.find(template => template.id.toString() === personaId);
+  // Find the selected template or user persona
+  const selectedTemplate = !isExistingPersona ? templates.find(template => template.id.toString() === personaId) : null;
+  const selectedUserPersona = isExistingPersona ? userPersonas.find((persona) => persona.id.toString() === personaId) : null;
   
   // Load template data into form fields when template is found
   useEffect(() => {
-    if (selectedTemplate) {
+    if (selectedTemplate && !isExistingPersona) {
       setPersonaData(prev => ({
         ...prev,
         name: selectedTemplate.name,
@@ -100,7 +107,32 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
       setContextualText(selectedTemplate.contextualText || '');
       setGuardrailsText(selectedTemplate.guardrailsText || '');
     }
-  }, [selectedTemplate]);
+  }, [selectedTemplate, isExistingPersona]);
+
+  // Load user persona data into form fields when editing existing persona
+  useEffect(() => {
+    if (selectedUserPersona && isExistingPersona) {
+      setPersonaData(prev => ({
+        ...prev,
+        name: selectedUserPersona.name,
+        role: selectedUserPersona.role,
+        avatar: selectedUserPersona.avatar || '',
+        voiceId: selectedUserPersona.voiceId || '',
+        webChat: selectedUserPersona.multimodalConfig?.webChat ?? true,
+        webAudio: selectedUserPersona.multimodalConfig?.webAudio ?? true,
+        webVideo: selectedUserPersona.multimodalConfig?.webVideo ?? false,
+        phoneCalls: selectedUserPersona.multimodalConfig?.phoneCalls ?? true,
+        whatsapp: selectedUserPersona.multimodalConfig?.whatsapp ?? true,
+        email: selectedUserPersona.multimodalConfig?.email ?? true,
+      }));
+      setGreeting(selectedUserPersona.greeting || '');
+      setSystemPrompt(selectedUserPersona.systemPrompt || '');
+      setBehaviorText(selectedUserPersona.behaviorText || '');
+      setCapabilitiesText(selectedUserPersona.capabilitiesText || '');
+      setContextualText(selectedUserPersona.contextualText || '');
+      setGuardrailsText(selectedUserPersona.guardrailsText || '');
+    }
+  }, [selectedUserPersona, isExistingPersona]);
   
   const [personaData, setPersonaData] = useState({
     name: '',
@@ -166,7 +198,14 @@ export const PersonaConfiguration: React.FC<PersonaConfigurationProps> = ({ pers
       if (!isAuthenticated) {
         throw new Error('User must be authenticated to save persona');
       }
-      return await apiRequest('POST', '/api/digital-personas', personaData);
+      
+      if (isExistingPersona) {
+        // Update existing persona
+        return await apiRequest('PUT', `/api/digital-personas/${personaId}`, personaData);
+      } else {
+        // Create new persona
+        return await apiRequest('POST', '/api/digital-personas', personaData);
+      }
     },
     onSuccess: () => {
       // Invalidate queries to refresh the digital personas list
