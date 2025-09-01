@@ -145,7 +145,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onClose, onSwitchToChat, onSec
     <>
       <div
         className={`h-full bg-slate-250 dark:bg-slate-900/80 border-r border-slate-300 dark:border-slate-700 flex flex-col transition-all duration-200 ${
-          isExpanded ? "w-52" : "w-16"
+          isExpanded ? "w-56" : "w-16"
         }`}
       >
         {/* Header */}
