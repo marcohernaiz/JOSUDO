@@ -20,13 +20,31 @@ import {
   insertChatSessionSchema,
   insertIntegrationSchema,
   insertUsageLogSchema,
+  insertSpaceSchema,
+  insertSourceSchema,
+  insertNoteSchema,
+  insertTaskSchema,
+  insertToolSchema,
+  insertVirtualEmployeeSchema,
+  insertDigitalPersonaSchema,
+  insertPersonaTemplateSchema,
   usageLogs,
   users,
   billing,
+  spaces,
+  sources,
+  notes,
+  tasks,
+  tools,
+  virtualEmployees,
+  digitalPersonas,
+  personaTemplates,
 } from "@shared/schema";
 import { z } from "zod";
 import { db } from './db';
 import { eq, and, sql } from 'drizzle-orm';
+import path from 'path';
+import fs from 'fs';
 
 // OAuth providers configuration
 const hasGoogleAuth =
@@ -1351,6 +1369,363 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Spaces API routes
+  app.get("/api/spaces", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user || 1; // Use default user ID for demo
+      
+      const userSpaces = await db.select().from(spaces).where(eq(spaces.userId, userId));
+      
+      // If no spaces exist, create default spaces
+      if (userSpaces.length === 0) {
+        const defaultSpaces = [
+          {
+            userId,
+            name: "My Personal Space",
+            description: "Your personal workspace for individual projects and ideas",
+            isDefault: true,
+          },
+          {
+            userId,
+            name: "My Workspace",
+            description: "Professional workspace for work-related projects",
+            isDefault: true,
+          }
+        ];
+
+        for (const spaceData of defaultSpaces) {
+          const [newSpace] = await db.insert(spaces).values(spaceData).returning();
+          
+          // Create default virtual employee for each space
+          await db.insert(virtualEmployees).values({
+            spaceId: newSpace.id,
+            name: "Sophia",
+            role: "Executive Assistant",
+            assignedTools: ["task_management", "calendar", "notes"],
+            isActive: true,
+          });
+
+          // Create default tools
+          const defaultTools = [
+            { name: "Audio Summary", type: "audio_summary", spaceId: newSpace.id },
+            { name: "Video Summary", type: "video_summary", spaceId: newSpace.id },
+            { name: "Mind Map", type: "mind_map", spaceId: newSpace.id },
+            { name: "Reports", type: "report", spaceId: newSpace.id },
+          ];
+          
+          for (const tool of defaultTools) {
+            await db.insert(tools).values(tool);
+          }
+        }
+
+        // Re-fetch spaces after creating defaults
+        const createdSpaces = await db.select().from(spaces).where(eq(spaces.userId, userId));
+        return res.json(createdSpaces);
+      }
+      
+      res.json(userSpaces);
+    } catch (error) {
+      console.error("Error fetching spaces:", error);
+      res.status(500).json({ error: "Failed to fetch spaces" });
+    }
+  });
+
+  app.post("/api/spaces", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      const spaceData = insertSpaceSchema.parse({ ...req.body, userId });
+      const [newSpace] = await db.insert(spaces).values(spaceData).returning();
+      
+      res.status(201).json(newSpace);
+    } catch (error) {
+      console.error("Error creating space:", error);
+      res.status(500).json({ error: "Failed to create space" });
+    }
+  });
+
+  // Sources routes
+  app.get("/api/spaces/:spaceId/sources", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user;
+      const { spaceId } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      // Verify space ownership
+      const space = await db.select().from(spaces).where(
+        and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId))
+      );
+      
+      if (space.length === 0) {
+        return res.status(404).json({ error: "Space not found" });
+      }
+
+      const spaceSources = await db.select().from(sources).where(eq(sources.spaceId, parseInt(spaceId)));
+      res.json(spaceSources);
+    } catch (error) {
+      console.error("Error fetching sources:", error);
+      res.status(500).json({ error: "Failed to fetch sources" });
+    }
+  });
+
+  // Notes routes
+  app.get("/api/spaces/:spaceId/notes", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user;
+      const { spaceId } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      // Verify space ownership
+      const space = await db.select().from(spaces).where(
+        and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId))
+      );
+      
+      if (space.length === 0) {
+        return res.status(404).json({ error: "Space not found" });
+      }
+
+      const spaceNotes = await db.select().from(notes).where(eq(notes.spaceId, parseInt(spaceId)));
+      res.json(spaceNotes);
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+      res.status(500).json({ error: "Failed to fetch notes" });
+    }
+  });
+
+  // Virtual Employees routes
+  app.get("/api/spaces/:spaceId/virtual-employees", async (req, res) => {
+    try {
+      const userId = (req as any).session?.passport?.user;
+      const { spaceId } = req.params;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      // Verify space ownership
+      const space = await db.select().from(spaces).where(
+        and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId))
+      );
+      
+      if (space.length === 0) {
+        return res.status(404).json({ error: "Space not found" });
+      }
+
+      const employees = await db.select().from(virtualEmployees).where(eq(virtualEmployees.spaceId, parseInt(spaceId)));
+      res.json(employees);
+    } catch (error) {
+      console.error("Error fetching virtual employees:", error);
+      res.status(500).json({ error: "Failed to fetch virtual employees" });
+    }
+  });
+
+  // Digital Personas routes
+  app.get("/api/digital-personas", async (req, res) => {
+    try {
+      // Get user ID from authenticated session
+      let userId = (req as any).session?.passport?.user;
+      
+      // Check for Google OAuth authentication
+      if (req.isAuthenticated() && req.user) {
+        userId = (req.user as any).id;
+      }
+      
+      // Check for session-based authentication
+      if (!userId && (req as any).session?.userId) {
+        userId = (req as any).session.userId;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const userPersonas = await db.select().from(digitalPersonas).where(eq(digitalPersonas.userId, userId));
+      res.json(userPersonas);
+    } catch (error) {
+      console.error("Error fetching digital personas:", error);
+      res.status(500).json({ error: "Failed to fetch digital personas" });
+    }
+  });
+
+  app.post("/api/digital-personas", async (req, res) => {
+    try {
+      // Get user ID from authenticated session
+      let userId = (req as any).session?.passport?.user;
+      
+      // Check for Google OAuth authentication
+      if (req.isAuthenticated() && req.user) {
+        userId = (req.user as any).id;
+      }
+      
+      // Check for session-based authentication
+      if (!userId && (req as any).session?.userId) {
+        userId = (req as any).session.userId;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const validatedData = insertDigitalPersonaSchema.parse({
+        ...req.body,
+        userId,
+      });
+
+      const [newPersona] = await db.insert(digitalPersonas).values(validatedData).returning();
+      res.json(newPersona);
+    } catch (error) {
+      console.error("Error creating digital persona:", error);
+      res.status(500).json({ error: "Failed to create digital persona" });
+    }
+  });
+
+  app.put("/api/digital-personas/:id", async (req, res) => {
+    try {
+      // Get user ID from authenticated session
+      let userId = (req as any).session?.passport?.user;
+      
+      // Check for Google OAuth authentication
+      if (req.isAuthenticated() && req.user) {
+        userId = (req.user as any).id;
+      }
+      
+      // Check for session-based authentication
+      if (!userId && (req as any).session?.userId) {
+        userId = (req as any).session.userId;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const { id } = req.params;
+      
+      const validatedData = insertDigitalPersonaSchema.parse({
+        ...req.body,
+        userId,
+      });
+
+      const [updatedPersona] = await db
+        .update(digitalPersonas)
+        .set(validatedData)
+        .where(and(eq(digitalPersonas.id, parseInt(id)), eq(digitalPersonas.userId, userId)))
+        .returning();
+
+      if (!updatedPersona) {
+        return res.status(404).json({ error: "Digital persona not found" });
+      }
+
+      res.json(updatedPersona);
+    } catch (error) {
+      console.error("Error updating digital persona:", error);
+      res.status(500).json({ error: "Failed to update digital persona" });
+    }
+  });
+
+  app.delete("/api/digital-personas/:id", async (req, res) => {
+    try {
+      // Get user ID from authenticated session
+      let userId = (req as any).session?.passport?.user;
+      
+      // Check for Google OAuth authentication
+      if (req.isAuthenticated() && req.user) {
+        userId = (req.user as any).id;
+      }
+      
+      // Check for session-based authentication
+      if (!userId && (req as any).session?.userId) {
+        userId = (req as any).session.userId;
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const { id } = req.params;
+      
+      const [deletedPersona] = await db
+        .delete(digitalPersonas)
+        .where(and(eq(digitalPersonas.id, parseInt(id)), eq(digitalPersonas.userId, userId)))
+        .returning();
+
+      if (!deletedPersona) {
+        return res.status(404).json({ error: "Digital persona not found" });
+      }
+
+      res.json({ message: "Digital persona deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting digital persona:", error);
+      res.status(500).json({ error: "Failed to delete digital persona" });
+    }
+  });
+
+  // Admin Persona Templates routes (hidden admin section)
+  app.get("/api/admin/persona-templates", async (req, res) => {
+    try {
+      // In a real app, you'd check for admin privileges here
+      const templates = await db.select().from(personaTemplates);
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching persona templates:", error);
+      res.status(500).json({ error: "Failed to fetch persona templates" });
+    }
+  });
+
+  app.post("/api/admin/persona-templates", async (req, res) => {
+    try {
+      // In a real app, you'd check for admin privileges here
+      const validatedData = insertPersonaTemplateSchema.parse(req.body);
+      const [newTemplate] = await db.insert(personaTemplates).values(validatedData).returning();
+      res.json(newTemplate);
+    } catch (error) {
+      console.error("Error creating persona template:", error);
+      res.status(500).json({ error: "Failed to create persona template" });
+    }
+  });
+
+  app.put("/api/admin/persona-templates/:id", async (req, res) => {
+    try {
+      // In a real app, you'd check for admin privileges here
+      const { id } = req.params;
+      const validatedData = insertPersonaTemplateSchema.parse(req.body);
+
+      const [updatedTemplate] = await db
+        .update(personaTemplates)
+        .set(validatedData)
+        .where(eq(personaTemplates.id, parseInt(id)))
+        .returning();
+
+      if (!updatedTemplate) {
+        return res.status(404).json({ error: "Persona template not found" });
+      }
+
+      res.json(updatedTemplate);
+    } catch (error) {
+      console.error("Error updating persona template:", error);
+      res.status(500).json({ error: "Failed to update persona template" });
+    }
+  });
+
+  app.get("/api/persona-templates", async (req, res) => {
+    try {
+      const templates = await db.select().from(personaTemplates);
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching persona templates:", error);
+      res.status(500).json({ error: "Failed to fetch persona templates" });
+    }
+  });
+
   // Usage analytics - No authentication required, return empty array
   app.get("/api/usage", async (req, res) => {
     try {
@@ -1874,6 +2249,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching current month usage:', error);
       res.status(500).json({ error: 'Failed to fetch current month usage' });
+    }
+  });
+
+  // Avatar Library endpoint - Serve avatar images from attached_assets/avatars
+  app.get('/api/avatar-library/:filename', (req, res) => {
+    const { filename } = req.params;
+    const avatarPath = path.join(process.cwd(), 'attached_assets', 'avatars', filename);
+    
+    // Check if file exists
+    if (!fs.existsSync(avatarPath)) {
+      return res.status(404).json({ error: 'Avatar not found' });
+    }
+    
+    // Serve the file
+    res.sendFile(avatarPath);
+  });
+
+  // Get list of available avatars
+  app.get('/api/avatar-library', (req, res) => {
+    try {
+      const avatarDir = path.join(process.cwd(), 'attached_assets', 'avatars');
+      const files = fs.readdirSync(avatarDir)
+        .filter((file: string) => file.match(/\.(png|jpg|jpeg|gif)$/i))
+        .map((file: string) => ({
+          filename: file,
+          url: `/api/avatar-library/${file}`
+        }));
+      
+      res.json(files);
+    } catch (error) {
+      console.error('Error reading avatar library:', error);
+      res.status(500).json({ error: 'Failed to load avatar library' });
     }
   });
 

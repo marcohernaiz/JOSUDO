@@ -8,23 +8,40 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useChat } from "@/hooks/useChat";
+import { useAppContext } from "@/contexts/AppContext";
 import sophiaBackground from "@assets/Sophia background_1752487018233.png";
-import executiveAssistantGif from "@assets/Executive Assistant_1756066904884.gif";
-import salesMarketingGif from "@assets/Sales & Marketing_1756066904883.gif";
-import customerSupportGif from "@assets/Customer Support_1756066904882.gif";
-import elderlyCareGif from "@assets/Elderly Care_1756066904884.gif";
-import digitalBuddyGif from "@assets/Digital Buddy_1756066904884.gif";
-import aiGirlfriendGif from "@assets/AI Girlfriend GIF_1756066904885.gif";
+import executiveAssistantGif from "@assets/avatars/executive-assistant.gif";
+import salesMarketingGif from "@assets/avatars/sales-marketing.gif";
+import customerSupportGif from "@assets/avatars/customer-support.gif";
+import elderlyCareGif from "@assets/avatars/elderly-care.gif";
+import digitalBuddyGif from "@assets/avatars/digital-buddy.gif";
+import aiGirlfriendGif from "@assets/avatars/ai-girlfriend.gif";
+import { DigitalPersonasSection } from "@/components/DigitalPersonas/DigitalPersonasSection";
+import { SpacesSection } from "@/components/Spaces/SpacesSection";
+import { SpaceWorkspace } from "@/components/Spaces/SpaceWorkspace";
+import { Space } from "@/types";
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { theme } = useTheme();
   const { messages } = useChat();
+  const { activeSection, setActiveSection, currentSpace, setCurrentSpace } = useAppContext();
 
-  // Dummy function to satisfy the original Sidebar prop, assuming it's needed elsewhere
+  // Function to handle section switching
   const handleSwitchToChat = () => {
-    console.log("Switching to chat...");
+    setActiveSection('chat');
+  };
+
+  const handleSectionChange = (section: string) => {
+    setActiveSection(section);
+  };
+
+  const handleSpaceSelect = (spaceId: number) => {
+    // Find the space by ID and set it as current
+    const space = { id: spaceId, name: spaceId === 1 ? 'My Personal Space' : 'My Workspace', userId: 1 };
+    setCurrentSpace(space);
+    setActiveSection('spaces');
   };
 
   return (
@@ -72,7 +89,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} onSpaceSelect={handleSpaceSelect} activeSection={activeSection} currentSpace={currentSpace} />
             </div>
           </div>
         )}
@@ -90,7 +107,7 @@ export default function Dashboard() {
                 ? 'bg-slate-900/90 backdrop-blur-md border-slate-700/50'
                 : 'bg-white border-slate-200'
             }`}>
-              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} />
+              <Sidebar onClose={() => setIsSidebarOpen(false)} onSwitchToChat={handleSwitchToChat} onSectionChange={handleSectionChange} onSpaceSelect={handleSpaceSelect} activeSection={activeSection} currentSpace={currentSpace} />
             </div>
           </div>
         )}
@@ -193,40 +210,82 @@ export default function Dashboard() {
         >
           {/* Scrollable content area */}
           <div className="flex-1 overflow-auto">
-            {/* Section 2: Hero Section - Only show when no messages */}
-            {messages.length === 0 && (
-              <div className="bg-white">
-                <HeroSection />
+            {/* Digital Personas Section */}
+            {activeSection === 'digital-personas' && (
+              <div className="bg-white h-full">
+                <DigitalPersonasSection />
               </div>
             )}
 
-            {/* Section 3: Chat Box Section */}
-            {messages.length > 0 && (
-              <div className="bg-white">
-                <div className="w-full max-w-4xl mx-auto px-4">
-                  <div className="flex flex-col min-h-screen">
-                    <div className="flex-1">
-                      <ChatArea />
-                    </div>
-                    <div className="flex-shrink-0 py-4">
-                      <MessageInput />
+            {/* Chat Section */}
+            {activeSection === 'chat' && (
+              <>
+                {/* Section 2: Hero Section - Only show when no messages */}
+                {messages.length === 0 && (
+                  <div className="bg-white">
+                    <HeroSection />
+                  </div>
+                )}
+
+                {/* Section 3: Chat Box Section */}
+                {messages.length > 0 && (
+                  <div className="bg-white">
+                    <div className="w-full max-w-4xl mx-auto px-4">
+                      <div className="flex flex-col min-h-screen">
+                        <div className="flex-1">
+                          <ChatArea />
+                        </div>
+                        <div className="flex-shrink-0 py-4">
+                          <MessageInput />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {/* MessageInput for new conversations - bottom positioned */}
+                {messages.length === 0 && <MessageInput />}
+              </>
+            )}
+            
+            {/* Other sections can be added here */}
+            {activeSection === 'knowledge-base' && (
+              <div className="bg-white h-full p-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">Knowledge Base</h1>
+                <p className="text-gray-600">Coming soon...</p>
+              </div>
+            )}
+            
+            {activeSection === 'spaces' && (
+              <>
+                {currentSpace ? (
+                  <SpaceWorkspace 
+                    space={currentSpace} 
+                    onBack={() => setCurrentSpace(null)} 
+                  />
+                ) : (
+                  <SpacesSection 
+                    onSpaceSelect={(space) => setCurrentSpace(space)} 
+                  />
+                )}
+              </>
+            )}
+            
+            {activeSection === 'tools' && (
+              <div className="bg-white h-full p-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">Tools</h1>
+                <p className="text-gray-600">Coming soon...</p>
               </div>
             )}
 
-            {/* MessageInput for new conversations - bottom positioned */}
-            {messages.length === 0 && <MessageInput />}
-
-            {/* Section 4: Virtual Employees Section - Only show when no messages */}
-            {messages.length === 0 && (
-              <div className="bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0">
+            {/* Section 4: Virtual Employees Section - Only show when no messages and on chat page */}
+            {messages.length === 0 && activeSection === 'chat' && (
+              <div className="bg-white py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     {/* Left Section - Hire Virtual Employees */}
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900 mb-1 text-center">Hire Virtual Employees</h2>
+                      <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">Hire Virtual Employees</h2>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
                           { 
@@ -245,7 +304,7 @@ export default function Dashboard() {
                             gif: customerSupportGif
                           }
                         ].map((item, index) => (
-                          <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                          <div key={index} onClick={() => handleSectionChange('digital-personas')} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
                             <div className="w-full">
                               <img 
                                 src={item.gif}
@@ -274,7 +333,7 @@ export default function Dashboard() {
 
                     {/* Right Section - Other Digital Personas */}
                     <div>
-                      <h2 className="text-xl font-bold text-gray-900 mb-1 text-center">Other Digital Personas</h2>
+                      <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">Other Digital Personas</h2>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
                           { 
@@ -293,7 +352,7 @@ export default function Dashboard() {
                             gif: aiGirlfriendGif
                           }
                         ].map((item, index) => (
-                          <div key={index} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                          <div key={index} onClick={() => handleSectionChange('digital-personas')} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
                             <div className="w-full">
                               <img 
                                 src={item.gif}
@@ -323,6 +382,7 @@ export default function Dashboard() {
                 </div>
               </div>
             )}
+
           </div>
         </div>
       </div>

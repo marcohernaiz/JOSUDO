@@ -6,6 +6,7 @@ import {
   ChatSession,
   Billing,
   AppContextType,
+  Space,
 } from "../types";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -30,7 +31,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   // Add current session ID for Google Drive
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   // Add AI model selection state
-  const [selectedModel, setSelectedModel] = useState<string>('deepseek-v3');
+  const [selectedModel, setSelectedModel] = useState<string>("deepseek-v3");
+  // Add active section state
+  const [activeSection, setActiveSection] = useState<string>("chat");
+  // Add spaces state
+  const [currentSpace, setCurrentSpace] = useState<Space | null>(null);
 
   // Query user authentication status
   const { data: user, isLoading: isUserLoading } = useQuery<User>({
@@ -54,6 +59,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { data: billing = null } = useQuery<Billing>({
     queryKey: ["/api/billing"],
+    enabled: !!user,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+
+  const { data: spaces = [] } = useQuery<Space[]>({
+    queryKey: ["/api/spaces"],
     enabled: !!user,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
@@ -84,7 +95,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     setActiveSession(null);
     setMessages([]);
     setCurrentSessionId(null);
-    
+
     // Redirect to logout endpoint
     window.location.href = "/api/auth/logout";
   };
@@ -107,7 +118,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     setCurrentSessionId,
     selectedModel,
     setSelectedModel,
-    logout,
+    activeSection,
+    setActiveSection,
+    spaces,
+    currentSpace,
+    setCurrentSpace,
   };
 
   return (
