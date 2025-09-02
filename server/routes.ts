@@ -501,6 +501,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   chatSessionId: null, // We can add session tracking later
                   modelUsed: model,
                   tokensConsumed: tokensUsed,
+                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
                   cost: cost.toString(),
                   isPremiumAccount: false, // Add proper premium check if needed
                   billingPeriod,
@@ -553,6 +554,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   chatSessionId: null,
                   modelUsed: model,
                   tokensConsumed: tokensUsed,
+                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
                   cost: cost.toString(),
                   isPremiumAccount: false,
                   billingPeriod,
@@ -586,6 +588,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   chatSessionId: null,
                   modelUsed: model,
                   tokensConsumed: tokensUsed,
+                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
                   cost: cost.toString(),
                   isPremiumAccount: false,
                   billingPeriod,
@@ -619,6 +622,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   chatSessionId: null, // We can add session tracking later
                   modelUsed: model,
                   tokensConsumed: tokensUsed,
+                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
                   cost: cost.toString(),
                   isPremiumAccount: false, // Add proper premium check if needed
                   billingPeriod,
@@ -654,6 +658,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   chatSessionId: null,
                   modelUsed: model,
                   tokensConsumed: tokensUsed,
+                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
                   cost: cost.toString(),
                   isPremiumAccount: false,
                   billingPeriod,
@@ -687,6 +692,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   chatSessionId: null,
                   modelUsed: model,
                   tokensConsumed: tokensUsed,
+                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
                   cost: cost.toString(),
                   isPremiumAccount: false,
                   billingPeriod,
@@ -720,6 +726,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   chatSessionId: null,
                   modelUsed: model,
                   tokensConsumed: tokensUsed,
+                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
                   cost: cost.toString(),
                   isPremiumAccount: false,
                   billingPeriod,
@@ -756,6 +763,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             tokensUsed = model === "gpt-5" ? 1500 : 1000; // Higher token estimate for GPT-5
             cost = replicateService.calculateCost(tokensUsed, model);
+            
+            // Track usage for Replicate (GPT-5 and Llama)
+            if (userId) {
+              try {
+                const now = new Date();
+                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+                
+                await storage.createUsageLog({
+                  userId,
+                  chatSessionId: null, // We can add session tracking later
+                  modelUsed: model,
+                  tokensConsumed: tokensUsed,
+                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
+                  cost: cost.toString(),
+                  isPremiumAccount: false, // Add proper premium check if needed
+                  billingPeriod,
+                  requestType: 'chat'
+                });
+
+                // Update monthly usage for billing
+                await storage.updateMonthlyUsage(userId, cost);
+                
+                console.log(`✅ Josudo usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}`);
+                console.log(`💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`);
+              } catch (error) {
+                console.error("Failed to log Replicate usage:", error);
+              }
+            }
             break;
 
           default:
@@ -1075,6 +1110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               chatSessionId: null,
               modelUsed: model,
               tokensConsumed: finalTokens,
+              creditsDeducted: Math.ceil(estimatedCost * 100), // Convert cost to credits (1 credit = $0.01)
               cost: estimatedCost.toString(),
               isPremiumAccount: false,
               billingPeriod,
@@ -1190,6 +1226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           chatSessionId: null,
           modelUsed: data.model,
           tokensConsumed: data.tokens,
+          creditsDeducted: Math.ceil(data.cost * 100), // Convert cost to credits (1 credit = $0.01)
           cost: data.cost.toString(),
           isPremiumAccount: false,
           billingPeriod,
