@@ -438,6 +438,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: "Not authenticated" });
       }
 
+      // Check if user has sufficient credits before processing
+      try {
+        const userCredits = await billingService.getUserCredits(userId);
+        const estimatedCost = model === "gpt-5" ? 0.003 : 0.002; // Rough estimate
+        const estimatedCreditsNeeded = Math.ceil(estimatedCost * 100);
+        
+        if (userCredits < estimatedCreditsNeeded) {
+          return res.status(402).json({ 
+            error: "Insufficient credits", 
+            message: `You need at least ${estimatedCreditsNeeded} credits to use ${model}. You have ${userCredits} credits remaining.`,
+            creditsNeeded: estimatedCreditsNeeded,
+            creditsAvailable: userCredits
+          });
+        }
+      } catch (error) {
+        console.error("Error checking user credits:", error);
+        // Continue processing if credit check fails (graceful degradation)
+      }
+
       let response;
       let cost = 0;
       let tokensUsed = 0;
@@ -769,13 +788,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
               try {
                 const now = new Date();
                 const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+                const creditsToDeduct = Math.ceil(cost * 100); // Convert cost to credits (1 credit = $0.01)
+                
+                // Deduct credits from user's balance
+                await billingService.deductCredits(userId, tokensUsed, model);
                 
                 await storage.createUsageLog({
                   userId,
                   chatSessionId: null, // We can add session tracking later
                   modelUsed: model,
                   tokensConsumed: tokensUsed,
-                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
+                  creditsDeducted: creditsToDeduct,
                   cost: cost.toString(),
                   isPremiumAccount: false, // Add proper premium check if needed
                   billingPeriod,
@@ -785,10 +808,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Update monthly usage for billing
                 await storage.updateMonthlyUsage(userId, cost);
                 
-                console.log(`✅ Josudo usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}`);
+                console.log(`✅ Josudo usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}, ${creditsToDeduct} credits deducted`);
                 console.log(`💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`);
               } catch (error) {
                 console.error("Failed to log Replicate usage:", error);
+                // If credit deduction fails, we should handle it gracefully
+                if (error instanceof Error && error.message === 'Insufficient credits') {
+                  console.log(`❌ User ${userId} has insufficient credits for ${model} request`);
+                }
               }
             }
             break;
@@ -871,6 +898,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Continue without authentication for free models
       } else {
         console.log("Streaming request from authenticated user:", userId);
+        
+        // Check if user has sufficient credits before processing
+        try {
+          const userCredits = await billingService.getUserCredits(userId);
+          const estimatedCost = model === "gpt-5" ? 0.003 : 0.002; // Rough estimate
+          const estimatedCreditsNeeded = Math.ceil(estimatedCost * 100);
+          
+          if (userCredits < estimatedCreditsNeeded) {
+            res.write(`data: ${JSON.stringify({ 
+              type: 'error', 
+              error: 'Insufficient credits',
+              message: `You need at least ${estimatedCreditsNeeded} credits to use ${model}. You have ${userCredits} credits remaining.`,
+              creditsNeeded: estimatedCreditsNeeded,
+              creditsAvailable: userCredits
+            })}\n\n`);
+            res.end();
+            return;
+          }
+        } catch (error) {
+          console.error("Error checking user credits:", error);
+          // Continue processing if credit check fails (graceful degradation)
+        }
       }
 
       // Set up Server-Sent Events
