@@ -951,9 +951,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let fileContents = "";
         for (const file of files) {
           try {
+            console.log(`🔍 Processing file: ${file.name} (${file.type})`);
+            
+            // Check if file type is supported for text processing
+            const supportedTypes = ['text/plain', 'text/csv', 'application/json', 'text/markdown', 'text/html'];
+            const isTextFile = supportedTypes.includes(file.type) || file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.json') || file.name.endsWith('.csv');
+            
+            if (!isTextFile) {
+              console.log(`⚠️ File ${file.name} is not a supported text file type (${file.type})`);
+              fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n[File type not supported for text processing. Please upload text files like .txt, .md, .json, .csv]\n--- End of ${file.name} ---\n`;
+              continue;
+            }
+            
             // Decode base64 content
             const content = Buffer.from(file.content, 'base64').toString('utf-8');
-            fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n${content}\n--- End of ${file.name} ---\n`;
+            
+            // Check if file content is too large (limit to 50KB per file)
+            if (content.length > 50000) {
+              console.log(`⚠️ File ${file.name} is too large (${content.length} chars), truncating to 50KB`);
+              const truncatedContent = content.substring(0, 50000) + '\n\n[Content truncated due to size limit]';
+              fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n${truncatedContent}\n--- End of ${file.name} ---\n`;
+            } else {
+              fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n${content}\n--- End of ${file.name} ---\n`;
+            }
           } catch (error) {
             console.error(`Error processing file ${file.name}:`, error);
             fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n[Error reading file content]\n--- End of ${file.name} ---\n`;
@@ -962,6 +982,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         enhancedMessage = `${message}\n\nAttached files:${fileContents}`;
         console.log(`Enhanced message with ${files.length} files, total length: ${enhancedMessage.length}`);
+        console.log(`🔍 File content preview:`, fileContents.substring(0, 200) + '...');
+        
+        // Check if total message is too large
+        if (enhancedMessage.length > 100000) {
+          console.log(`⚠️ Total message too large (${enhancedMessage.length} chars), truncating`);
+          enhancedMessage = enhancedMessage.substring(0, 100000) + '\n\n[Message truncated due to size limit]';
+        }
       }
 
       let totalTokens = 0;

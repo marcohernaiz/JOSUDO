@@ -66,6 +66,7 @@ class ReplicateService {
       });
 
       console.log("Sending messages to Replicate:", messages);
+      console.log(`🔍 Last message length: ${messages[messages.length - 1]?.content?.length || 0} characters`);
 
       let output;
       
@@ -163,6 +164,20 @@ class ReplicateService {
       const fullContent = typeof rawContent === 'string' ? rawContent : String(rawContent);
       
       console.log("Replicate generated response:", fullContent.substring(0, 100) + "...");
+      
+      // Check if response is empty or too short
+      if (!fullContent || fullContent.trim().length < 10) {
+        console.log("⚠️ Replicate returned empty or very short response, using fallback");
+        const fallbackResponse = `I received your message with ${message.includes('--- File:') ? 'attached files' : 'content'}, but I'm having trouble processing it right now. Please try rephrasing your request or breaking it into smaller parts.`;
+        const words = fallbackResponse.split(' ');
+        for (let i = 0; i < words.length; i++) {
+          const word = words[i];
+          const content = i === words.length - 1 ? word : word + ' ';
+          yield { content };
+          await new Promise(resolve => setTimeout(resolve, 80));
+        }
+        return;
+      }
       
       // Stream the response word by word to simulate real-time streaming
       const words = fullContent.split(' ');
