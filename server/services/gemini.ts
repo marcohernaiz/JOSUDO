@@ -18,7 +18,7 @@ class GeminiService {
 
     async sendMessage(
     message: string, 
-    model: string = 'gemini-2.5-flash',
+    model: string = 'gemini-2.5-pro',
     conversationHistory: Array<{ role: string; content: string }> = []
   ): Promise<{
     response: string;
@@ -31,15 +31,54 @@ class GeminiService {
         return this.simulateGeminiResponse(message);
       }
 
-      // Prepare content with conversation history
-      const fullContent = conversationHistory.length > 0 
-        ? `${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\nUser: ${message}`
-        : message;
+      // Parse message for images and prepare content
+      const parsedContent = this.parseMessageWithImages(message);
+      
+      // Prepare conversation history
+      const historyContent = conversationHistory.length > 0 
+        ? conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n\n'
+        : '';
 
-      const response = await this.ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: fullContent,
-      });
+      // Handle images properly for Gemini 2.5 Pro vision capabilities
+      let response;
+      if (typeof parsedContent === 'string') {
+        // No images, just text
+        const fullContent = historyContent + parsedContent;
+        response = await this.ai.models.generateContent({
+          model: "gemini-2.5-pro",
+          contents: fullContent,
+        });
+      } else {
+        // Has images - use Gemini's multimodal capabilities
+        const contentParts = [];
+        
+        // Add conversation history as text
+        if (historyContent) {
+          contentParts.push(historyContent);
+        }
+        
+        // Add text content
+        if (parsedContent.text) {
+          contentParts.push(parsedContent.text);
+        }
+        
+        // Add images
+        if (parsedContent.images && parsedContent.images.length > 0) {
+          for (const imageData of parsedContent.images) {
+            contentParts.push({
+              inlineData: {
+                mimeType: imageData.split(';')[0].split(':')[1], // Extract MIME type
+                data: imageData.split(',')[1] // Extract base64 data
+              }
+            });
+          }
+        }
+        
+        response = await this.ai.models.generateContent({
+          model: "gemini-2.5-pro",
+          contents: contentParts,
+        });
+      }
 
       const responseText = response.text || "Something went wrong";
       const tokens = this.estimateTokens(message + responseText);
@@ -58,7 +97,7 @@ class GeminiService {
 
   async *sendMessageStream(
     message: string, 
-    model: string = 'gemini-2.5-flash',
+    model: string = 'gemini-2.5-pro',
     conversationHistory: Array<{ role: string; content: string }> = []
   ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
     try {
@@ -74,10 +113,57 @@ class GeminiService {
         return;
       }
 
-      // For real Gemini API, we'd implement proper streaming here
-      // For now, simulate streaming
-      const response = await this.sendMessage(message, model, conversationHistory);
-      const words = response.response.split(' ');
+      // Parse message for images and prepare content
+      const parsedContent = this.parseMessageWithImages(message);
+      
+      // Prepare conversation history
+      const historyContent = conversationHistory.length > 0 
+        ? conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n\n'
+        : '';
+
+      // Handle images properly for Gemini 2.5 Pro vision capabilities
+      let response;
+      if (typeof parsedContent === 'string') {
+        // No images, just text
+        const fullContent = historyContent + parsedContent;
+        response = await this.ai.models.generateContent({
+          model: "gemini-2.5-pro",
+          contents: fullContent,
+        });
+      } else {
+        // Has images - use Gemini's multimodal capabilities
+        const contentParts = [];
+        
+        // Add conversation history as text
+        if (historyContent) {
+          contentParts.push(historyContent);
+        }
+        
+        // Add text content
+        if (parsedContent.text) {
+          contentParts.push(parsedContent.text);
+        }
+        
+        // Add images
+        if (parsedContent.images && parsedContent.images.length > 0) {
+          for (const imageData of parsedContent.images) {
+            contentParts.push({
+              inlineData: {
+                mimeType: imageData.split(';')[0].split(':')[1], // Extract MIME type
+                data: imageData.split(',')[1] // Extract base64 data
+              }
+            });
+          }
+        }
+        
+        response = await this.ai.models.generateContent({
+          model: "gemini-2.5-pro",
+          contents: contentParts,
+        });
+      }
+
+      const responseText = response.text || "Something went wrong";
+      const words = responseText.split(' ');
       for (const word of words) {
         yield { content: word + ' ' };
         await new Promise(resolve => setTimeout(resolve, 50));
@@ -153,6 +239,33 @@ class GeminiService {
     } catch (error) {
       return false;
     }
+  }
+
+  private parseMessageWithImages(message: string): string | { text: string; images?: string[] } {
+    // Check if message contains image data
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
+    const matches = Array.from(message.matchAll(imageRegex));
+    
+    if (matches.length === 0) {
+      // No images, return simple text message
+      return message;
+    }
+
+    // For Gemini, we need to format images differently
+    // Extract text parts and prepare for Gemini's format
+    let textContent = message;
+    const images: string[] = [];
+
+    for (const match of matches) {
+      const [fullMatch, imageName, imageData] = match;
+      textContent = textContent.replace(fullMatch, `[Image: ${imageName}]`);
+      images.push(imageData);
+    }
+
+    return {
+      text: textContent,
+      images: images
+    };
   }
 }
 

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useChat } from "@/hooks/useChat";
+import { Space } from "@/types";
 import { useAppContext } from "@/contexts/AppContext";
 import sophiaBackground from "@assets/Sophia background_1752487018233.png";
 import executiveAssistantGif from "@assets/avatars/executive-assistant.gif";
@@ -19,7 +20,6 @@ import aiGirlfriendGif from "@assets/avatars/ai-girlfriend.gif";
 import { DigitalPersonasSection } from "@/components/DigitalPersonas/DigitalPersonasSection";
 import { SpacesSection } from "@/components/Spaces/SpacesSection";
 import { SpaceWorkspace } from "@/components/Spaces/SpaceWorkspace";
-import { Space } from "@/types";
 
 export default function Dashboard() {
   const isMobile = useIsMobile();
@@ -39,7 +39,15 @@ export default function Dashboard() {
 
   const handleSpaceSelect = (spaceId: number) => {
     // Find the space by ID and set it as current
-    const space = { id: spaceId, name: spaceId === 1 ? 'My Personal Space' : 'My Workspace', userId: 1 };
+    const space: Space = { 
+      id: spaceId, 
+      name: spaceId === 1 ? 'My Personal Space' : 'My Workspace', 
+      userId: 1,
+      iconType: 'folder',
+      isDefault: spaceId === 1,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
     setCurrentSpace(space);
     setActiveSection('spaces');
   };

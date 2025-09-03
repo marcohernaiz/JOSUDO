@@ -27,10 +27,13 @@ class GrokService {
         return this.simulateGrokResponse(message);
       }
 
+      // Parse message for images and prepare content
+      const parsedMessage = this.parseMessageWithImages(message);
+
       // Prepare messages array with conversation history
       const messages = [
         ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })),
-        { role: 'user' as const, content: message }
+        { role: 'user' as const, content: parsedMessage }
       ];
 
       const response = await this.openai.chat.completions.create({
@@ -71,10 +74,13 @@ class GrokService {
         return;
       }
 
+      // Parse message for images and prepare content
+      const parsedMessage = this.parseMessageWithImages(message);
+
       // Prepare messages array with conversation history
       const messages = [
         ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })),
-        { role: 'user' as const, content: message }
+        { role: 'user' as const, content: parsedMessage }
       ];
 
       const stream = await this.openai.chat.completions.create({
@@ -185,6 +191,60 @@ class GrokService {
     } catch (error) {
       return false;
     }
+  }
+
+  private parseMessageWithImages(message: string): any {
+    // Check if message contains image data
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
+    const matches = Array.from(message.matchAll(imageRegex));
+    
+    if (matches.length === 0) {
+      // No images, return simple text message
+      return message;
+    }
+
+    // For Grok/xAI API, format images similar to OpenAI format
+    const content: any[] = [];
+    let lastIndex = 0;
+
+    for (const match of matches) {
+      const [fullMatch, imageName, imageData] = match;
+      const matchIndex = message.indexOf(fullMatch, lastIndex);
+      
+      // Add text before image
+      if (matchIndex > lastIndex) {
+        const textBefore = message.substring(lastIndex, matchIndex).trim();
+        if (textBefore) {
+          content.push({
+            type: "text",
+            text: textBefore,
+          });
+        }
+      }
+
+      // Add image
+      content.push({
+        type: "image_url",
+        image_url: {
+          url: imageData,
+        },
+      });
+
+      lastIndex = matchIndex + fullMatch.length;
+    }
+
+    // Add remaining text after last image
+    if (lastIndex < message.length) {
+      const textAfter = message.substring(lastIndex).trim();
+      if (textAfter) {
+        content.push({
+          type: "text",
+          text: textAfter,
+        });
+      }
+    }
+
+    return content;
   }
 }
 

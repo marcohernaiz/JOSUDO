@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface User {
   id: number;
   googleId?: string;
@@ -147,7 +149,7 @@ export interface AppContextType {
   refreshChatSessions: () => Promise<void>;
   refreshBilling: () => Promise<void>;
   messages: ChatMessage[];
-  setMessages: (messages: ChatMessage[]) => void;
+  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   currentSessionId: string | null;
   setCurrentSessionId: (id: string | null) => void;
   selectedModel: string;

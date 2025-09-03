@@ -954,7 +954,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           try {
             console.log(`🔍 Processing file: ${file.name} (${file.type})`);
             
-            // Check if file type is supported for text processing
+            // Check if file type is supported
             const supportedTypes = [
               'text/plain', 'text/csv', 'application/json', 'text/markdown', 'text/html',
               'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
@@ -963,17 +963,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               'application/vnd.ms-excel', // .xls
               'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
               'application/vnd.ms-powerpoint', // .ppt
-              'application/vnd.openxmlformats-officedocument.presentationml.presentation' // .pptx
+              'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+              'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp' // Images
             ];
-            const isTextFile = supportedTypes.includes(file.type) || 
+            const isSupportedFile = supportedTypes.includes(file.type) || 
               file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.json') || 
               file.name.endsWith('.csv') || file.name.endsWith('.docx') || file.name.endsWith('.doc') ||
               file.name.endsWith('.pdf') || file.name.endsWith('.xls') || file.name.endsWith('.xlsx') ||
-              file.name.endsWith('.ppt') || file.name.endsWith('.pptx');
+              file.name.endsWith('.ppt') || file.name.endsWith('.pptx') ||
+              file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') ||
+              file.name.endsWith('.gif') || file.name.endsWith('.webp') || file.name.endsWith('.bmp');
             
-            if (!isTextFile) {
+            if (!isSupportedFile) {
               console.log(`⚠️ File ${file.name} is not a supported file type (${file.type})`);
-              fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n[File type not supported. Please upload text files, Word documents, PDFs, or spreadsheets]\n--- End of ${file.name} ---\n`;
+              fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n[File type not supported. Please upload text files, Word documents, PDFs, images, or spreadsheets]\n--- End of ${file.name} ---\n`;
               continue;
             }
             
@@ -1005,6 +1008,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
             } else if (file.name.endsWith('.pptx') || file.name.endsWith('.ppt')) {
               // For PowerPoint files, we'll provide a helpful message
               content = '[PowerPoint file detected. Presentation parsing is not yet implemented. Please convert to .txt format for text analysis.]';
+            } else if (file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') || 
+                       file.name.endsWith('.gif') || file.name.endsWith('.webp') || file.name.endsWith('.bmp')) {
+              // For images, check if the model supports vision
+              const visionCapableModels = ['gpt-4', 'gpt-4o', 'claude-3-5-sonnet', 'gemini-pro'];
+              
+              if (visionCapableModels.includes(model)) {
+                // For vision-capable models, include the image data
+                content = `[Image: ${file.name}]\n\nImage data: data:${file.type};base64,${file.content}`;
+                console.log(`✅ Image ${file.name} prepared for vision-capable model: ${model}`);
+              } else {
+                // For non-vision models, provide helpful message
+                content = `[Image file detected: ${file.name}]\n\nI can see that you've uploaded an image, but the current AI model (${model}) doesn't support image analysis. To analyze images, please use a model that supports vision capabilities like GPT-4, Claude 3.5 Sonnet, or Gemini Pro.\n\nFor now, I can only process text-based content. If you need image analysis, please describe the image in text or switch to a vision-capable model.`;
+              }
             } else {
               // For text files, decode normally
               content = Buffer.from(file.content, 'base64').toString('utf-8');
@@ -2262,7 +2278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req, res) => {
       try {
         const { packageId } = req.body;
-        const userId = req.user?.id;
+        const userId = (req.user as any)?.id;
       
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -2282,7 +2298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req, res) => {
       try {
         const { paymentIntentId } = req.body;
-        const userId = req.user?.id;
+        const userId = (req.user as any)?.id;
       
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -2312,7 +2328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Credit management routes
   app.get('/api/user/credits', async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
@@ -2327,7 +2343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/user/credit-summary', async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
@@ -2342,7 +2358,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/user/credit-transactions', async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
@@ -2362,7 +2378,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/user/usage-history', async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
@@ -2383,7 +2399,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/user/current-month-usage', async (req, res) => {
     try {
-      const userId = req.user?.id;
+      const userId = (req.user as any)?.id;
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
       }

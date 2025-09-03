@@ -44,11 +44,9 @@ class OpenAIService {
           content: msg.content,
         }));
 
-      // ✅ 2. Add the new user message
-      messages.push({
-        role: "user",
-        content: message,
-      });
+      // ✅ 2. Add the new user message (handle images if present)
+      const userMessage = this.parseMessageWithImages(message);
+      messages.push(userMessage);
 
       console.log("Sending messages to OpenAI:", messages);
 
@@ -151,6 +149,66 @@ class OpenAIService {
     };
 
     return (tokens / 1000) * (costs[model] || costs["gpt-4o"]);
+  }
+
+  private parseMessageWithImages(message: string): { role: "user"; content: any } {
+    // Check if message contains image data
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
+    const matches = Array.from(message.matchAll(imageRegex));
+    
+    if (matches.length === 0) {
+      // No images, return simple text message
+      return {
+        role: "user" as const,
+        content: message,
+      };
+    }
+
+    // Parse message with images
+    const content: any[] = [];
+    let lastIndex = 0;
+
+    for (const match of matches) {
+      const [fullMatch, imageName, imageData] = match;
+      const matchIndex = message.indexOf(fullMatch, lastIndex);
+      
+      // Add text before image
+      if (matchIndex > lastIndex) {
+        const textBefore = message.substring(lastIndex, matchIndex).trim();
+        if (textBefore) {
+          content.push({
+            type: "text",
+            text: textBefore,
+          });
+        }
+      }
+
+      // Add image
+      content.push({
+        type: "image_url",
+        image_url: {
+          url: imageData,
+        },
+      });
+
+      lastIndex = matchIndex + fullMatch.length;
+    }
+
+    // Add remaining text after last image
+    if (lastIndex < message.length) {
+      const textAfter = message.substring(lastIndex).trim();
+      if (textAfter) {
+        content.push({
+          type: "text",
+          text: textAfter,
+        });
+      }
+    }
+
+    return {
+      role: "user" as const,
+      content: content,
+    };
   }
 }
 

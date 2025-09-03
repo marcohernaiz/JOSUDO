@@ -382,10 +382,10 @@ export const UsageModal: React.FC<UsageModalProps> = ({ open, onClose }) => {
                   <div>
                     <h4 className="font-medium text-slate-900 dark:text-slate-100 mb-3">Model Usage Distribution</h4>
                     <div className="space-y-2">
-                      {usageHistory.reduce((acc, usage) => {
+                      {Object.entries(usageHistory.reduce((acc, usage) => {
                         acc[usage.modelUsed] = (acc[usage.modelUsed] || 0) + usage.tokensConsumed;
                         return acc;
-                      }, {} as Record<string, number>)
+                      }, {} as Record<string, number>))
                       .map(([model, tokens]) => (
                         <div key={model} className="flex justify-between items-center">
                           <span className="text-sm text-slate-600 dark:text-slate-400">{model}</span>
@@ -399,10 +399,10 @@ export const UsageModal: React.FC<UsageModalProps> = ({ open, onClose }) => {
                     <h4 className="font-medium text-slate-900 dark:text-slate-100 mb-3">Recent Trends</h4>
                     <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                       <p>• Average tokens per request: {usageHistory.length > 0 ? Math.round(usageHistory.reduce((sum, u) => sum + u.tokensConsumed, 0) / usageHistory.length) : 0}</p>
-                      <p>• Most used model: {usageHistory.length > 0 ? usageHistory.reduce((acc, u) => {
+                      <p>• Most used model: {usageHistory.length > 0 ? Object.entries(usageHistory.reduce((acc, u) => {
                         acc[u.modelUsed] = (acc[u.modelUsed] || 0) + 1;
                         return acc;
-                      }, {} as Record<string, number>).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A' : 'N/A'}</p>
+                      }, {} as Record<string, number>)).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A' : 'N/A'}</p>
                       <p>• Total cost this month: ${currentMonthUsage ? (currentMonthUsage.totalCredits * 0.01).toFixed(2) : '0.00'}</p>
                     </div>
                   </div>
