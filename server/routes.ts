@@ -41,6 +41,7 @@ import {
   personaTemplates,
 } from "@shared/schema";
 import { z } from "zod";
+import mammoth from "mammoth";
 import { db } from './db';
 import { eq, and, sql } from 'drizzle-orm';
 import path from 'path';
@@ -954,17 +955,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log(`🔍 Processing file: ${file.name} (${file.type})`);
             
             // Check if file type is supported for text processing
-            const supportedTypes = ['text/plain', 'text/csv', 'application/json', 'text/markdown', 'text/html'];
-            const isTextFile = supportedTypes.includes(file.type) || file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.json') || file.name.endsWith('.csv');
+            const supportedTypes = [
+              'text/plain', 'text/csv', 'application/json', 'text/markdown', 'text/html',
+              'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+              'application/msword', // .doc
+              'application/pdf', // .pdf
+              'application/vnd.ms-excel', // .xls
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+              'application/vnd.ms-powerpoint', // .ppt
+              'application/vnd.openxmlformats-officedocument.presentationml.presentation' // .pptx
+            ];
+            const isTextFile = supportedTypes.includes(file.type) || 
+              file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.json') || 
+              file.name.endsWith('.csv') || file.name.endsWith('.docx') || file.name.endsWith('.doc') ||
+              file.name.endsWith('.pdf') || file.name.endsWith('.xls') || file.name.endsWith('.xlsx') ||
+              file.name.endsWith('.ppt') || file.name.endsWith('.pptx');
             
             if (!isTextFile) {
-              console.log(`⚠️ File ${file.name} is not a supported text file type (${file.type})`);
-              fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n[File type not supported for text processing. Please upload text files like .txt, .md, .json, .csv]\n--- End of ${file.name} ---\n`;
+              console.log(`⚠️ File ${file.name} is not a supported file type (${file.type})`);
+              fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n[File type not supported. Please upload text files, Word documents, PDFs, or spreadsheets]\n--- End of ${file.name} ---\n`;
               continue;
             }
             
-            // Decode base64 content
-            const content = Buffer.from(file.content, 'base64').toString('utf-8');
+            // Parse file content based on file type
+            let content = '';
+            
+            if (file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
+              // For Word documents, use mammoth to extract text
+              try {
+                const buffer = Buffer.from(file.content, 'base64');
+                const result = await mammoth.extractRawText({ buffer });
+                content = result.value;
+                
+                if (content.length < 10) {
+                  content = '[Word document appears to be empty or could not be processed. Please check the file and try again.]';
+                }
+                
+                console.log(`✅ Successfully extracted ${content.length} characters from Word document: ${file.name}`);
+              } catch (error) {
+                console.error(`Error extracting text from Word document ${file.name}:`, error);
+                content = '[Error extracting text from Word document. The file may be corrupted or in an unsupported format. Please try converting to .txt format.]';
+              }
+            } else if (file.name.endsWith('.pdf')) {
+              // For PDFs, we'll provide a helpful message
+              content = '[PDF file detected. PDF text extraction is not yet implemented. Please convert to .txt format for text analysis.]';
+            } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+              // For Excel files, we'll provide a helpful message
+              content = '[Excel file detected. Spreadsheet parsing is not yet implemented. Please convert to .csv format for data analysis.]';
+            } else if (file.name.endsWith('.pptx') || file.name.endsWith('.ppt')) {
+              // For PowerPoint files, we'll provide a helpful message
+              content = '[PowerPoint file detected. Presentation parsing is not yet implemented. Please convert to .txt format for text analysis.]';
+            } else {
+              // For text files, decode normally
+              content = Buffer.from(file.content, 'base64').toString('utf-8');
+            }
             
             // Check if file content is too large (limit to 50KB per file)
             if (content.length > 50000) {
