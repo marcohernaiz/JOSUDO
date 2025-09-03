@@ -123,6 +123,8 @@ export class BillingService {
    * Deduct credits for AI usage
    */
   async deductCredits(userId: number, tokensConsumed: number, modelUsed: string, chatSessionId?: number) {
+    console.log(`🔍 deductCredits called: userId=${userId}, tokens=${tokensConsumed}, model=${modelUsed}`);
+    
     // Calculate credits to deduct based on cost (1 credit = $0.01)
     // We need to calculate the actual cost first, then convert to credits
     let cost = 0;
@@ -141,21 +143,26 @@ export class BillingService {
     }
     
     const creditsToDeduct = Math.ceil(cost * 100); // Convert cost to credits (1 credit = $0.01)
+    console.log(`🔍 Calculated: cost=$${cost}, creditsToDeduct=${creditsToDeduct}`);
     
     const result = await db.transaction(async (tx) => {
       // Get current user balance
       const currentUser = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
       if (!currentUser.length) {
+        console.log(`🔍 User not found: ${userId}`);
         throw new Error('User not found');
       }
 
       const balanceBefore = currentUser[0].credits || 0;
+      console.log(`🔍 User ${userId} current balance: ${balanceBefore} credits`);
       
       if (balanceBefore < creditsToDeduct) {
+        console.log(`🔍 Insufficient credits: need ${creditsToDeduct}, have ${balanceBefore}`);
         throw new Error('Insufficient credits');
       }
 
       const balanceAfter = balanceBefore - creditsToDeduct;
+      console.log(`🔍 Will deduct ${creditsToDeduct} credits, new balance: ${balanceAfter}`);
 
       // Update user credits
       await tx.update(users)
@@ -195,6 +202,7 @@ export class BillingService {
       return { creditsDeducted: creditsToDeduct, newBalance: balanceAfter };
     });
 
+    console.log(`🔍 Transaction completed successfully:`, result);
     return result;
   }
 

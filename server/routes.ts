@@ -791,7 +791,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 const creditsToDeduct = Math.ceil(cost * 100); // Convert cost to credits (1 credit = $0.01)
                 
                 // Deduct credits from user's balance (this also logs usage)
+                console.log(`🔍 Attempting to deduct credits for user ${userId}, model: ${model}, tokens: ${tokensUsed}`);
                 const deductionResult = await billingService.deductCredits(userId, tokensUsed, model);
+                console.log(`🔍 Deduction result:`, deductionResult);
 
                 // Update monthly usage for billing
                 await storage.updateMonthlyUsage(userId, cost);
@@ -1142,24 +1144,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const now = new Date();
             const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
             
-            await storage.createUsageLog({
-              userId,
-              chatSessionId: null,
-              modelUsed: model,
-              tokensConsumed: finalTokens,
-              creditsDeducted: Math.ceil(estimatedCost * 100), // Convert cost to credits (1 credit = $0.01)
-              cost: estimatedCost.toString(),
-              isPremiumAccount: false,
-              billingPeriod,
-              requestType: 'chat'
-            });
+            // Deduct credits from user's balance (this also logs usage)
+            console.log(`🔍 [Streaming] Attempting to deduct credits for user ${userId}, model: ${model}, tokens: ${finalTokens}`);
+            const deductionResult = await billingService.deductCredits(userId, finalTokens, model);
+            console.log(`🔍 [Streaming] Deduction result:`, deductionResult);
 
             // Update monthly usage for billing
             await storage.updateMonthlyUsage(userId, estimatedCost);
             
-            console.log(`Usage tracked: ${finalTokens} tokens, $${estimatedCost} for model ${model} (user: ${userId})`);
+            console.log(`✅ [Streaming] Usage tracked: ${finalTokens} tokens, $${estimatedCost}, ${deductionResult.creditsDeducted} credits deducted for model ${model} (user: ${userId})`);
           } catch (error) {
             console.error("Failed to log streaming usage:", error);
+            // If credit deduction fails, we should handle it gracefully
+            if (error instanceof Error && error.message === 'Insufficient credits') {
+              console.log(`❌ [Streaming] User ${userId} has insufficient credits for ${model} request`);
+            }
           }
         }
         
