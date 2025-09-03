@@ -790,25 +790,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
                 const creditsToDeduct = Math.ceil(cost * 100); // Convert cost to credits (1 credit = $0.01)
                 
-                // Deduct credits from user's balance
-                await billingService.deductCredits(userId, tokensUsed, model);
-                
-                await storage.createUsageLog({
-                  userId,
-                  chatSessionId: null, // We can add session tracking later
-                  modelUsed: model,
-                  tokensConsumed: tokensUsed,
-                  creditsDeducted: creditsToDeduct,
-                  cost: cost.toString(),
-                  isPremiumAccount: false, // Add proper premium check if needed
-                  billingPeriod,
-                  requestType: 'chat'
-                });
+                // Deduct credits from user's balance (this also logs usage)
+                const deductionResult = await billingService.deductCredits(userId, tokensUsed, model);
 
                 // Update monthly usage for billing
                 await storage.updateMonthlyUsage(userId, cost);
                 
-                console.log(`✅ Josudo usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}, ${creditsToDeduct} credits deducted`);
+                console.log(`✅ Josudo usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}, ${deductionResult.creditsDeducted} credits deducted`);
                 console.log(`💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`);
               } catch (error) {
                 console.error("Failed to log Replicate usage:", error);

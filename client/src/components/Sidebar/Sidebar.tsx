@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import josudoLogoOrange from "@assets/JOSUDO logo - naranja con Own Your data_1756038073769.png";
 import josudoTextLogo from "@assets/josudo text logo black_1756723676896.png";
 import josudoIcon from "@assets/JOSUDO logo icon_1752491258890.png";
@@ -74,28 +74,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [isPrivateSpaceHovered, setIsPrivateSpaceHovered] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [spacesExpanded, setSpacesExpanded] = useState(true);
-  const [userCredits, setUserCredits] = useState<number>(0);
-
-  // Fetch user credits
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      fetchUserCredits();
-    }
-  }, [isAuthenticated, user]);
-
-  const fetchUserCredits = async () => {
-    try {
+  // Fetch user credits using React Query
+  const { data: userCreditsData } = useQuery({
+    queryKey: ["/api/user/credits"],
+    queryFn: async () => {
       const response = await fetch("/api/user/credits", {
         credentials: "include",
       });
-      if (response.ok) {
-        const data = await response.json();
-        setUserCredits(data.credits);
+      if (!response.ok) {
+        throw new Error("Failed to fetch user credits");
       }
-    } catch (error) {
-      console.error("Error fetching user credits:", error);
-    }
-  };
+      return response.json();
+    },
+    enabled: isAuthenticated && !!user,
+    staleTime: 30 * 1000, // 30 seconds
+    refetchOnWindowFocus: true,
+  });
+
+  const userCredits = userCreditsData?.credits || 0;
 
   // Handle responsive sidebar behavior
   useEffect(() => {
@@ -601,10 +597,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         open={showBilling}
         onClose={() => {
           setShowBilling(false);
-          // Refresh credits after payment
-          if (isAuthenticated && user) {
-            fetchUserCredits();
-          }
         }}
       />
     </>

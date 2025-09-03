@@ -123,8 +123,24 @@ export class BillingService {
    * Deduct credits for AI usage
    */
   async deductCredits(userId: number, tokensConsumed: number, modelUsed: string, chatSessionId?: number) {
-    // Calculate credits to deduct (1 credit = 1 token, or adjust ratio as needed)
-    const creditsToDeduct = tokensConsumed;
+    // Calculate credits to deduct based on cost (1 credit = $0.01)
+    // We need to calculate the actual cost first, then convert to credits
+    let cost = 0;
+    
+    // Calculate cost based on model (same logic as in routes)
+    if (modelUsed === "gpt-5") {
+      cost = (tokensConsumed / 1000) * 0.002; // $0.002 per 1K tokens
+    } else if (modelUsed === "deepseek-v3") {
+      cost = (tokensConsumed / 1000) * 0.0002; // $0.0002 per 1K tokens
+    } else if (modelUsed === "claude-3-5-sonnet-replicate") {
+      cost = (tokensConsumed / 1000) * 0.003; // $0.003 per 1K tokens
+    } else if (modelUsed === "claude-3-haiku-replicate") {
+      cost = (tokensConsumed / 1000) * 0.00025; // $0.00025 per 1K tokens
+    } else {
+      cost = (tokensConsumed / 1000) * 0.0002; // Default rate
+    }
+    
+    const creditsToDeduct = Math.ceil(cost * 100); // Convert cost to credits (1 credit = $0.01)
     
     const result = await db.transaction(async (tx) => {
       // Get current user balance
@@ -168,7 +184,7 @@ export class BillingService {
         modelUsed,
         tokensConsumed,
         creditsDeducted: creditsToDeduct,
-        cost: 0, // You can calculate actual cost if needed
+        cost: cost.toString(), // Use the calculated cost
         status: 'completed',
         metadata: {
           balanceBefore,

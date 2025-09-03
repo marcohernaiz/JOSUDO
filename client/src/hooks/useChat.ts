@@ -260,8 +260,9 @@ export const useChat = () => {
         });
       }
 
-      // Refresh usage data after each message to show updated costs and tokens
+      // Refresh usage data and credit balance after each message
       queryClient.invalidateQueries({ queryKey: ['usage'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user/credits'] });
     },
     onError: (error: any) => {
       setIsStreaming(false);
