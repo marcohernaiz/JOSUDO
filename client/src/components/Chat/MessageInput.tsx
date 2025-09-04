@@ -595,13 +595,13 @@ export const MessageInput: React.FC = () => {
                       <img 
                         src={resolveAvatarPath(selectedPersona.avatar || '')} 
                         alt={selectedPersona.name} 
-                        className="w-4 h-4 rounded-full transition-transform duration-300 group-hover:scale-110" 
+                        className="w-6 h-6 rounded-full transition-transform duration-300 group-hover:scale-110" 
                       />
                     ) : (
                       <img src={josudoIcon} alt="Josudo" className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }} />
                     )}
                     <span>
-                      {selectedPersona ? selectedPersona.name : 'JOSUDO AI assistant'}
+                      {selectedPersona ? `${selectedPersona.name} - ${selectedPersona.role}` : 'JOSUDO AI assistant'}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
