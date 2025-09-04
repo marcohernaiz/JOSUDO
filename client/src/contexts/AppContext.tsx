@@ -7,6 +7,7 @@ import {
   Billing,
   AppContextType,
   Space,
+  DigitalPersona,
 } from "../types";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -36,6 +37,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   const [activeSection, setActiveSection] = useState<string>("chat");
   // Add spaces state
   const [currentSpace, setCurrentSpace] = useState<Space | null>(null);
+  // Add digital personas state
+  const [selectedPersona, setSelectedPersona] = useState<DigitalPersona | null>(null);
 
   // Query user authentication status
   const { data: user, isLoading: isUserLoading } = useQuery<User>({
@@ -123,6 +126,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     spaces,
     currentSpace,
     setCurrentSpace,
+    selectedPersona,
+    setSelectedPersona,
   };
 
   return (
