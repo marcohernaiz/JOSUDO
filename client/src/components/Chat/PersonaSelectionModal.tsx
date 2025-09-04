@@ -56,18 +56,43 @@ export const PersonaSelectionModal: React.FC<PersonaSelectionModalProps> = ({ is
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fetch user's digital personas
-  const { data: personas = [], isLoading } = useQuery<DigitalPersona[]>({
+  const { data: personas = [], isLoading: isLoadingPersonas } = useQuery<DigitalPersona[]>({
     queryKey: ['/api/digital-personas'],
     enabled: isAuthenticated && isOpen,
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
-  const filteredPersonas = personas.filter((persona) =>
-    persona.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    persona.role.toLowerCase().includes(searchTerm.toLowerCase())
+  // Fetch admin persona templates
+  const { data: templates = [], isLoading: isLoadingTemplates } = useQuery<any[]>({
+    queryKey: ['/api/admin/persona-templates'],
+    enabled: isOpen,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+
+  const isLoading = isLoadingPersonas || isLoadingTemplates;
+
+  // Combine templates and personas for filtering
+  const allOptions = [
+    ...templates.map(template => ({ ...template, isTemplate: true })),
+    ...personas.map(persona => ({ ...persona, isTemplate: false }))
+  ];
+
+  const filteredOptions = allOptions.filter((option) =>
+    option.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    option.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSelectPersona = (persona: DigitalPersona) => {
+  const handleSelectPersona = (option: any) => {
+    // Convert template to persona-like object if needed
+    const persona = option.isTemplate ? {
+      ...option,
+      id: `template-${option.id}`,
+      userId: 0, // Templates don't have userId
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    } : option;
+    
     setSelectedPersona(persona);
     onClose();
   };
@@ -138,49 +163,63 @@ export const PersonaSelectionModal: React.FC<PersonaSelectionModalProps> = ({ is
               </div>
             </div>
 
-            {/* User's Digital Personas */}
+            {/* Available Digital Personas and Templates */}
             {isLoading ? (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                Loading your digital personas...
+                Loading available personas...
               </div>
-            ) : filteredPersonas.length === 0 ? (
+            ) : filteredOptions.length === 0 ? (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                {searchTerm ? 'No personas match your search.' : 'No digital personas found. Create one to get started!'}
+                {searchTerm ? 'No personas match your search.' : 'No digital personas available.'}
               </div>
             ) : (
               <div className="space-y-3">
-                {filteredPersonas.map((persona) => (
-                  <div
-                    key={persona.id}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                      selectedPersona?.id === persona.id
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500'
-                    }`}
-                    onClick={() => handleSelectPersona(persona)}
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 dark:bg-slate-700 flex-shrink-0">
-                        <img
-                          src={resolveAvatarPath(persona.avatar || '')}
-                          alt={persona.name}
-                          className="w-full h-full object-cover"
-                        />
+                {filteredOptions.map((option, index) => {
+                  const isSelected = selectedPersona && (
+                    (option.isTemplate && selectedPersona.id === `template-${option.id}`) ||
+                    (!option.isTemplate && selectedPersona.id === option.id.toString())
+                  );
+                  
+                  return (
+                    <div
+                      key={option.isTemplate ? `template-${option.id}` : option.id}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500'
+                      }`}
+                      onClick={() => handleSelectPersona(option)}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 dark:bg-slate-700 flex-shrink-0">
+                          <img
+                            src={resolveAvatarPath(option.avatar || '')}
+                            alt={option.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <h3 className="font-medium text-gray-900 dark:text-white truncate">
+                              {option.name}
+                            </h3>
+                            {option.isTemplate && (
+                              <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-2 py-1 rounded">
+                                Template
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                            {option.role}
+                          </p>
+                        </div>
+                        {isSelected && (
+                          <div className="w-4 h-4 rounded-full bg-blue-500 flex-shrink-0"></div>
+                        )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 dark:text-white truncate">
-                          {persona.name}
-                        </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                          {persona.role}
-                        </p>
-                      </div>
-                      {selectedPersona?.id === persona.id && (
-                        <div className="w-4 h-4 rounded-full bg-blue-500 flex-shrink-0"></div>
-                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -189,7 +228,7 @@ export const PersonaSelectionModal: React.FC<PersonaSelectionModalProps> = ({ is
           <div className="p-6 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
             <div className="flex justify-between items-center">
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {personas.length} persona{personas.length !== 1 ? 's' : ''} available
+                {allOptions.length} option{allOptions.length !== 1 ? 's' : ''} available ({templates.length} template{templates.length !== 1 ? 's' : ''}, {personas.length} persona{personas.length !== 1 ? 's' : ''})
               </p>
               <div className="flex space-x-3">
                 <Button variant="outline" onClick={onClose}>
