@@ -2418,7 +2418,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(result);
     } catch (error) {
       console.error('Error confirming payment:', error);
-      res.status(500).json({ error: 'Failed to confirm payment' });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Payment confirmation error details:', {
+        paymentIntentId,
+        userId,
+        error: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      res.status(500).json({ 
+        error: 'Failed to confirm payment',
+        details: errorMessage 
+      });
     }
   });
 

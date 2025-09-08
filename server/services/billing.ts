@@ -4,9 +4,14 @@ import { users, creditTransactions, usageLogs, creditPackages } from '../../shar
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 
 // Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey) {
+  console.warn('STRIPE_SECRET_KEY not found. Payment functionality will be disabled.');
+}
+
+const stripe = stripeSecretKey ? new Stripe(stripeSecretKey, {
   apiVersion: '2025-07-30.basil',
-});
+}) : null;
 
 export interface CreditPackage {
   id: string;
@@ -38,6 +43,10 @@ export class BillingService {
    * Create a payment intent for credit purchase
    */
   async createPaymentIntent(packageId: string, userId: number) {
+    if (!stripe) {
+      throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.');
+    }
+
     const pkg = CREDIT_PACKAGES.find(p => p.id === packageId);
     if (!pkg) {
       throw new Error('Invalid package ID');
@@ -49,44 +58,66 @@ export class BillingService {
       throw new Error('User not found');
     }
 
-    // Create Stripe payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: pkg.price,
-      currency: 'usd',
-      metadata: {
-        userId: userId.toString(),
-        packageId: packageId,
-        credits: pkg.credits.toString(),
-      },
-    });
+    try {
+      // Create Stripe payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: pkg.price,
+        currency: 'usd',
+        metadata: {
+          userId: userId.toString(),
+          packageId: packageId,
+          credits: pkg.credits.toString(),
+        },
+      });
 
-    return {
-      clientSecret: paymentIntent.client_secret,
-      amount: pkg.price,
-      package: pkg,
-    };
+      return {
+        clientSecret: paymentIntent.client_secret,
+        amount: pkg.price,
+        package: pkg,
+      };
+    } catch (error) {
+      console.error('Stripe payment intent creation failed:', error);
+      throw new Error(`Failed to create payment intent: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   /**
    * Confirm payment and add credits to user account
    */
   async confirmPayment(paymentIntentId: string, userId: number) {
-    // Verify payment intent
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    if (!stripe) {
+      throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.');
+    }
+
+    try {
+      // Verify payment intent
+      console.log(`Retrieving payment intent: ${paymentIntentId}`);
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      console.log(`Payment intent status: ${paymentIntent.status}`);
     
     if (paymentIntent.status !== 'succeeded') {
-      throw new Error('Payment not completed');
+      throw new Error(`Payment not completed. Status: ${paymentIntent.status}`);
     }
 
     const { packageId, credits } = paymentIntent.metadata;
+    console.log(`Payment metadata - packageId: ${packageId}, credits: ${credits}`);
+    
+    if (!packageId || !credits) {
+      throw new Error('Invalid payment metadata - missing packageId or credits');
+    }
+    
     const creditsToAdd = parseInt(credits);
+    if (isNaN(creditsToAdd) || creditsToAdd <= 0) {
+      throw new Error(`Invalid credits amount: ${credits}`);
+    }
 
     // Start transaction
+    console.log(`Starting database transaction for user ${userId}, adding ${creditsToAdd} credits`);
     const result = await db.transaction(async (tx) => {
       // Get current user balance
       const currentUser = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
       if (!currentUser.length) {
-        throw new Error('User not found');
+        throw new Error(`User not found: ${userId}`);
       }
 
       const balanceBefore = currentUser[0].credits || 0;
@@ -117,6 +148,10 @@ export class BillingService {
     });
 
     return result;
+    } catch (error) {
+      console.error('Stripe payment confirmation failed:', error);
+      throw new Error(`Failed to confirm payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   /**

@@ -120,7 +120,9 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
         await fetchCurrentCredits();
         onClose();
       } else {
-        throw new Error('Payment confirmation failed');
+        const errorData = await confirmResponse.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Payment confirmation failed:', errorData);
+        throw new Error(`Payment confirmation failed: ${errorData.details || errorData.error || 'Unknown error'}`);
       }
 
     } catch (error) {
@@ -250,9 +252,17 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ open, onClose, onSho
   const [packages, setPackages] = useState<CreditPackage[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [stripeError, setStripeError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
+      // Check if Stripe is properly configured
+      const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+      if (!stripeKey || stripeKey === 'undefined') {
+        setStripeError('Stripe is not configured. Please set VITE_STRIPE_PUBLISHABLE_KEY in your environment variables.');
+        return;
+      }
+      setStripeError(null);
       fetchCreditPackages();
     }
   }, [open]);
@@ -273,6 +283,40 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ open, onClose, onSho
   };
 
   if (!open) return null;
+
+  // Show error if Stripe is not configured
+  if (stripeError) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white dark:bg-slate-900 rounded-lg p-6 max-w-md w-full mx-4">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              Payment Unavailable
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+            >
+              ✕
+            </Button>
+          </div>
+          <div className="text-center">
+            <div className="text-red-600 dark:text-red-400 mb-4">
+              ⚠️ {stripeError}
+            </div>
+            <p className="text-slate-600 dark:text-slate-400 mb-4">
+              Payment functionality is currently unavailable. Please contact support or try again later.
+            </p>
+            <Button onClick={onClose} className="w-full">
+              Close
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
