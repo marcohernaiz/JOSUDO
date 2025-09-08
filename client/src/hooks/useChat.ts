@@ -33,11 +33,15 @@ export const useChat = () => {
       sessionId,
       files,
       persona,
+      thinkingMode,
+      webSearch,
     }: {
       message: string;
       sessionId?: string | number;
       files?: File[];
       persona?: any;
+      thinkingMode?: 'fast' | 'deep' | 'research';
+      webSearch?: boolean;
     }) => {
       // Use streaming for all requests
       return new Promise(async (resolve, reject) => {
@@ -117,8 +121,8 @@ export const useChat = () => {
           sessionId: finalSessionId,
           model: selectedModel,
           files: processedFiles.length > 0 ? processedFiles : undefined,
-          thinkingMode: 'fast', // Default to fast, can be enhanced with UI controls
-          webSearch: false, // Default to false, can be enhanced with UI controls
+          thinkingMode: thinkingMode || 'fast',
+          webSearch: webSearch || false,
           persona: persona,
         });
 
@@ -282,7 +286,7 @@ export const useChat = () => {
     },
   });
 
-  const sendMessage = async (files?: File[], message?: string) => {
+  const sendMessage = async (files?: File[], message?: string, thinkingMode?: 'fast' | 'deep' | 'research', webSearch?: boolean) => {
     const messageToSend = message || currentMessage;
     if (!messageToSend.trim() && (!files || files.length === 0)) return;
 
@@ -294,6 +298,8 @@ export const useChat = () => {
       sessionId: currentSessionId || undefined,
       files,
       persona: selectedPersona,
+      thinkingMode,
+      webSearch,
     });
   };
 

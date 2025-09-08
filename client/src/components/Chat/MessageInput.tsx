@@ -177,6 +177,8 @@ export const MessageInput: React.FC = () => {
   const [showPersonaModal, setShowPersonaModal] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [showAuthNotice, setShowAuthNotice] = useState(false);
+  const [thinkingMode, setThinkingMode] = useState<'fast' | 'deep' | 'research'>('fast');
+  const [webSearch, setWebSearch] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
@@ -273,6 +275,22 @@ export const MessageInput: React.FC = () => {
     }
   };
 
+  const handleThinkingModeChange = (mode: 'fast' | 'deep' | 'research') => {
+    setThinkingMode(mode);
+    toast({
+      title: "Thinking Mode Updated",
+      description: `Switched to ${mode} thinking mode`,
+    });
+  };
+
+  const handleWebSearchToggle = () => {
+    setWebSearch(!webSearch);
+    toast({
+      title: "Web Search Toggled",
+      description: `Web search ${!webSearch ? 'enabled' : 'disabled'}`,
+    });
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -290,7 +308,7 @@ export const MessageInput: React.FC = () => {
     setCurrentMessage('');
     setAttachedFiles([]);
 
-    sendMessage(filesToSend, messageToSend);
+    sendMessage(filesToSend, messageToSend, thinkingMode, webSearch);
   };
 
   const handleFileAttach = () => {
@@ -404,6 +422,30 @@ export const MessageInput: React.FC = () => {
 
             {/* Right side controls inside input */}
             <div className="absolute right-3 top-3 flex items-center space-x-1">
+              {/* Thinking mode indicators */}
+              {(thinkingMode !== 'fast' || webSearch) && (
+                <div className="flex items-center space-x-1 mr-2">
+                  {thinkingMode === 'deep' && (
+                    <div className="flex items-center space-x-1 px-2 py-1 bg-orange-100 dark:bg-orange-900/30 rounded-full">
+                      <Brain className="w-3 h-3 text-orange-600 dark:text-orange-400" />
+                      <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">Deep</span>
+                    </div>
+                  )}
+                  {thinkingMode === 'research' && (
+                    <div className="flex items-center space-x-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                      <Zap className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                      <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">Research</span>
+                    </div>
+                  )}
+                  {webSearch && (
+                    <div className="flex items-center space-x-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
+                      <Wifi className="w-3 h-3 text-green-600 dark:text-green-400" />
+                      <span className="text-xs text-green-600 dark:text-green-400 font-medium">Web</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               {currentMessage.trim() || attachedFiles.length > 0 ? (
                 /* Send/Stop button when typing */
                 <Button
@@ -565,17 +607,26 @@ export const MessageInput: React.FC = () => {
                   <Image className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
                   Create image
                 </DropdownMenuItem>
-                <DropdownMenuItem className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                <DropdownMenuItem 
+                  className={`p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 ${thinkingMode === 'deep' ? 'bg-orange-50 dark:bg-orange-900/20' : ''}`}
+                  onClick={() => handleThinkingModeChange('deep')}
+                >
                   <Brain className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
-                  Think longer
+                  Think longer {thinkingMode === 'deep' && '✓'}
                 </DropdownMenuItem>
-                <DropdownMenuItem className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                <DropdownMenuItem 
+                  className={`p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 ${thinkingMode === 'research' ? 'bg-orange-50 dark:bg-orange-900/20' : ''}`}
+                  onClick={() => handleThinkingModeChange('research')}
+                >
                   <Zap className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
-                  Deep research
+                  Deep research {thinkingMode === 'research' && '✓'}
                 </DropdownMenuItem>
-                <DropdownMenuItem className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
+                <DropdownMenuItem 
+                  className={`p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 ${webSearch ? 'bg-orange-50 dark:bg-orange-900/20' : ''}`}
+                  onClick={handleWebSearchToggle}
+                >
                   <Wifi className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
-                  Search web
+                  Search web {webSearch && '✓'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
