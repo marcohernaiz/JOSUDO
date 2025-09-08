@@ -114,6 +114,8 @@ export const useChat = () => {
           sessionId: finalSessionId,
           model: selectedModel,
           files: processedFiles.length > 0 ? processedFiles : undefined,
+          thinkingMode: 'fast', // Default to fast, can be enhanced with UI controls
+          webSearch: false, // Default to false, can be enhanced with UI controls
         });
 
         // Use fetch with streaming for POST request

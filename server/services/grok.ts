@@ -15,7 +15,13 @@ class GrokService {
     async sendMessage(
     message: string, 
     model: string = 'grok-2-1212',
-    conversationHistory: Array<{ role: string; content: string }> = []
+    conversationHistory: Array<{ role: string; content: string }> = [],
+    options: {
+      thinkingMode?: 'fast' | 'deep' | 'research';
+      webSearch?: boolean;
+      maxTokens?: number;
+      temperature?: number;
+    } = {}
   ): Promise<{
     response: string;
     tokens: number;
@@ -59,7 +65,13 @@ class GrokService {
   async *sendMessageStream(
     message: string, 
     model: string = 'grok-2-1212',
-    conversationHistory: Array<{ role: string; content: string }> = []
+    conversationHistory: Array<{ role: string; content: string }> = [],
+    options: {
+      thinkingMode?: 'fast' | 'deep' | 'research';
+      webSearch?: boolean;
+      maxTokens?: number;
+      temperature?: number;
+    } = {}
   ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
     try {
       const apiKey = getSecret('XAI_API_KEY') || process.env.XAI_API_KEY;
@@ -191,6 +203,25 @@ class GrokService {
     } catch (error) {
       return false;
     }
+  }
+
+  private enhanceMessageForThinking(message: string, options: {
+    thinkingMode?: 'fast' | 'deep' | 'research';
+    webSearch?: boolean;
+  }): string {
+    let enhancedMessage = message;
+    
+    if (options.thinkingMode === 'deep') {
+      enhancedMessage = `Please think deeply and thoroughly about this question. Take your time to analyze all aspects, consider multiple perspectives, and provide a comprehensive response. Here's the question: ${message}`;
+    } else if (options.thinkingMode === 'research') {
+      enhancedMessage = `Please conduct thorough research and provide a detailed, well-researched response. Consider multiple sources, analyze different viewpoints, and provide evidence-based insights. Here's the research topic: ${message}`;
+    }
+    
+    if (options.webSearch) {
+      enhancedMessage += `\n\nPlease search for the most current information available and provide up-to-date insights.`;
+    }
+    
+    return enhancedMessage;
   }
 
   private parseMessageWithImages(message: string): any {

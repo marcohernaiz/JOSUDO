@@ -430,7 +430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat routes - No authentication required
   app.post("/api/chat/send", async (req, res) => {
     try {
-      const { message, model, sessionId } = req.body;
+      const { message, model, sessionId, thinkingMode, webSearch } = req.body;
       console.log("Received chat request:", { message, model, sessionId });
 
       const userId = (req as any).session?.passport?.user;
@@ -660,7 +660,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case "gemini-pro":
-            serviceResponse = await geminiService.sendMessage(message, model, conversationHistory);
+            serviceResponse = await geminiService.sendMessage(message, model, conversationHistory, {
+              thinkingMode,
+              webSearch,
+              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+            });
             response = {
               choices: [{ message: { content: serviceResponse.response } }],
             };
@@ -694,7 +699,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case "grok-beta":
-            serviceResponse = await grokService.sendMessage(message, model, conversationHistory);
+            serviceResponse = await grokService.sendMessage(message, model, conversationHistory, {
+              thinkingMode,
+              webSearch,
+              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+            });
             response = {
               choices: [{ message: { content: serviceResponse.response } }],
             };
@@ -879,7 +889,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat streaming route - Server-Sent Events
   app.post("/api/chat/send-stream", async (req, res) => {
     try {
-      const { message, model, sessionId, files } = req.body;
+      const { message, model, sessionId, files, thinkingMode, webSearch } = req.body;
       console.log("Received streaming chat request:", { message, model, sessionId, fileCount: files?.length || 0 });
 
       const userId = (req as any).session?.passport?.user;
@@ -1123,7 +1133,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "gemini-pro":
             console.log("Starting Gemini streaming...");
-            for await (const chunk of geminiService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
+            for await (const chunk of geminiService.sendMessageStream(enhancedMessage, model, conversationHistory, {
+              thinkingMode,
+              webSearch,
+              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+            })) {
               console.log("Received Gemini chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
@@ -1133,7 +1148,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "grok-beta":
             console.log("Starting Grok streaming...");
-            for await (const chunk of grokService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
+            for await (const chunk of grokService.sendMessageStream(enhancedMessage, model, conversationHistory, {
+              thinkingMode,
+              webSearch,
+              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+            })) {
               console.log("Received Grok chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
