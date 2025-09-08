@@ -136,6 +136,26 @@ export interface VirtualEmployee {
   updatedAt: Date;
 }
 
+export interface DigitalPersona {
+  id: number;
+  userId: number;
+  name: string;
+  role: string;
+  avatar?: string;
+  voiceId?: string;
+  greeting?: string;
+  systemPrompt?: string;
+  behaviorText?: string;
+  capabilitiesText?: string;
+  contextualText?: string;
+  guardrailsText?: string;
+  multimodalConfig?: any;
+  resourcesConfig?: any;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface AppContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -161,4 +181,7 @@ export interface AppContextType {
   spaces: Space[];
   currentSpace: Space | null;
   setCurrentSpace: (space: Space | null) => void;
+  // Add digital personas state
+  selectedPersona: DigitalPersona | null;
+  setSelectedPersona: (persona: DigitalPersona | null) => void;
 }

@@ -18,6 +18,7 @@ export const useChat = () => {
     setCurrentSessionId,
     isAuthenticated,
     selectedModel,
+    selectedPersona,
   } = useAppContext();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -31,10 +32,12 @@ export const useChat = () => {
       message,
       sessionId,
       files,
+      persona,
     }: {
       message: string;
       sessionId?: string | number;
       files?: File[];
+      persona?: any;
     }) => {
       // Use streaming for all requests
       return new Promise(async (resolve, reject) => {
@@ -116,6 +119,7 @@ export const useChat = () => {
           files: processedFiles.length > 0 ? processedFiles : undefined,
           thinkingMode: 'fast', // Default to fast, can be enhanced with UI controls
           webSearch: false, // Default to false, can be enhanced with UI controls
+          persona: persona,
         });
 
         // Use fetch with streaming for POST request
@@ -283,11 +287,13 @@ export const useChat = () => {
     if (!messageToSend.trim() && (!files || files.length === 0)) return;
 
     console.log("Sending message with sessionId:", currentSessionId);
+    console.log("Sending message with persona:", selectedPersona?.name || 'Default JOSUDO AI');
 
     sendMessageMutation.mutate({
       message: messageToSend,
       sessionId: currentSessionId || undefined,
       files,
+      persona: selectedPersona,
     });
   };
 

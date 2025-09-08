@@ -430,7 +430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat routes - No authentication required
   app.post("/api/chat/send", async (req, res) => {
     try {
-      const { message, model, sessionId, thinkingMode, webSearch } = req.body;
+      const { message, model, sessionId, thinkingMode, webSearch, persona } = req.body;
       console.log("Received chat request:", { message, model, sessionId });
 
       const userId = (req as any).session?.passport?.user;
@@ -488,6 +488,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (error) {
           console.error("Failed to load conversation history:", error);
         }
+      }
+
+      // Add persona context to conversation history if persona is provided
+      if (persona && persona.name) {
+        console.log("Adding persona context:", persona.name);
+        
+        // Create system message with persona information
+        let systemMessage = `You are ${persona.name}, a ${persona.role}.`;
+        
+        if (persona.greeting) {
+          systemMessage += ` Your greeting: "${persona.greeting}"`;
+        }
+        
+        if (persona.systemPrompt) {
+          systemMessage += ` ${persona.systemPrompt}`;
+        }
+        
+        if (persona.behaviorText) {
+          systemMessage += ` Behavior: ${persona.behaviorText}`;
+        }
+        
+        if (persona.capabilitiesText) {
+          systemMessage += ` Capabilities: ${persona.capabilitiesText}`;
+        }
+        
+        if (persona.contextualText) {
+          systemMessage += ` Context: ${persona.contextualText}`;
+        }
+        
+        if (persona.guardrailsText) {
+          systemMessage += ` Constraints: ${persona.guardrailsText}`;
+        }
+        
+        // Add system message at the beginning of conversation history
+        conversationHistory = [
+          { role: "system", content: systemMessage },
+          ...conversationHistory
+        ];
+        
+        console.log("Added persona system message to conversation history");
       }
 
       // Route to appropriate AI service based on model
@@ -889,7 +929,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat streaming route - Server-Sent Events
   app.post("/api/chat/send-stream", async (req, res) => {
     try {
-      const { message, model, sessionId, files, thinkingMode, webSearch } = req.body;
+      const { message, model, sessionId, files, thinkingMode, webSearch, persona } = req.body;
       console.log("Received streaming chat request:", { message, model, sessionId, fileCount: files?.length || 0 });
 
       const userId = (req as any).session?.passport?.user;
@@ -954,6 +994,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (error) {
           console.error("Failed to load conversation history:", error);
         }
+      }
+
+      // Add persona context to conversation history if persona is provided
+      if (persona && persona.name) {
+        console.log("Adding persona context:", persona.name);
+        
+        // Create system message with persona information
+        let systemMessage = `You are ${persona.name}, a ${persona.role}.`;
+        
+        if (persona.greeting) {
+          systemMessage += ` Your greeting: "${persona.greeting}"`;
+        }
+        
+        if (persona.systemPrompt) {
+          systemMessage += ` ${persona.systemPrompt}`;
+        }
+        
+        if (persona.behaviorText) {
+          systemMessage += ` Behavior: ${persona.behaviorText}`;
+        }
+        
+        if (persona.capabilitiesText) {
+          systemMessage += ` Capabilities: ${persona.capabilitiesText}`;
+        }
+        
+        if (persona.contextualText) {
+          systemMessage += ` Context: ${persona.contextualText}`;
+        }
+        
+        if (persona.guardrailsText) {
+          systemMessage += ` Constraints: ${persona.guardrailsText}`;
+        }
+        
+        // Add system message at the beginning of conversation history
+        conversationHistory = [
+          { role: "system", content: systemMessage },
+          ...conversationHistory
+        ];
+        
+        console.log("Added persona system message to conversation history");
       }
 
       // Process files and create enhanced message

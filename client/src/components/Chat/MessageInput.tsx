@@ -5,6 +5,44 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import josudoIcon from '@assets/JOSUDO logo icon_1752491258890.png';
 import voiceIcon from '@assets/voice-icon.svg';
+import { PersonaSelectionModal } from './PersonaSelectionModal';
+
+// Import organized avatars for path resolution
+import executiveAssistantAvatar from '@assets/avatars/executive-assistant.gif';
+import salesMarketingAvatar from '@assets/avatars/sales-marketing.gif';
+import customerSupportAvatar from '@assets/avatars/customer-support.gif';
+import elderlyCareAvatar from '@assets/avatars/elderly-care.gif';
+import digitalBuddyAvatar from '@assets/avatars/digital-buddy.gif';
+import aiGirlfriendAvatar from '@assets/avatars/ai-girlfriend.gif';
+
+// Avatar mapping for asset imports
+const avatarAssets: Record<string, string> = {
+  'executive-assistant.gif': executiveAssistantAvatar,
+  'sales-marketing.gif': salesMarketingAvatar,
+  'customer-support.gif': customerSupportAvatar,
+  'elderly-care.gif': elderlyCareAvatar,
+  'digital-buddy.gif': digitalBuddyAvatar,
+  'ai-girlfriend.gif': aiGirlfriendAvatar,
+};
+
+// Helper function to resolve avatar path to actual image URL
+const resolveAvatarPath = (avatarPath: string): string => {
+  if (!avatarPath) return executiveAssistantAvatar;
+  
+  // If it's an asset import path like @assets/avatars/filename
+  if (avatarPath.startsWith('@assets/avatars/')) {
+    const filename = avatarPath.replace('@assets/avatars/', '');
+    return avatarAssets[filename] || executiveAssistantAvatar;
+  }
+  
+  // If it's an API URL, use it directly
+  if (avatarPath.startsWith('/api/avatar-library/')) {
+    return avatarPath;
+  }
+  
+  // If it's already a resolved asset path, use it
+  return avatarPath;
+};
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -127,7 +165,7 @@ const getStorageOptions = (isAuthenticated: boolean) => [
 
 export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading, messages } = useChat();
-  const { integrations, selectedModel, setSelectedModel, setActiveSection } = useAppContext();
+  const { integrations, selectedModel, setSelectedModel, setActiveSection, selectedPersona } = useAppContext();
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [selectedStorage, setSelectedStorage] = useState('');
@@ -136,6 +174,7 @@ export const MessageInput: React.FC = () => {
   const [showAllModels, setShowAllModels] = useState(false);
   const [chatMode, setChatMode] = useState('assistant');
   const [showChatModeOptions, setShowChatModeOptions] = useState(false);
+  const [showPersonaModal, setShowPersonaModal] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [showAuthNotice, setShowAuthNotice] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -552,9 +591,17 @@ export const MessageInput: React.FC = () => {
                     size="sm"
                     className="group h-10 px-4 rounded-full text-sm font-medium transition-all duration-300 bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-purple-200/50 dark:hover:shadow-purple-500/25 hover:scale-105 active:scale-95 shadow-md border border-indigo-300/50 dark:border-purple-400/30 flex items-center space-x-2 hover:border-indigo-400 dark:hover:border-purple-300 font-semibold"
                   >
-                    <img src={josudoIcon} alt="Josudo" className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }} />
+                    {selectedPersona ? (
+                      <img 
+                        src={resolveAvatarPath(selectedPersona.avatar || '')} 
+                        alt={selectedPersona.name} 
+                        className="w-10 h-10 rounded-full transition-transform duration-300 group-hover:scale-110" 
+                      />
+                    ) : (
+                      <img src={josudoIcon} alt="Josudo" className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" style={{ filter: 'brightness(0) saturate(100%) invert(100%)' }} />
+                    )}
                     <span>
-                      JOSUDO AI assistant
+                      {selectedPersona ? `${selectedPersona.name} - ${selectedPersona.role}` : 'JOSUDO AI assistant'}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
@@ -576,7 +623,7 @@ export const MessageInput: React.FC = () => {
                     onClick={() => {
                       setChatMode('library');
                       setShowChatModeOptions(false);
-                      setActiveSection('digital-personas');
+                      setShowPersonaModal(true);
                     }}
                     className={`p-3 cursor-pointer transition-all duration-200 rounded-lg ${
                       chatMode === 'library'
@@ -679,6 +726,12 @@ export const MessageInput: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Persona Selection Modal */}
+      <PersonaSelectionModal 
+        isOpen={showPersonaModal} 
+        onClose={() => setShowPersonaModal(false)} 
+      />
     </div>
   );
 };
