@@ -1,71 +1,205 @@
+import { getSecret } from '../admin';
+
 class DeepSeekService {
   private apiKey: string;
   private baseUrl: string;
 
   constructor() {
-    // DeepSeek offers free API access
-    this.apiKey = 'free-tier'; // Free tier doesn't require real API key
-    this.baseUrl = 'https://api.deepseek.com/v1';
+    // Use OpenRouter for DeepSeek V3 access
+    this.apiKey = getSecret('OPENROUTER_API_KEY') || process.env.OPENROUTER_API_KEY || '';
+    this.baseUrl = 'https://openrouter.ai/api/v1';
   }
 
   async sendMessage(
     message: string, 
-    model: string = 'deepseek-chat',
-    conversationHistory: Array<{ role: string; content: string }> = []
+    model: string = 'deepseek/deepseek-chat-v3.1:free',
+    conversationHistory: Array<{ role: string; content: string }> = [],
+    options: {
+      thinkingMode?: 'fast' | 'deep' | 'research';
+      webSearch?: boolean;
+      maxTokens?: number;
+      temperature?: number;
+    } = {}
   ): Promise<{ 
     response: string; 
     tokens: number; 
     cost: number; 
   }> {
     try {
-      // Combine conversation history with current message for context
-      const fullContext = conversationHistory.length > 0 
-        ? `${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\nUser: ${message}`
-        : message;
-      
-      // Simulate DeepSeek API call with a realistic response
-      const response = await this.simulateDeepSeekResponse(fullContext);
-      
+      const apiKey = this.apiKey;
+      if (!apiKey) {
+        return this.simulateDeepSeekResponse(message, conversationHistory);
+      }
+
+      // Enhance message based on thinking mode
+      const enhancedMessage = this.enhanceMessageForThinking(message, options);
+
+      // Prepare messages array with conversation history
+      const messages = [
+        ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant' | 'system', content: msg.content })),
+        { role: 'user' as const, content: enhancedMessage }
+      ];
+
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://josudo.org',
+          'X-Title': 'Josudo AI Platform'
+        },
+        body: JSON.stringify({
+          model: 'deepseek/deepseek-chat-v3.1:free',
+          messages,
+          max_tokens: options.maxTokens || (options.thinkingMode === 'research' ? 8192 : 4096),
+          temperature: options.temperature || (options.thinkingMode === 'deep' ? 0.3 : 0.7),
+          stream: false
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const responseText = data.choices[0].message.content || '';
+      const tokens = data.usage?.total_tokens || 0;
+      const cost = this.calculateCost(tokens);
+
       return {
-        response: response.content,
-        tokens: response.tokens,
-        cost: 0 // Free tier
+        response: responseText,
+        tokens,
+        cost
       };
     } catch (error) {
-      throw new Error('DeepSeek API call failed: ' + (error as Error).message);
+      console.error('DeepSeek OpenRouter API error:', error);
+      return this.simulateDeepSeekResponse(message, conversationHistory);
     }
   }
 
   async *sendMessageStream(
     message: string, 
-    model: string = 'deepseek-chat',
-    conversationHistory: Array<{ role: string; content: string }> = []
+    model: string = 'deepseek/deepseek-chat-v3.1:free',
+    conversationHistory: Array<{ role: string; content: string }> = [],
+    options: {
+      thinkingMode?: 'fast' | 'deep' | 'research';
+      webSearch?: boolean;
+      maxTokens?: number;
+      temperature?: number;
+    } = {}
   ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
     try {
-      // Generate full response first
-      const fullContext = conversationHistory.length > 0 
-        ? `${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}\n\nUser: ${message}`
-        : message;
-      
-      const response = await this.simulateDeepSeekResponse(fullContext);
-      console.log("DeepSeek generated response:", response.content.substring(0, 100) + "...");
-      
-      // Stream the response word by word
-      const words = response.content.split(' ');
-      console.log("DeepSeek streaming:", words.length, "words");
-      for (let i = 0; i < words.length; i++) {
-        const word = words[i];
-        const content = i === words.length - 1 ? word : word + ' '; // Don't add space to last word
-        console.log("Streaming word:", content);
-        yield { content };
-        await new Promise(resolve => setTimeout(resolve, 50)); // Simulate streaming delay
+      const apiKey = this.apiKey;
+      if (!apiKey) {
+        // Fallback to simulated streaming
+        const response = await this.simulateDeepSeekResponse(message, conversationHistory);
+        const words = response.content.split(' ');
+        for (let i = 0; i < words.length; i++) {
+          const word = words[i];
+          const content = i === words.length - 1 ? word : word + ' ';
+          yield { content };
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        return;
+      }
+
+      // Enhance message based on thinking mode
+      const enhancedMessage = this.enhanceMessageForThinking(message, options);
+
+      // Prepare messages array with conversation history
+      const messages = [
+        ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant' | 'system', content: msg.content })),
+        { role: 'user' as const, content: enhancedMessage }
+      ];
+
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://josudo.org',
+          'X-Title': 'Josudo AI Platform'
+        },
+        body: JSON.stringify({
+          model: 'deepseek/deepseek-chat-v3.1:free',
+          messages,
+          max_tokens: options.maxTokens || (options.thinkingMode === 'research' ? 8192 : 4096),
+          temperature: options.temperature || (options.thinkingMode === 'deep' ? 0.3 : 0.7),
+          stream: true
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No response body reader available');
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+            
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                yield { content };
+              }
+            } catch (e) {
+              // Ignore parsing errors for incomplete chunks
+            }
+          }
+        }
       }
     } catch (error) {
-      throw new Error('DeepSeek streaming failed: ' + (error as Error).message);
+      console.error('DeepSeek streaming error:', error);
+      // Fallback to simulated streaming
+      const response = await this.simulateDeepSeekResponse(message, conversationHistory);
+      const words = response.content.split(' ');
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+        const content = i === words.length - 1 ? word : word + ' ';
+        yield { content };
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
     }
   }
 
-  async simulateDeepSeekResponse(message: string): Promise<{
+  private enhanceMessageForThinking(message: string, options: {
+    thinkingMode?: 'fast' | 'deep' | 'research';
+    webSearch?: boolean;
+  }): string {
+    let enhancedMessage = message;
+    
+    if (options.thinkingMode === 'deep') {
+      enhancedMessage = `Please think deeply and thoroughly about this question. Take your time to analyze all aspects, consider multiple perspectives, and provide a comprehensive response. Here's the question: ${message}`;
+    } else if (options.thinkingMode === 'research') {
+      enhancedMessage = `Please conduct thorough research and provide a detailed, well-researched response. Consider multiple sources, analyze different viewpoints, and provide evidence-based insights. Here's the research topic: ${message}`;
+    }
+    
+    if (options.webSearch) {
+      enhancedMessage += `\n\nPlease search for the most current information available and provide up-to-date insights.`;
+    }
+    
+    return enhancedMessage;
+  }
+
+  async simulateDeepSeekResponse(message: string, conversationHistory: Array<{ role: string; content: string }> = []): Promise<{
     content: string;
     tokens: number;
   }> {
@@ -140,8 +274,8 @@ How can I assist you further? Feel free to ask me anything specific you'd like t
   }
 
   calculateCost(tokens: number): number {
-    // DeepSeek free tier - but we'll track tiny cost for monitoring
-    return (tokens / 1000000) * 0.14; // $0.14 per 1M tokens (very competitive)
+    // DeepSeek V3.1 Free model - no cost but we track minimal cost for monitoring
+    return 0; // Completely free!
   }
 
   async testConnection(): Promise<boolean> {

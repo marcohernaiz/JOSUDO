@@ -93,7 +93,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Determine callback URL based on environment
     const callbackURL = process.env.NODE_ENV === "production" 
       ? (process.env.GOOGLE_CALLBACK_URL || "https://josudo.org/api/auth/google/callback")
-      : "https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev/api/auth/google/callback";
+      : "https://035c8286-1672-4276-9521-fb89ce371e63-00-3dtgr9l05l499.janeway.replit.dev/api/auth/google/callback";
 
     passport.use(
       new GoogleStrategy(
@@ -180,7 +180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           keyID: process.env.APPLE_KEY_ID!,
           privateKeyString: process.env.APPLE_PRIVATE_KEY!,
           passReqToCallback: true,
-          callbackURL: "https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev/api/auth/apple/callback",
+          callbackURL: "https://035c8286-1672-4276-9521-fb89ce371e63-00-3dtgr9l05l499.janeway.replit.dev/api/auth/apple/callback",
         },
         async (
           req: any,
@@ -234,7 +234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           clientID: process.env.MICROSOFT_CLIENT_ID!,
           clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
           passReqToCallback: true,
-          callbackURL: "https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev/api/auth/microsoft/callback",
+          callbackURL: "https://035c8286-1672-4276-9521-fb89ce371e63-00-3dtgr9l05l499.janeway.replit.dev/api/auth/microsoft/callback",
           scope: ["user.read", "email", "profile"],
         },
         async (
@@ -543,12 +543,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case "deepseek-v3":
-            response = await replicateService.sendMessage(message, userId || 0, sessionId || "anonymous", integration?.credentialsEncrypted || "", model);
-            // Estimate tokens and cost for DeepSeek V3
-            const responseContent = response.choices[0]?.message?.content;
-            const contentLength = typeof responseContent === 'string' ? responseContent.length : 0;
-            tokensUsed = Math.ceil((message.length + contentLength) / 4);
-            cost = replicateService.calculateCost(tokensUsed, model);
+            serviceResponse = await deepseekService.sendMessage(message, model, conversationHistory, {
+              thinkingMode,
+              webSearch,
+              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+            });
+            response = {
+              choices: [{ message: { content: serviceResponse.response } }],
+            };
+            tokensUsed = serviceResponse.tokens;
+            cost = serviceResponse.cost;
             
             // Track usage for Replicate
             if (userId) {
@@ -1159,13 +1164,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case "deepseek-v3":
-            console.log("Starting DeepSeek V3 streaming via Replicate...");
-            for await (const chunk of replicateService.sendMessageStream(enhancedMessage, userId || 0, sessionId || "anonymous", integration?.credentialsEncrypted || "", model)) {
-              console.log("Received Replicate chunk:", chunk.content);
+            console.log("Starting DeepSeek V3 streaming via OpenRouter...");
+            for await (const chunk of deepseekService.sendMessageStream(enhancedMessage, model, conversationHistory, {
+              thinkingMode,
+              webSearch,
+              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+            })) {
+              console.log("Received DeepSeek chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
             }
-            console.log("Replicate DeepSeek V3 streaming finished, fullResponse length:", fullResponse.length);
+            console.log("DeepSeek V3 streaming finished, fullResponse length:", fullResponse.length);
             break;
 
           case "gpt-4":
