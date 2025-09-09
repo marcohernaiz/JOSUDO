@@ -141,76 +141,16 @@ interface SpeechRecognitionAlternative {
 }
 
 const AI_MODELS = [
-  { 
-    id: 'deepseek-v3', 
-    name: 'Josudo (DeepSeek V3)', 
-    icon: () => <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(471%) hue-rotate(349deg) brightness(101%) contrast(101%)' }} />,
-    pricing: { userKey: 'Not available', ourService: 'Free' },
-    supportsUserKey: false
-  },
-  { 
-    id: 'gpt-4', 
-    name: 'GPT-4', 
-    icon: SiOpenai,
-    pricing: { userKey: 'Free with your key', ourService: '$0.002/1K tokens' },
-    supportsUserKey: true
-  },
-  { 
-    id: 'gpt-4o', 
-    name: 'GPT-4o', 
-    icon: SiOpenai,
-    pricing: { userKey: 'Free with your key', ourService: '$0.002/1K tokens' },
-    supportsUserKey: true
-  },
-  { 
-    id: 'claude-3-5-sonnet', 
-    name: 'Claude 3.5 Sonnet', 
-    icon: SiAnthropic,
-    pricing: { userKey: 'Free with your key', ourService: '$0.002/1K tokens' },
-    supportsUserKey: true
-  },
-  { 
-    id: 'gemini-pro', 
-    name: 'Gemini Pro', 
-    icon: SiGoogle,
-    pricing: { userKey: 'Free with your key', ourService: '$0.002/1K tokens' },
-    supportsUserKey: true
-  },
-  { 
-    id: 'grok-beta', 
-    name: 'Grok-2', 
-    icon: SiX,
-    pricing: { userKey: 'Free with your key', ourService: '$0.002/1K tokens' },
-    supportsUserKey: true
-  },
-  { 
-    id: 'gpt-5', 
-    name: 'GPT-5 (Replicate)', 
-    icon: SiOpenai,
-    pricing: { userKey: 'Not available', ourService: '$0.003/1K tokens' },
-    supportsUserKey: false
-  },
-  { 
-    id: 'llama-3.1-70b', 
-    name: 'Llama 3.1 70B', 
-    icon: SiMeta,
-    pricing: { userKey: 'Not available', ourService: '$0.001/1K tokens' },
-    supportsUserKey: false
-  },
-  { 
-    id: 'claude-3-5-sonnet-replicate', 
-    name: 'Claude 3.5 Sonnet (Replicate)', 
-    icon: SiAnthropic,
-    pricing: { userKey: 'Not available', ourService: '$0.002/1K tokens' },
-    supportsUserKey: false
-  },
-  { 
-    id: 'llama-3.1-8b', 
-    name: 'Llama 3.1 8B', 
-    icon: SiMeta,
-    pricing: { userKey: 'Not available', ourService: '$0.001/1K tokens' },
-    supportsUserKey: false
-  },
+  { id: 'perplexity', name: 'Perplexity', icon: Brain },
+  { id: 'grok-beta', name: 'Grok 4.0', icon: SiX },
+  { id: 'gemini-pro', name: 'Gemini 2.5+', icon: SiGoogle },
+  { id: 'claude-3-5-sonnet', name: 'Claude 4.0', icon: SiAnthropic },
+  { id: 'gpt-5', name: 'ChatGPT 5.0', icon: SiOpenai },
+  { id: 'deepseek-v3', name: 'Josudo', icon: () => <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(471%) hue-rotate(349deg) brightness(101%) contrast(101%)' }} /> },
+  { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', icon: SiMeta },
+  { id: 'gpt-4', name: 'ChatGPT 4.0', icon: SiOpenai },
+  { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet', icon: SiAnthropic },
+  { id: 'llama-3', name: 'Llama 3', icon: SiMeta },
 ];
 
 const getStorageOptions = (isAuthenticated: boolean) => [
@@ -440,29 +380,6 @@ export const MessageInput: React.FC = () => {
   const activeStorage = integrations.find(i => i.serviceType === 'storage' && i.isActive);
   const currentModelInfo = AI_MODELS.find(m => m.id === selectedModel) || AI_MODELS[0]; // Default to Josudo
 
-  // Function to check if user has API key for a specific model
-  const hasUserApiKey = (modelId: string) => {
-    const model = AI_MODELS.find(m => m.id === modelId);
-    if (!model || !model.supportsUserKey) return false;
-    
-    // Map model IDs to provider names
-    const providerMap: { [key: string]: string } = {
-      'gpt-4': 'openai',
-      'gpt-4o': 'openai',
-      'claude-3-5-sonnet': 'anthropic',
-      'gemini-pro': 'google',
-      'grok-beta': 'xai'
-    };
-    
-    const provider = providerMap[modelId];
-    if (!provider) return false;
-    
-    return integrations.some(i => 
-      i.serviceType === 'ai_model' && 
-      i.serviceName === provider && 
-      i.isActive
-    );
-  };
   const currentStorageInfo = STORAGE_OPTIONS.find(s => s.id === selectedStorage) || { 
     id: 'none', 
     name: 'No Storage', 
@@ -782,18 +699,10 @@ export const MessageInput: React.FC = () => {
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 p-0 hover:bg-sky-100 dark:hover:bg-sky-800/30 hover:scale-105 group relative"
-                    title={`AI Model: ${currentModelInfo.name} - ${hasUserApiKey(selectedModel) ? 'Using your API key (Free)' : currentModelInfo.pricing.ourService}`}
+                    className="ai-control-button h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 p-0 hover:bg-sky-100 dark:hover:bg-sky-800/30 hover:scale-105 group"
+                    title={`AI Model: ${currentModelInfo.name}`}
                   >
                     <currentModelInfo.icon className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-                    {/* Pricing indicator */}
-                    <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${
-                      hasUserApiKey(selectedModel) 
-                        ? 'bg-green-500' 
-                        : currentModelInfo.pricing.ourService === 'Free' 
-                          ? 'bg-blue-500' 
-                          : 'bg-orange-500'
-                    }`} />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
@@ -808,42 +717,21 @@ export const MessageInput: React.FC = () => {
                       </div>
                     </DropdownMenuItem>
                   )}
-                  {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 6)).map((model) => {
-                    const userHasKey = hasUserApiKey(model.id);
-                    const currentPricing = userHasKey ? model.pricing.userKey : model.pricing.ourService;
-                    
-                    return (
-                      <DropdownMenuItem
-                        key={model.id}
-                        onClick={() => setSelectedModel(model.id)}
-                        className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                      >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center space-x-3">
-                            <model.icon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                            <div className="flex flex-col">
-                              <span className="font-medium">{model.name}</span>
-                              <div className="flex items-center space-x-2 text-xs">
-                                <span className={`px-2 py-1 rounded-full text-xs ${
-                                  userHasKey 
-                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                                }`}>
-                                  {userHasKey ? 'Your Key' : 'Our Service'}
-                                </span>
-                                <span className="text-slate-500 dark:text-slate-400">
-                                  {currentPricing}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          {selectedModel === model.id && (
-                            <Check className="w-4 h-4 text-blue-500" />
-                          )}
-                        </div>
-                      </DropdownMenuItem>
-                    );
-                  })}
+                  {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 6)).map((model) => (
+                    <DropdownMenuItem
+                      key={model.id}
+                      onClick={() => setSelectedModel(model.id)}
+                      className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <model.icon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                        <span className="font-medium">{model.name}</span>
+                      </div>
+                      {selectedModel === model.id && (
+                        <Check className="w-4 h-4 text-blue-500" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
