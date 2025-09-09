@@ -149,54 +149,86 @@ export class UserApiKeysService {
    */
   async testApiKey(provider: string, apiKey: string): Promise<boolean> {
     try {
+      // Trim whitespace from API key
+      const trimmedApiKey = apiKey.trim();
+      
+      if (!trimmedApiKey) {
+        console.error(`Empty API key provided for ${provider}`);
+        return false;
+      }
+      
       switch (provider) {
         case 'openai':
           const openaiResponse = await fetch('https://api.openai.com/v1/models', {
             headers: {
-              'Authorization': `Bearer ${apiKey}`,
+              'Authorization': `Bearer ${trimmedApiKey}`,
               'Content-Type': 'application/json'
             }
           });
+          
+          if (!openaiResponse.ok) {
+            const errorText = await openaiResponse.text();
+            console.error(`OpenAI API test failed: ${openaiResponse.status} ${openaiResponse.statusText}`, errorText);
+          }
+          
           return openaiResponse.ok;
 
         case 'anthropic':
           const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: {
-              'x-api-key': apiKey,
+              'x-api-key': trimmedApiKey,
               'Content-Type': 'application/json',
               'anthropic-version': '2023-06-01'
             },
             body: JSON.stringify({
-              model: 'claude-3-haiku-20240307',
+              model: 'claude-3-5-sonnet-20241022',
               max_tokens: 10,
               messages: [{ role: 'user', content: 'test' }]
             })
           });
+          
+          if (!anthropicResponse.ok) {
+            const errorText = await anthropicResponse.text();
+            console.error(`Anthropic API test failed: ${anthropicResponse.status} ${anthropicResponse.statusText}`, errorText);
+          }
+          
           return anthropicResponse.ok;
 
         case 'google':
           const googleResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
             headers: {
-              'x-goog-api-key': apiKey
+              'x-goog-api-key': trimmedApiKey
             }
           });
+          
+          if (!googleResponse.ok) {
+            const errorText = await googleResponse.text();
+            console.error(`Google API test failed: ${googleResponse.status} ${googleResponse.statusText}`, errorText);
+          }
+          
           return googleResponse.ok;
 
         case 'xai':
           const xaiResponse = await fetch('https://api.x.ai/v1/models', {
             headers: {
-              'Authorization': `Bearer ${apiKey}`,
+              'Authorization': `Bearer ${trimmedApiKey}`,
               'Content-Type': 'application/json'
             }
           });
+          
+          if (!xaiResponse.ok) {
+            const errorText = await xaiResponse.text();
+            console.error(`xAI API test failed: ${xaiResponse.status} ${xaiResponse.statusText}`, errorText);
+          }
+          
           return xaiResponse.ok;
 
         case 'perplexity':
           const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${apiKey}`,
+              'Authorization': `Bearer ${trimmedApiKey}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -205,6 +237,12 @@ export class UserApiKeysService {
               max_tokens: 10
             })
           });
+          
+          if (!perplexityResponse.ok) {
+            const errorText = await perplexityResponse.text();
+            console.error(`Perplexity API test failed: ${perplexityResponse.status} ${perplexityResponse.statusText}`, errorText);
+          }
+          
           return perplexityResponse.ok;
 
         default:
