@@ -1,17 +1,17 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
 class UserGeminiService {
-  private createClient(apiKey: string): GoogleGenerativeAI {
-    return new GoogleGenerativeAI(apiKey);
+  private createClient(apiKey: string): GoogleGenAI {
+    return new GoogleGenAI({ apiKey });
   }
 
   private getActualModelName(modelId: string): string {
     // Map our model IDs to actual Google model names
     const modelMap: { [key: string]: string } = {
-      'gemini-pro': 'gemini-pro',
-      'gemini-2.5-pro': 'gemini-2.0-flash-exp' // Use the latest available model
+      'gemini-pro': 'gemini-2.5-pro', // Use the latest available model
+      'gemini-2.5-pro': 'gemini-2.5-pro'
     };
-    return modelMap[modelId] || 'gemini-pro';
+    return modelMap[modelId] || 'gemini-2.5-pro';
   }
 
   async sendMessage(
@@ -33,27 +33,21 @@ class UserGeminiService {
     const genAI = this.createClient(userApiKey);
 
     try {
-      const geminiModel = genAI.getGenerativeModel({ 
-        model: this.getActualModelName(model),
-        generationConfig: {
-          maxOutputTokens: options.maxTokens || 4096,
-          temperature: options.temperature || 0.7,
-        }
+      const actualModel = this.getActualModelName(model);
+      
+      // Prepare conversation history
+      const historyContent = conversationHistory.length > 0 
+        ? conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n\n'
+        : '';
+
+      const fullContent = historyContent + message;
+
+      const response = await genAI.models.generateContent({
+        model: actualModel,
+        contents: fullContent,
       });
 
-      // Build conversation history for Gemini
-      const history = conversationHistory.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }]
-      }));
-
-      const chat = geminiModel.startChat({
-        history: history as any,
-      });
-
-      const result = await chat.sendMessage(message);
-      const response = await result.response;
-      const responseText = response.text();
+      const responseText = response.response.text();
 
       // Estimate tokens (rough calculation)
       const inputTokens = Math.ceil((message + conversationHistory.map(m => m.content).join('')).length / 4);
@@ -86,28 +80,22 @@ class UserGeminiService {
     const genAI = this.createClient(userApiKey);
 
     try {
-      const geminiModel = genAI.getGenerativeModel({ 
-        model: this.getActualModelName(model),
-        generationConfig: {
-          maxOutputTokens: options.maxTokens || 4096,
-          temperature: options.temperature || 0.7,
-        }
-      });
-
-      // Build conversation history for Gemini
-      const history = conversationHistory.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.content }]
-      }));
-
-      const chat = geminiModel.startChat({
-        history: history as any,
-      });
-
-      const result = await chat.sendMessageStream(message);
+      const actualModel = this.getActualModelName(model);
       
-      for await (const chunk of result.stream) {
-        const chunkText = chunk.text();
+      // Prepare conversation history
+      const historyContent = conversationHistory.length > 0 
+        ? conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n\n'
+        : '';
+
+      const fullContent = historyContent + message;
+
+      const response = await genAI.models.generateContentStream({
+        model: actualModel,
+        contents: fullContent,
+      });
+
+      for await (const chunk of response) {
+        const chunkText = chunk.response.text();
         if (chunkText) {
           yield { content: chunkText };
         }
