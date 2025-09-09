@@ -192,6 +192,21 @@ export class UserApiKeysService {
           });
           return xaiResponse.ok;
 
+        case 'perplexity':
+          const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: 'sonar-pro',
+              messages: [{ role: 'user', content: 'test' }],
+              max_tokens: 10
+            })
+          });
+          return perplexityResponse.ok;
+
         default:
           return false;
       }

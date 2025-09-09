@@ -21,9 +21,12 @@ import { userOpenAIService } from "./services/userOpenAI";
 import { userClaudeService } from "./services/userClaude";
 import { userGeminiService } from "./services/userGemini";
 import { userGrokService } from "./services/userGrok";
+import { userPerplexityService } from "./services/userPerplexity";
+import { perplexityService } from "./services/perplexity";
 
 // Model configuration for hybrid selection
 const MODEL_CONFIG = {
+  'perplexity': { provider: 'perplexity', allowUserKey: true, replicateModel: null },
   'deepseek-v3': { provider: 'openrouter', allowUserKey: false, replicateModel: null },
   'gpt-4': { provider: 'openai', allowUserKey: true, replicateModel: null },
   'gpt-4o': { provider: 'openai', allowUserKey: true, replicateModel: null },
@@ -661,6 +664,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               cost = 0; // User pays directly, no cost to us
               break;
               
+            case "perplexity":
+              serviceResponse = await userPerplexityService.sendMessage(message, model, conversationHistory, serviceConfig.userApiKey || "", {
+                thinkingMode,
+                webSearch,
+                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+              });
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = 0; // User pays directly, no cost to us
+              break;
+              
             default:
               throw new Error(`Unsupported provider for user key: ${serviceConfig.provider}`);
           }
@@ -974,6 +991,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             cost = replicateService.calculateCost(tokensUsed, model);
             
             // Usage tracking moved to centralized location after model selection
+            break;
+
+          case "perplexity":
+            serviceResponse = await perplexityService.sendMessage(message, model, conversationHistory, {
+              thinkingMode,
+              webSearch,
+              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+            });
+            response = {
+              choices: [{ message: { content: serviceResponse.response } }],
+            };
+            tokensUsed = serviceResponse.tokens;
+            cost = serviceResponse.cost;
             break;
 
           default:
@@ -1344,6 +1375,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
               break;
               
+            case "perplexity":
+              console.log("Starting Perplexity streaming with user key...");
+              for await (const chunk of userPerplexityService.sendMessageStream(enhancedMessage, model, conversationHistory, serviceConfig.userApiKey || "", {
+                thinkingMode,
+                webSearch,
+                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+              })) {
+                console.log("Received Perplexity chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+              }
+              break;
+              
             default:
               throw new Error(`Unsupported provider for user key streaming: ${serviceConfig.provider}`);
           }
@@ -1477,6 +1522,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log("Replicate streaming finished, fullResponse length:", fullResponse.length);
             break;
 
+          case "perplexity":
+            console.log("Starting Perplexity streaming...");
+            for await (const chunk of perplexityService.sendMessageStream(enhancedMessage, model, conversationHistory, {
+              thinkingMode,
+              webSearch,
+              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+            })) {
+              console.log("Received Perplexity chunk:", chunk.content);
+              fullResponse += chunk.content;
+              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+            }
+            console.log("Perplexity streaming finished, fullResponse length:", fullResponse.length);
+            break;
+
           default:
             console.log("Unknown model, defaulting to DeepSeek:", model);
             // Default to DeepSeek for any unknown model
@@ -1523,6 +1583,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
           case "grok-beta":
             estimatedCost = grokService.calculateCost(finalTokens);
+            break;
+          case "perplexity":
+            estimatedCost = perplexityService.calculateCost(finalTokens);
             break;
           case "llama-3":
           case "llama-3.1-8b":

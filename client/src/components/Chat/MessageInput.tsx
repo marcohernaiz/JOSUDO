@@ -3,9 +3,11 @@ import { useChat } from '@/hooks/useChat';
 import { useAppContext } from '@/contexts/AppContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
 import josudoIcon from '@assets/JOSUDO logo icon_1752491258890.png';
 import voiceIcon from '@assets/voice-icon.svg';
 import { PersonaSelectionModal } from './PersonaSelectionModal';
+import { WarningModal } from '../Modals/WarningModal';
 
 // Import organized avatars for path resolution
 import executiveAssistantAvatar from '@assets/avatars/executive-assistant.gif';
@@ -179,8 +181,126 @@ export const MessageInput: React.FC = () => {
   const [showAuthNotice, setShowAuthNotice] = useState(false);
   const [thinkingMode, setThinkingMode] = useState<'fast' | 'deep' | 'research'>('fast');
   const [webSearch, setWebSearch] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [warningConfig, setWarningConfig] = useState<{
+    title: string;
+    description: string;
+    actionText: string;
+    type: 'credits' | 'api_key' | 'general';
+    onAction: () => void;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  // Fetch user credits for model availability checking
+  const { data: userCreditsData } = useQuery({
+    queryKey: ["/api/user/credits"],
+    queryFn: async () => {
+      const response = await fetch("/api/user/credits", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch user credits");
+      }
+      return response.json();
+    },
+    enabled: isAuthenticated,
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+
+  const userCredits = userCreditsData?.credits || 0;
+
+  // Function to check if user has API key for a specific model
+  const hasUserApiKey = (modelId: string) => {
+    const model = AI_MODELS.find(m => m.id === modelId);
+    if (!model) return false;
+    
+    // Map model IDs to provider names
+    const providerMap: { [key: string]: string } = {
+      'gpt-4': 'openai',
+      'gpt-4o': 'openai',
+      'claude-3-5-sonnet': 'anthropic',
+      'gemini-pro': 'google',
+      'grok-beta': 'xai',
+      'perplexity': 'perplexity'
+    };
+    
+    const provider = providerMap[modelId];
+    if (!provider) return false;
+    
+    return integrations.some(i => 
+      i.serviceType === 'ai_model' && 
+      i.serviceName === provider && 
+      i.isActive
+    );
+  };
+
+  // Function to check if a model requires credits
+  const modelRequiresCredits = (modelId: string) => {
+    // Models that don't require credits (free or user's own API key)
+    const freeModels = ['deepseek-v3', 'josudo'];
+    return !freeModels.includes(modelId);
+  };
+
+  // Function to check model availability and show warnings
+  const handleModelSelection = (modelId: string) => {
+    const model = AI_MODELS.find(m => m.id === modelId);
+    if (!model) return;
+
+    // Check if user has API key for this model
+    if (hasUserApiKey(modelId)) {
+      // User has API key, allow selection
+      setSelectedModel(modelId);
+      return;
+    }
+
+    // Check if model requires credits and user has insufficient credits
+    if (modelRequiresCredits(modelId) && userCredits <= 0) {
+      setWarningConfig({
+        title: "Insufficient Credits",
+        description: `You need credits to use ${model.name}. Your current balance is ${userCredits} credits.`,
+        actionText: "Add Credits",
+        type: "credits",
+        onAction: () => {
+          setShowWarningModal(false);
+          // Open billing modal or navigate to billing
+          setActiveSection('billing');
+        }
+      });
+      setShowWarningModal(true);
+      return;
+    }
+
+    // Check if model requires API key but user doesn't have one
+    const requiresApiKey = ['gpt-4', 'gpt-4o', 'claude-3-5-sonnet', 'gemini-pro', 'grok-beta', 'perplexity'].includes(modelId);
+    if (requiresApiKey && !hasUserApiKey(modelId)) {
+      const providerMap: { [key: string]: string } = {
+        'gpt-4': 'OpenAI',
+        'gpt-4o': 'OpenAI',
+        'claude-3-5-sonnet': 'Anthropic',
+        'gemini-pro': 'Google',
+        'grok-beta': 'xAI',
+        'perplexity': 'Perplexity'
+      };
+      
+      const provider = providerMap[modelId];
+      setWarningConfig({
+        title: "API Key Required",
+        description: `To use ${model.name}, you need to add your ${provider} API key in Settings > Integrations > AI Models.`,
+        actionText: "Go to Settings",
+        type: "api_key",
+        onAction: () => {
+          setShowWarningModal(false);
+          setActiveSection('settings');
+        }
+      });
+      setShowWarningModal(true);
+      return;
+    }
+
+    // If all checks pass, allow model selection
+    setSelectedModel(modelId);
+  };
 
   const STORAGE_OPTIONS = getStorageOptions(isAuthenticated);
 
@@ -717,21 +837,48 @@ export const MessageInput: React.FC = () => {
                       </div>
                     </DropdownMenuItem>
                   )}
-                  {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 6)).map((model) => (
-                    <DropdownMenuItem
-                      key={model.id}
-                      onClick={() => setSelectedModel(model.id)}
-                      className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <model.icon className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                        <span className="font-medium">{model.name}</span>
-                      </div>
-                      {selectedModel === model.id && (
-                        <Check className="w-4 h-4 text-blue-500" />
-                      )}
-                    </DropdownMenuItem>
-                  ))}
+                  {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 6)).map((model) => {
+                    const isAvailable = hasUserApiKey(model.id) || (!modelRequiresCredits(model.id) || userCredits > 0);
+                    const hasUserKey = hasUserApiKey(model.id);
+                    
+                    return (
+                      <DropdownMenuItem
+                        key={model.id}
+                        onClick={() => handleModelSelection(model.id)}
+                        className={`p-3 cursor-pointer transition-all duration-200 rounded-lg flex items-center justify-between ${
+                          isAvailable 
+                            ? 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700' 
+                            : 'text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <model.icon className={`w-4 h-4 ${
+                            isAvailable 
+                              ? 'text-slate-600 dark:text-slate-400' 
+                              : 'text-slate-400 dark:text-slate-500'
+                          }`} />
+                          <div className="flex flex-col">
+                            <span className={`font-medium ${!isAvailable ? 'opacity-60' : ''}`}>
+                              {model.name}
+                            </span>
+                            {hasUserKey && (
+                              <span className="text-xs text-green-600 dark:text-green-400">
+                                Your API Key
+                              </span>
+                            )}
+                            {!isAvailable && !hasUserKey && (
+                              <span className="text-xs text-orange-600 dark:text-orange-400">
+                                {modelRequiresCredits(model.id) ? 'Credits Required' : 'API Key Required'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {selectedModel === model.id && (
+                          <Check className="w-4 h-4 text-blue-500" />
+                        )}
+                      </DropdownMenuItem>
+                    );
+                  })}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -784,6 +931,19 @@ export const MessageInput: React.FC = () => {
         isOpen={showPersonaModal} 
         onClose={() => setShowPersonaModal(false)} 
       />
+      
+      {/* Warning Modal */}
+      {warningConfig && (
+        <WarningModal
+          isOpen={showWarningModal}
+          onClose={() => setShowWarningModal(false)}
+          onAction={warningConfig.onAction}
+          title={warningConfig.title}
+          description={warningConfig.description}
+          actionText={warningConfig.actionText}
+          type={warningConfig.type}
+        />
+      )}
     </div>
   );
 };
