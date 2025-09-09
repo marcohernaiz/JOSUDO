@@ -1,4 +1,5 @@
 import { getSecret } from '../admin';
+import { enhanceMessageForThinking, getModelParameters } from '../utils/messageEnhancement';
 
 class PerplexityService {
   private async makeRequest(
@@ -21,10 +22,14 @@ class PerplexityService {
         return this.simulatePerplexityResponse(message);
       }
 
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+
       // Build messages array with conversation history
       const messages = [
         ...conversationHistory,
-        { role: "user", content: message }
+        { role: "user", content: enhancedMessage }
       ];
 
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -36,8 +41,8 @@ class PerplexityService {
         body: JSON.stringify({
           model: 'sonar-pro',
           messages: messages,
-          max_tokens: options.maxTokens || 4096,
-          temperature: options.temperature || 0.7,
+          max_tokens: options.maxTokens || modelParams.maxTokens,
+          temperature: options.temperature || modelParams.temperature,
           stream: false,
         }),
       });
@@ -103,10 +108,14 @@ class PerplexityService {
         return;
       }
 
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+
       // Build messages array with conversation history
       const messages = [
         ...conversationHistory,
-        { role: "user", content: message }
+        { role: "user", content: enhancedMessage }
       ];
 
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -118,8 +127,8 @@ class PerplexityService {
         body: JSON.stringify({
           model: 'sonar-pro',
           messages: messages,
-          max_tokens: options.maxTokens || 4096,
-          temperature: options.temperature || 0.7,
+          max_tokens: options.maxTokens || modelParams.maxTokens,
+          temperature: options.temperature || modelParams.temperature,
           stream: true,
         }),
       });

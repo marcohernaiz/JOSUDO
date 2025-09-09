@@ -80,6 +80,7 @@ import {
   Wifi,
   Bolt,
   Check,
+  Search,
   Cloud,
   Paperclip,
   FileText,
@@ -404,11 +405,20 @@ export const MessageInput: React.FC = () => {
   };
 
   const handleThinkingModeChange = (mode: 'fast' | 'deep' | 'research') => {
-    setThinkingMode(mode);
-    toast({
-      title: "Thinking Mode Updated",
-      description: `Switched to ${mode} thinking mode`,
-    });
+    // If clicking the same mode, toggle back to fast
+    if (thinkingMode === mode) {
+      setThinkingMode('fast');
+      toast({
+        title: "Thinking Mode Updated",
+        description: "Switched to fast thinking mode",
+      });
+    } else {
+      setThinkingMode(mode);
+      toast({
+        title: "Thinking Mode Updated",
+        description: `Switched to ${mode} thinking mode`,
+      });
+    }
   };
 
   const handleWebSearchToggle = () => {
@@ -562,14 +572,14 @@ export const MessageInput: React.FC = () => {
                   )}
                   {thinkingMode === 'research' && (
                     <div className="flex items-center space-x-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                      <Zap className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                      <Search className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                       <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">Research</span>
                     </div>
                   )}
                   {webSearch && (
-                    <div className="flex items-center space-x-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
-                      <Wifi className="w-3 h-3 text-green-600 dark:text-green-400" />
-                      <span className="text-xs text-green-600 dark:text-green-400 font-medium">Web</span>
+                    <div className="flex items-center space-x-1 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded-full">
+                      <Wifi className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                      <span className="text-xs text-purple-600 dark:text-purple-400 font-medium">Web</span>
                     </div>
                   )}
                 </div>
@@ -737,6 +747,13 @@ export const MessageInput: React.FC = () => {
                   Create image
                 </DropdownMenuItem>
                 <DropdownMenuItem 
+                  className={`p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 ${thinkingMode === 'fast' ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
+                  onClick={() => handleThinkingModeChange('fast')}
+                >
+                  <Zap className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
+                  Fast {thinkingMode === 'fast' && '✓'}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
                   className={`p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 ${thinkingMode === 'deep' ? 'bg-orange-50 dark:bg-orange-900/20' : ''}`}
                   onClick={() => handleThinkingModeChange('deep')}
                 >
@@ -744,10 +761,10 @@ export const MessageInput: React.FC = () => {
                   Think longer {thinkingMode === 'deep' && '✓'}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className={`p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 ${thinkingMode === 'research' ? 'bg-orange-50 dark:bg-orange-900/20' : ''}`}
+                  className={`p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 ${thinkingMode === 'research' ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
                   onClick={() => handleThinkingModeChange('research')}
                 >
-                  <Zap className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
+                  <Search className="w-4 h-4 mr-3 text-slate-600 dark:text-slate-400" />
                   Deep research {thinkingMode === 'research' && '✓'}
                 </DropdownMenuItem>
                 <DropdownMenuItem 

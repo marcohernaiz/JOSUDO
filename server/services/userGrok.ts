@@ -1,3 +1,5 @@
+import { enhanceMessageForThinking, getModelParameters } from '../utils/messageEnhancement';
+
 class UserGrokService {
   private getActualModelName(modelId: string): string {
     // Map our model IDs to actual xAI model names
@@ -24,10 +26,14 @@ class UserGrokService {
     cost: number;
   }> {
     try {
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+
       // Build messages array with conversation history
       const messages = [
         ...conversationHistory,
-        { role: "user", content: message }
+        { role: "user", content: enhancedMessage }
       ];
 
       const response = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -39,8 +45,8 @@ class UserGrokService {
         body: JSON.stringify({
           model: this.getActualModelName('grok-beta'),
           messages: messages,
-          max_tokens: options.maxTokens || 4096,
-          temperature: options.temperature || 0.7,
+          max_tokens: options.maxTokens || modelParams.maxTokens,
+          temperature: options.temperature || modelParams.temperature,
           stream: false,
         }),
       });
@@ -96,10 +102,14 @@ class UserGrokService {
     } = {}
   ): AsyncGenerator<{ content: string }, void, unknown> {
     try {
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+
       // Build messages array with conversation history
       const messages = [
         ...conversationHistory,
-        { role: "user", content: message }
+        { role: "user", content: enhancedMessage }
       ];
 
       const response = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -111,8 +121,8 @@ class UserGrokService {
         body: JSON.stringify({
           model: this.getActualModelName('grok-beta'),
           messages: messages,
-          max_tokens: options.maxTokens || 4096,
-          temperature: options.temperature || 0.7,
+          max_tokens: options.maxTokens || modelParams.maxTokens,
+          temperature: options.temperature || modelParams.temperature,
           stream: true,
         }),
       });

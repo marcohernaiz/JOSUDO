@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { enhanceMessageForThinking, getModelParameters } from '../utils/messageEnhancement';
 
 class UserOpenAIService {
   private createClient(apiKey: string): OpenAI {
@@ -17,36 +18,48 @@ class UserOpenAIService {
 
   async sendMessage(
     message: string,
-    userId: number,
-    sessionId: string,
-    userApiKey: string,
+    model: string = "gpt-4o",
     conversationHistory: Array<{ role: string; content: string }> = [],
-    model: string = "gpt-4o"
+    userApiKey: string,
+    options: {
+      thinkingMode?: 'fast' | 'deep' | 'research';
+      webSearch?: boolean;
+      maxTokens?: number;
+      temperature?: number;
+    } = {}
   ): Promise<{
-    choices: Array<{ message: { content: string }; usage?: { total_tokens: number } }>;
+    response: string;
+    tokens: number;
+    cost: number;
   }> {
     const openai = this.createClient(userApiKey);
 
     try {
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+
       // Build messages array with conversation history
       const messages: Array<{ role: string; content: string }> = [
         ...conversationHistory,
-        { role: "user", content: message }
+        { role: "user", content: enhancedMessage }
       ];
 
       const actualModel = this.getActualModelName(model);
       const completion = await openai.chat.completions.create({
-        model: actualModel, // Use the actual model name
+        model: actualModel,
         messages: messages as any,
-        max_tokens: 4096,
-        temperature: 0.7,
+        max_tokens: options.maxTokens || modelParams.maxTokens,
+        temperature: options.temperature || modelParams.temperature,
       });
 
+      const responseText = completion.choices[0]?.message?.content || '';
+      const tokens = completion.usage?.total_tokens || Math.ceil((enhancedMessage.length + responseText.length) / 4);
+
       return {
-        choices: completion.choices.map(choice => ({
-          message: { content: choice.message.content || "" },
-          usage: completion.usage ? { total_tokens: completion.usage.total_tokens } : undefined
-        }))
+        response: responseText,
+        tokens: tokens,
+        cost: 0 // User pays directly, no cost to us
       };
     } catch (error) {
       console.error('User OpenAI API error:', error);
@@ -56,27 +69,35 @@ class UserOpenAIService {
 
   async *sendMessageStream(
     message: string,
-    userId: number,
-    sessionId: string,
-    userApiKey: string,
+    model: string = "gpt-4o",
     conversationHistory: Array<{ role: string; content: string }> = [],
-    model: string = "gpt-4o"
+    userApiKey: string,
+    options: {
+      thinkingMode?: 'fast' | 'deep' | 'research';
+      webSearch?: boolean;
+      maxTokens?: number;
+      temperature?: number;
+    } = {}
   ): AsyncGenerator<{ content: string }, void, unknown> {
     const openai = this.createClient(userApiKey);
 
     try {
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+
       // Build messages array with conversation history
       const messages: Array<{ role: string; content: string }> = [
         ...conversationHistory,
-        { role: "user", content: message }
+        { role: "user", content: enhancedMessage }
       ];
 
       const actualModel = this.getActualModelName(model);
       const stream = await openai.chat.completions.create({
-        model: actualModel, // Use the actual model name
+        model: actualModel,
         messages: messages as any,
-        max_tokens: 4096,
-        temperature: 0.7,
+        max_tokens: options.maxTokens || modelParams.maxTokens,
+        temperature: options.temperature || modelParams.temperature,
         stream: true,
       });
 

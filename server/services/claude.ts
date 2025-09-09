@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { getSecret } from '../admin';
+import { enhanceMessageForThinking, getModelParameters } from '../utils/messageEnhancement';
 
 /*
 <important_code_snippet_instructions>
@@ -26,7 +27,13 @@ class ClaudeService {
     async sendMessage(
     message: string, 
     model: string = DEFAULT_MODEL_STR,
-    conversationHistory: Array<{ role: string; content: string }> = []
+    conversationHistory: Array<{ role: string; content: string }> = [],
+    options: {
+      thinkingMode?: 'fast' | 'deep' | 'research';
+      webSearch?: boolean;
+      maxTokens?: number;
+      temperature?: number;
+    } = {}
   ): Promise<{
     response: string;
     tokens: number;
@@ -38,14 +45,18 @@ class ClaudeService {
         return this.simulateClaudeResponse(message);
       }
 
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+
       // Prepare messages array with conversation history
       const messages = [
         ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })),
-        { role: 'user' as const, content: message }
+        { role: 'user' as const, content: enhancedMessage }
       ];
 
       const response = await this.anthropic.messages.create({
-        max_tokens: 1024,
+        max_tokens: options.maxTokens || modelParams.maxTokens,
         messages,
         // "claude-sonnet-4-20250514"
         model: DEFAULT_MODEL_STR,
@@ -69,7 +80,13 @@ class ClaudeService {
   async *sendMessageStream(
     message: string, 
     model: string = DEFAULT_MODEL_STR,
-    conversationHistory: Array<{ role: string; content: string }> = []
+    conversationHistory: Array<{ role: string; content: string }> = [],
+    options: {
+      thinkingMode?: 'fast' | 'deep' | 'research';
+      webSearch?: boolean;
+      maxTokens?: number;
+      temperature?: number;
+    } = {}
   ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
     try {
       const apiKey = getSecret('ANTHROPIC_API_KEY') || process.env.ANTHROPIC_API_KEY;
@@ -84,14 +101,18 @@ class ClaudeService {
         return;
       }
 
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+
       // Prepare messages array with conversation history
       const messages = [
         ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant', content: msg.content })),
-        { role: 'user' as const, content: message }
+        { role: 'user' as const, content: enhancedMessage }
       ];
 
       const stream = await this.anthropic.messages.create({
-        max_tokens: 1024,
+        max_tokens: options.maxTokens || modelParams.maxTokens,
         messages,
         model: DEFAULT_MODEL_STR,
         stream: true,

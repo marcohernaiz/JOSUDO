@@ -1,4 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
+import { enhanceMessageForThinking, getModelParameters } from '../utils/messageEnhancement';
 
 class UserGeminiService {
   private createClient(apiKey: string): GoogleGenAI {
@@ -33,6 +34,10 @@ class UserGeminiService {
     const genAI = this.createClient(userApiKey);
 
     try {
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+      
       const actualModel = this.getActualModelName(model);
       
       // Prepare conversation history
@@ -40,7 +45,7 @@ class UserGeminiService {
         ? conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n\n'
         : '';
 
-      const fullContent = historyContent + message;
+      const fullContent = historyContent + enhancedMessage;
 
       const response = await genAI.models.generateContent({
         model: actualModel,
@@ -80,6 +85,10 @@ class UserGeminiService {
     const genAI = this.createClient(userApiKey);
 
     try {
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+      
       const actualModel = this.getActualModelName(model);
       
       // Prepare conversation history
@@ -87,7 +96,7 @@ class UserGeminiService {
         ? conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\n\n'
         : '';
 
-      const fullContent = historyContent + message;
+      const fullContent = historyContent + enhancedMessage;
 
       const response = await genAI.models.generateContentStream({
         model: actualModel,

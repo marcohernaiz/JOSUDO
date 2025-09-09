@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { enhanceMessageForThinking, getModelParameters } from '../utils/messageEnhancement';
 
 class UserClaudeService {
   private createClient(apiKey: string): Anthropic {
@@ -18,7 +19,13 @@ class UserClaudeService {
     message: string,
     model: string = "claude-3-5-sonnet-20241022",
     conversationHistory: Array<{ role: string; content: string }> = [],
-    userApiKey: string
+    userApiKey: string,
+    options: {
+      thinkingMode?: 'fast' | 'deep' | 'research';
+      webSearch?: boolean;
+      maxTokens?: number;
+      temperature?: number;
+    } = {}
   ): Promise<{
     response: string;
     tokens: number;
@@ -27,10 +34,14 @@ class UserClaudeService {
     const anthropic = this.createClient(userApiKey);
 
     try {
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+
       // Build messages array with conversation history
       const messages: Array<{ role: string; content: string }> = [
         ...conversationHistory,
-        { role: "user", content: message }
+        { role: "user", content: enhancedMessage }
       ];
 
       // Convert to Anthropic format
@@ -42,8 +53,8 @@ class UserClaudeService {
       const actualModel = this.getActualModelName(model);
       const response = await anthropic.messages.create({
         model: actualModel,
-        max_tokens: 4096,
-        temperature: 0.7,
+        max_tokens: options.maxTokens || modelParams.maxTokens,
+        temperature: options.temperature || modelParams.temperature,
         messages: anthropicMessages as any,
       });
 
@@ -65,15 +76,25 @@ class UserClaudeService {
     message: string,
     model: string = "claude-3-5-sonnet-20241022",
     conversationHistory: Array<{ role: string; content: string }> = [],
-    userApiKey: string
+    userApiKey: string,
+    options: {
+      thinkingMode?: 'fast' | 'deep' | 'research';
+      webSearch?: boolean;
+      maxTokens?: number;
+      temperature?: number;
+    } = {}
   ): AsyncGenerator<{ content: string }, void, unknown> {
     const anthropic = this.createClient(userApiKey);
 
     try {
+      // Enhance message based on thinking mode and web search
+      const enhancedMessage = enhanceMessageForThinking(message, options);
+      const modelParams = getModelParameters(options);
+
       // Build messages array with conversation history
       const messages: Array<{ role: string; content: string }> = [
         ...conversationHistory,
-        { role: "user", content: message }
+        { role: "user", content: enhancedMessage }
       ];
 
       // Convert to Anthropic format
@@ -85,8 +106,8 @@ class UserClaudeService {
       const actualModel = this.getActualModelName(model);
       const stream = await anthropic.messages.create({
         model: actualModel,
-        max_tokens: 4096,
-        temperature: 0.7,
+        max_tokens: options.maxTokens || modelParams.maxTokens,
+        temperature: options.temperature || modelParams.temperature,
         messages: anthropicMessages as any,
         stream: true,
       });

@@ -614,21 +614,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
             case "openai":
               serviceResponse = await userOpenAIService.sendMessage(
                 message,
-                userId,
-                sessionId || userId.toString(),
-                serviceConfig.userApiKey || "",
+                model,
                 conversationHistory,
-                model
+                serviceConfig.userApiKey || "",
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+                  temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+                }
               );
               response = {
-                choices: [{ message: { content: serviceResponse.choices[0].message.content } }],
+                choices: [{ message: { content: serviceResponse.response } }],
               };
-              tokensUsed = (serviceResponse.choices[0] as any).usage?.total_tokens || 0;
+              tokensUsed = serviceResponse.tokens;
               cost = 0; // User pays directly, no cost to us
               break;
               
             case "anthropic":
-              serviceResponse = await userClaudeService.sendMessage(message, model, conversationHistory, serviceConfig.userApiKey || "");
+              serviceResponse = await userClaudeService.sendMessage(message, model, conversationHistory, serviceConfig.userApiKey || "", {
+                thinkingMode,
+                webSearch,
+                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+              });
               response = {
                 choices: [{ message: { content: serviceResponse.response } }],
               };
@@ -786,7 +795,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
 
           case "claude-3-5-sonnet":
-            serviceResponse = await claudeService.sendMessage(message, model, conversationHistory);
+            serviceResponse = await claudeService.sendMessage(message, model, conversationHistory, {
+              thinkingMode,
+              webSearch,
+              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+            });
             response = {
               choices: [{ message: { content: serviceResponse.response } }],
             };
@@ -1326,11 +1340,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.log("Starting OpenAI streaming with user key...");
               for await (const chunk of userOpenAIService.sendMessageStream(
                 enhancedMessage,
-                userId,
-                sessionId || userId.toString(),
-                serviceConfig.userApiKey || "",
+                model,
                 conversationHistory,
-                model
+                serviceConfig.userApiKey || "",
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+                  temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+                }
               )) {
                 console.log("Received OpenAI chunk:", chunk.content);
                 fullResponse += chunk.content;
@@ -1340,7 +1358,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               
             case "anthropic":
               console.log("Starting Claude streaming with user key...");
-              for await (const chunk of userClaudeService.sendMessageStream(enhancedMessage, model, conversationHistory, serviceConfig.userApiKey || "")) {
+              for await (const chunk of userClaudeService.sendMessageStream(enhancedMessage, model, conversationHistory, serviceConfig.userApiKey || "", {
+                thinkingMode,
+                webSearch,
+                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+              })) {
                 console.log("Received Claude chunk:", chunk.content);
                 fullResponse += chunk.content;
                 res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
@@ -1444,7 +1467,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           case "claude-3-5-sonnet":
             console.log("Starting Claude streaming...");
-            for await (const chunk of claudeService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
+            for await (const chunk of claudeService.sendMessageStream(enhancedMessage, model, conversationHistory, {
+              thinkingMode,
+              webSearch,
+              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+            })) {
               console.log("Received Claude chunk:", chunk.content);
               fullResponse += chunk.content;
               res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);

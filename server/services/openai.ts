@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import { getSecret } from "../admin";
 import { storage } from "../storage"; // adjust path as needed
 import { googleDriveService } from "./googleDrive";
+import { enhanceMessageForThinking, getModelParameters } from '../utils/messageEnhancement';
 
 class OpenAIService {
   private async getOpenAIClientForUser(userId: number) {
