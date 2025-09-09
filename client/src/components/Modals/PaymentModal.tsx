@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Loader2, CheckCircle, CreditCard, Zap, BarChart3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface CreditPackage {
   id: string;
@@ -27,6 +28,7 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
   const [currentCredits, setCurrentCredits] = useState(0);
   const { user } = useAppContext();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const stripe = useStripe();
   const elements = useElements();
 
@@ -116,8 +118,12 @@ const PaymentForm: React.FC<{ packages: CreditPackage[], selectedPackage: string
           variant: "default",
         });
         
-        // Refresh credit balance
+        // Refresh credit balance in modal
         await fetchCurrentCredits();
+        
+        // Invalidate credits query to refresh UI everywhere
+        queryClient.invalidateQueries({ queryKey: ['/api/user/credits'] });
+        
         onClose();
       } else {
         const errorData = await confirmResponse.json().catch(() => ({ error: 'Unknown error' }));

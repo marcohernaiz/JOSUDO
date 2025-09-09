@@ -15,7 +15,76 @@ import { geminiService } from "./services/gemini";
 import { grokService } from "./services/grok";
 import { llamaService } from "./services/llama";
 import { replicateService } from "./services/replicate";
+import { userApiKeysService } from "./services/userApiKeys";
 import { authenticateUser } from "./middleware/auth";
+import { userOpenAIService } from "./services/userOpenAI";
+import { userClaudeService } from "./services/userClaude";
+import { userGeminiService } from "./services/userGemini";
+import { userGrokService } from "./services/userGrok";
+
+// Model configuration for hybrid selection
+const MODEL_CONFIG = {
+  'deepseek-v3': { provider: 'openrouter', allowUserKey: false, replicateModel: null },
+  'gpt-4': { provider: 'openai', allowUserKey: true, replicateModel: null },
+  'gpt-4o': { provider: 'openai', allowUserKey: true, replicateModel: null },
+  'claude-3-5-sonnet': { provider: 'anthropic', allowUserKey: true, replicateModel: null },
+  'gemini-pro': { provider: 'google', allowUserKey: true, replicateModel: null },
+  'grok-beta': { provider: 'xai', allowUserKey: true, replicateModel: null },
+  'gpt-5': { provider: 'replicate', allowUserKey: false, replicateModel: 'openai/gpt-5' },
+  'llama-3.1-70b': { provider: 'replicate', allowUserKey: false, replicateModel: 'meta/llama-3.1-70b' },
+  'claude-3-5-sonnet-replicate': { provider: 'replicate', allowUserKey: false, replicateModel: 'anthropic/claude-3-5-sonnet' },
+  'llama-3.1-8b': { provider: 'replicate', allowUserKey: false, replicateModel: 'meta/llama-3.1-8b' },
+};
+
+// Helper function to determine which service to use
+async function getServiceForModel(model: string, userId?: number): Promise<{
+  useUserKey: boolean;
+  userApiKey?: string;
+  provider: string;
+  replicateModel?: string;
+}> {
+  const config = MODEL_CONFIG[model as keyof typeof MODEL_CONFIG];
+  
+  if (!config) {
+    throw new Error(`Unknown model: ${model}`);
+  }
+
+  // If model doesn't support user keys, use Replicate
+  if (!config.allowUserKey) {
+    return {
+      useUserKey: false,
+      provider: config.provider,
+      replicateModel: config.replicateModel || undefined
+    };
+  }
+
+  // If user is not authenticated, use Replicate
+  if (!userId) {
+    return {
+      useUserKey: false,
+      provider: config.provider,
+      replicateModel: config.replicateModel || undefined
+    };
+  }
+
+  // Check if user has their own API key for this provider
+  const userApiKey = await userApiKeysService.getApiKey(userId, config.provider);
+  
+  if (userApiKey) {
+    return {
+      useUserKey: true,
+      userApiKey: userApiKey || undefined,
+      provider: config.provider
+    };
+  }
+
+  // User doesn't have their own key, use Replicate
+  return {
+    useUserKey: false,
+    provider: config.provider,
+    replicateModel: config.replicateModel || undefined
+  };
+}
 import {
   insertChatSessionSchema,
   insertIntegrationSchema,
@@ -532,8 +601,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Route to appropriate AI service based on model
       try {
-        switch (model) {
-          case "deepseek-chat":
+        // Determine which service to use (user key vs Replicate)
+        const serviceConfig = await getServiceForModel(model, userId);
+        console.log(`Using ${serviceConfig.useUserKey ? 'user API key' : 'Replicate'} for model ${model}`);
+        
+        if (serviceConfig.useUserKey) {
+          // Use user's own API key
+          switch (serviceConfig.provider) {
+            case "openai":
+              serviceResponse = await userOpenAIService.sendMessage(
+                message,
+                userId,
+                sessionId || userId.toString(),
+                serviceConfig.userApiKey || "",
+                conversationHistory,
+                model
+              );
+              response = {
+                choices: [{ message: { content: serviceResponse.choices[0].message.content } }],
+              };
+              tokensUsed = (serviceResponse.choices[0] as any).usage?.total_tokens || 0;
+              cost = 0; // User pays directly, no cost to us
+              break;
+              
+            case "anthropic":
+              serviceResponse = await userClaudeService.sendMessage(message, model, conversationHistory, serviceConfig.userApiKey || "");
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = 0; // User pays directly, no cost to us
+              break;
+              
+            case "google":
+              serviceResponse = await userGeminiService.sendMessage(message, model, conversationHistory, serviceConfig.userApiKey || "", {
+                thinkingMode,
+                webSearch,
+                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+              });
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = 0; // User pays directly, no cost to us
+              break;
+              
+            case "xai":
+              serviceResponse = await userGrokService.sendMessage(message, model, conversationHistory, serviceConfig.userApiKey || "", {
+                thinkingMode,
+                webSearch,
+                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+              });
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = 0; // User pays directly, no cost to us
+              break;
+              
+            default:
+              throw new Error(`Unsupported provider for user key: ${serviceConfig.provider}`);
+          }
+        } else {
+          // Use Replicate or our service
+          switch (model) {
+            case "deepseek-chat":
             serviceResponse = await deepseekService.sendMessage(message, model, conversationHistory);
             response = {
               choices: [{ message: { content: serviceResponse.response } }],
@@ -839,31 +973,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             tokensUsed = model === "gpt-5" ? 1500 : 1000; // Higher token estimate for GPT-5
             cost = replicateService.calculateCost(tokensUsed, model);
             
-            // Track usage for Replicate (GPT-5 and Llama)
-            if (userId) {
-              try {
-                const now = new Date();
-                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-                const creditsToDeduct = Math.ceil(cost * 100); // Convert cost to credits (1 credit = $0.01)
-                
-                // Deduct credits from user's balance (this also logs usage)
-                console.log(`🔍 Attempting to deduct credits for user ${userId}, model: ${model}, tokens: ${tokensUsed}`);
-                const deductionResult = await billingService.deductCredits(userId, tokensUsed, model);
-                console.log(`🔍 Deduction result:`, deductionResult);
-
-                // Update monthly usage for billing
-                await storage.updateMonthlyUsage(userId, cost);
-                
-                console.log(`✅ Josudo usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}, ${deductionResult.creditsDeducted} credits deducted`);
-                console.log(`💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`);
-              } catch (error) {
-                console.error("Failed to log Replicate usage:", error);
-                // If credit deduction fails, we should handle it gracefully
-                if (error instanceof Error && error.message === 'Insufficient credits') {
-                  console.log(`❌ User ${userId} has insufficient credits for ${model} request`);
-                }
-              }
-            }
+            // Usage tracking moved to centralized location after model selection
             break;
 
           default:
@@ -875,6 +985,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             tokensUsed = serviceResponse.tokens;
             cost = serviceResponse.cost;
             break;
+          }
         }
       } catch (error) {
         console.error(`Error with ${model}:`, error);
@@ -891,6 +1002,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         tokensUsed = serviceResponse.tokens;
         cost = serviceResponse.cost;
+      }
+
+      // Deduct credits only if not using user's own API key
+      if (userId && cost > 0) {
+        try {
+          console.log(`🔍 Attempting to deduct credits for user ${userId}, model: ${model}, tokens: ${tokensUsed}, cost: $${cost}`);
+          const deductionResult = await billingService.deductCredits(userId, tokensUsed, model);
+          console.log(`🔍 Deduction result:`, deductionResult);
+
+          // Update monthly usage for billing
+          const now = new Date();
+          const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+          await storage.updateMonthlyUsage(userId, cost);
+          
+          console.log(`✅ Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}, ${deductionResult.creditsDeducted} credits deducted`);
+          console.log(`💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`);
+        } catch (error) {
+          console.error("Failed to log usage:", error);
+        }
+      } else if (userId && cost === 0) {
+        console.log(`✅ User ${userId} used their own API key for ${model} - no credits deducted`);
       }
 
       // After getting the AI response:
@@ -1151,8 +1283,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         console.log("Starting streaming for model:", model);
-        // Route to appropriate AI service for streaming
-        switch (model) {
+        
+        // Determine which service to use (user key vs Replicate)
+        const serviceConfig = await getServiceForModel(model, userId);
+        console.log(`[Streaming] Using ${serviceConfig.useUserKey ? 'user API key' : 'Replicate'} for model ${model}`);
+        
+        if (serviceConfig.useUserKey) {
+          // Use user's own API key for streaming
+          switch (serviceConfig.provider) {
+            case "openai":
+              console.log("Starting OpenAI streaming with user key...");
+              for await (const chunk of userOpenAIService.sendMessageStream(
+                enhancedMessage,
+                userId,
+                sessionId || userId.toString(),
+                serviceConfig.userApiKey || "",
+                conversationHistory,
+                model
+              )) {
+                console.log("Received OpenAI chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+              }
+              break;
+              
+            case "anthropic":
+              console.log("Starting Claude streaming with user key...");
+              for await (const chunk of userClaudeService.sendMessageStream(enhancedMessage, model, conversationHistory, serviceConfig.userApiKey || "")) {
+                console.log("Received Claude chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+              }
+              break;
+              
+            case "google":
+              console.log("Starting Gemini streaming with user key...");
+              for await (const chunk of userGeminiService.sendMessageStream(enhancedMessage, model, conversationHistory, serviceConfig.userApiKey || "", {
+                thinkingMode,
+                webSearch,
+                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+              })) {
+                console.log("Received Gemini chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+              }
+              break;
+              
+            case "xai":
+              console.log("Starting Grok streaming with user key...");
+              for await (const chunk of userGrokService.sendMessageStream(enhancedMessage, model, conversationHistory, serviceConfig.userApiKey || "", {
+                thinkingMode,
+                webSearch,
+                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
+                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
+              })) {
+                console.log("Received Grok chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+              }
+              break;
+              
+            default:
+              throw new Error(`Unsupported provider for user key streaming: ${serviceConfig.provider}`);
+          }
+        } else {
+          // Use Replicate or our service for streaming
+          switch (model) {
           case "deepseek-chat":
             console.log("Starting DeepSeek streaming...");
             for await (const chunk of deepseekService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
@@ -1290,6 +1487,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             console.log("Default streaming finished, fullResponse length:", fullResponse.length);
             break;
+          }
         }
 
         console.log("Streaming completed, full response length:", fullResponse.length);
@@ -1335,8 +1533,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             estimatedCost = (finalTokens / 1000) * 0.001;
         }
         
-        // Track usage for streaming responses
-        if (userId) {
+        // Track usage for streaming responses (only if not using user's own API key)
+        if (userId && estimatedCost > 0) {
           try {
             const now = new Date();
             const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
@@ -1357,6 +1555,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.log(`❌ [Streaming] User ${userId} has insufficient credits for ${model} request`);
             }
           }
+        } else if (userId && estimatedCost === 0) {
+          console.log(`✅ [Streaming] User ${userId} used their own API key for ${model} - no credits deducted`);
         }
         
         // Completion signal will be sent after Google Drive save (if authenticated) or here (if not authenticated)
@@ -1534,9 +1734,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check for authenticated user
       if (req.isAuthenticated()) {
-        integrations = await storage.getIntegrations((req.user as any).id);
+        const userId = (req.user as any).id;
+        // Get both regular integrations and AI model integrations
+        const regularIntegrations = await storage.getIntegrations(userId);
+        const aiModelIntegrations = await userApiKeysService.getUserApiKeys(userId);
+        
+        // Convert AI model integrations to the expected format
+        const formattedAiIntegrations = aiModelIntegrations.map(key => ({
+          id: key.id,
+          userId,
+          serviceType: 'ai_model',
+          serviceName: key.provider,
+          credentialsEncrypted: '[ENCRYPTED]',
+          isActive: key.isActive,
+          createdAt: key.createdAt,
+          updatedAt: key.createdAt // Using createdAt as updatedAt since we don't have separate updatedAt
+        }));
+        
+        integrations = [...regularIntegrations, ...formattedAiIntegrations];
       } else if (session.session?.userId) {
-        integrations = await storage.getIntegrations(session.session.userId);
+        const userId = session.session.userId;
+        const regularIntegrations = await storage.getIntegrations(userId);
+        const aiModelIntegrations = await userApiKeysService.getUserApiKeys(userId);
+        
+        const formattedAiIntegrations = aiModelIntegrations.map(key => ({
+          id: key.id,
+          userId,
+          serviceType: 'ai_model',
+          serviceName: key.provider,
+          credentialsEncrypted: '[ENCRYPTED]',
+          isActive: key.isActive,
+          createdAt: key.createdAt,
+          updatedAt: key.createdAt
+        }));
+        
+        integrations = [...regularIntegrations, ...formattedAiIntegrations];
       } else if (session.session?.integrations) {
         // Return session-stored integrations
         integrations = session.session.integrations;
@@ -1561,11 +1793,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (userId) {
-        const integration = await storage.createIntegration({
-          ...req.body,
-          userId,
-        });
-        res.json({ success: true, integration });
+        // Check if this is an AI model integration
+        if (req.body.serviceType === 'ai_model') {
+          // Use our new userApiKeysService for AI model integrations
+          const { serviceName, credentialsEncrypted } = req.body;
+          
+          // Test the API key first
+          const isValid = await userApiKeysService.testApiKey(serviceName, credentialsEncrypted);
+          if (!isValid) {
+            return res.status(400).json({ error: 'Invalid API key' });
+          }
+          
+          // Store the API key using our service
+          const keyId = await userApiKeysService.storeApiKey(userId, serviceName, credentialsEncrypted);
+          
+          // Return integration data in the expected format
+          const integration = {
+            id: keyId,
+            userId,
+            serviceType: 'ai_model',
+            serviceName,
+            credentialsEncrypted: '[ENCRYPTED]', // Don't return the actual key
+            isActive: true,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+          
+          res.json({ success: true, integration });
+        } else {
+          // Use existing storage service for other integrations (like Google Drive)
+          const integration = await storage.createIntegration({
+            ...req.body,
+            userId,
+          });
+          res.json({ success: true, integration });
+        }
       } else {
         // Store temporarily in session for current session only
         if (!session.session.integrations) {
@@ -1592,9 +1854,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/integrations/:id", async (req, res) => {
     try {
-      // Mock success response since no user accounts
-      res.json({ success: true });
+      const integrationId = parseInt(req.params.id);
+      const userId = (req.user as any)?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      // First, try to find the integration to determine its type
+      const regularIntegrations = await storage.getIntegrations(userId);
+      const aiModelIntegrations = await userApiKeysService.getUserApiKeys(userId);
+      
+      // Check if it's an AI model integration
+      const aiIntegration = aiModelIntegrations.find(integration => integration.id === integrationId);
+      if (aiIntegration) {
+        // Delete using our userApiKeysService
+        await userApiKeysService.deleteApiKey(userId, aiIntegration.provider);
+        res.json({ success: true });
+        return;
+      }
+      
+      // Check if it's a regular integration
+      const regularIntegration = regularIntegrations.find(integration => integration.id === integrationId);
+      if (regularIntegration) {
+        // Delete using existing storage service
+        await storage.deleteIntegration(integrationId);
+        res.json({ success: true });
+        return;
+      }
+      
+      // Integration not found
+      res.status(404).json({ error: 'Integration not found' });
     } catch (error) {
+      console.error('Error deleting integration:', error);
       res.status(500).json({ error: "Failed to delete integration" });
     }
   });
@@ -2406,31 +2698,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     "/api/stripe/confirm-payment",
     authenticateUser,
     async (req, res) => {
-      try {
-        const { paymentIntentId } = req.body;
-        const userId = (req.user as any)?.id;
+      const { paymentIntentId } = req.body;
+      const userId = (req.user as any)?.id;
       
-      if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
+      try {
+        if (!userId) {
+          return res.status(401).json({ error: 'Unauthorized' });
+        }
 
-      const result = await billingService.confirmPayment(paymentIntentId, userId);
-      res.json(result);
-    } catch (error) {
-      console.error('Error confirming payment:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Payment confirmation error details:', {
-        paymentIntentId,
-        userId,
-        error: errorMessage,
-        stack: error instanceof Error ? error.stack : undefined
-      });
-      res.status(500).json({ 
-        error: 'Failed to confirm payment',
-        details: errorMessage 
-      });
+        const result = await billingService.confirmPayment(paymentIntentId, userId);
+        res.json(result);
+      } catch (error) {
+        console.error('Error confirming payment:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Payment confirmation error details:', {
+          paymentIntentId,
+          userId,
+          error: errorMessage,
+          stack: error instanceof Error ? error.stack : undefined
+        });
+        res.status(500).json({ 
+          error: 'Failed to confirm payment',
+          details: errorMessage 
+        });
+      }
     }
-  });
+  );
 
   app.get(
     "/api/stripe/credit-packages",
@@ -2563,6 +2856,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to load avatar library' });
     }
   });
+
 
   const httpServer = createServer(app);
   return httpServer;
