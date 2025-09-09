@@ -66,7 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     useAppContext();
   const { isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
-  const [showSettings, setShowSettings] = useState(false);
+  const { showSettingsModal, settingsModalConfig, closeSettingsModal, openSettingsModal } = useAppContext();
   const [showBilling, setShowBilling] = useState(false);
   const [isExpanded, setIsExpanded] = useState(window.innerWidth >= 1200);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
@@ -466,7 +466,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     Upgrade plan
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => setShowSettings(true)}
+                    onClick={() => openSettingsModal()}
                     className="cursor-pointer"
                   >
                     <span className="mr-2">⚙️</span>
@@ -590,8 +590,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <SettingsModal
-        open={showSettings}
-        onClose={() => setShowSettings(false)}
+        open={showSettingsModal}
+        onClose={closeSettingsModal}
+        config={settingsModalConfig}
       />
       <PaymentModal
         open={showBilling}

@@ -184,4 +184,15 @@ export interface AppContextType {
   // Add digital personas state
   selectedPersona: DigitalPersona | null;
   setSelectedPersona: (persona: DigitalPersona | null) => void;
+  // Add settings modal state
+  showSettingsModal: boolean;
+  settingsModalConfig: {
+    activeTab?: string;
+    expandedSections?: Record<string, boolean>;
+  } | null;
+  openSettingsModal: (config?: {
+    activeTab?: string;
+    expandedSections?: Record<string, boolean>;
+  }) => void;
+  closeSettingsModal: () => void;
 }

@@ -39,6 +39,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentSpace, setCurrentSpace] = useState<Space | null>(null);
   // Add digital personas state
   const [selectedPersona, setSelectedPersona] = useState<DigitalPersona | null>(null);
+  // Add settings modal state
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [settingsModalConfig, setSettingsModalConfig] = useState<{
+    activeTab?: string;
+    expandedSections?: Record<string, boolean>;
+  } | null>(null);
 
   // Query user authentication status
   const { data: user, isLoading: isUserLoading } = useQuery<User>({
@@ -103,6 +109,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     window.location.href = "/api/auth/logout";
   };
 
+  // Function to open settings modal with specific configuration
+  const openSettingsModal = (config?: {
+    activeTab?: string;
+    expandedSections?: Record<string, boolean>;
+  }) => {
+    setSettingsModalConfig(config || null);
+    setShowSettingsModal(true);
+  };
+
+  const closeSettingsModal = () => {
+    setShowSettingsModal(false);
+    setSettingsModalConfig(null);
+  };
+
   const contextValue: AppContextType = {
     user: user || null,
     isAuthenticated: !!user,
@@ -128,6 +148,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     setCurrentSpace,
     selectedPersona,
     setSelectedPersona,
+    showSettingsModal,
+    settingsModalConfig,
+    openSettingsModal,
+    closeSettingsModal,
   };
 
   return (

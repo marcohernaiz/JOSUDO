@@ -167,7 +167,7 @@ const getStorageOptions = (isAuthenticated: boolean) => [
 
 export const MessageInput: React.FC = () => {
   const { currentMessage, setCurrentMessage, sendMessage, isLoading, messages } = useChat();
-  const { integrations, selectedModel, setSelectedModel, setActiveSection, selectedPersona } = useAppContext();
+  const { integrations, selectedModel, setSelectedModel, setActiveSection, selectedPersona, openSettingsModal } = useAppContext();
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [selectedStorage, setSelectedStorage] = useState('');
@@ -291,7 +291,15 @@ export const MessageInput: React.FC = () => {
         type: "api_key",
         onAction: () => {
           setShowWarningModal(false);
-          setActiveSection('settings');
+          openSettingsModal({
+            activeTab: 'integrations',
+            expandedSections: {
+              aiModels: true,
+              cloudStorage: false,
+              processing: false,
+              mcpServers: false
+            }
+          });
         }
       });
       setShowWarningModal(true);

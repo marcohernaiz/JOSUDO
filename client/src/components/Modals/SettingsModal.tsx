@@ -12,9 +12,13 @@ import { ChevronDown, ChevronRight, TrendingUp, Zap, DollarSign, Clock, RefreshC
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
+  config?: {
+    activeTab?: string;
+    expandedSections?: Record<string, boolean>;
+  } | null;
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, config }) => {
   const { integrations, refreshIntegrations } = useAppContext();
   const [activeTab, setActiveTab] = useState('integrations');
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
@@ -27,6 +31,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Apply config when modal opens
+  useEffect(() => {
+    if (open && config) {
+      if (config.activeTab) {
+        setActiveTab(config.activeTab);
+      }
+      if (config.expandedSections) {
+        setExpandedSections(prev => ({
+          ...prev,
+          ...config.expandedSections
+        }));
+      }
+    }
+  }, [open, config]);
 
   // Fetch usage data
   const { data: usageData, isLoading: usageLoading, error: usageError, refetch: refetchUsage } = useQuery({
@@ -197,14 +216,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) =
   };
 
   const aiModels = [
-    { name: 'deepseek', label: 'DeepSeek R1', icon: '🤖', color: 'text-green-400' },
-    { name: 'mixtral', label: 'Mixtral 8x7B', icon: '⚡', color: 'text-purple-400' },
-    // Replicate removed - now using default API key in backend
     { name: 'openai', label: 'OpenAI GPT-4', icon: '🧠', color: 'text-green-400' },
     { name: 'claude', label: 'Anthropic Claude', icon: '🤖', color: 'text-purple-400' },
     { name: 'gemini', label: 'Google Gemini', icon: '⭐', color: 'text-blue-400' },
     { name: 'grok', label: 'xAI Grok', icon: '⚡', color: 'text-yellow-400' },
-    { name: 'llama', label: 'Meta Llama', icon: '🔥', color: 'text-red-400' },
+    { name: 'perplexity', label: 'Perplexity', icon: '🔍', color: 'text-cyan-400' },
   ];
 
   const storageServices = [
