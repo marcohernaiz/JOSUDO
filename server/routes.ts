@@ -26,28 +26,63 @@ import { perplexityService } from "./services/perplexity";
 
 // Model configuration for hybrid selection
 const MODEL_CONFIG = {
-  'perplexity': { provider: 'perplexity', allowUserKey: true, replicateModel: null },
-  'deepseek-v3': { provider: 'openrouter', allowUserKey: false, replicateModel: null },
-  'gpt-4': { provider: 'openai', allowUserKey: true, replicateModel: null },
-  'gpt-4o': { provider: 'openai', allowUserKey: true, replicateModel: null },
-  'claude-3-5-sonnet': { provider: 'anthropic', allowUserKey: true, replicateModel: null },
-  'gemini-pro': { provider: 'google', allowUserKey: true, replicateModel: null },
-  'grok-beta': { provider: 'xai', allowUserKey: true, replicateModel: null },
-  'gpt-5': { provider: 'replicate', allowUserKey: false, replicateModel: 'openai/gpt-5' },
-  'llama-3.1-70b': { provider: 'replicate', allowUserKey: false, replicateModel: 'meta/llama-3.1-70b' },
-  'claude-3-5-sonnet-replicate': { provider: 'replicate', allowUserKey: false, replicateModel: 'anthropic/claude-3-5-sonnet' },
-  'llama-3.1-8b': { provider: 'replicate', allowUserKey: false, replicateModel: 'meta/llama-3.1-8b' },
+  perplexity: {
+    provider: "perplexity",
+    allowUserKey: true,
+    replicateModel: null,
+  },
+  "deepseek-v3": {
+    provider: "openrouter",
+    allowUserKey: false,
+    replicateModel: null,
+  },
+  "gpt-4": { provider: "openai", allowUserKey: true, replicateModel: null },
+  "gpt-4o": { provider: "openai", allowUserKey: true, replicateModel: null },
+  "claude-3-5-sonnet": {
+    provider: "anthropic",
+    allowUserKey: true,
+    replicateModel: null,
+  },
+  "gemini-pro": {
+    provider: "google",
+    allowUserKey: true,
+    replicateModel: null,
+  },
+  "grok-beta": { provider: "xai", allowUserKey: true, replicateModel: null },
+  "gpt-5": {
+    provider: "replicate",
+    allowUserKey: false,
+    replicateModel: "openai/gpt-5",
+  },
+  "llama-3.1-70b": {
+    provider: "replicate",
+    allowUserKey: false,
+    replicateModel: "meta/llama-3.1-70b",
+  },
+  "claude-3-5-sonnet-replicate": {
+    provider: "replicate",
+    allowUserKey: false,
+    replicateModel: "anthropic/claude-3-5-sonnet",
+  },
+  "llama-3.1-8b": {
+    provider: "replicate",
+    allowUserKey: false,
+    replicateModel: "meta/llama-3.1-8b",
+  },
 };
 
 // Helper function to determine which service to use
-async function getServiceForModel(model: string, userId?: number): Promise<{
+async function getServiceForModel(
+  model: string,
+  userId?: number,
+): Promise<{
   useUserKey: boolean;
   userApiKey?: string;
   provider: string;
   replicateModel?: string;
 }> {
   const config = MODEL_CONFIG[model as keyof typeof MODEL_CONFIG];
-  
+
   if (!config) {
     throw new Error(`Unknown model: ${model}`);
   }
@@ -57,7 +92,7 @@ async function getServiceForModel(model: string, userId?: number): Promise<{
     return {
       useUserKey: false,
       provider: config.provider,
-      replicateModel: config.replicateModel || undefined
+      replicateModel: config.replicateModel || undefined,
     };
   }
 
@@ -66,18 +101,21 @@ async function getServiceForModel(model: string, userId?: number): Promise<{
     return {
       useUserKey: false,
       provider: config.provider,
-      replicateModel: config.replicateModel || undefined
+      replicateModel: config.replicateModel || undefined,
     };
   }
 
   // Check if user has their own API key for this provider
-  const userApiKey = await userApiKeysService.getApiKey(userId, config.provider);
-  
+  const userApiKey = await userApiKeysService.getApiKey(
+    userId,
+    config.provider,
+  );
+
   if (userApiKey) {
     return {
       useUserKey: true,
       userApiKey: userApiKey || undefined,
-      provider: config.provider
+      provider: config.provider,
     };
   }
 
@@ -85,7 +123,7 @@ async function getServiceForModel(model: string, userId?: number): Promise<{
   return {
     useUserKey: false,
     provider: config.provider,
-    replicateModel: config.replicateModel || undefined
+    replicateModel: config.replicateModel || undefined,
   };
 }
 import {
@@ -114,24 +152,23 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import mammoth from "mammoth";
-import { db } from './db';
-import { eq, and, sql } from 'drizzle-orm';
-import path from 'path';
-import fs from 'fs';
+import { db } from "./db";
+import { eq, and, sql } from "drizzle-orm";
+import path from "path";
+import fs from "fs";
 
 // OAuth providers configuration
 const hasGoogleAuth =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET;
 
 const hasAppleAuth =
-  process.env.APPLE_CLIENT_ID && 
-  process.env.APPLE_TEAM_ID && 
-  process.env.APPLE_KEY_ID && 
+  process.env.APPLE_CLIENT_ID &&
+  process.env.APPLE_TEAM_ID &&
+  process.env.APPLE_KEY_ID &&
   process.env.APPLE_PRIVATE_KEY;
 
 const hasMicrosoftAuth =
-  process.env.MICROSOFT_CLIENT_ID && 
-  process.env.MICROSOFT_CLIENT_SECRET;
+  process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET;
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Trust proxy for HTTPS detection
@@ -163,9 +200,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     };
 
     // Determine callback URL based on environment
-    const callbackURL = process.env.NODE_ENV === "production" 
-      ? (process.env.GOOGLE_CALLBACK_URL || "https://josudo.org/api/auth/google/callback")
-      : "https://035c8286-1672-4276-9521-fb89ce371e63-00-3dtgr9l05l499.janeway.replit.dev/api/auth/google/callback";
+    const callbackURL =
+      process.env.NODE_ENV === "production"
+        ? process.env.GOOGLE_CALLBACK_URL ||
+          "https://josudo.org/api/auth/google/callback"
+        : "https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev/api/auth/google/callback";
 
     passport.use(
       new GoogleStrategy(
@@ -252,7 +291,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           keyID: process.env.APPLE_KEY_ID!,
           privateKeyString: process.env.APPLE_PRIVATE_KEY!,
           passReqToCallback: true,
-          callbackURL: "https://035c8286-1672-4276-9521-fb89ce371e63-00-3dtgr9l05l499.janeway.replit.dev/api/auth/apple/callback",
+          callbackURL:
+            "https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev/api/auth/apple/callback",
         },
         async (
           req: any,
@@ -270,9 +310,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             if (!user) {
               // Create username from Apple profile
-              const firstName = profile.name?.firstName || profile.displayName?.firstName || "";
-              const lastName = profile.name?.lastName || profile.displayName?.lastName || "";
-              const username = [firstName, lastName].filter(Boolean).join(" ") || "Apple User";
+              const firstName =
+                profile.name?.firstName || profile.displayName?.firstName || "";
+              const lastName =
+                profile.name?.lastName || profile.displayName?.lastName || "";
+              const username =
+                [firstName, lastName].filter(Boolean).join(" ") || "Apple User";
 
               user = await storage.createUser({
                 appleId: profile.id,
@@ -306,7 +349,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           clientID: process.env.MICROSOFT_CLIENT_ID!,
           clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
           passReqToCallback: true,
-          callbackURL: "https://035c8286-1672-4276-9521-fb89ce371e63-00-3dtgr9l05l499.janeway.replit.dev/api/auth/microsoft/callback",
+          callbackURL:
+            "https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev/api/auth/microsoft/callback",
           scope: ["user.read", "email", "profile"],
         },
         async (
@@ -326,7 +370,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               // Create username from Microsoft profile
               const firstName = profile.name?.givenName || "";
               const lastName = profile.name?.familyName || "";
-              const username = [firstName, lastName].filter(Boolean).join(" ") || profile.displayName || "Microsoft User";
+              const username =
+                [firstName, lastName].filter(Boolean).join(" ") ||
+                profile.displayName ||
+                "Microsoft User";
 
               user = await storage.createUser({
                 microsoftId: profile.id,
@@ -502,7 +549,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat routes - No authentication required
   app.post("/api/chat/send", async (req, res) => {
     try {
-      const { message, model, sessionId, thinkingMode, webSearch, persona } = req.body;
+      const { message, model, sessionId, thinkingMode, webSearch, persona } =
+        req.body;
       console.log("Received chat request:", { message, model, sessionId });
 
       const userId = (req as any).session?.passport?.user;
@@ -516,13 +564,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const userCredits = await billingService.getUserCredits(userId);
         const estimatedCost = model === "gpt-5" ? 0.003 : 0.002; // Rough estimate
         const estimatedCreditsNeeded = Math.ceil(estimatedCost * 100);
-        
+
         if (userCredits < estimatedCreditsNeeded) {
-          return res.status(402).json({ 
-            error: "Insufficient credits", 
+          return res.status(402).json({
+            error: "Insufficient credits",
             message: `You need at least ${estimatedCreditsNeeded} credits to use ${model}. You have ${userCredits} credits remaining.`,
             creditsNeeded: estimatedCreditsNeeded,
-            creditsAvailable: userCredits
+            creditsAvailable: userCredits,
           });
         }
       } catch (error) {
@@ -545,18 +593,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const credentials = JSON.parse(integration.credentialsEncrypted);
           const chatHistory = await googleDriveService.getChatHistory(
             sessionId,
-            JSON.stringify(credentials)
+            JSON.stringify(credentials),
           );
-          
+
           // Convert to the format expected by AI services
           conversationHistory = chatHistory
-            .filter(msg => msg.role === "user" || msg.role === "assistant")
-            .map(msg => ({
+            .filter((msg) => msg.role === "user" || msg.role === "assistant")
+            .map((msg) => ({
               role: msg.role,
-              content: msg.content
+              content: msg.content,
             }));
-          
-          console.log("Loaded conversation history:", conversationHistory.length, "messages");
+
+          console.log(
+            "Loaded conversation history:",
+            conversationHistory.length,
+            "messages",
+          );
         } catch (error) {
           console.error("Failed to load conversation history:", error);
         }
@@ -565,40 +617,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add persona context to conversation history if persona is provided
       if (persona && persona.name) {
         console.log("Adding persona context:", persona.name);
-        
+
         // Create system message with persona information
         let systemMessage = `You are ${persona.name}, a ${persona.role}.`;
-        
+
         if (persona.greeting) {
           systemMessage += ` Your greeting: "${persona.greeting}"`;
         }
-        
+
         if (persona.systemPrompt) {
           systemMessage += ` ${persona.systemPrompt}`;
         }
-        
+
         if (persona.behaviorText) {
           systemMessage += ` Behavior: ${persona.behaviorText}`;
         }
-        
+
         if (persona.capabilitiesText) {
           systemMessage += ` Capabilities: ${persona.capabilitiesText}`;
         }
-        
+
         if (persona.contextualText) {
           systemMessage += ` Context: ${persona.contextualText}`;
         }
-        
+
         if (persona.guardrailsText) {
           systemMessage += ` Constraints: ${persona.guardrailsText}`;
         }
-        
+
         // Add system message at the beginning of conversation history
         conversationHistory = [
           { role: "system", content: systemMessage },
-          ...conversationHistory
+          ...conversationHistory,
         ];
-        
+
         console.log("Added persona system message to conversation history");
       }
 
@@ -606,8 +658,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         // Determine which service to use (user key vs Replicate)
         const serviceConfig = await getServiceForModel(model, userId);
-        console.log(`Using ${serviceConfig.useUserKey ? 'user API key' : 'Replicate'} for model ${model}`);
-        
+        console.log(
+          `Using ${serviceConfig.useUserKey ? "user API key" : "Replicate"} for model ${model}`,
+        );
+
         if (serviceConfig.useUserKey) {
           // Use user's own API key
           switch (serviceConfig.provider) {
@@ -620,9 +674,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 {
                   thinkingMode,
                   webSearch,
-                  maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-                  temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-                }
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
               );
               response = {
                 choices: [{ message: { content: serviceResponse.response } }],
@@ -630,412 +684,509 @@ export async function registerRoutes(app: Express): Promise<Server> {
               tokensUsed = serviceResponse.tokens;
               cost = 0; // User pays directly, no cost to us
               break;
-              
+
             case "anthropic":
-              serviceResponse = await userClaudeService.sendMessage(message, model, conversationHistory, serviceConfig.userApiKey || "", {
-                thinkingMode,
-                webSearch,
-                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-              });
+              serviceResponse = await userClaudeService.sendMessage(
+                message,
+                model,
+                conversationHistory,
+                serviceConfig.userApiKey || "",
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              );
               response = {
                 choices: [{ message: { content: serviceResponse.response } }],
               };
               tokensUsed = serviceResponse.tokens;
               cost = 0; // User pays directly, no cost to us
               break;
-              
+
             case "google":
-              serviceResponse = await userGeminiService.sendMessage(message, model, conversationHistory, serviceConfig.userApiKey || "", {
-                thinkingMode,
-                webSearch,
-                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-              });
+              serviceResponse = await userGeminiService.sendMessage(
+                message,
+                model,
+                conversationHistory,
+                serviceConfig.userApiKey || "",
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              );
               response = {
                 choices: [{ message: { content: serviceResponse.response } }],
               };
               tokensUsed = serviceResponse.tokens;
               cost = 0; // User pays directly, no cost to us
               break;
-              
+
             case "xai":
-              serviceResponse = await userGrokService.sendMessage(message, model, conversationHistory, serviceConfig.userApiKey || "", {
-                thinkingMode,
-                webSearch,
-                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-              });
+              serviceResponse = await userGrokService.sendMessage(
+                message,
+                model,
+                conversationHistory,
+                serviceConfig.userApiKey || "",
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              );
               response = {
                 choices: [{ message: { content: serviceResponse.response } }],
               };
               tokensUsed = serviceResponse.tokens;
               cost = 0; // User pays directly, no cost to us
               break;
-              
+
             case "perplexity":
-              serviceResponse = await userPerplexityService.sendMessage(message, model, conversationHistory, serviceConfig.userApiKey || "", {
-                thinkingMode,
-                webSearch,
-                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-              });
+              serviceResponse = await userPerplexityService.sendMessage(
+                message,
+                model,
+                conversationHistory,
+                serviceConfig.userApiKey || "",
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              );
               response = {
                 choices: [{ message: { content: serviceResponse.response } }],
               };
               tokensUsed = serviceResponse.tokens;
               cost = 0; // User pays directly, no cost to us
               break;
-              
+
             default:
-              throw new Error(`Unsupported provider for user key: ${serviceConfig.provider}`);
+              throw new Error(
+                `Unsupported provider for user key: ${serviceConfig.provider}`,
+              );
           }
         } else {
           // Use Replicate or our service
           switch (model) {
             case "deepseek-chat":
-            serviceResponse = await deepseekService.sendMessage(message, model, conversationHistory);
-            response = {
-              choices: [{ message: { content: serviceResponse.response } }],
-            };
-            tokensUsed = serviceResponse.tokens;
-            cost = serviceResponse.cost;
-            break;
+              serviceResponse = await deepseekService.sendMessage(
+                message,
+                model,
+                conversationHistory,
+              );
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = serviceResponse.cost;
+              break;
 
-          case "deepseek-v3":
-            serviceResponse = await deepseekService.sendMessage(message, model, conversationHistory, {
-              thinkingMode,
-              webSearch,
-              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-            });
-            response = {
-              choices: [{ message: { content: serviceResponse.response } }],
-            };
-            tokensUsed = serviceResponse.tokens;
-            cost = serviceResponse.cost;
-            
-            // Track usage for Replicate
-            if (userId) {
-              try {
-                const now = new Date();
-                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-                
-                await storage.createUsageLog({
-                  userId,
-                  chatSessionId: null, // We can add session tracking later
-                  modelUsed: model,
-                  tokensConsumed: tokensUsed,
-                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
-                  cost: cost.toString(),
-                  isPremiumAccount: false, // Add proper premium check if needed
-                  billingPeriod,
-                  requestType: 'chat'
-                });
-
-                // Update monthly usage for billing
-                await storage.updateMonthlyUsage(userId, cost);
-                
-                console.log(`✅ Josudo usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}`);
-                console.log(`💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`);
-              } catch (error) {
-                console.error("Failed to log Replicate usage:", error);
-              }
-            }
-            break;
-
-          case "gpt-4":
-          case "gpt-4o":
-            // Use OpenAI with proper sessionId for context
-            serviceResponse = await openaiService.sendMessage(
-              message,
-              userId,
-              sessionId || userId.toString(),
-              integration?.credentialsEncrypted || "",
-            );
-            response = {
-              choices: [
+            case "deepseek-v3":
+              serviceResponse = await deepseekService.sendMessage(
+                message,
+                model,
+                conversationHistory,
                 {
-                  message: {
-                    content: serviceResponse.choices[0].message.content,
-                  },
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
                 },
-              ],
-            };
+              );
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = serviceResponse.cost;
 
-            tokensUsed = serviceResponse.usage?.total_tokens || 0;
-            cost =
-              ((serviceResponse.usage?.prompt_tokens ?? 0) / 1000) * 0.01 +
-              ((serviceResponse.usage?.completion_tokens ?? 0) / 1000) * 0.03;
-            
-            // Track usage for OpenAI
-            if (userId) {
-              try {
-                const now = new Date();
-                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-                
-                await storage.createUsageLog({
-                  userId,
-                  chatSessionId: null,
-                  modelUsed: model,
-                  tokensConsumed: tokensUsed,
-                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
-                  cost: cost.toString(),
-                  isPremiumAccount: false,
-                  billingPeriod,
-                  requestType: 'chat'
-                });
+              // Track usage for Replicate
+              if (userId) {
+                try {
+                  const now = new Date();
+                  const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
 
-                await storage.updateMonthlyUsage(userId, cost);
-                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
-              } catch (error) {
-                console.error("Failed to log OpenAI usage:", error);
+                  await storage.createUsageLog({
+                    userId,
+                    chatSessionId: null, // We can add session tracking later
+                    modelUsed: model,
+                    tokensConsumed: tokensUsed,
+                    creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
+                    cost: cost.toString(),
+                    isPremiumAccount: false, // Add proper premium check if needed
+                    billingPeriod,
+                    requestType: "chat",
+                  });
+
+                  // Update monthly usage for billing
+                  await storage.updateMonthlyUsage(userId, cost);
+
+                  console.log(
+                    `✅ Josudo usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}`,
+                  );
+                  console.log(
+                    `💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`,
+                  );
+                } catch (error) {
+                  console.error("Failed to log Replicate usage:", error);
+                }
               }
-            }
-            break;
+              break;
 
-          case "claude-3-5-sonnet":
-            serviceResponse = await claudeService.sendMessage(message, model, conversationHistory, {
-              thinkingMode,
-              webSearch,
-              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-            });
-            response = {
-              choices: [{ message: { content: serviceResponse.response } }],
-            };
-            tokensUsed = serviceResponse.tokens;
-            cost = serviceResponse.cost;
-            
-            // Track usage for Claude
-            if (userId) {
-              try {
-                const now = new Date();
-                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-                
-                await storage.createUsageLog({
-                  userId,
-                  chatSessionId: null,
-                  modelUsed: model,
-                  tokensConsumed: tokensUsed,
-                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
-                  cost: cost.toString(),
-                  isPremiumAccount: false,
-                  billingPeriod,
-                  requestType: 'chat'
-                });
+            case "gpt-4":
+            case "gpt-4o":
+              // Use OpenAI with proper sessionId for context
+              serviceResponse = await openaiService.sendMessage(
+                message,
+                userId,
+                sessionId || userId.toString(),
+                integration?.credentialsEncrypted || "",
+              );
+              response = {
+                choices: [
+                  {
+                    message: {
+                      content: serviceResponse.choices[0].message.content,
+                    },
+                  },
+                ],
+              };
 
-                await storage.updateMonthlyUsage(userId, cost);
-                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
-              } catch (error) {
-                console.error("Failed to log Claude usage:", error);
+              tokensUsed = serviceResponse.usage?.total_tokens || 0;
+              cost =
+                ((serviceResponse.usage?.prompt_tokens ?? 0) / 1000) * 0.01 +
+                ((serviceResponse.usage?.completion_tokens ?? 0) / 1000) * 0.03;
+
+              // Track usage for OpenAI
+              if (userId) {
+                try {
+                  const now = new Date();
+                  const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+
+                  await storage.createUsageLog({
+                    userId,
+                    chatSessionId: null,
+                    modelUsed: model,
+                    tokensConsumed: tokensUsed,
+                    creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
+                    cost: cost.toString(),
+                    isPremiumAccount: false,
+                    billingPeriod,
+                    requestType: "chat",
+                  });
+
+                  await storage.updateMonthlyUsage(userId, cost);
+                  console.log(
+                    `Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`,
+                  );
+                } catch (error) {
+                  console.error("Failed to log OpenAI usage:", error);
+                }
               }
-            }
-            break;
+              break;
 
-          case "claude-3-5-sonnet-replicate":
-          case "claude-3-haiku-replicate":
-            response = await replicateService.sendMessage(message, userId || 0, sessionId || "anonymous", integration?.credentialsEncrypted || "", model);
-            const claudeResponseContent = response.choices[0]?.message?.content;
-            const claudeContentLength = typeof claudeResponseContent === 'string' ? claudeResponseContent.length : 0;
-            tokensUsed = Math.ceil((message.length + claudeContentLength) / 4);
-            cost = replicateService.calculateCost(tokensUsed, model);
-            
-            // Track usage for Claude Replicate
-            if (userId) {
-              try {
-                const now = new Date();
-                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-                
-                await storage.createUsageLog({
-                  userId,
-                  chatSessionId: null, // We can add session tracking later
-                  modelUsed: model,
-                  tokensConsumed: tokensUsed,
-                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
-                  cost: cost.toString(),
-                  isPremiumAccount: false, // Add proper premium check if needed
-                  billingPeriod,
-                  requestType: 'chat'
-                });
-
-                // Update monthly usage for billing
-                await storage.updateMonthlyUsage(userId, cost);
-                console.log(`✅ Claude Replicate usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}`);
-                console.log(`💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`);
-              } catch (error) {
-                console.error("Failed to log Claude Replicate usage:", error);
-              }
-            }
-            break;
-
-          case "gemini-pro":
-            serviceResponse = await geminiService.sendMessage(message, model, conversationHistory, {
-              thinkingMode,
-              webSearch,
-              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-            });
-            response = {
-              choices: [{ message: { content: serviceResponse.response } }],
-            };
-            tokensUsed = serviceResponse.tokens;
-            cost = serviceResponse.cost;
-            
-            // Track usage for Gemini
-            if (userId) {
-              try {
-                const now = new Date();
-                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-                
-                await storage.createUsageLog({
-                  userId,
-                  chatSessionId: null,
-                  modelUsed: model,
-                  tokensConsumed: tokensUsed,
-                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
-                  cost: cost.toString(),
-                  isPremiumAccount: false,
-                  billingPeriod,
-                  requestType: 'chat'
-                });
-
-                await storage.updateMonthlyUsage(userId, cost);
-                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
-              } catch (error) {
-                console.error("Failed to log Gemini usage:", error);
-              }
-            }
-            break;
-
-          case "grok-beta":
-            serviceResponse = await grokService.sendMessage(message, model, conversationHistory, {
-              thinkingMode,
-              webSearch,
-              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-            });
-            response = {
-              choices: [{ message: { content: serviceResponse.response } }],
-            };
-            tokensUsed = serviceResponse.tokens;
-            cost = serviceResponse.cost;
-            
-            // Track usage for Grok
-            if (userId) {
-              try {
-                const now = new Date();
-                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-                
-                await storage.createUsageLog({
-                  userId,
-                  chatSessionId: null,
-                  modelUsed: model,
-                  tokensConsumed: tokensUsed,
-                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
-                  cost: cost.toString(),
-                  isPremiumAccount: false,
-                  billingPeriod,
-                  requestType: 'chat'
-                });
-
-                await storage.updateMonthlyUsage(userId, cost);
-                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
-              } catch (error) {
-                console.error("Failed to log Grok usage:", error);
-              }
-            }
-            break;
-
-          case "llama-3":
-            serviceResponse = await llamaService.sendMessage(message, model, conversationHistory);
-            response = {
-              choices: [{ message: { content: serviceResponse.response } }],
-            };
-            tokensUsed = serviceResponse.tokens;
-            cost = serviceResponse.cost;
-            
-            // Track usage for Llama
-            if (userId) {
-              try {
-                const now = new Date();
-                const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-                
-                await storage.createUsageLog({
-                  userId,
-                  chatSessionId: null,
-                  modelUsed: model,
-                  tokensConsumed: tokensUsed,
-                  creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
-                  cost: cost.toString(),
-                  isPremiumAccount: false,
-                  billingPeriod,
-                  requestType: 'chat'
-                });
-
-                await storage.updateMonthlyUsage(userId, cost);
-                console.log(`Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`);
-              } catch (error) {
-                console.error("Failed to log Llama usage:", error);
-              }
-            }
-            break;
-
-          case "llama-3.1-8b":
-          case "gpt-5":
-            // Use Replicate with default API key - no authentication required
-            serviceResponse = await replicateService.sendMessage(
-              message,
-              userId || 0, // Use 0 as fallback for unauthenticated users
-              sessionId || "anonymous",
-              integration?.credentialsEncrypted || "", // Empty string if no Google Drive
-              model,
-            );
-            response = {
-              choices: [
+            case "claude-3-5-sonnet":
+              serviceResponse = await claudeService.sendMessage(
+                message,
+                model,
+                conversationHistory,
                 {
-                  message: {
-                    content: serviceResponse.choices[0].message.content,
-                  },
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
                 },
-              ],
-            };
+              );
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = serviceResponse.cost;
 
-            tokensUsed = model === "gpt-5" ? 1500 : 1000; // Higher token estimate for GPT-5
-            cost = replicateService.calculateCost(tokensUsed, model);
-            
-            // Usage tracking moved to centralized location after model selection
-            break;
+              // Track usage for Claude
+              if (userId) {
+                try {
+                  const now = new Date();
+                  const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
 
-          case "perplexity":
-            serviceResponse = await perplexityService.sendMessage(message, model, conversationHistory, {
-              thinkingMode,
-              webSearch,
-              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-            });
-            response = {
-              choices: [{ message: { content: serviceResponse.response } }],
-            };
-            tokensUsed = serviceResponse.tokens;
-            cost = serviceResponse.cost;
-            break;
+                  await storage.createUsageLog({
+                    userId,
+                    chatSessionId: null,
+                    modelUsed: model,
+                    tokensConsumed: tokensUsed,
+                    creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
+                    cost: cost.toString(),
+                    isPremiumAccount: false,
+                    billingPeriod,
+                    requestType: "chat",
+                  });
 
-          default:
-            // Default to DeepSeek for any unknown model
-            serviceResponse = await deepseekService.sendMessage(message, model, conversationHistory);
-            response = {
-              choices: [{ message: { content: serviceResponse.response } }],
-            };
-            tokensUsed = serviceResponse.tokens;
-            cost = serviceResponse.cost;
-            break;
+                  await storage.updateMonthlyUsage(userId, cost);
+                  console.log(
+                    `Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`,
+                  );
+                } catch (error) {
+                  console.error("Failed to log Claude usage:", error);
+                }
+              }
+              break;
+
+            case "claude-3-5-sonnet-replicate":
+            case "claude-3-haiku-replicate":
+              response = await replicateService.sendMessage(
+                message,
+                userId || 0,
+                sessionId || "anonymous",
+                integration?.credentialsEncrypted || "",
+                model,
+              );
+              const claudeResponseContent =
+                response.choices[0]?.message?.content;
+              const claudeContentLength =
+                typeof claudeResponseContent === "string"
+                  ? claudeResponseContent.length
+                  : 0;
+              tokensUsed = Math.ceil(
+                (message.length + claudeContentLength) / 4,
+              );
+              cost = replicateService.calculateCost(tokensUsed, model);
+
+              // Track usage for Claude Replicate
+              if (userId) {
+                try {
+                  const now = new Date();
+                  const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+
+                  await storage.createUsageLog({
+                    userId,
+                    chatSessionId: null, // We can add session tracking later
+                    modelUsed: model,
+                    tokensConsumed: tokensUsed,
+                    creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
+                    cost: cost.toString(),
+                    isPremiumAccount: false, // Add proper premium check if needed
+                    billingPeriod,
+                    requestType: "chat",
+                  });
+
+                  // Update monthly usage for billing
+                  await storage.updateMonthlyUsage(userId, cost);
+                  console.log(
+                    `✅ Claude Replicate usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}`,
+                  );
+                  console.log(
+                    `💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`,
+                  );
+                } catch (error) {
+                  console.error("Failed to log Claude Replicate usage:", error);
+                }
+              }
+              break;
+
+            case "gemini-pro":
+              serviceResponse = await geminiService.sendMessage(
+                message,
+                model,
+                conversationHistory,
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              );
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = serviceResponse.cost;
+
+              // Track usage for Gemini
+              if (userId) {
+                try {
+                  const now = new Date();
+                  const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+
+                  await storage.createUsageLog({
+                    userId,
+                    chatSessionId: null,
+                    modelUsed: model,
+                    tokensConsumed: tokensUsed,
+                    creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
+                    cost: cost.toString(),
+                    isPremiumAccount: false,
+                    billingPeriod,
+                    requestType: "chat",
+                  });
+
+                  await storage.updateMonthlyUsage(userId, cost);
+                  console.log(
+                    `Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`,
+                  );
+                } catch (error) {
+                  console.error("Failed to log Gemini usage:", error);
+                }
+              }
+              break;
+
+            case "grok-beta":
+              serviceResponse = await grokService.sendMessage(
+                message,
+                model,
+                conversationHistory,
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              );
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = serviceResponse.cost;
+
+              // Track usage for Grok
+              if (userId) {
+                try {
+                  const now = new Date();
+                  const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+
+                  await storage.createUsageLog({
+                    userId,
+                    chatSessionId: null,
+                    modelUsed: model,
+                    tokensConsumed: tokensUsed,
+                    creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
+                    cost: cost.toString(),
+                    isPremiumAccount: false,
+                    billingPeriod,
+                    requestType: "chat",
+                  });
+
+                  await storage.updateMonthlyUsage(userId, cost);
+                  console.log(
+                    `Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`,
+                  );
+                } catch (error) {
+                  console.error("Failed to log Grok usage:", error);
+                }
+              }
+              break;
+
+            case "llama-3":
+              serviceResponse = await llamaService.sendMessage(
+                message,
+                model,
+                conversationHistory,
+              );
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = serviceResponse.cost;
+
+              // Track usage for Llama
+              if (userId) {
+                try {
+                  const now = new Date();
+                  const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+
+                  await storage.createUsageLog({
+                    userId,
+                    chatSessionId: null,
+                    modelUsed: model,
+                    tokensConsumed: tokensUsed,
+                    creditsDeducted: Math.ceil(cost * 100), // Convert cost to credits (1 credit = $0.01)
+                    cost: cost.toString(),
+                    isPremiumAccount: false,
+                    billingPeriod,
+                    requestType: "chat",
+                  });
+
+                  await storage.updateMonthlyUsage(userId, cost);
+                  console.log(
+                    `Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost} for ${model}`,
+                  );
+                } catch (error) {
+                  console.error("Failed to log Llama usage:", error);
+                }
+              }
+              break;
+
+            case "llama-3.1-8b":
+            case "gpt-5":
+              // Use Replicate with default API key - no authentication required
+              serviceResponse = await replicateService.sendMessage(
+                message,
+                userId || 0, // Use 0 as fallback for unauthenticated users
+                sessionId || "anonymous",
+                integration?.credentialsEncrypted || "", // Empty string if no Google Drive
+                model,
+              );
+              response = {
+                choices: [
+                  {
+                    message: {
+                      content: serviceResponse.choices[0].message.content,
+                    },
+                  },
+                ],
+              };
+
+              tokensUsed = model === "gpt-5" ? 1500 : 1000; // Higher token estimate for GPT-5
+              cost = replicateService.calculateCost(tokensUsed, model);
+
+              // Usage tracking moved to centralized location after model selection
+              break;
+
+            case "perplexity":
+              serviceResponse = await perplexityService.sendMessage(
+                message,
+                model,
+                conversationHistory,
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              );
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = serviceResponse.cost;
+              break;
+
+            default:
+              // Default to DeepSeek for any unknown model
+              serviceResponse = await deepseekService.sendMessage(
+                message,
+                model,
+                conversationHistory,
+              );
+              response = {
+                choices: [{ message: { content: serviceResponse.response } }],
+              };
+              tokensUsed = serviceResponse.tokens;
+              cost = serviceResponse.cost;
+              break;
           }
         }
       } catch (error) {
         console.error(`Error with ${model}:`, error);
         // Fallback to DeepSeek on any error
-        serviceResponse = await deepseekService.sendMessage(message, model, conversationHistory);
+        serviceResponse = await deepseekService.sendMessage(
+          message,
+          model,
+          conversationHistory,
+        );
         response = {
           choices: [
             {
@@ -1052,22 +1203,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Deduct credits only if not using user's own API key
       if (userId && cost > 0) {
         try {
-          console.log(`🔍 Attempting to deduct credits for user ${userId}, model: ${model}, tokens: ${tokensUsed}, cost: $${cost}`);
-          const deductionResult = await billingService.deductCredits(userId, tokensUsed, model);
+          console.log(
+            `🔍 Attempting to deduct credits for user ${userId}, model: ${model}, tokens: ${tokensUsed}, cost: $${cost}`,
+          );
+          const deductionResult = await billingService.deductCredits(
+            userId,
+            tokensUsed,
+            model,
+          );
           console.log(`🔍 Deduction result:`, deductionResult);
 
           // Update monthly usage for billing
           const now = new Date();
-          const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+          const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
           await storage.updateMonthlyUsage(userId, cost);
-          
-          console.log(`✅ Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}, ${deductionResult.creditsDeducted} credits deducted`);
-          console.log(`💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`);
+
+          console.log(
+            `✅ Usage tracked for user ${userId}: ${tokensUsed} tokens, $${cost}, ${deductionResult.creditsDeducted} credits deducted`,
+          );
+          console.log(
+            `💾 Saved with billingPeriod: ${billingPeriod}, requestType: chat`,
+          );
         } catch (error) {
           console.error("Failed to log usage:", error);
         }
       } else if (userId && cost === 0) {
-        console.log(`✅ User ${userId} used their own API key for ${model} - no credits deducted`);
+        console.log(
+          `✅ User ${userId} used their own API key for ${model} - no credits deducted`,
+        );
       }
 
       // After getting the AI response:
@@ -1088,8 +1251,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await googleDriveService.saveChatMessage(
           sessionId || userId, // Use sessionId if provided, otherwise fallback to userId
           message, // user message (string)
-          typeof response.choices[0].message.content === 'string' 
-            ? response.choices[0].message.content 
+          typeof response.choices[0].message.content === "string"
+            ? response.choices[0].message.content
             : JSON.stringify(response.choices[0].message.content) || "", // ai response (string)
           JSON.stringify(credentials), // credentials (string)
         );
@@ -1111,31 +1274,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat streaming route - Server-Sent Events
   app.post("/api/chat/send-stream", async (req, res) => {
     try {
-      const { message, model, sessionId, files, thinkingMode, webSearch, persona } = req.body;
-      console.log("Received streaming chat request:", { message, model, sessionId, fileCount: files?.length || 0 });
+      const {
+        message,
+        model,
+        sessionId,
+        files,
+        thinkingMode,
+        webSearch,
+        persona,
+      } = req.body;
+      console.log("Received streaming chat request:", {
+        message,
+        model,
+        sessionId,
+        fileCount: files?.length || 0,
+      });
 
       const userId = (req as any).session?.passport?.user;
 
       if (!userId) {
-        console.log("User not authenticated for streaming request, continuing without Google Drive");
+        console.log(
+          "User not authenticated for streaming request, continuing without Google Drive",
+        );
         // Continue without authentication for free models
       } else {
         console.log("Streaming request from authenticated user:", userId);
-        
+
         // Check if user has sufficient credits before processing
         try {
           const userCredits = await billingService.getUserCredits(userId);
           const estimatedCost = model === "gpt-5" ? 0.003 : 0.002; // Rough estimate
           const estimatedCreditsNeeded = Math.ceil(estimatedCost * 100);
-          
+
           if (userCredits < estimatedCreditsNeeded) {
-            res.write(`data: ${JSON.stringify({ 
-              type: 'error', 
-              error: 'Insufficient credits',
-              message: `You need at least ${estimatedCreditsNeeded} credits to use ${model}. You have ${userCredits} credits remaining.`,
-              creditsNeeded: estimatedCreditsNeeded,
-              creditsAvailable: userCredits
-            })}\n\n`);
+            res.write(
+              `data: ${JSON.stringify({
+                type: "error",
+                error: "Insufficient credits",
+                message: `You need at least ${estimatedCreditsNeeded} credits to use ${model}. You have ${userCredits} credits remaining.`,
+                creditsNeeded: estimatedCreditsNeeded,
+                creditsAvailable: userCredits,
+              })}\n\n`,
+            );
             res.end();
             return;
           }
@@ -1147,20 +1327,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Set up Server-Sent Events
       res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Cache-Control',
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Cache-Control",
       });
 
       // Get user's Google Drive credentials (only if authenticated)
       let integration = null;
       if (userId) {
         integration = await storage.getIntegration(userId, "google-drive");
-        console.log("Integration status for user", userId, ":", integration ? "found" : "not found");
+        console.log(
+          "Integration status for user",
+          userId,
+          ":",
+          integration ? "found" : "not found",
+        );
         if (integration) {
-          console.log("Integration credentials available:", !!integration.credentialsEncrypted);
+          console.log(
+            "Integration credentials available:",
+            !!integration.credentialsEncrypted,
+          );
         }
       }
 
@@ -1170,9 +1358,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           conversationHistory = await googleDriveService.getChatHistory(
             sessionId,
-            integration.credentialsEncrypted
+            integration.credentialsEncrypted,
           );
-          console.log("Loaded conversation history:", conversationHistory.length, "messages");
+          console.log(
+            "Loaded conversation history:",
+            conversationHistory.length,
+            "messages",
+          );
         } catch (error) {
           console.error("Failed to load conversation history:", error);
         }
@@ -1181,40 +1373,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add persona context to conversation history if persona is provided
       if (persona && persona.name) {
         console.log("Adding persona context:", persona.name);
-        
+
         // Create system message with persona information
         let systemMessage = `You are ${persona.name}, a ${persona.role}.`;
-        
+
         if (persona.greeting) {
           systemMessage += ` Your greeting: "${persona.greeting}"`;
         }
-        
+
         if (persona.systemPrompt) {
           systemMessage += ` ${persona.systemPrompt}`;
         }
-        
+
         if (persona.behaviorText) {
           systemMessage += ` Behavior: ${persona.behaviorText}`;
         }
-        
+
         if (persona.capabilitiesText) {
           systemMessage += ` Capabilities: ${persona.capabilitiesText}`;
         }
-        
+
         if (persona.contextualText) {
           systemMessage += ` Context: ${persona.contextualText}`;
         }
-        
+
         if (persona.guardrailsText) {
           systemMessage += ` Constraints: ${persona.guardrailsText}`;
         }
-        
+
         // Add system message at the beginning of conversation history
         conversationHistory = [
           { role: "system", content: systemMessage },
-          ...conversationHistory
+          ...conversationHistory,
         ];
-        
+
         console.log("Added persona system message to conversation history");
       }
 
@@ -1225,83 +1417,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
         for (const file of files) {
           try {
             console.log(`🔍 Processing file: ${file.name} (${file.type})`);
-            
+
             // Check if file type is supported
             const supportedTypes = [
-              'text/plain', 'text/csv', 'application/json', 'text/markdown', 'text/html',
-              'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
-              'application/msword', // .doc
-              'application/pdf', // .pdf
-              'application/vnd.ms-excel', // .xls
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-              'application/vnd.ms-powerpoint', // .ppt
-              'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
-              'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp' // Images
+              "text/plain",
+              "text/csv",
+              "application/json",
+              "text/markdown",
+              "text/html",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+              "application/msword", // .doc
+              "application/pdf", // .pdf
+              "application/vnd.ms-excel", // .xls
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+              "application/vnd.ms-powerpoint", // .ppt
+              "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+              "image/jpeg",
+              "image/jpg",
+              "image/png",
+              "image/gif",
+              "image/webp",
+              "image/bmp", // Images
             ];
-            const isSupportedFile = supportedTypes.includes(file.type) || 
-              file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.json') || 
-              file.name.endsWith('.csv') || file.name.endsWith('.docx') || file.name.endsWith('.doc') ||
-              file.name.endsWith('.pdf') || file.name.endsWith('.xls') || file.name.endsWith('.xlsx') ||
-              file.name.endsWith('.ppt') || file.name.endsWith('.pptx') ||
-              file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') ||
-              file.name.endsWith('.gif') || file.name.endsWith('.webp') || file.name.endsWith('.bmp');
-            
+            const isSupportedFile =
+              supportedTypes.includes(file.type) ||
+              file.name.endsWith(".txt") ||
+              file.name.endsWith(".md") ||
+              file.name.endsWith(".json") ||
+              file.name.endsWith(".csv") ||
+              file.name.endsWith(".docx") ||
+              file.name.endsWith(".doc") ||
+              file.name.endsWith(".pdf") ||
+              file.name.endsWith(".xls") ||
+              file.name.endsWith(".xlsx") ||
+              file.name.endsWith(".ppt") ||
+              file.name.endsWith(".pptx") ||
+              file.name.endsWith(".jpg") ||
+              file.name.endsWith(".jpeg") ||
+              file.name.endsWith(".png") ||
+              file.name.endsWith(".gif") ||
+              file.name.endsWith(".webp") ||
+              file.name.endsWith(".bmp");
+
             if (!isSupportedFile) {
-              console.log(`⚠️ File ${file.name} is not a supported file type (${file.type})`);
+              console.log(
+                `⚠️ File ${file.name} is not a supported file type (${file.type})`,
+              );
               fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n[File type not supported. Please upload text files, Word documents, PDFs, images, or spreadsheets]\n--- End of ${file.name} ---\n`;
               continue;
             }
-            
+
             // Parse file content based on file type
-            let content = '';
-            
-            if (file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
+            let content = "";
+
+            if (file.name.endsWith(".docx") || file.name.endsWith(".doc")) {
               // For Word documents, use mammoth to extract text
               try {
-                const buffer = Buffer.from(file.content, 'base64');
+                const buffer = Buffer.from(file.content, "base64");
                 const result = await mammoth.extractRawText({ buffer });
                 content = result.value;
-                
+
                 if (content.length < 10) {
-                  content = '[Word document appears to be empty or could not be processed. Please check the file and try again.]';
+                  content =
+                    "[Word document appears to be empty or could not be processed. Please check the file and try again.]";
                 }
-                
-                console.log(`✅ Successfully extracted ${content.length} characters from Word document: ${file.name}`);
+
+                console.log(
+                  `✅ Successfully extracted ${content.length} characters from Word document: ${file.name}`,
+                );
               } catch (error) {
-                console.error(`Error extracting text from Word document ${file.name}:`, error);
-                content = '[Error extracting text from Word document. The file may be corrupted or in an unsupported format. Please try converting to .txt format.]';
+                console.error(
+                  `Error extracting text from Word document ${file.name}:`,
+                  error,
+                );
+                content =
+                  "[Error extracting text from Word document. The file may be corrupted or in an unsupported format. Please try converting to .txt format.]";
               }
-            } else if (file.name.endsWith('.pdf')) {
+            } else if (file.name.endsWith(".pdf")) {
               // For PDFs, we'll provide a helpful message
-              content = '[PDF file detected. PDF text extraction is not yet implemented. Please convert to .txt format for text analysis.]';
-            } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+              content =
+                "[PDF file detected. PDF text extraction is not yet implemented. Please convert to .txt format for text analysis.]";
+            } else if (
+              file.name.endsWith(".xlsx") ||
+              file.name.endsWith(".xls")
+            ) {
               // For Excel files, we'll provide a helpful message
-              content = '[Excel file detected. Spreadsheet parsing is not yet implemented. Please convert to .csv format for data analysis.]';
-            } else if (file.name.endsWith('.pptx') || file.name.endsWith('.ppt')) {
+              content =
+                "[Excel file detected. Spreadsheet parsing is not yet implemented. Please convert to .csv format for data analysis.]";
+            } else if (
+              file.name.endsWith(".pptx") ||
+              file.name.endsWith(".ppt")
+            ) {
               // For PowerPoint files, we'll provide a helpful message
-              content = '[PowerPoint file detected. Presentation parsing is not yet implemented. Please convert to .txt format for text analysis.]';
-            } else if (file.name.endsWith('.jpg') || file.name.endsWith('.jpeg') || file.name.endsWith('.png') || 
-                       file.name.endsWith('.gif') || file.name.endsWith('.webp') || file.name.endsWith('.bmp')) {
+              content =
+                "[PowerPoint file detected. Presentation parsing is not yet implemented. Please convert to .txt format for text analysis.]";
+            } else if (
+              file.name.endsWith(".jpg") ||
+              file.name.endsWith(".jpeg") ||
+              file.name.endsWith(".png") ||
+              file.name.endsWith(".gif") ||
+              file.name.endsWith(".webp") ||
+              file.name.endsWith(".bmp")
+            ) {
               // For images, check if the model supports vision
-              const visionCapableModels = ['gpt-4', 'gpt-4o', 'claude-3-5-sonnet', 'gemini-pro'];
-              
+              const visionCapableModels = [
+                "gpt-4",
+                "gpt-4o",
+                "claude-3-5-sonnet",
+                "gemini-pro",
+              ];
+
               if (visionCapableModels.includes(model)) {
                 // For vision-capable models, include the image data
                 content = `[Image: ${file.name}]\n\nImage data: data:${file.type};base64,${file.content}`;
-                console.log(`✅ Image ${file.name} prepared for vision-capable model: ${model}`);
+                console.log(
+                  `✅ Image ${file.name} prepared for vision-capable model: ${model}`,
+                );
               } else {
                 // For non-vision models, provide helpful message
                 content = `[Image file detected: ${file.name}]\n\nI can see that you've uploaded an image, but the current AI model (${model}) doesn't support image analysis. To analyze images, please use a model that supports vision capabilities like GPT-4, Claude 3.5 Sonnet, or Gemini Pro.\n\nFor now, I can only process text-based content. If you need image analysis, please describe the image in text or switch to a vision-capable model.`;
               }
             } else {
               // For text files, decode normally
-              content = Buffer.from(file.content, 'base64').toString('utf-8');
+              content = Buffer.from(file.content, "base64").toString("utf-8");
             }
-            
+
             // Check if file content is too large (limit to 50KB per file)
             if (content.length > 50000) {
-              console.log(`⚠️ File ${file.name} is too large (${content.length} chars), truncating to 50KB`);
-              const truncatedContent = content.substring(0, 50000) + '\n\n[Content truncated due to size limit]';
+              console.log(
+                `⚠️ File ${file.name} is too large (${content.length} chars), truncating to 50KB`,
+              );
+              const truncatedContent =
+                content.substring(0, 50000) +
+                "\n\n[Content truncated due to size limit]";
               fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n${truncatedContent}\n--- End of ${file.name} ---\n`;
             } else {
               fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n${content}\n--- End of ${file.name} ---\n`;
@@ -1311,15 +1559,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
             fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n[Error reading file content]\n--- End of ${file.name} ---\n`;
           }
         }
-        
+
         enhancedMessage = `${message}\n\nAttached files:${fileContents}`;
-        console.log(`Enhanced message with ${files.length} files, total length: ${enhancedMessage.length}`);
-        console.log(`🔍 File content preview:`, fileContents.substring(0, 200) + '...');
-        
+        console.log(
+          `Enhanced message with ${files.length} files, total length: ${enhancedMessage.length}`,
+        );
+        console.log(
+          `🔍 File content preview:`,
+          fileContents.substring(0, 200) + "...",
+        );
+
         // Check if total message is too large
         if (enhancedMessage.length > 100000) {
-          console.log(`⚠️ Total message too large (${enhancedMessage.length} chars), truncating`);
-          enhancedMessage = enhancedMessage.substring(0, 100000) + '\n\n[Message truncated due to size limit]';
+          console.log(
+            `⚠️ Total message too large (${enhancedMessage.length} chars), truncating`,
+          );
+          enhancedMessage =
+            enhancedMessage.substring(0, 100000) +
+            "\n\n[Message truncated due to size limit]";
         }
       }
 
@@ -1328,11 +1585,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         console.log("Starting streaming for model:", model);
-        
+
         // Determine which service to use (user key vs Replicate)
         const serviceConfig = await getServiceForModel(model, userId);
-        console.log(`[Streaming] Using ${serviceConfig.useUserKey ? 'user API key' : 'Replicate'} for model ${model}`);
-        
+        console.log(
+          `[Streaming] Using ${serviceConfig.useUserKey ? "user API key" : "Replicate"} for model ${model}`,
+        );
+
         if (serviceConfig.useUserKey) {
           // Use user's own API key for streaming
           switch (serviceConfig.provider) {
@@ -1346,243 +1605,391 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 {
                   thinkingMode,
                   webSearch,
-                  maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-                  temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-                }
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
               )) {
                 console.log("Received OpenAI chunk:", chunk.content);
                 fullResponse += chunk.content;
-                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
               }
               break;
-              
+
             case "anthropic":
               console.log("Starting Claude streaming with user key...");
-              for await (const chunk of userClaudeService.sendMessageStream(enhancedMessage, model, conversationHistory, serviceConfig.userApiKey || "", {
-                thinkingMode,
-                webSearch,
-                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-              })) {
+              for await (const chunk of userClaudeService.sendMessageStream(
+                enhancedMessage,
+                model,
+                conversationHistory,
+                serviceConfig.userApiKey || "",
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              )) {
                 console.log("Received Claude chunk:", chunk.content);
                 fullResponse += chunk.content;
-                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
               }
               break;
-              
+
             case "google":
               console.log("Starting Gemini streaming with user key...");
-              for await (const chunk of userGeminiService.sendMessageStream(enhancedMessage, model, conversationHistory, serviceConfig.userApiKey || "", {
-                thinkingMode,
-                webSearch,
-                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-              })) {
+              for await (const chunk of userGeminiService.sendMessageStream(
+                enhancedMessage,
+                model,
+                conversationHistory,
+                serviceConfig.userApiKey || "",
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              )) {
                 console.log("Received Gemini chunk:", chunk.content);
                 fullResponse += chunk.content;
-                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
               }
               break;
-              
+
             case "xai":
               console.log("Starting Grok streaming with user key...");
-              for await (const chunk of userGrokService.sendMessageStream(enhancedMessage, model, conversationHistory, serviceConfig.userApiKey || "", {
-                thinkingMode,
-                webSearch,
-                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-              })) {
+              for await (const chunk of userGrokService.sendMessageStream(
+                enhancedMessage,
+                model,
+                conversationHistory,
+                serviceConfig.userApiKey || "",
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              )) {
                 console.log("Received Grok chunk:", chunk.content);
                 fullResponse += chunk.content;
-                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
               }
               break;
-              
+
             case "perplexity":
               console.log("Starting Perplexity streaming with user key...");
-              for await (const chunk of userPerplexityService.sendMessageStream(enhancedMessage, model, conversationHistory, serviceConfig.userApiKey || "", {
-                thinkingMode,
-                webSearch,
-                maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-                temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-              })) {
+              for await (const chunk of userPerplexityService.sendMessageStream(
+                enhancedMessage,
+                model,
+                conversationHistory,
+                serviceConfig.userApiKey || "",
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              )) {
                 console.log("Received Perplexity chunk:", chunk.content);
                 fullResponse += chunk.content;
-                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
               }
               break;
-              
+
             default:
-              throw new Error(`Unsupported provider for user key streaming: ${serviceConfig.provider}`);
+              throw new Error(
+                `Unsupported provider for user key streaming: ${serviceConfig.provider}`,
+              );
           }
         } else {
           // Use Replicate or our service for streaming
           switch (model) {
-          case "deepseek-chat":
-            console.log("Starting DeepSeek streaming...");
-            for await (const chunk of deepseekService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
-              console.log("Received chunk:", chunk.content);
-              fullResponse += chunk.content;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-            }
-            console.log("DeepSeek streaming finished, fullResponse length:", fullResponse.length);
-            break;
-
-          case "deepseek-v3":
-            console.log("Starting DeepSeek V3 streaming via OpenRouter...");
-            for await (const chunk of deepseekService.sendMessageStream(enhancedMessage, model, conversationHistory, {
-              thinkingMode,
-              webSearch,
-              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-            })) {
-              console.log("Received DeepSeek chunk:", chunk.content);
-              fullResponse += chunk.content;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-            }
-            console.log("DeepSeek V3 streaming finished, fullResponse length:", fullResponse.length);
-            break;
-
-          case "gpt-4":
-          case "gpt-4o":
-            if (userId && integration) {
-              for await (const chunk of openaiService.sendMessageStream(
+            case "deepseek-chat":
+              console.log("Starting DeepSeek streaming...");
+              for await (const chunk of deepseekService.sendMessageStream(
                 enhancedMessage,
-                userId,
-                sessionId || userId.toString(),
-                integration?.credentialsEncrypted || "",
+                model,
+                conversationHistory,
               )) {
+                console.log("Received chunk:", chunk.content);
                 fullResponse += chunk.content;
-                totalTokens = chunk.tokens || totalTokens;
-                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
               }
-            } else {
-              // Fallback to DeepSeek for unauthenticated users
-              for await (const chunk of deepseekService.sendMessageStream(enhancedMessage, "deepseek-chat", conversationHistory)) {
+              console.log(
+                "DeepSeek streaming finished, fullResponse length:",
+                fullResponse.length,
+              );
+              break;
+
+            case "deepseek-v3":
+              console.log("Starting DeepSeek V3 streaming via OpenRouter...");
+              for await (const chunk of deepseekService.sendMessageStream(
+                enhancedMessage,
+                model,
+                conversationHistory,
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              )) {
+                console.log("Received DeepSeek chunk:", chunk.content);
                 fullResponse += chunk.content;
-                res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
               }
-            }
-            break;
+              console.log(
+                "DeepSeek V3 streaming finished, fullResponse length:",
+                fullResponse.length,
+              );
+              break;
 
-          case "claude-3-5-sonnet":
-            console.log("Starting Claude streaming...");
-            for await (const chunk of claudeService.sendMessageStream(enhancedMessage, model, conversationHistory, {
-              thinkingMode,
-              webSearch,
-              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-            })) {
-              console.log("Received Claude chunk:", chunk.content);
-              fullResponse += chunk.content;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-            }
-            console.log("Claude streaming finished, fullResponse length:", fullResponse.length);
-            break;
+            case "gpt-4":
+            case "gpt-4o":
+              if (userId && integration) {
+                for await (const chunk of openaiService.sendMessageStream(
+                  enhancedMessage,
+                  userId,
+                  sessionId || userId.toString(),
+                  integration?.credentialsEncrypted || "",
+                )) {
+                  fullResponse += chunk.content;
+                  totalTokens = chunk.tokens || totalTokens;
+                  res.write(
+                    `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                  );
+                }
+              } else {
+                // Fallback to DeepSeek for unauthenticated users
+                for await (const chunk of deepseekService.sendMessageStream(
+                  enhancedMessage,
+                  "deepseek-chat",
+                  conversationHistory,
+                )) {
+                  fullResponse += chunk.content;
+                  res.write(
+                    `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                  );
+                }
+              }
+              break;
 
-          case "claude-3-5-sonnet-replicate":
-          case "claude-3-haiku-replicate":
-            console.log("Starting Claude Replicate streaming for model:", model);
-            for await (const chunk of replicateService.sendMessageStream(enhancedMessage, userId || 0, sessionId || "anonymous", integration?.credentialsEncrypted || "", model)) {
-              console.log("Received Claude Replicate chunk:", chunk.content);
-              fullResponse += chunk.content;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-            }
-            console.log("Claude Replicate streaming finished, fullResponse length:", fullResponse.length);
-            break;
+            case "claude-3-5-sonnet":
+              console.log("Starting Claude streaming...");
+              for await (const chunk of claudeService.sendMessageStream(
+                enhancedMessage,
+                model,
+                conversationHistory,
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              )) {
+                console.log("Received Claude chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
+              }
+              console.log(
+                "Claude streaming finished, fullResponse length:",
+                fullResponse.length,
+              );
+              break;
 
-          case "gemini-pro":
-            console.log("Starting Gemini streaming...");
-            for await (const chunk of geminiService.sendMessageStream(enhancedMessage, model, conversationHistory, {
-              thinkingMode,
-              webSearch,
-              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-            })) {
-              console.log("Received Gemini chunk:", chunk.content);
-              fullResponse += chunk.content;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-            }
-            console.log("Gemini streaming finished, fullResponse length:", fullResponse.length);
-            break;
+            case "claude-3-5-sonnet-replicate":
+            case "claude-3-haiku-replicate":
+              console.log(
+                "Starting Claude Replicate streaming for model:",
+                model,
+              );
+              for await (const chunk of replicateService.sendMessageStream(
+                enhancedMessage,
+                userId || 0,
+                sessionId || "anonymous",
+                integration?.credentialsEncrypted || "",
+                model,
+              )) {
+                console.log("Received Claude Replicate chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
+              }
+              console.log(
+                "Claude Replicate streaming finished, fullResponse length:",
+                fullResponse.length,
+              );
+              break;
 
-          case "grok-beta":
-            console.log("Starting Grok streaming...");
-            for await (const chunk of grokService.sendMessageStream(enhancedMessage, model, conversationHistory, {
-              thinkingMode,
-              webSearch,
-              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-            })) {
-              console.log("Received Grok chunk:", chunk.content);
-              fullResponse += chunk.content;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-            }
-            console.log("Grok streaming finished, fullResponse length:", fullResponse.length);
-            break;
+            case "gemini-pro":
+              console.log("Starting Gemini streaming...");
+              for await (const chunk of geminiService.sendMessageStream(
+                enhancedMessage,
+                model,
+                conversationHistory,
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              )) {
+                console.log("Received Gemini chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
+              }
+              console.log(
+                "Gemini streaming finished, fullResponse length:",
+                fullResponse.length,
+              );
+              break;
 
-          case "llama-3":
-            console.log("Starting Llama streaming...");
-            for await (const chunk of llamaService.sendMessageStream(enhancedMessage, model, conversationHistory)) {
-              console.log("Received Llama chunk:", chunk.content);
-              fullResponse += chunk.content;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-            }
-            console.log("Llama streaming finished, fullResponse length:", fullResponse.length);
-            break;
+            case "grok-beta":
+              console.log("Starting Grok streaming...");
+              for await (const chunk of grokService.sendMessageStream(
+                enhancedMessage,
+                model,
+                conversationHistory,
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              )) {
+                console.log("Received Grok chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
+              }
+              console.log(
+                "Grok streaming finished, fullResponse length:",
+                fullResponse.length,
+              );
+              break;
 
-          case "llama-3.1-8b":
-          case "gpt-5":
-            console.log("Starting Replicate streaming for model:", model);
-            console.log("Auth check - userId:", !!userId, "integration:", !!integration);
-            // Replicate now works with default API key - no user authentication required
-            for await (const chunk of replicateService.sendMessageStream(
-              enhancedMessage,
-              userId || 0, // Use 0 as fallback for unauthenticated users
-              sessionId || "anonymous",
-              integration?.credentialsEncrypted || "", // Empty string if no Google Drive
-              model,
-            )) {
-              console.log("Received Replicate chunk:", chunk.content);
-              fullResponse += chunk.content;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-            }
-            console.log("Replicate streaming finished, fullResponse length:", fullResponse.length);
-            break;
+            case "llama-3":
+              console.log("Starting Llama streaming...");
+              for await (const chunk of llamaService.sendMessageStream(
+                enhancedMessage,
+                model,
+                conversationHistory,
+              )) {
+                console.log("Received Llama chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
+              }
+              console.log(
+                "Llama streaming finished, fullResponse length:",
+                fullResponse.length,
+              );
+              break;
 
-          case "perplexity":
-            console.log("Starting Perplexity streaming...");
-            for await (const chunk of perplexityService.sendMessageStream(enhancedMessage, model, conversationHistory, {
-              thinkingMode,
-              webSearch,
-              maxTokens: thinkingMode === 'research' ? 8192 : 4096,
-              temperature: thinkingMode === 'deep' ? 0.3 : 0.7
-            })) {
-              console.log("Received Perplexity chunk:", chunk.content);
-              fullResponse += chunk.content;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-            }
-            console.log("Perplexity streaming finished, fullResponse length:", fullResponse.length);
-            break;
+            case "llama-3.1-8b":
+            case "gpt-5":
+              console.log("Starting Replicate streaming for model:", model);
+              console.log(
+                "Auth check - userId:",
+                !!userId,
+                "integration:",
+                !!integration,
+              );
+              // Replicate now works with default API key - no user authentication required
+              for await (const chunk of replicateService.sendMessageStream(
+                enhancedMessage,
+                userId || 0, // Use 0 as fallback for unauthenticated users
+                sessionId || "anonymous",
+                integration?.credentialsEncrypted || "", // Empty string if no Google Drive
+                model,
+              )) {
+                console.log("Received Replicate chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
+              }
+              console.log(
+                "Replicate streaming finished, fullResponse length:",
+                fullResponse.length,
+              );
+              break;
 
-          default:
-            console.log("Unknown model, defaulting to DeepSeek:", model);
-            // Default to DeepSeek for any unknown model
-            for await (const chunk of deepseekService.sendMessageStream(enhancedMessage, "deepseek-chat", conversationHistory)) {
-              console.log("Received default chunk:", chunk.content);
-              fullResponse += chunk.content;
-              res.write(`data: ${JSON.stringify({ content: chunk.content, type: 'chunk' })}\n\n`);
-            }
-            console.log("Default streaming finished, fullResponse length:", fullResponse.length);
-            break;
+            case "perplexity":
+              console.log("Starting Perplexity streaming...");
+              for await (const chunk of perplexityService.sendMessageStream(
+                enhancedMessage,
+                model,
+                conversationHistory,
+                {
+                  thinkingMode,
+                  webSearch,
+                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                },
+              )) {
+                console.log("Received Perplexity chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
+              }
+              console.log(
+                "Perplexity streaming finished, fullResponse length:",
+                fullResponse.length,
+              );
+              break;
+
+            default:
+              console.log("Unknown model, defaulting to DeepSeek:", model);
+              // Default to DeepSeek for any unknown model
+              for await (const chunk of deepseekService.sendMessageStream(
+                enhancedMessage,
+                "deepseek-chat",
+                conversationHistory,
+              )) {
+                console.log("Received default chunk:", chunk.content);
+                fullResponse += chunk.content;
+                res.write(
+                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
+              }
+              console.log(
+                "Default streaming finished, fullResponse length:",
+                fullResponse.length,
+              );
+              break;
           }
         }
 
-        console.log("Streaming completed, full response length:", fullResponse.length);
-        
+        console.log(
+          "Streaming completed, full response length:",
+          fullResponse.length,
+        );
+
         // Calculate final usage metrics
         const finalTokens = totalTokens || Math.floor(fullResponse.length / 4);
-        
+
         // Calculate cost based on the actual model used
         let estimatedCost = 0;
         switch (model) {
@@ -1623,86 +2030,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Very conservative fallback - $0.001 per 1K tokens
             estimatedCost = (finalTokens / 1000) * 0.001;
         }
-        
+
         // Track usage for streaming responses (only if not using user's own API key)
         if (userId && estimatedCost > 0) {
           try {
             const now = new Date();
-            const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-            
+            const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+
             // Deduct credits from user's balance (this also logs usage)
-            console.log(`🔍 [Streaming] Attempting to deduct credits for user ${userId}, model: ${model}, tokens: ${finalTokens}`);
-            const deductionResult = await billingService.deductCredits(userId, finalTokens, model);
+            console.log(
+              `🔍 [Streaming] Attempting to deduct credits for user ${userId}, model: ${model}, tokens: ${finalTokens}`,
+            );
+            const deductionResult = await billingService.deductCredits(
+              userId,
+              finalTokens,
+              model,
+            );
             console.log(`🔍 [Streaming] Deduction result:`, deductionResult);
 
             // Update monthly usage for billing
             await storage.updateMonthlyUsage(userId, estimatedCost);
-            
-            console.log(`✅ [Streaming] Usage tracked: ${finalTokens} tokens, $${estimatedCost}, ${deductionResult.creditsDeducted} credits deducted for model ${model} (user: ${userId})`);
+
+            console.log(
+              `✅ [Streaming] Usage tracked: ${finalTokens} tokens, $${estimatedCost}, ${deductionResult.creditsDeducted} credits deducted for model ${model} (user: ${userId})`,
+            );
           } catch (error) {
             console.error("Failed to log streaming usage:", error);
             // If credit deduction fails, we should handle it gracefully
-            if (error instanceof Error && error.message === 'Insufficient credits') {
-              console.log(`❌ [Streaming] User ${userId} has insufficient credits for ${model} request`);
+            if (
+              error instanceof Error &&
+              error.message === "Insufficient credits"
+            ) {
+              console.log(
+                `❌ [Streaming] User ${userId} has insufficient credits for ${model} request`,
+              );
             }
           }
         } else if (userId && estimatedCost === 0) {
-          console.log(`✅ [Streaming] User ${userId} used their own API key for ${model} - no credits deducted`);
+          console.log(
+            `✅ [Streaming] User ${userId} used their own API key for ${model} - no credits deducted`,
+          );
         }
-        
+
         // Completion signal will be sent after Google Drive save (if authenticated) or here (if not authenticated)
 
         // Save the complete conversation to Google Drive (only if authenticated)
         if (integration && userId) {
           try {
             // Generate a new session ID if none exists
-            const finalSessionId = sessionId || `new_session_${Date.now()}_${userId}`;
-            
+            const finalSessionId =
+              sessionId || `new_session_${Date.now()}_${userId}`;
+
             await googleDriveService.saveChatMessage(
               finalSessionId,
               message, // Save original user message (not enhanced with files)
               fullResponse,
-              integration.credentialsEncrypted
+              integration.credentialsEncrypted,
             );
-            
+
             // Update the sessionId in the response to include the generated one
             if (!sessionId) {
               // Send an additional data event with the new session ID
-              res.write(`data: ${JSON.stringify({ 
-                type: 'session_created', 
-                sessionId: finalSessionId 
-              })}\n\n`);
+              res.write(
+                `data: ${JSON.stringify({
+                  type: "session_created",
+                  sessionId: finalSessionId,
+                })}\n\n`,
+              );
             }
-            
+
             // Store the finalSessionId for use in the completion response
             const effectiveSessionId = finalSessionId;
-            
+
             // Send completion signal with the effective session ID
-            res.write(`data: ${JSON.stringify({ 
-              type: 'complete', 
-              response: fullResponse,
-              tokens: finalTokens,
-              model: model,
-              sessionId: effectiveSessionId
-            })}\n\n`);
+            res.write(
+              `data: ${JSON.stringify({
+                type: "complete",
+                response: fullResponse,
+                tokens: finalTokens,
+                model: model,
+                sessionId: effectiveSessionId,
+              })}\n\n`,
+            );
           } catch (error) {
             console.error("Failed to save message to Google Drive:", error);
           }
         } else {
           // Send completion signal for non-authenticated users
-          res.write(`data: ${JSON.stringify({ 
-            type: 'complete', 
-            response: fullResponse,
-            tokens: finalTokens,
-            model: model,
-            sessionId: sessionId
-          })}\n\n`);
+          res.write(
+            `data: ${JSON.stringify({
+              type: "complete",
+              response: fullResponse,
+              tokens: finalTokens,
+              model: model,
+              sessionId: sessionId,
+            })}\n\n`,
+          );
         }
 
         res.end();
       } catch (error) {
         console.error("Streaming error:", error);
-        res.write(`data: ${JSON.stringify({ type: 'error', error: 'Failed to process streaming request' })}\n\n`);
+        res.write(
+          `data: ${JSON.stringify({ type: "error", error: "Failed to process streaming request" })}\n\n`,
+        );
         res.end();
       }
     } catch (error) {
@@ -1727,21 +2158,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/test/create-usage", async (req, res) => {
     try {
       const userId = (req as any).session?.passport?.user;
-      
+
       if (!userId) {
         return res.status(401).json({ error: "Not authenticated" });
       }
 
       console.log("Creating test usage data for user:", userId);
-      
+
       const now = new Date();
-      const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-      
+      const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+
       // Create some test usage data
       const testUsageData = [
-        { model: 'deepseek-v3', tokens: 1500, cost: 0.0003 },
-        { model: 'gpt-4', tokens: 2000, cost: 0.06 },
-        { model: 'claude-3-5-sonnet', tokens: 1200, cost: 0.0108 }
+        { model: "deepseek-v3", tokens: 1500, cost: 0.0003 },
+        { model: "gpt-4", tokens: 2000, cost: 0.06 },
+        { model: "claude-3-5-sonnet", tokens: 1200, cost: 0.0108 },
       ];
 
       for (const data of testUsageData) {
@@ -1754,16 +2185,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           cost: data.cost.toString(),
           isPremiumAccount: false,
           billingPeriod,
-          requestType: 'chat'
+          requestType: "chat",
         });
 
         await storage.updateMonthlyUsage(userId, data.cost);
-        console.log(`✅ Test usage created: ${data.model} - ${data.tokens} tokens, $${data.cost}`);
+        console.log(
+          `✅ Test usage created: ${data.model} - ${data.tokens} tokens, $${data.cost}`,
+        );
       }
 
-      res.json({ 
+      res.json({
         message: "Test usage data created successfully",
-        data: testUsageData
+        data: testUsageData,
       });
     } catch (error) {
       console.error("Failed to create test usage data:", error);
@@ -1775,23 +2208,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/debug/usage-logs", async (req, res) => {
     try {
       const userId = (req as any).session?.passport?.user;
-      
+
       if (!userId) {
         return res.status(401).json({ error: "Not authenticated" });
       }
 
       console.log("Debug: Checking raw usage logs for user:", userId);
-      
+
       // Get all usage logs for this user from database
-      const logs = await db.select().from(usageLogs).where(eq(usageLogs.userId, userId));
-      
+      const logs = await db
+        .select()
+        .from(usageLogs)
+        .where(eq(usageLogs.userId, userId));
+
       console.log("Debug: Found", logs.length, "usage logs");
       console.log("Debug: Raw logs:", logs);
 
       res.json({
         userId,
         totalLogs: logs.length,
-        logs: logs
+        logs: logs,
       });
     } catch (error) {
       console.error("Debug endpoint error:", error);
@@ -1828,37 +2264,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const userId = (req.user as any).id;
         // Get both regular integrations and AI model integrations
         const regularIntegrations = await storage.getIntegrations(userId);
-        const aiModelIntegrations = await userApiKeysService.getUserApiKeys(userId);
-        
+        const aiModelIntegrations =
+          await userApiKeysService.getUserApiKeys(userId);
+
         // Convert AI model integrations to the expected format
-        const formattedAiIntegrations = aiModelIntegrations.map(key => ({
+        const formattedAiIntegrations = aiModelIntegrations.map((key) => ({
           id: key.id,
           userId,
-          serviceType: 'ai_model',
+          serviceType: "ai_model",
           serviceName: key.provider,
-          credentialsEncrypted: '[ENCRYPTED]',
+          credentialsEncrypted: "[ENCRYPTED]",
           isActive: key.isActive,
           createdAt: key.createdAt,
-          updatedAt: key.createdAt // Using createdAt as updatedAt since we don't have separate updatedAt
+          updatedAt: key.createdAt, // Using createdAt as updatedAt since we don't have separate updatedAt
         }));
-        
+
         integrations = [...regularIntegrations, ...formattedAiIntegrations];
       } else if (session.session?.userId) {
         const userId = session.session.userId;
         const regularIntegrations = await storage.getIntegrations(userId);
-        const aiModelIntegrations = await userApiKeysService.getUserApiKeys(userId);
-        
-        const formattedAiIntegrations = aiModelIntegrations.map(key => ({
+        const aiModelIntegrations =
+          await userApiKeysService.getUserApiKeys(userId);
+
+        const formattedAiIntegrations = aiModelIntegrations.map((key) => ({
           id: key.id,
           userId,
-          serviceType: 'ai_model',
+          serviceType: "ai_model",
           serviceName: key.provider,
-          credentialsEncrypted: '[ENCRYPTED]',
+          credentialsEncrypted: "[ENCRYPTED]",
           isActive: key.isActive,
           createdAt: key.createdAt,
-          updatedAt: key.createdAt
+          updatedAt: key.createdAt,
         }));
-        
+
         integrations = [...regularIntegrations, ...formattedAiIntegrations];
       } else if (session.session?.integrations) {
         // Return session-stored integrations
@@ -1885,31 +2323,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (userId) {
         // Check if this is an AI model integration
-        if (req.body.serviceType === 'ai_model') {
+        if (req.body.serviceType === "ai_model") {
           // Use our new userApiKeysService for AI model integrations
           const { serviceName, credentialsEncrypted } = req.body;
-          
+
           // Test the API key first
-          const isValid = await userApiKeysService.testApiKey(serviceName, credentialsEncrypted);
+          const isValid = await userApiKeysService.testApiKey(
+            serviceName,
+            credentialsEncrypted,
+          );
           if (!isValid) {
-            return res.status(400).json({ error: 'Invalid API key' });
+            return res.status(400).json({ error: "Invalid API key" });
           }
-          
+
           // Store the API key using our service
-          const keyId = await userApiKeysService.storeApiKey(userId, serviceName, credentialsEncrypted);
-          
+          const keyId = await userApiKeysService.storeApiKey(
+            userId,
+            serviceName,
+            credentialsEncrypted,
+          );
+
           // Return integration data in the expected format
           const integration = {
             id: keyId,
             userId,
-            serviceType: 'ai_model',
+            serviceType: "ai_model",
             serviceName,
-            credentialsEncrypted: '[ENCRYPTED]', // Don't return the actual key
+            credentialsEncrypted: "[ENCRYPTED]", // Don't return the actual key
             isActive: true,
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
           };
-          
+
           res.json({ success: true, integration });
         } else {
           // Use existing storage service for other integrations (like Google Drive)
@@ -1949,35 +2394,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = (req.user as any)?.id;
 
       if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: "Unauthorized" });
       }
 
       // First, try to find the integration to determine its type
       const regularIntegrations = await storage.getIntegrations(userId);
-      const aiModelIntegrations = await userApiKeysService.getUserApiKeys(userId);
-      
+      const aiModelIntegrations =
+        await userApiKeysService.getUserApiKeys(userId);
+
       // Check if it's an AI model integration
-      const aiIntegration = aiModelIntegrations.find(integration => integration.id === integrationId);
+      const aiIntegration = aiModelIntegrations.find(
+        (integration) => integration.id === integrationId,
+      );
       if (aiIntegration) {
         // Delete using our userApiKeysService
         await userApiKeysService.deleteApiKey(userId, aiIntegration.provider);
         res.json({ success: true });
         return;
       }
-      
+
       // Check if it's a regular integration
-      const regularIntegration = regularIntegrations.find(integration => integration.id === integrationId);
+      const regularIntegration = regularIntegrations.find(
+        (integration) => integration.id === integrationId,
+      );
       if (regularIntegration) {
         // Delete using existing storage service
         await storage.deleteIntegration(integrationId);
         res.json({ success: true });
         return;
       }
-      
+
       // Integration not found
-      res.status(404).json({ error: 'Integration not found' });
+      res.status(404).json({ error: "Integration not found" });
     } catch (error) {
-      console.error('Error deleting integration:', error);
+      console.error("Error deleting integration:", error);
       res.status(500).json({ error: "Failed to delete integration" });
     }
   });
@@ -2026,16 +2476,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/spaces", async (req, res) => {
     try {
       const userId = (req as any).session?.passport?.user || 1; // Use default user ID for demo
-      
-      const userSpaces = await db.select().from(spaces).where(eq(spaces.userId, userId));
-      
+
+      const userSpaces = await db
+        .select()
+        .from(spaces)
+        .where(eq(spaces.userId, userId));
+
       // If no spaces exist, create default spaces
       if (userSpaces.length === 0) {
         const defaultSpaces = [
           {
             userId,
             name: "My Personal Space",
-            description: "Your personal workspace for individual projects and ideas",
+            description:
+              "Your personal workspace for individual projects and ideas",
             isDefault: true,
           },
           {
@@ -2043,12 +2497,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             name: "My Workspace",
             description: "Professional workspace for work-related projects",
             isDefault: true,
-          }
+          },
         ];
 
         for (const spaceData of defaultSpaces) {
-          const [newSpace] = await db.insert(spaces).values(spaceData).returning();
-          
+          const [newSpace] = await db
+            .insert(spaces)
+            .values(spaceData)
+            .returning();
+
           // Create default virtual employee for each space
           await db.insert(virtualEmployees).values({
             spaceId: newSpace.id,
@@ -2060,22 +2517,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           // Create default tools
           const defaultTools = [
-            { name: "Audio Summary", type: "audio_summary", spaceId: newSpace.id },
-            { name: "Video Summary", type: "video_summary", spaceId: newSpace.id },
+            {
+              name: "Audio Summary",
+              type: "audio_summary",
+              spaceId: newSpace.id,
+            },
+            {
+              name: "Video Summary",
+              type: "video_summary",
+              spaceId: newSpace.id,
+            },
             { name: "Mind Map", type: "mind_map", spaceId: newSpace.id },
             { name: "Reports", type: "report", spaceId: newSpace.id },
           ];
-          
+
           for (const tool of defaultTools) {
             await db.insert(tools).values(tool);
           }
         }
 
         // Re-fetch spaces after creating defaults
-        const createdSpaces = await db.select().from(spaces).where(eq(spaces.userId, userId));
+        const createdSpaces = await db
+          .select()
+          .from(spaces)
+          .where(eq(spaces.userId, userId));
         return res.json(createdSpaces);
       }
-      
+
       res.json(userSpaces);
     } catch (error) {
       console.error("Error fetching spaces:", error);
@@ -2086,14 +2554,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/spaces", async (req, res) => {
     try {
       const userId = (req as any).session?.passport?.user;
-      
+
       if (!userId) {
         return res.status(401).json({ error: "Not authenticated" });
       }
 
       const spaceData = insertSpaceSchema.parse({ ...req.body, userId });
       const [newSpace] = await db.insert(spaces).values(spaceData).returning();
-      
+
       res.status(201).json(newSpace);
     } catch (error) {
       console.error("Error creating space:", error);
@@ -2106,21 +2574,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = (req as any).session?.passport?.user;
       const { spaceId } = req.params;
-      
+
       if (!userId) {
         return res.status(401).json({ error: "Not authenticated" });
       }
 
       // Verify space ownership
-      const space = await db.select().from(spaces).where(
-        and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId))
-      );
-      
+      const space = await db
+        .select()
+        .from(spaces)
+        .where(
+          and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId)),
+        );
+
       if (space.length === 0) {
         return res.status(404).json({ error: "Space not found" });
       }
 
-      const spaceSources = await db.select().from(sources).where(eq(sources.spaceId, parseInt(spaceId)));
+      const spaceSources = await db
+        .select()
+        .from(sources)
+        .where(eq(sources.spaceId, parseInt(spaceId)));
       res.json(spaceSources);
     } catch (error) {
       console.error("Error fetching sources:", error);
@@ -2133,21 +2607,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = (req as any).session?.passport?.user;
       const { spaceId } = req.params;
-      
+
       if (!userId) {
         return res.status(401).json({ error: "Not authenticated" });
       }
 
       // Verify space ownership
-      const space = await db.select().from(spaces).where(
-        and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId))
-      );
-      
+      const space = await db
+        .select()
+        .from(spaces)
+        .where(
+          and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId)),
+        );
+
       if (space.length === 0) {
         return res.status(404).json({ error: "Space not found" });
       }
 
-      const spaceNotes = await db.select().from(notes).where(eq(notes.spaceId, parseInt(spaceId)));
+      const spaceNotes = await db
+        .select()
+        .from(notes)
+        .where(eq(notes.spaceId, parseInt(spaceId)));
       res.json(spaceNotes);
     } catch (error) {
       console.error("Error fetching notes:", error);
@@ -2160,21 +2640,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = (req as any).session?.passport?.user;
       const { spaceId } = req.params;
-      
+
       if (!userId) {
         return res.status(401).json({ error: "Not authenticated" });
       }
 
       // Verify space ownership
-      const space = await db.select().from(spaces).where(
-        and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId))
-      );
-      
+      const space = await db
+        .select()
+        .from(spaces)
+        .where(
+          and(eq(spaces.id, parseInt(spaceId)), eq(spaces.userId, userId)),
+        );
+
       if (space.length === 0) {
         return res.status(404).json({ error: "Space not found" });
       }
 
-      const employees = await db.select().from(virtualEmployees).where(eq(virtualEmployees.spaceId, parseInt(spaceId)));
+      const employees = await db
+        .select()
+        .from(virtualEmployees)
+        .where(eq(virtualEmployees.spaceId, parseInt(spaceId)));
       res.json(employees);
     } catch (error) {
       console.error("Error fetching virtual employees:", error);
@@ -2187,22 +2673,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get user ID from authenticated session
       let userId = (req as any).session?.passport?.user;
-      
+
       // Check for Google OAuth authentication
       if (req.isAuthenticated() && req.user) {
         userId = (req.user as any).id;
       }
-      
+
       // Check for session-based authentication
       if (!userId && (req as any).session?.userId) {
         userId = (req as any).session.userId;
       }
-      
+
       if (!userId) {
         return res.status(401).json({ error: "Not authenticated" });
       }
-      
-      const userPersonas = await db.select().from(digitalPersonas).where(eq(digitalPersonas.userId, userId));
+
+      const userPersonas = await db
+        .select()
+        .from(digitalPersonas)
+        .where(eq(digitalPersonas.userId, userId));
       res.json(userPersonas);
     } catch (error) {
       console.error("Error fetching digital personas:", error);
@@ -2214,27 +2703,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get user ID from authenticated session
       let userId = (req as any).session?.passport?.user;
-      
+
       // Check for Google OAuth authentication
       if (req.isAuthenticated() && req.user) {
         userId = (req.user as any).id;
       }
-      
+
       // Check for session-based authentication
       if (!userId && (req as any).session?.userId) {
         userId = (req as any).session.userId;
       }
-      
+
       if (!userId) {
         return res.status(401).json({ error: "Not authenticated" });
       }
-      
+
       const validatedData = insertDigitalPersonaSchema.parse({
         ...req.body,
         userId,
       });
 
-      const [newPersona] = await db.insert(digitalPersonas).values(validatedData).returning();
+      const [newPersona] = await db
+        .insert(digitalPersonas)
+        .values(validatedData)
+        .returning();
       res.json(newPersona);
     } catch (error) {
       console.error("Error creating digital persona:", error);
@@ -2246,23 +2738,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get user ID from authenticated session
       let userId = (req as any).session?.passport?.user;
-      
+
       // Check for Google OAuth authentication
       if (req.isAuthenticated() && req.user) {
         userId = (req.user as any).id;
       }
-      
+
       // Check for session-based authentication
       if (!userId && (req as any).session?.userId) {
         userId = (req as any).session.userId;
       }
-      
+
       if (!userId) {
         return res.status(401).json({ error: "Not authenticated" });
       }
-      
+
       const { id } = req.params;
-      
+
       const validatedData = insertDigitalPersonaSchema.parse({
         ...req.body,
         userId,
@@ -2271,7 +2763,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const [updatedPersona] = await db
         .update(digitalPersonas)
         .set(validatedData)
-        .where(and(eq(digitalPersonas.id, parseInt(id)), eq(digitalPersonas.userId, userId)))
+        .where(
+          and(
+            eq(digitalPersonas.id, parseInt(id)),
+            eq(digitalPersonas.userId, userId),
+          ),
+        )
         .returning();
 
       if (!updatedPersona) {
@@ -2289,26 +2786,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get user ID from authenticated session
       let userId = (req as any).session?.passport?.user;
-      
+
       // Check for Google OAuth authentication
       if (req.isAuthenticated() && req.user) {
         userId = (req.user as any).id;
       }
-      
+
       // Check for session-based authentication
       if (!userId && (req as any).session?.userId) {
         userId = (req as any).session.userId;
       }
-      
+
       if (!userId) {
         return res.status(401).json({ error: "Not authenticated" });
       }
-      
+
       const { id } = req.params;
-      
+
       const [deletedPersona] = await db
         .delete(digitalPersonas)
-        .where(and(eq(digitalPersonas.id, parseInt(id)), eq(digitalPersonas.userId, userId)))
+        .where(
+          and(
+            eq(digitalPersonas.id, parseInt(id)),
+            eq(digitalPersonas.userId, userId),
+          ),
+        )
         .returning();
 
       if (!deletedPersona) {
@@ -2338,7 +2840,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // In a real app, you'd check for admin privileges here
       const validatedData = insertPersonaTemplateSchema.parse(req.body);
-      const [newTemplate] = await db.insert(personaTemplates).values(validatedData).returning();
+      const [newTemplate] = await db
+        .insert(personaTemplates)
+        .values(validatedData)
+        .returning();
       res.json(newTemplate);
     } catch (error) {
       console.error("Error creating persona template:", error);
@@ -2384,7 +2889,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = (req as any).session?.passport?.user;
       console.log("Usage API called - userId:", userId);
-      
+
       if (!userId) {
         console.log("No userId found in session, returning 401");
         return res.status(401).json({ error: "Not authenticated" });
@@ -2394,30 +2899,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Fetching usage logs for userId:", userId);
       const usageLogs = await storage.getUsageLogs(userId, 100);
       console.log("Retrieved usage logs:", usageLogs.length, "entries");
-      
+
       // Calculate summary statistics
-      const totalTokens = usageLogs.reduce((sum, log) => sum + log.tokensConsumed, 0);
-      const totalCost = usageLogs.reduce((sum, log) => sum + parseFloat(log.cost), 0);
-      
+      const totalTokens = usageLogs.reduce(
+        (sum, log) => sum + log.tokensConsumed,
+        0,
+      );
+      const totalCost = usageLogs.reduce(
+        (sum, log) => sum + parseFloat(log.cost),
+        0,
+      );
+
       // Group by model
-      const modelUsage = usageLogs.reduce((acc, log) => {
-        if (!acc[log.modelUsed]) {
-          acc[log.modelUsed] = {
-            tokens: 0,
-            cost: 0,
-            requests: 0
-          };
-        }
-        acc[log.modelUsed].tokens += log.tokensConsumed;
-        acc[log.modelUsed].cost += parseFloat(log.cost);
-        acc[log.modelUsed].requests += 1;
-        return acc;
-      }, {} as Record<string, { tokens: number; cost: number; requests: number }>);
+      const modelUsage = usageLogs.reduce(
+        (acc, log) => {
+          if (!acc[log.modelUsed]) {
+            acc[log.modelUsed] = {
+              tokens: 0,
+              cost: 0,
+              requests: 0,
+            };
+          }
+          acc[log.modelUsed].tokens += log.tokensConsumed;
+          acc[log.modelUsed].cost += parseFloat(log.cost);
+          acc[log.modelUsed].requests += 1;
+          return acc;
+        },
+        {} as Record<
+          string,
+          { tokens: number; cost: number; requests: number }
+        >,
+      );
 
       // Get billing information and usage summary
       const [usageSummary, usageLimit] = await Promise.all([
         storage.getUserUsageSummary(userId),
-        storage.checkUsageLimit(userId)
+        storage.checkUsageLimit(userId),
       ]);
 
       const responseData = {
@@ -2426,7 +2943,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalRequests: usageLogs.length,
         modelUsage,
         recentUsage: usageLogs.slice(0, 20), // Return last 20 requests
-        
+
         // Billing information
         billing: {
           currentMonth: Math.round(usageSummary.currentMonth * 10000) / 10000,
@@ -2434,15 +2951,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           totalAllTime: Math.round(usageSummary.totalAllTime * 10000) / 10000,
           limit: usageSummary.currentLimit,
           planType: usageSummary.planType,
-          
+
           // Usage limit status
           isOverLimit: usageLimit.isOverLimit,
           isNearLimit: usageLimit.isNearLimit,
           usagePercentage: Math.round(usageLimit.percentage * 100),
-          remainingCredit: Math.max(0, usageLimit.limit - usageLimit.currentUsage)
-        }
+          remainingCredit: Math.max(
+            0,
+            usageLimit.limit - usageLimit.currentUsage,
+          ),
+        },
       };
-      
+
       console.log("Usage API response:", JSON.stringify(responseData, null, 2));
       res.json(responseData);
     } catch (error) {
@@ -2457,50 +2977,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Note: In production, add proper admin authentication here
       const { month, year } = req.query;
       const currentDate = new Date();
-      const targetYear = year ? parseInt(year as string) : currentDate.getFullYear();
-      const targetMonth = month ? parseInt(month as string) : currentDate.getMonth() + 1;
-      const billingPeriod = `${targetYear}-${targetMonth.toString().padStart(2, '0')}`;
+      const targetYear = year
+        ? parseInt(year as string)
+        : currentDate.getFullYear();
+      const targetMonth = month
+        ? parseInt(month as string)
+        : currentDate.getMonth() + 1;
+      const billingPeriod = `${targetYear}-${targetMonth.toString().padStart(2, "0")}`;
 
       // Get all users with usage in the specified period
-      const usageByUser = await db.select({
-        userId: usageLogs.userId,
-        userEmail: users.email,
-        username: users.username,
-        totalTokens: sql<number>`sum(${usageLogs.tokensConsumed})`,
-        totalCost: sql<number>`sum(${usageLogs.cost})`,
-        requestCount: sql<number>`count(*)`,
-        planType: billing.planType,
-        usageLimit: billing.usageLimit,
-        currentMonthUsage: billing.currentMonthUsage
-      })
-      .from(usageLogs)
-      .leftJoin(users, eq(usageLogs.userId, users.id))
-      .leftJoin(billing, eq(usageLogs.userId, billing.userId))
-      .where(eq(usageLogs.billingPeriod, billingPeriod))
-      .groupBy(usageLogs.userId, users.email, users.username, billing.planType, billing.usageLimit, billing.currentMonthUsage);
+      const usageByUser = await db
+        .select({
+          userId: usageLogs.userId,
+          userEmail: users.email,
+          username: users.username,
+          totalTokens: sql<number>`sum(${usageLogs.tokensConsumed})`,
+          totalCost: sql<number>`sum(${usageLogs.cost})`,
+          requestCount: sql<number>`count(*)`,
+          planType: billing.planType,
+          usageLimit: billing.usageLimit,
+          currentMonthUsage: billing.currentMonthUsage,
+        })
+        .from(usageLogs)
+        .leftJoin(users, eq(usageLogs.userId, users.id))
+        .leftJoin(billing, eq(usageLogs.userId, billing.userId))
+        .where(eq(usageLogs.billingPeriod, billingPeriod))
+        .groupBy(
+          usageLogs.userId,
+          users.email,
+          users.username,
+          billing.planType,
+          billing.usageLimit,
+          billing.currentMonthUsage,
+        );
 
       const summary = {
         billingPeriod,
         totalUsers: usageByUser.length,
-        totalRevenue: usageByUser.reduce((sum: number, user: any) => sum + parseFloat(user.totalCost.toString()), 0),
-        totalTokens: usageByUser.reduce((sum: number, user: any) => sum + user.totalTokens, 0),
-        totalRequests: usageByUser.reduce((sum: number, user: any) => sum + user.requestCount, 0),
+        totalRevenue: usageByUser.reduce(
+          (sum: number, user: any) =>
+            sum + parseFloat(user.totalCost.toString()),
+          0,
+        ),
+        totalTokens: usageByUser.reduce(
+          (sum: number, user: any) => sum + user.totalTokens,
+          0,
+        ),
+        totalRequests: usageByUser.reduce(
+          (sum: number, user: any) => sum + user.requestCount,
+          0,
+        ),
         users: usageByUser.map((user: any) => ({
           userId: user.userId,
           email: user.userEmail,
           username: user.username,
           usage: {
             tokens: user.totalTokens,
-            cost: Math.round(parseFloat(user.totalCost.toString()) * 10000) / 10000,
-            requests: user.requestCount
+            cost:
+              Math.round(parseFloat(user.totalCost.toString()) * 10000) / 10000,
+            requests: user.requestCount,
           },
           billing: {
-            planType: user.planType || 'free',
-            limit: parseFloat(user.usageLimit || '10.00'),
-            currentUsage: parseFloat(user.currentMonthUsage || '0.00'),
-            isOverLimit: parseFloat(user.currentMonthUsage || '0.00') > parseFloat(user.usageLimit || '10.00')
-          }
-        }))
+            planType: user.planType || "free",
+            limit: parseFloat(user.usageLimit || "10.00"),
+            currentUsage: parseFloat(user.currentMonthUsage || "0.00"),
+            isOverLimit:
+              parseFloat(user.currentMonthUsage || "0.00") >
+              parseFloat(user.usageLimit || "10.00"),
+          },
+        })),
       };
 
       res.json(summary);
@@ -2587,22 +3132,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Transform the files to include session info and summaries
         const chatSessions = await Promise.all(
           chatFiles.map(async (file) => {
-            const sessionId = file.name
-              ?.replace("chat_session_", "")
-              .replace(".json", "") || "";
-            
-                         // Get summary for each session
-             let title = `Chat Session ${sessionId}`;
-             try {
-               title = await googleDriveService.getChatSessionSummary(
-                 sessionId,
-                 JSON.stringify(credentials),
-                 false // Don't force regenerate, just use existing or auto-regenerate if problematic
-               );
-             } catch (error) {
-               console.error("Failed to get summary for session:", sessionId, error);
-             }
-            
+            const sessionId =
+              file.name?.replace("chat_session_", "").replace(".json", "") ||
+              "";
+
+            // Get summary for each session
+            let title = `Chat Session ${sessionId}`;
+            try {
+              title = await googleDriveService.getChatSessionSummary(
+                sessionId,
+                JSON.stringify(credentials),
+                false, // Don't force regenerate, just use existing or auto-regenerate if problematic
+              );
+            } catch (error) {
+              console.error(
+                "Failed to get summary for session:",
+                sessionId,
+                error,
+              );
+            }
+
             return {
               id: sessionId,
               title: title,
@@ -2610,7 +3159,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               size: file.size,
               fileId: file.id,
             };
-          })
+          }),
         );
 
         res.json(chatSessions);
@@ -2696,15 +3245,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         console.log("Found Google Drive integration for userId:", userId);
         const credentials = JSON.stringify(integration.credentialsEncrypted);
-        
+
         // Use the new bulk method to regenerate all summaries
-        const result = await googleDriveService.regenerateAllChatSummaries(credentials);
-        
-        res.json({ 
-          success: true, 
+        const result =
+          await googleDriveService.regenerateAllChatSummaries(credentials);
+
+        res.json({
+          success: true,
           message: `Regenerated summaries for ${result.success} chat sessions`,
           updatedCount: result.success,
-          failedCount: result.failed
+          failedCount: result.failed,
         });
       } catch (error) {
         console.error("Failed to regenerate summaries:", error);
@@ -2772,18 +3322,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const { packageId } = req.body;
         const userId = (req.user as any)?.id;
-      
-      if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
 
-      const result = await billingService.createPaymentIntent(packageId, userId);
-      res.json(result);
-    } catch (error) {
-      console.error('Error creating payment intent:', error);
-      res.status(500).json({ error: 'Failed to create payment intent' });
-    }
-  });
+        if (!userId) {
+          return res.status(401).json({ error: "Unauthorized" });
+        }
+
+        const result = await billingService.createPaymentIntent(
+          packageId,
+          userId,
+        );
+        res.json(result);
+      } catch (error) {
+        console.error("Error creating payment intent:", error);
+        res.status(500).json({ error: "Failed to create payment intent" });
+      }
+    },
+  );
 
   app.post(
     "/api/stripe/confirm-payment",
@@ -2791,100 +3345,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req, res) => {
       const { paymentIntentId } = req.body;
       const userId = (req.user as any)?.id;
-      
+
       try {
         if (!userId) {
-          return res.status(401).json({ error: 'Unauthorized' });
+          return res.status(401).json({ error: "Unauthorized" });
         }
 
-        const result = await billingService.confirmPayment(paymentIntentId, userId);
+        const result = await billingService.confirmPayment(
+          paymentIntentId,
+          userId,
+        );
         res.json(result);
       } catch (error) {
-        console.error('Error confirming payment:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('Payment confirmation error details:', {
+        console.error("Error confirming payment:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        console.error("Payment confirmation error details:", {
           paymentIntentId,
           userId,
           error: errorMessage,
-          stack: error instanceof Error ? error.stack : undefined
+          stack: error instanceof Error ? error.stack : undefined,
         });
-        res.status(500).json({ 
-          error: 'Failed to confirm payment',
-          details: errorMessage 
+        res.status(500).json({
+          error: "Failed to confirm payment",
+          details: errorMessage,
         });
       }
-    }
+    },
   );
 
-  app.get(
-    "/api/stripe/credit-packages",
-    async (req, res) => {
-      try {
-        const packages = await billingService.getCreditPackages();
-        res.json(packages);
-      } catch (error) {
-        console.error('Error fetching credit packages:', error);
-        res.status(500).json({ error: 'Failed to fetch credit packages' });
-      }
+  app.get("/api/stripe/credit-packages", async (req, res) => {
+    try {
+      const packages = await billingService.getCreditPackages();
+      res.json(packages);
+    } catch (error) {
+      console.error("Error fetching credit packages:", error);
+      res.status(500).json({ error: "Failed to fetch credit packages" });
     }
-  );
+  });
 
   // Credit management routes
-  app.get('/api/user/credits', async (req, res) => {
+  app.get("/api/user/credits", async (req, res) => {
     try {
       const userId = (req.user as any)?.id;
       if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: "Unauthorized" });
       }
 
       const credits = await billingService.getUserCredits(userId);
       res.json({ credits });
     } catch (error) {
-      console.error('Error fetching user credits:', error);
-      res.status(500).json({ error: 'Failed to fetch user credits' });
+      console.error("Error fetching user credits:", error);
+      res.status(500).json({ error: "Failed to fetch user credits" });
     }
   });
 
-  app.get('/api/user/credit-summary', async (req, res) => {
+  app.get("/api/user/credit-summary", async (req, res) => {
     try {
       const userId = (req.user as any)?.id;
       if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: "Unauthorized" });
       }
 
       const summary = await billingService.getCreditSummary(userId);
       res.json(summary);
     } catch (error) {
-      console.error('Error fetching credit summary:', error);
-      res.status(500).json({ error: 'Failed to fetch credit summary' });
+      console.error("Error fetching credit summary:", error);
+      res.status(500).json({ error: "Failed to fetch credit summary" });
     }
   });
 
-  app.get('/api/user/credit-transactions', async (req, res) => {
+  app.get("/api/user/credit-transactions", async (req, res) => {
     try {
       const userId = (req.user as any)?.id;
       if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: "Unauthorized" });
       }
 
       const { limit = 50, offset = 0 } = req.query;
       const transactions = await billingService.getCreditTransactions(
-        userId, 
-        parseInt(limit as string), 
-        parseInt(offset as string)
+        userId,
+        parseInt(limit as string),
+        parseInt(offset as string),
       );
       res.json(transactions);
     } catch (error) {
-      console.error('Error fetching credit transactions:', error);
-      res.status(500).json({ error: 'Failed to fetch credit transactions' });
+      console.error("Error fetching credit transactions:", error);
+      res.status(500).json({ error: "Failed to fetch credit transactions" });
     }
   });
 
-  app.get('/api/user/usage-history', async (req, res) => {
+  app.get("/api/user/usage-history", async (req, res) => {
     try {
       const userId = (req.user as any)?.id;
       if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: "Unauthorized" });
       }
 
       const { limit = 100, startDate, endDate } = req.query;
@@ -2892,62 +3447,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
         startDate ? new Date(startDate as string) : undefined,
         endDate ? new Date(endDate as string) : undefined,
-        parseInt(limit as string)
+        parseInt(limit as string),
       );
       res.json(usage);
     } catch (error) {
-      console.error('Error fetching usage history:', error);
-      res.status(500).json({ error: 'Failed to fetch usage history' });
+      console.error("Error fetching usage history:", error);
+      res.status(500).json({ error: "Failed to fetch usage history" });
     }
   });
 
-  app.get('/api/user/current-month-usage', async (req, res) => {
+  app.get("/api/user/current-month-usage", async (req, res) => {
     try {
       const userId = (req.user as any)?.id;
       if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: "Unauthorized" });
       }
 
       const usage = await billingService.getCurrentMonthUsage(userId);
       res.json(usage);
     } catch (error) {
-      console.error('Error fetching current month usage:', error);
-      res.status(500).json({ error: 'Failed to fetch current month usage' });
+      console.error("Error fetching current month usage:", error);
+      res.status(500).json({ error: "Failed to fetch current month usage" });
     }
   });
 
   // Avatar Library endpoint - Serve avatar images from attached_assets/avatars
-  app.get('/api/avatar-library/:filename', (req, res) => {
+  app.get("/api/avatar-library/:filename", (req, res) => {
     const { filename } = req.params;
-    const avatarPath = path.join(process.cwd(), 'attached_assets', 'avatars', filename);
-    
+    const avatarPath = path.join(
+      process.cwd(),
+      "attached_assets",
+      "avatars",
+      filename,
+    );
+
     // Check if file exists
     if (!fs.existsSync(avatarPath)) {
-      return res.status(404).json({ error: 'Avatar not found' });
+      return res.status(404).json({ error: "Avatar not found" });
     }
-    
+
     // Serve the file
     res.sendFile(avatarPath);
   });
 
   // Get list of available avatars
-  app.get('/api/avatar-library', (req, res) => {
+  app.get("/api/avatar-library", (req, res) => {
     try {
-      const avatarDir = path.join(process.cwd(), 'attached_assets', 'avatars');
-      const files = fs.readdirSync(avatarDir)
+      const avatarDir = path.join(process.cwd(), "attached_assets", "avatars");
+      const files = fs
+        .readdirSync(avatarDir)
         .filter((file: string) => file.match(/\.(png|jpg|jpeg|gif)$/i))
         .map((file: string) => ({
           filename: file,
-          url: `/api/avatar-library/${file}`
+          url: `/api/avatar-library/${file}`,
         }));
-      
+
       res.json(files);
     } catch (error) {
-      console.error('Error reading avatar library:', error);
-      res.status(500).json({ error: 'Failed to load avatar library' });
+      console.error("Error reading avatar library:", error);
+      res.status(500).json({ error: "Failed to load avatar library" });
     }
   });
-
 
   const httpServer = createServer(app);
   return httpServer;
