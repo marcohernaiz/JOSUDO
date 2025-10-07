@@ -38,6 +38,7 @@ const MODEL_CONFIG = {
   },
   "gpt-4": { provider: "openai", allowUserKey: true, replicateModel: null },
   "gpt-4o": { provider: "openai", allowUserKey: true, replicateModel: null },
+  "gpt-4.1": { provider: "openai", allowUserKey: true, replicateModel: null },
   "claude-3-5-sonnet": {
     provider: "anthropic",
     allowUserKey: true,
@@ -837,6 +838,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             case "gpt-4":
             case "gpt-4o":
+            case "gpt-4.1":
               // Use OpenAI with proper sessionId for context
               serviceResponse = await openaiService.sendMessage(
                 message,
@@ -1757,6 +1759,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             case "gpt-4":
             case "gpt-4o":
+            case "gpt-4.1":
               if (userId && integration) {
                 for await (const chunk of openaiService.sendMessageStream(
                   enhancedMessage,
