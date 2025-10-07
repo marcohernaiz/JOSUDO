@@ -9,6 +9,7 @@ class UserOpenAIService {
   private getActualModelName(modelId: string): string {
     // Map our model IDs to actual OpenAI model names
     const modelMap: { [key: string]: string } = {
+      'gpt-4.1': 'gpt-4.1',
       'gpt-4': 'gpt-4',
       'gpt-4o': 'gpt-4o',
       'gpt-5': 'gpt-4o' // Fallback to GPT-4o since GPT-5 isn't available to users yet

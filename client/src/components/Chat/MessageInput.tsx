@@ -148,10 +148,11 @@ const AI_MODELS = [
   { id: 'grok-beta', name: 'Grok 4.0', icon: SiX },
   { id: 'gemini-pro', name: 'Gemini 2.5+', icon: SiGoogle },
   { id: 'claude-3-5-sonnet', name: 'Claude 4.0', icon: SiAnthropic },
-  { id: 'gpt-5', name: 'ChatGPT 5.0', icon: SiOpenai },
+  { id: 'gpt-4.1', name: 'GPT-4.1', icon: SiOpenai },
+  { id: 'gpt-5', name: 'GPT-5 (placeholder)', icon: SiOpenai },
   { id: 'deepseek-v3', name: 'Josudo', icon: () => <img src={josudoIcon} alt="Josudo" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(56%) sepia(74%) saturate(471%) hue-rotate(349deg) brightness(101%) contrast(101%)' }} /> },
   { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', icon: SiMeta },
-  { id: 'gpt-4', name: 'ChatGPT 4.0', icon: SiOpenai },
+  { id: 'gpt-4', name: 'GPT-4', icon: SiOpenai },
   { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet', icon: SiAnthropic },
   { id: 'llama-3', name: 'Llama 3', icon: SiMeta },
 ];
@@ -218,6 +219,7 @@ export const MessageInput: React.FC = () => {
     
     // Map model IDs to provider names
     const providerMap: { [key: string]: string } = {
+      'gpt-4.1': 'openai',
       'gpt-4': 'openai',
       'gpt-4o': 'openai',
       'claude-3-5-sonnet': 'anthropic',
@@ -273,7 +275,7 @@ export const MessageInput: React.FC = () => {
     }
 
     // Check if model requires API key but user doesn't have one
-    const requiresApiKey = ['gpt-4', 'gpt-4o', 'claude-3-5-sonnet', 'gemini-pro', 'grok-beta', 'perplexity'].includes(modelId);
+    const requiresApiKey = ['gpt-4.1', 'gpt-4', 'gpt-4o', 'claude-3-5-sonnet', 'gemini-pro', 'grok-beta', 'perplexity'].includes(modelId);
     if (requiresApiKey && !hasUserApiKey(modelId)) {
       const providerMap: { [key: string]: string } = {
         'gpt-4': 'OpenAI',
