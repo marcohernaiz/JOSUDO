@@ -165,7 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Determine callback URL based on environment
     const callbackURL = process.env.NODE_ENV === "production" 
       ? (process.env.GOOGLE_CALLBACK_URL || "https://josudo.org/api/auth/google/callback")
-      : "https://035c8286-1672-4276-9521-fb89ce371e63-00-3dtgr9l05l499.janeway.replit.dev/api/auth/google/callback";
+      : (process.env.GOOGLE_CALLBACK_URL || "http://localhost:5000/api/auth/google/callback");
 
     passport.use(
       new GoogleStrategy(

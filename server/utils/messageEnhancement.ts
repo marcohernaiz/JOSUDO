@@ -48,3 +48,4 @@ export function getModelParameters(options: MessageEnhancementOptions = {}): {
     temperature: options.thinkingMode === 'deep' ? 0.3 : 0.7
   };
 }
+

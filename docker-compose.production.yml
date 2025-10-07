@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Database migration service (runs once on startup)
+  migration:
+    build: .
+    container_name: josudo-migration
+    command: sh -c "npx drizzle-kit@0.30.4 push --config=drizzle.config.ts || drizzle-kit push --config=drizzle.config.ts"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - opi-network
+    restart: "no"
+
+  # JOSUDO Application
+  app:
+    build: .
+    container_name: josudo-app
+    restart: unless-stopped
+    ports:
+      - "6000:5000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      SESSION_SECRET: ${SESSION_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      XAI_API_KEY: ${XAI_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      REPLICATE_API_TOKEN: ${REPLICATE_API_TOKEN}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
+      REDIS_URL: ${REDIS_URL:-}
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - opi-network
+    depends_on:
+      - migration
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  opi-network:
+    external: true
