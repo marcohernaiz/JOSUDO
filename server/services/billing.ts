@@ -159,7 +159,31 @@ export class BillingService {
    */
   async deductCredits(userId: number, tokensConsumed: number, modelUsed: string, chatSessionId?: number) {
     console.log(`🔍 deductCredits called: userId=${userId}, tokens=${tokensConsumed}, model=${modelUsed}`);
-    
+    // Skip deduction for free/default models (e.g., Josudo via OpenRouter DeepSeek Free)
+    const isFreeDefaultModel =
+      modelUsed === 'deepseek-v3' || /:free\b/i.test(modelUsed) || /deepseek.*free/i.test(modelUsed);
+
+    if (isFreeDefaultModel) {
+      console.log('🆓 Free/default model detected. Skipping credit deduction. Logging usage with 0 cost.');
+      // Fetch current balance to return
+      const currentUser = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      const balanceBefore = currentUser[0]?.credits || 0;
+
+      // Log usage with zero cost/credits
+      await db.insert(usageLogs).values({
+        userId,
+        chatSessionId: chatSessionId || null,
+        modelUsed,
+        tokensConsumed,
+        creditsDeducted: 0,
+        cost: '0',
+        status: 'completed',
+        metadata: { balanceBefore, balanceAfter: balanceBefore, note: 'free_model' },
+      });
+
+      return { creditsDeducted: 0, newBalance: balanceBefore };
+    }
+
     // Calculate credits to deduct based on cost (1 credit = $0.01)
     // We need to calculate the actual cost first, then convert to credits
     let cost = 0;
