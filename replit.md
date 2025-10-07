@@ -51,6 +51,13 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
+- September 30, 2025. Enhanced Digital Personas page with hover functionality
+  - Added hover overlay on persona cards with "Use" and "Configure" action buttons
+  - "Use" button sets the persona as active and navigates to main chat screen
+  - "Configure" button opens the persona configuration page
+  - Created SelectedPersona type to support both template and user personas
+  - Improved user interaction flow for persona management
+
 - August 22, 2025. Redesigned chat interface layout and enhanced user experience
   - Moved JOSUDO AI Assistant button inside chat box, centered with Josudo logo
   - Relocated AI model and storage buttons to the right side of the chat box

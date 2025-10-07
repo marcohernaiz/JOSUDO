@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Search, Plus, ChevronDown, ChevronRight } from 'lucide-react';
+import { Search, Plus, ChevronDown, ChevronRight, MessageSquare, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { PersonaConfiguration } from '@/components/DigitalPersonas/PersonaConfiguration';
 import { PersonaTemplate, DigitalPersona } from '@shared/schema';
+import { useLocation } from 'wouter';
+import { useAppContext } from '@/contexts/AppContext';
 
 
 interface PersonaTool {
@@ -155,6 +157,8 @@ const DigitalPersonas: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPersona, setSelectedPersona] = useState<string | null>(null);
   const [selectedPersonaType, setSelectedPersonaType] = useState<'template' | 'existing'>('template');
+  const [, setLocation] = useLocation();
+  const { setSelectedPersona: setActivePersona } = useAppContext();
 
   // Load user's configured personas from database
   const { data: userPersonas = [] } = useQuery<DigitalPersona[]>({
@@ -225,8 +229,21 @@ const DigitalPersonas: React.FC = () => {
     persona.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleUseTemplate = (persona: Persona) => {
-    // When user clicks on a template, open configuration for that template
+  const handleUseTemplate = (persona: Persona, isTemplate: boolean = true) => {
+    // When user clicks "use", activate the persona and go to chat
+    const personaData = {
+      id: isTemplate ? `template-${persona.id}` : persona.id,
+      name: persona.name,
+      role: persona.role,
+      avatar: persona.avatar,
+      isTemplate
+    };
+    setActivePersona(personaData);
+    setLocation('/');
+  };
+
+  const handleConfigureTemplate = (persona: Persona) => {
+    // When user clicks "configure" on a template, open configuration
     setSelectedPersona(persona.id);
     setSelectedPersonaType('template');
   };
@@ -275,6 +292,7 @@ const DigitalPersonas: React.FC = () => {
                 key={persona.id} 
                 persona={persona} 
                 isConfigured 
+                onUse={() => handleUseTemplate(persona, false)}
                 onConfigure={() => handleConfigurePersona(persona.id)}
               />
             ))}
@@ -355,7 +373,8 @@ const DigitalPersonas: React.FC = () => {
                           <PersonaCard 
                             key={persona.id} 
                             persona={persona} 
-                            onUse={() => handleUseTemplate(persona)}
+                            onUse={() => handleUseTemplate(persona, true)}
+                            onConfigure={() => handleConfigureTemplate(persona)}
                           />
                         ))}
                     </div>
@@ -378,14 +397,17 @@ interface PersonaCardProps {
 }
 
 const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false, onUse, onConfigure }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
   return (
     <motion.div
       whileHover={{ scale: 1.02, y: -2 }}
       whileTap={{ scale: 0.98 }}
-      className={`bg-white border rounded-lg p-2 cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md ${
+      className={`relative bg-white border rounded-lg p-2 cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md ${
         isConfigured ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200 hover:border-blue-300'
       }`}
-      onClick={isConfigured ? onConfigure : onUse}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="aspect-square w-full mb-2 rounded-lg overflow-hidden bg-gray-100">
         <img
@@ -417,8 +439,43 @@ const PersonaCard: React.FC<PersonaCardProps> = ({ persona, isConfigured = false
             </Badge>
           )}
         </div>
-
       </div>
+
+      {/* Hover overlay with action buttons */}
+      {isHovered && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center gap-2 p-2"
+        >
+          <Button
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onUse?.();
+            }}
+            className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white"
+            data-testid={`button-use-persona-${persona.id}`}
+          >
+            <MessageSquare className="w-3 h-3" />
+            Use
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={(e) => {
+              e.stopPropagation();
+              onConfigure?.();
+            }}
+            className="flex items-center gap-1"
+            data-testid={`button-configure-persona-${persona.id}`}
+          >
+            <Settings className="w-3 h-3" />
+            Configure
+          </Button>
+        </motion.div>
+      )}
     </motion.div>
   );
 };

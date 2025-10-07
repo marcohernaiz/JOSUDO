@@ -156,6 +156,14 @@ export interface DigitalPersona {
   updatedAt: Date;
 }
 
+export interface SelectedPersona {
+  id: string | number;
+  name: string;
+  role: string;
+  avatar?: string;
+  isTemplate?: boolean;
+}
+
 export interface AppContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -182,8 +190,8 @@ export interface AppContextType {
   currentSpace: Space | null;
   setCurrentSpace: (space: Space | null) => void;
   // Add digital personas state
-  selectedPersona: DigitalPersona | null;
-  setSelectedPersona: (persona: DigitalPersona | null) => void;
+  selectedPersona: SelectedPersona | null;
+  setSelectedPersona: (persona: SelectedPersona | null) => void;
   // Add settings modal state
   showSettingsModal: boolean;
   settingsModalConfig: {

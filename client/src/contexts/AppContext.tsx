@@ -38,7 +38,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   // Add spaces state
   const [currentSpace, setCurrentSpace] = useState<Space | null>(null);
   // Add digital personas state
-  const [selectedPersona, setSelectedPersona] = useState<DigitalPersona | null>(null);
+  const [selectedPersona, setSelectedPersona] = useState<import("../types").SelectedPersona | null>(null);
   // Add settings modal state
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [settingsModalConfig, setSettingsModalConfig] = useState<{
