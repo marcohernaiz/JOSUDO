@@ -133,3 +133,6 @@ echo "  Run migration: docker-compose -f $COMPOSE_FILE run --rm app npm run db:p
 echo "  Connect to database: docker-compose -f $COMPOSE_FILE exec postgres psql -U josudo_user -d josudo_db"
 
 
+
+
+

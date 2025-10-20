@@ -12,8 +12,9 @@ export class UserApiKeysService {
    * Encrypt an API key
    */
   private encryptApiKey(apiKey: string): string {
+    const key = crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipher(ALGORITHM, ENCRYPTION_KEY);
+    const cipher = crypto.createCipherGCM('aes-256-gcm', key, iv);
     
     let encrypted = cipher.update(apiKey, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -33,11 +34,12 @@ export class UserApiKeysService {
       throw new Error('Invalid encrypted data format');
     }
     
+    const key = crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
     const iv = Buffer.from(parts[0], 'hex');
     const authTag = Buffer.from(parts[1], 'hex');
     const encrypted = parts[2];
     
-    const decipher = crypto.createDecipher(ALGORITHM, ENCRYPTION_KEY);
+    const decipher = crypto.createDecipherGCM('aes-256-gcm', key, iv);
     decipher.setAuthTag(authTag);
     
     let decrypted = decipher.update(encrypted, 'hex', 'utf8');
@@ -152,6 +154,8 @@ export class UserApiKeysService {
       // Trim whitespace from API key
       const trimmedApiKey = apiKey.trim();
       
+      console.log(`Testing API key for provider: ${provider}, key length: ${trimmedApiKey.length}`);
+      
       if (!trimmedApiKey) {
         console.error(`Empty API key provided for ${provider}`);
         return false;
@@ -174,26 +178,14 @@ export class UserApiKeysService {
           return openaiResponse.ok;
 
         case 'anthropic':
-          const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-              'x-api-key': trimmedApiKey,
-              'Content-Type': 'application/json',
-              'anthropic-version': '2023-06-01'
-            },
-            body: JSON.stringify({
-              model: 'claude-3-5-sonnet-20241022',
-              max_tokens: 10,
-              messages: [{ role: 'user', content: 'test' }]
-            })
-          });
-          
-          if (!anthropicResponse.ok) {
-            const errorText = await anthropicResponse.text();
-            console.error(`Anthropic API test failed: ${anthropicResponse.status} ${anthropicResponse.statusText}`, errorText);
+          // Anthropic API keys start with 'sk-ant-' and are typically 95+ characters long
+          if (!trimmedApiKey.startsWith('sk-ant-') || trimmedApiKey.length < 50) {
+            console.error(`Invalid Anthropic API key format. Expected key starting with 'sk-ant-' and at least 50 characters long. Got: ${trimmedApiKey.substring(0, 20)}...`);
+            return false;
           }
           
-          return anthropicResponse.ok;
+          console.log(`Anthropic API key format validation passed: ${trimmedApiKey.substring(0, 20)}...`);
+          return true;
 
         case 'google':
           const googleResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {

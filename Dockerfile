@@ -38,6 +38,7 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/shared ./shared
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
+COPY --from=builder /app/attached_assets ./attached_assets
 
 # Install all dependencies (including devDependencies for migrations)
 COPY package.json package-lock.json* ./

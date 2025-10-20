@@ -126,3 +126,6 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_live_your_stripe_publishable_key
 **Remember**: The `VITE_` prefix is crucial for frontend access in Vite-based applications! 🎯
 
 
+
+
+

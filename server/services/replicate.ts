@@ -59,11 +59,9 @@ class ReplicateService {
           content: msg.content,
         }));
 
-      // ✅ 2. Add the new user message
-      messages.push({
-        role: "user",
-        content: message,
-      });
+      // ✅ 2. Add the new user message (handle images if present)
+      const parsedMessage = this.parseMessageWithImages(message);
+      messages.push(parsedMessage);
 
       console.log("Sending messages to Replicate:", messages);
       console.log(`🔍 Last message length: ${messages[messages.length - 1]?.content?.length || 0} characters`);
@@ -387,6 +385,35 @@ What would you like to explore together?`;
       (tokens / 1000) *
       (costs[model as keyof typeof costs] || costs["deepseek-v3"])
     );
+  }
+
+  private parseMessageWithImages(message: string): { role: string; content: string } {
+    // Check if message contains image data
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
+    const matches = Array.from(message.matchAll(imageRegex));
+    
+    if (matches.length === 0) {
+      // No images, return simple text message
+      return {
+        role: "user",
+        content: message,
+      };
+    }
+
+    // For Replicate models, we need to format images differently
+    // Most Replicate models expect text descriptions of images
+    let formattedContent = message;
+    
+    for (const match of matches) {
+      const [fullMatch, imageName, imageData] = match;
+      // Replace image data with a description for Replicate models
+      formattedContent = formattedContent.replace(fullMatch, `[Image: ${imageName}]`);
+    }
+
+    return {
+      role: "user",
+      content: formattedContent,
+    };
   }
 }
 

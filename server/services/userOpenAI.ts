@@ -40,10 +40,13 @@ class UserOpenAIService {
       const enhancedMessage = enhanceMessageForThinking(message, options);
       const modelParams = getModelParameters(options);
 
+      // Parse message with images
+      const parsedMessage = this.parseMessageWithImages(enhancedMessage);
+
       // Build messages array with conversation history
-      const messages: Array<{ role: string; content: string }> = [
-        ...conversationHistory,
-        { role: "user", content: enhancedMessage }
+      const messages: Array<{ role: string; content: any }> = [
+        ...conversationHistory.map(msg => ({ role: msg.role, content: msg.content })),
+        parsedMessage
       ];
 
       const actualModel = this.getActualModelName(model);
@@ -87,10 +90,13 @@ class UserOpenAIService {
       const enhancedMessage = enhanceMessageForThinking(message, options);
       const modelParams = getModelParameters(options);
 
+      // Parse message with images
+      const parsedMessage = this.parseMessageWithImages(enhancedMessage);
+
       // Build messages array with conversation history
-      const messages: Array<{ role: string; content: string }> = [
-        ...conversationHistory,
-        { role: "user", content: enhancedMessage }
+      const messages: Array<{ role: string; content: any }> = [
+        ...conversationHistory.map(msg => ({ role: msg.role, content: msg.content })),
+        parsedMessage
       ];
 
       const actualModel = this.getActualModelName(model);
@@ -112,6 +118,66 @@ class UserOpenAIService {
       console.error('User OpenAI streaming error:', error);
       throw new Error(`OpenAI streaming error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  private parseMessageWithImages(message: string): { role: "user"; content: any } {
+    // Check if message contains image data
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
+    const matches = Array.from(message.matchAll(imageRegex));
+    
+    if (matches.length === 0) {
+      // No images, return simple text message
+      return {
+        role: "user" as const,
+        content: message,
+      };
+    }
+
+    // Parse message with images
+    const content: any[] = [];
+    let lastIndex = 0;
+
+    for (const match of matches) {
+      const [fullMatch, imageName, imageData] = match;
+      const matchIndex = message.indexOf(fullMatch, lastIndex);
+      
+      // Add text before image
+      if (matchIndex > lastIndex) {
+        const textBefore = message.substring(lastIndex, matchIndex).trim();
+        if (textBefore) {
+          content.push({
+            type: "text",
+            text: textBefore,
+          });
+        }
+      }
+
+      // Add image
+      content.push({
+        type: "image_url",
+        image_url: {
+          url: imageData,
+        },
+      });
+
+      lastIndex = matchIndex + fullMatch.length;
+    }
+
+    // Add remaining text after last image
+    if (lastIndex < message.length) {
+      const textAfter = message.substring(lastIndex).trim();
+      if (textAfter) {
+        content.push({
+          type: "text",
+          text: textAfter,
+        });
+      }
+    }
+
+    return {
+      role: "user" as const,
+      content: content,
+    };
   }
 
   calculateCost(tokens: number, model: string = "gpt-4o"): number {

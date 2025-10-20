@@ -209,3 +209,6 @@ echo "  Database shell: docker-compose exec postgres psql -U josudo_user -d josu
 echo "  Restore backup: gunzip -c $BACKUP_FILE | docker-compose exec -T postgres psql -U josudo_user -d josudo_db"
 
 
+
+
+

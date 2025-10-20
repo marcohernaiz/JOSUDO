@@ -34,10 +34,32 @@ class DeepSeekService {
       // Enhance message based on thinking mode
       const enhancedMessage = this.enhanceMessageForThinking(message, options);
 
+      // Check if message contains images
+      const hasImages = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g.test(enhancedMessage);
+      
+      if (hasImages) {
+        // DeepSeek V3.1 doesn't support vision, provide helpful response
+        return {
+          response: `I can see you've attached an image, but I'm currently running on DeepSeek V3.1 which doesn't support image analysis. 
+
+To analyze images, please switch to a vision-capable model like:
+• GPT-4 Vision (if you have OpenAI credits)
+• Claude 3.5 Sonnet (if you have an Anthropic API key)
+• Gemini Pro Vision (if you have a Google API key)
+
+You can add your own API keys in the settings to use these vision models. For now, I can only process text-based questions. What would you like to know about?`,
+          tokens: 100,
+          cost: 0
+        };
+      }
+
+      // Parse message with images (for future compatibility)
+      const parsedMessage = this.parseMessageWithImages(enhancedMessage);
+
       // Prepare messages array with conversation history
       const messages = [
         ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant' | 'system', content: msg.content })),
-        { role: 'user' as const, content: enhancedMessage }
+        parsedMessage
       ];
 
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
@@ -106,10 +128,38 @@ class DeepSeekService {
       // Enhance message based on thinking mode
       const enhancedMessage = this.enhanceMessageForThinking(message, options);
 
+      // Check if message contains images
+      const hasImages = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g.test(enhancedMessage);
+      
+      if (hasImages) {
+        // DeepSeek V3.1 doesn't support vision, provide helpful response
+        const visionResponse = `I can see you've attached an image, but I'm currently running on DeepSeek V3.1 which doesn't support image analysis. 
+
+To analyze images, please switch to a vision-capable model like:
+• GPT-4 Vision (if you have OpenAI credits)
+• Claude 3.5 Sonnet (if you have an Anthropic API key)
+• Gemini Pro Vision (if you have a Google API key)
+
+You can add your own API keys in the settings to use these vision models. For now, I can only process text-based questions. What would you like to know about?`;
+        
+        // Stream the response word by word
+        const words = visionResponse.split(' ');
+        for (let i = 0; i < words.length; i++) {
+          const word = words[i];
+          const content = i === words.length - 1 ? word : word + ' ';
+          yield { content };
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        return;
+      }
+
+      // Parse message with images (for future compatibility)
+      const parsedMessage = this.parseMessageWithImages(enhancedMessage);
+
       // Prepare messages array with conversation history
       const messages = [
         ...conversationHistory.map(msg => ({ role: msg.role as 'user' | 'assistant' | 'system', content: msg.content })),
-        { role: 'user' as const, content: enhancedMessage }
+        parsedMessage
       ];
 
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
@@ -197,6 +247,27 @@ class DeepSeekService {
     }
     
     return enhancedMessage;
+  }
+
+  private parseMessageWithImages(message: string): { role: "user"; content: any } {
+    // Check if message contains image data
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
+    const matches = Array.from(message.matchAll(imageRegex));
+    
+    if (matches.length === 0) {
+      // No images, return simple text message
+      return {
+        role: "user" as const,
+        content: message,
+      };
+    }
+
+    // DeepSeek V3.1 doesn't support vision - this will be handled in the calling method
+    // For now, return the original message to trigger the vision detection
+    return {
+      role: "user" as const,
+      content: message,
+    };
   }
 
   async simulateDeepSeekResponse(message: string, conversationHistory: Array<{ role: string; content: string }> = []): Promise<{

@@ -168,3 +168,6 @@ echo "  Database shell: docker-compose exec postgres psql -U josudo_user -d josu
 echo "  List tables: docker-compose exec postgres psql -U josudo_user -d josudo_db -c '\dt'"
 
 
+
+
+
