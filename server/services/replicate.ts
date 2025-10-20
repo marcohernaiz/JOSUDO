@@ -392,6 +392,8 @@ What would you like to explore together?`;
     const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
     const matches = Array.from(message.matchAll(imageRegex));
     
+    console.log(`[Replicate] Parsing message for images. Found ${matches.length} images.`);
+    
     if (matches.length === 0) {
       // No images, return simple text message
       return {
@@ -399,6 +401,8 @@ What would you like to explore together?`;
         content: message,
       };
     }
+
+    console.log(`[Replicate] Processing ${matches.length} images for Replicate model`);
 
     // For Replicate models, we need to format images differently
     // Most Replicate models expect text descriptions of images
@@ -409,6 +413,8 @@ What would you like to explore together?`;
       // Replace image data with a description for Replicate models
       formattedContent = formattedContent.replace(fullMatch, `[Image: ${imageName}]`);
     }
+
+    console.log(`[Replicate] Final formatted content:`, formattedContent.substring(0, 200) + "...");
 
     return {
       role: "user",

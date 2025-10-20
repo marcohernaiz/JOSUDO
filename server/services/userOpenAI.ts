@@ -9,10 +9,10 @@ class UserOpenAIService {
   private getActualModelName(modelId: string): string {
     // Map our model IDs to actual OpenAI model names
     const modelMap: { [key: string]: string } = {
-      'gpt-4.1': 'gpt-4.1',
+      'gpt-4.1': 'gpt-4o', // GPT-4.1 doesn't exist yet, use GPT-4o with vision
       'gpt-4': 'gpt-4',
       'gpt-4o': 'gpt-4o',
-      'gpt-5': 'gpt-4o' // Fallback to GPT-4o since GPT-5 isn't available to users yet
+      'gpt-5': 'gpt-4o' // GPT-5 doesn't exist yet, use GPT-4o with vision
     };
     return modelMap[modelId] || 'gpt-4o';
   }
@@ -125,6 +125,8 @@ class UserOpenAIService {
     const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
     const matches = Array.from(message.matchAll(imageRegex));
     
+    console.log(`[UserOpenAI] Parsing message for images. Found ${matches.length} images.`);
+    
     if (matches.length === 0) {
       // No images, return simple text message
       return {
@@ -132,6 +134,8 @@ class UserOpenAIService {
         content: message,
       };
     }
+
+    console.log(`[UserOpenAI] Processing ${matches.length} images for vision-capable model`);
 
     // Parse message with images
     const content: any[] = [];
@@ -173,6 +177,8 @@ class UserOpenAIService {
         });
       }
     }
+
+    console.log(`[UserOpenAI] Final content structure:`, JSON.stringify(content, null, 2));
 
     return {
       role: "user" as const,
