@@ -102,13 +102,26 @@ class ReplicateService {
         });
       } else if (model === "gpt-5") {
         // ✅ 3. GPT-5 Mini via Replicate
+        const lastMessage = messages[messages.length - 1];
+        const imageUrls = lastMessage.images || [];
+        
+        console.log(`[Replicate] GPT-5 Mini API call with ${imageUrls.length} images`);
+        console.log(`[Replicate] Image URLs:`, imageUrls);
+        
+        const input: any = {
+          prompt: this.formatMessagesForGPT(messages),
+          max_tokens: 1500,
+          temperature: 0.6,
+          top_p: 0.95,
+        };
+        
+        // Add images if available
+        if (imageUrls.length > 0) {
+          input.image_input = imageUrls;
+        }
+        
         output = await replicate.run("openai/gpt-5-mini", {
-          input: {
-            prompt: this.formatMessagesForGPT(messages),
-            max_tokens: 1500,
-            temperature: 0.6,
-            top_p: 0.95,
-          },
+          input: input,
         });
       } else {
         // ✅ 3. Send full chat history using Llama 3.1 8B model
@@ -392,6 +405,7 @@ What would you like to explore together?`;
     const matches = Array.from(message.matchAll(imageRegex));
     
     console.log(`[Replicate] Parsing message for images. Found ${matches.length} images.`);
+    console.log(`[Replicate] Message preview:`, message.substring(0, 200) + "...");
     
     if (matches.length === 0) {
       // No images, return simple text message
@@ -409,8 +423,12 @@ What would you like to explore together?`;
     
     // Create temp directory for images if it doesn't exist
     const tempDir = path.join(process.cwd(), 'temp-images');
+    console.log(`[Replicate] Temp directory path: ${tempDir}`);
     if (!fs.existsSync(tempDir)) {
+      console.log(`[Replicate] Creating temp directory: ${tempDir}`);
       fs.mkdirSync(tempDir, { recursive: true });
+    } else {
+      console.log(`[Replicate] Temp directory already exists: ${tempDir}`);
     }
     
     for (let i = 0; i < matches.length; i++) {
@@ -428,10 +446,13 @@ What would you like to explore together?`;
         const filepath = path.join(tempDir, filename);
         
         // Save image to temp directory
+        console.log(`[Replicate] Saving image to: ${filepath}`);
         fs.writeFileSync(filepath, buffer);
+        console.log(`[Replicate] Image saved successfully, size: ${buffer.length} bytes`);
         
         // Generate public URL (assuming your server serves static files from temp-images)
-        const imageUrl = `${process.env.BASE_URL || 'https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev'}/temp-images/${filename}`;
+        const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+        const imageUrl = `${baseUrl}/temp-images/${filename}`;
         imageUrls.push(imageUrl);
         
         // Replace image data with URL in message

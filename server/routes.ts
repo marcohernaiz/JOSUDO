@@ -1529,6 +1529,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const visionCapableModels = [
                 "gpt-4",
                 "gpt-4o",
+                "gpt-4.1",
+                "gpt-5",
                 "claude-3-5-sonnet",
                 "gemini-pro",
               ];
