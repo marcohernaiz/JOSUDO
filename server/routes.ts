@@ -11,6 +11,7 @@ import { googleDriveService } from "./services/googleDrive";
 import { billingService, CREDIT_PACKAGES } from "./services/billing";
 import { deepseekService } from "./services/deepseek";
 import { claudeService } from "./services/claude";
+import { anthropicService } from "./services/anthropic";
 import { geminiService } from "./services/gemini";
 import { grokService } from "./services/grok";
 import { llamaService } from "./services/llama";
@@ -896,17 +897,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
               break;
 
             case "claude-3-5-sonnet":
-              serviceResponse = await claudeService.sendMessage(
-                message,
-                model,
-                conversationHistory,
-                {
-                  thinkingMode,
-                  webSearch,
-                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
-                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
-                },
-              );
+              // Check if user has their own Anthropic API key
+              if (userId && integration) {
+                const userApiKey = await userApiKeysService.getApiKey(userId, 'anthropic');
+                if (userApiKey) {
+                  serviceResponse = await anthropicService.sendMessage(
+                    message,
+                    userId.toString(),
+                    sessionId || userId.toString(),
+                    userApiKey,
+                    {
+                      maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                      temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                    }
+                  );
+                } else {
+                  // Use admin's key via claudeService
+                  serviceResponse = await claudeService.sendMessage(
+                    message,
+                    model,
+                    conversationHistory,
+                    {
+                      thinkingMode,
+                      webSearch,
+                      maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                      temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                    },
+                  );
+                }
+              } else {
+                // Use admin's key via claudeService
+                serviceResponse = await claudeService.sendMessage(
+                  message,
+                  model,
+                  conversationHistory,
+                  {
+                    thinkingMode,
+                    webSearch,
+                    maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                    temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                  },
+                );
+              }
               response = {
                 choices: [{ message: { content: serviceResponse.response } }],
               };
@@ -1799,22 +1831,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             case "claude-3-5-sonnet":
               console.log("Starting Claude streaming...");
-              for await (const chunk of claudeService.sendMessageStream(
-                enhancedMessage,
-                model,
-                conversationHistory,
-                {
-                  thinkingMode,
-                  webSearch,
-                  maxTokens: thinkingMode === "research" ? 8192 : 4096,
-                  temperature: thinkingMode === "deep" ? 0.3 : 0.7,
-                },
-              )) {
-                console.log("Received Claude chunk:", chunk.content);
-                fullResponse += chunk.content;
-                res.write(
-                  `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
-                );
+              // Check if user has their own Anthropic API key
+              if (userId && integration) {
+                const userApiKey = await userApiKeysService.getApiKey(userId, 'anthropic');
+                if (userApiKey) {
+                  const stream = await anthropicService.sendMessageStream(
+                    enhancedMessage,
+                    userId.toString(),
+                    sessionId || userId.toString(),
+                    userApiKey,
+                    {
+                      maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                      temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                    }
+                  );
+                  
+                  // Convert stream to async iterable
+                  const reader = stream.getReader();
+                  const decoder = new TextDecoder();
+                  
+                  while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    console.log("Received Anthropic chunk:", chunk);
+                    fullResponse += chunk;
+                    res.write(
+                      `data: ${JSON.stringify({ content: chunk, type: "chunk" })}\n\n`,
+                    );
+                  }
+                } else {
+                  // Use admin's key via claudeService
+                  for await (const chunk of claudeService.sendMessageStream(
+                    enhancedMessage,
+                    model,
+                    conversationHistory,
+                    {
+                      thinkingMode,
+                      webSearch,
+                      maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                      temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                    },
+                  )) {
+                    console.log("Received Claude chunk:", chunk.content);
+                    fullResponse += chunk.content;
+                    res.write(
+                      `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                    );
+                  }
+                }
+              } else {
+                // Use admin's key via claudeService
+                for await (const chunk of claudeService.sendMessageStream(
+                  enhancedMessage,
+                  model,
+                  conversationHistory,
+                  {
+                    thinkingMode,
+                    webSearch,
+                    maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                    temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                  },
+                )) {
+                  console.log("Received Claude chunk:", chunk.content);
+                  fullResponse += chunk.content;
+                  res.write(
+                    `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                  );
+                }
               }
               console.log(
                 "Claude streaming finished, fullResponse length:",
