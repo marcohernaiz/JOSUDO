@@ -2,6 +2,8 @@ import Replicate from "replicate";
 import { storage } from "../storage";
 import { googleDriveService } from "./googleDrive";
 import { getSecret } from '../admin';
+import fs from 'fs';
+import path from 'path';
 
 class ReplicateService {
   private getReplicateClient() {
@@ -60,7 +62,7 @@ class ReplicateService {
         }));
 
       // ✅ 2. Add the new user message (handle images if present)
-      const parsedMessage = this.parseMessageWithImages(message);
+      const parsedMessage = await this.parseMessageWithImages(message);
       messages.push(parsedMessage);
 
       console.log("Sending messages to Replicate:", messages);
@@ -384,7 +386,7 @@ What would you like to explore together?`;
     );
   }
 
-  private parseMessageWithImages(message: string): { role: string; content: string } {
+  private async parseMessageWithImages(message: string): Promise<{ role: string; content: string; images?: string[] }> {
     // Check if message contains image data
     const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
     const matches = Array.from(message.matchAll(imageRegex));
@@ -401,21 +403,55 @@ What would you like to explore together?`;
 
     console.log(`[Replicate] Processing ${matches.length} images for Replicate model`);
 
-    // For Replicate models, we need to format images differently
-    // Most Replicate models expect text descriptions of images
+    // For Replicate models, we need to convert base64 images to URLs
     let formattedContent = message;
+    const imageUrls: string[] = [];
     
-    for (const match of matches) {
+    // Create temp directory for images if it doesn't exist
+    const tempDir = path.join(process.cwd(), 'temp-images');
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+    
+    for (let i = 0; i < matches.length; i++) {
       const [fullMatch, imageName, imageData] = match;
-      // Replace image data with a description for Replicate models
-      formattedContent = formattedContent.replace(fullMatch, `[Image: ${imageName}]`);
+      
+      try {
+        // Extract base64 data
+        const base64Data = imageData.split(',')[1];
+        const buffer = Buffer.from(base64Data, 'base64');
+        
+        // Generate unique filename
+        const timestamp = Date.now();
+        const extension = imageName.split('.').pop() || 'png';
+        const filename = `temp_${timestamp}_${i}.${extension}`;
+        const filepath = path.join(tempDir, filename);
+        
+        // Save image to temp directory
+        fs.writeFileSync(filepath, buffer);
+        
+        // Generate public URL (assuming your server serves static files from temp-images)
+        const imageUrl = `${process.env.BASE_URL || 'http://localhost:5000'}/temp-images/${filename}`;
+        imageUrls.push(imageUrl);
+        
+        // Replace image data with URL in message
+        formattedContent = formattedContent.replace(fullMatch, `[Image: ${imageName} - ${imageUrl}]`);
+        
+        console.log(`[Replicate] Saved image to: ${filepath}, URL: ${imageUrl}`);
+      } catch (error) {
+        console.error(`[Replicate] Error processing image ${imageName}:`, error);
+        // Fallback to description if image processing fails
+        formattedContent = formattedContent.replace(fullMatch, `[Image: ${imageName} - Image processing failed]`);
+      }
     }
 
     console.log(`[Replicate] Final formatted content:`, formattedContent.substring(0, 200) + "...");
+    console.log(`[Replicate] Image URLs:`, imageUrls);
 
     return {
       role: "user",
       content: formattedContent,
+      images: imageUrls,
     };
   }
 }

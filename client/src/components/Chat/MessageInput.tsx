@@ -149,12 +149,9 @@ const AI_MODELS = [
   { id: 'grok-beta', name: 'Grok 4.0', icon: SiX },
   { id: 'gemini-pro', name: 'Gemini 2.5+', icon: SiGoogle },
   { id: 'claude-3-5-sonnet', name: 'Claude 4.0', icon: SiAnthropic },
-  { id: 'gpt-4.1', name: 'GPT-4.1', icon: SiOpenai },
-  { id: 'gpt-5', name: 'GPT-5 (placeholder)', icon: SiOpenai },
-  { id: 'llama-3.1-8b', name: 'Llama 3.1 8B', icon: SiMeta },
-  { id: 'gpt-4', name: 'GPT-4', icon: SiOpenai },
+  { id: 'gpt-4.1', name: 'GPT-4o', icon: SiOpenai },
+  { id: 'gpt-5', name: 'GPT-5 Mini', icon: SiOpenai },
   { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet', icon: SiAnthropic },
-  { id: 'llama-3', name: 'Llama 3', icon: SiMeta },
 ];
 
 const getStorageOptions = (isAuthenticated: boolean) => [

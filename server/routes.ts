@@ -3499,6 +3499,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(avatarPath);
   });
 
+  // Temp images endpoint for Replicate models
+  app.get("/temp-images/:filename", (req, res) => {
+    const { filename } = req.params;
+    const tempImagePath = path.join(process.cwd(), "temp-images", filename);
+
+    // Check if file exists
+    if (!fs.existsSync(tempImagePath)) {
+      return res.status(404).json({ error: "Temp image not found" });
+    }
+
+    // Set appropriate content type
+    const ext = path.extname(filename).toLowerCase();
+    const contentType = {
+      ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".gif": "image/gif",
+      ".webp": "image/webp",
+    }[ext] || "application/octet-stream";
+
+    res.setHeader("Content-Type", contentType);
+    res.sendFile(tempImagePath);
+  });
+
   // Get list of available avatars
   app.get("/api/avatar-library", (req, res) => {
     try {
