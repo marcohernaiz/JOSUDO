@@ -4,8 +4,48 @@ import { googleDriveService } from "./googleDrive";
 import { getSecret } from '../admin';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 
 class ReplicateService {
+  private readonly TEMP_IMAGE_TTL = 1000 * 60 * 60; // 1 hour TTL for temp images
+  private readonly CLEANUP_INTERVAL = 1000 * 60 * 15; // Run cleanup every 15 minutes
+
+  constructor() {
+    // Start cleanup interval
+    setInterval(() => this.cleanupTempImages(), this.CLEANUP_INTERVAL);
+  }
+
+  private generateRandomFilename(originalName: string): string {
+    const timestamp = Date.now();
+    const random = crypto.randomBytes(8).toString('hex');
+    const extension = path.extname(originalName);
+    return `temp_${timestamp}_${random}${extension}`;
+  }
+
+  private async cleanupTempImages() {
+    try {
+      const tempDir = path.join(process.cwd(), 'temp-images');
+      if (!fs.existsSync(tempDir)) return;
+
+      console.log(`[Replicate] Starting temp images cleanup...`);
+      const now = Date.now();
+      const files = fs.readdirSync(tempDir);
+
+      for (const file of files) {
+        const filePath = path.join(tempDir, file);
+        const stats = fs.statSync(filePath);
+        const age = now - stats.mtimeMs;
+
+        if (age > this.TEMP_IMAGE_TTL) {
+          console.log(`[Replicate] Cleaning up old temp image: ${file}`);
+          fs.unlinkSync(filePath);
+        }
+      }
+      console.log(`[Replicate] Temp images cleanup complete`);
+    } catch (error) {
+      console.error(`[Replicate] Error during temp images cleanup:`, error);
+    }
+  }
   private getReplicateClient() {
     // Use default API key from admin panel or environment variables
     const apiKey = getSecret('REPLICATE_API_TOKEN') || process.env.REPLICATE_API_TOKEN;
@@ -448,8 +488,8 @@ What would you like to explore together?`;
         const base64Data = imageData.split(',')[1];
         const buffer = Buffer.from(base64Data, 'base64');
         
-        // Use original filename for easier debugging
-        const filename = imageName;
+        // Generate random filename to prevent collisions
+        const filename = this.generateRandomFilename(imageName);
         const filepath = path.join(tempDir, filename);
         
         // Save image to temp directory

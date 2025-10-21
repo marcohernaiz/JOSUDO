@@ -160,7 +160,8 @@ class UserOpenAIService {
       content.push({
         type: "image_url",
         image_url: {
-          url: imageData,
+          url: imageData.startsWith('data:') ? imageData : `data:image/jpeg;base64,${imageData}`,
+          detail: "high"
         },
       });
 
@@ -178,7 +179,21 @@ class UserOpenAIService {
       }
     }
 
-    console.log(`[UserOpenAI] Final content structure:`, JSON.stringify(content, null, 2));
+    console.log(`[UserOpenAI] Final content structure:`, JSON.stringify(content.map(item => {
+      if (item.type === 'image_url') {
+        return {
+          type: 'image_url',
+          image_url: {
+            url: item.image_url.url.substring(0, 50) + '...',
+            detail: item.image_url.detail
+          }
+        };
+      }
+      return item;
+    }), null, 2));
+    
+    // Log the actual model being used
+    console.log(`[UserOpenAI] Using model: ${this.getActualModelName(model)} for vision request`);
 
     return {
       role: "user" as const,

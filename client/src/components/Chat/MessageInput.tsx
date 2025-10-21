@@ -148,10 +148,10 @@ const AI_MODELS = [
   { id: 'perplexity', name: 'Perplexity', icon: Brain },
   { id: 'grok-beta', name: 'Grok 4.0', icon: SiX },
   { id: 'gemini-pro', name: 'Gemini 2.5+', icon: SiGoogle },
-  { id: 'claude-3-5-sonnet', name: 'Claude 4.0', icon: SiAnthropic },
-  { id: 'gpt-4.1', name: 'GPT-4o', icon: SiOpenai },
+  { id: 'claude-3-5-sonnet', name: 'Claude 3.5 Sonnet (API Key)', icon: SiAnthropic },
+  { id: 'gpt-4.1', name: 'GPT-4o (API Key)', icon: SiOpenai },
   { id: 'gpt-5', name: 'GPT-5 Mini', icon: SiOpenai },
-  { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet', icon: SiAnthropic },
+  { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet (Credits)', icon: SiAnthropic },
 ];
 
 const getStorageOptions = (isAuthenticated: boolean) => [
@@ -172,7 +172,6 @@ export const MessageInput: React.FC = () => {
   const [selectedStorage, setSelectedStorage] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
-  const [showAllModels, setShowAllModels] = useState(false);
   const [chatMode, setChatMode] = useState('assistant');
   const [showChatModeOptions, setShowChatModeOptions] = useState(false);
   const [showPersonaModal, setShowPersonaModal] = useState(false);
@@ -850,18 +849,7 @@ export const MessageInput: React.FC = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
-                  {!showAllModels && (
-                    <DropdownMenuItem
-                      onClick={() => setShowAllModels(true)}
-                      className="p-3 cursor-pointer transition-all duration-200 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Plus className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                        <span className="font-medium">More models</span>
-                      </div>
-                    </DropdownMenuItem>
-                  )}
-                  {(showAllModels ? AI_MODELS : AI_MODELS.slice(0, 6)).map((model) => {
+                  {AI_MODELS.map((model) => {
                     const isAvailable = hasUserApiKey(model.id) || (!modelRequiresCredits(model.id) || userCredits > 0);
                     const hasUserKey = hasUserApiKey(model.id);
                     
