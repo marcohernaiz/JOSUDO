@@ -122,9 +122,42 @@ class ReplicateService {
         });
       } else if (model === "claude-3-5-sonnet-replicate") {
         // ✅ 3. Claude 3.5 Sonnet via Replicate
+        const lastMessage = messages[messages.length - 1];
+        const imageUrls = lastMessage.images || [];
+        
+        console.log(`[Replicate] Claude API call with ${imageUrls.length} images`);
+        console.log(`[Replicate] Image URLs:`, imageUrls);
+        
+        // Format messages for Claude with image support
+        const formattedMessages = messages.map(msg => {
+          if (msg === lastMessage && imageUrls.length > 0) {
+            // Message with images
+            return {
+              role: msg.role,
+              content: [
+                { type: 'text', text: msg.content },
+                ...imageUrls.map(url => ({ type: 'image', source: url }))
+              ]
+            };
+          } else {
+            // Text-only message
+            return {
+              role: msg.role,
+              content: [{ type: 'text', text: msg.content }]
+            };
+          }
+        });
+
+        console.log(`[Replicate] Sending to Claude:`, JSON.stringify({
+          messages: formattedMessages,
+          max_tokens: 1000,
+          temperature: 0.7,
+          top_p: 0.9,
+        }, null, 2));
+
         output = await replicate.run("anthropic/claude-3-5-sonnet", {
           input: {
-            prompt: this.formatMessagesForClaude(messages),
+            messages: formattedMessages,
             max_tokens: 1000,
             temperature: 0.7,
             top_p: 0.9,

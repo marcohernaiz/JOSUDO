@@ -178,14 +178,43 @@ export class UserApiKeysService {
           return openaiResponse.ok;
 
         case 'anthropic':
-          // Anthropic API keys start with 'sk-ant-' and are typically 95+ characters long
+          // First check format
           if (!trimmedApiKey.startsWith('sk-ant-') || trimmedApiKey.length < 50) {
             console.error(`Invalid Anthropic API key format. Expected key starting with 'sk-ant-' and at least 50 characters long. Got: ${trimmedApiKey.substring(0, 20)}...`);
             return false;
           }
           
-          console.log(`Anthropic API key format validation passed: ${trimmedApiKey.substring(0, 20)}...`);
-          return true;
+          // Then test with actual API call
+          const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'x-api-key': trimmedApiKey,
+              'anthropic-version': '2023-06-01',
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'claude-3-sonnet-20240229',
+              messages: [
+                {
+                  role: 'user',
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Hi'
+                    }
+                  ]
+                }
+              ],
+              max_tokens: 10
+            })
+          });
+          
+          if (!anthropicResponse.ok) {
+            const errorText = await anthropicResponse.text();
+            console.error(`Anthropic API test failed: ${anthropicResponse.status} ${anthropicResponse.statusText}`, errorText);
+          }
+          
+          return anthropicResponse.ok;
 
         case 'google':
           const googleResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
