@@ -36,6 +36,11 @@ const MODEL_CONFIG = {
     allowUserKey: false,
     replicateModel: null,
   },
+  "josudo": {
+    provider: "openrouter",
+    allowUserKey: false,
+    replicateModel: null,
+  },
   "gpt-4": { provider: "openai", allowUserKey: true, replicateModel: null },
   "gpt-4o": { provider: "openai", allowUserKey: true, replicateModel: null },
   "gpt-4.1": { provider: "openai", allowUserKey: true, replicateModel: null },
@@ -786,6 +791,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               break;
 
             case "deepseek-v3":
+            case "josudo":
               serviceResponse = await deepseekService.sendMessage(
                 message,
                 model,
@@ -1733,7 +1739,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               break;
 
             case "deepseek-v3":
-              console.log("Starting DeepSeek V3 streaming via OpenRouter...");
+            case "josudo":
+              console.log("Starting DeepSeek V3/Josudo streaming via OpenRouter...");
               for await (const chunk of deepseekService.sendMessageStream(
                 enhancedMessage,
                 model,
@@ -1995,6 +2002,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let estimatedCost = 0;
         switch (model) {
           case "deepseek-v3":
+          case "josudo":
             estimatedCost = replicateService.calculateCost(finalTokens, model);
             break;
           case "deepseek-chat":

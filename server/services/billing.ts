@@ -161,7 +161,10 @@ export class BillingService {
     console.log(`🔍 deductCredits called: userId=${userId}, tokens=${tokensConsumed}, model=${modelUsed}`);
     // Skip deduction for free/default models (e.g., Josudo via OpenRouter DeepSeek Free)
     const isFreeDefaultModel =
-      modelUsed === 'deepseek-v3' || /:free\b/i.test(modelUsed) || /deepseek.*free/i.test(modelUsed);
+      modelUsed === 'deepseek-v3' || 
+      modelUsed === 'josudo' || 
+      /:free\b/i.test(modelUsed) || 
+      /deepseek.*free/i.test(modelUsed);
 
     if (isFreeDefaultModel) {
       console.log('🆓 Free/default model detected. Skipping credit deduction. Logging usage with 0 cost.');
