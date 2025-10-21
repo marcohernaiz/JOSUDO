@@ -108,8 +108,15 @@ class ReplicateService {
         console.log(`[Replicate] GPT-5 Mini API call with ${imageUrls.length} images`);
         console.log(`[Replicate] Image URLs:`, imageUrls);
         
+        // Format prompt for GPT-5 Mini
+        const prompt = messages.map(msg => {
+          if (msg.role === 'user') return `Human: ${msg.content}`;
+          if (msg.role === 'assistant') return `Assistant: ${msg.content}`;
+          return msg.content;
+        }).join('\n\n') + '\n\nAssistant:';
+        
         const input: any = {
-          prompt: this.formatMessagesForGPT(messages),
+          prompt: prompt,
           max_tokens: 1500,
           temperature: 0.6,
           top_p: 0.95,
@@ -117,8 +124,10 @@ class ReplicateService {
         
         // Add images if available
         if (imageUrls.length > 0) {
-          input.image_input = imageUrls;
+          input.image_input = imageUrls; // GPT-5 Mini supports multiple images via image_input array
         }
+        
+        console.log(`[Replicate] Final input to GPT-5 Mini:`, JSON.stringify(input, null, 2));
         
         output = await replicate.run("openai/gpt-5-mini", {
           input: input,
@@ -432,7 +441,7 @@ What would you like to explore together?`;
     }
     
     for (let i = 0; i < matches.length; i++) {
-      const [fullMatch, imageName, imageData] = match;
+      const [fullMatch, imageName, imageData] = matches[i];
       
       try {
         // Extract base64 data
