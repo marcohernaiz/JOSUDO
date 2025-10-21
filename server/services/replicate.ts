@@ -431,7 +431,7 @@ What would you like to explore together?`;
         fs.writeFileSync(filepath, buffer);
         
         // Generate public URL (assuming your server serves static files from temp-images)
-        const imageUrl = `${process.env.BASE_URL || 'http://localhost:5000'}/temp-images/${filename}`;
+        const imageUrl = `${process.env.BASE_URL || 'https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev'}/temp-images/${filename}`;
         imageUrls.push(imageUrl);
         
         // Replace image data with URL in message
