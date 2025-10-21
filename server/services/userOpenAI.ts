@@ -9,12 +9,12 @@ class UserOpenAIService {
   private getActualModelName(modelId: string): string {
     // Map our model IDs to actual OpenAI model names
     const modelMap: { [key: string]: string } = {
-      'gpt-4.1': 'gpt-4o', // GPT-4.1 doesn't exist yet, use GPT-4o with vision
+      'gpt-4.1': 'gpt-4-vision-preview', // GPT-4.1 doesn't exist yet, use GPT-4 Vision
       'gpt-4': 'gpt-4',
-      'gpt-4o': 'gpt-4o',
-      'gpt-5': 'gpt-4o' // GPT-5 doesn't exist yet, use GPT-4o with vision
+      'gpt-4o': 'gpt-4-vision-preview',
+      'gpt-5': 'gpt-4-vision-preview' // GPT-5 doesn't exist yet, use GPT-4 Vision
     };
-    return modelMap[modelId] || 'gpt-4o';
+    return modelMap[modelId] || 'gpt-4-vision-preview';
   }
 
   async sendMessage(
