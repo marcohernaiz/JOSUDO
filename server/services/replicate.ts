@@ -99,16 +99,13 @@ class ReplicateService {
           },
         });
       } else if (model === "gpt-5") {
-        // ✅ 3. GPT-5 simulation (since it doesn't exist yet)
-        // Use a high-quality model as a substitute - meta-llama-3-8b-instruct with GPT-style prompting
-        output = await replicate.run("meta/meta-llama-3-8b-instruct", {
+        // ✅ 3. GPT-5 Mini via Replicate
+        output = await replicate.run("openai/gpt-5-mini", {
           input: {
             prompt: this.formatMessagesForGPT(messages),
-            max_new_tokens: 1500,
+            max_tokens: 1500,
             temperature: 0.6,
             top_p: 0.95,
-            top_k: 40,
-            repetition_penalty: 1.05,
           },
         });
       } else {
