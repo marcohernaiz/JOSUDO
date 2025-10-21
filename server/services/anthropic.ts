@@ -10,28 +10,38 @@ class AnthropicService {
     return new Anthropic({ apiKey: key });
   }
 
-  private parseMessageWithImages(message: string): { text: string; images: { type: 'image'; source: string }[] } {
+  private parseMessageWithImages(message: string): { text: string; images: any[] } {
     // Check if message contains image data
-    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:image\/[^;]+;base64,([^\s]+))/g;
     const matches = Array.from(message.matchAll(imageRegex));
     
     console.log(`[Anthropic] Parsing message for images. Found ${matches.length} images.`);
     
-    const images: { type: 'image'; source: string }[] = [];
+    const images: any[] = [];
     let text = message;
 
     for (const match of matches) {
-      const [fullMatch, imageName, imageData] = match;
+      const [fullMatch, imageName, imageDataUrl, base64Data] = match;
       
-      // Add image to the list
+      // Extract media type from data URL
+      const mediaTypeMatch = imageDataUrl.match(/data:(image\/[^;]+);base64/);
+      const mediaType = mediaTypeMatch ? mediaTypeMatch[1] : 'image/jpeg';
+      
+      // Add image in Claude's expected format
       images.push({
         type: 'image',
-        source: imageData // Claude accepts base64 directly
+        source: {
+          type: 'base64',
+          media_type: mediaType,
+          data: base64Data
+        }
       });
 
       // Replace image data in text with a reference
       text = text.replace(fullMatch, `[Image: ${imageName}]`);
     }
+
+    console.log(`[Anthropic] Parsed ${images.length} images with media types`);
 
     return { text, images };
   }

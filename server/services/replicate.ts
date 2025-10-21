@@ -128,40 +128,35 @@ class ReplicateService {
         console.log(`[Replicate] Claude API call with ${imageUrls.length} images`);
         console.log(`[Replicate] Image URLs:`, imageUrls);
         
-        // Format messages for Claude with image support
-        const formattedMessages = messages.map(msg => {
-          if (msg === lastMessage && imageUrls.length > 0) {
-            // Message with images
-            return {
-              role: msg.role,
-              content: [
-                { type: 'text', text: msg.content },
-                ...imageUrls.map(url => ({ type: 'image', source: url }))
-              ]
-            };
-          } else {
-            // Text-only message
-            return {
-              role: msg.role,
-              content: [{ type: 'text', text: msg.content }]
-            };
-          }
-        });
+        // Replicate's Claude uses prompt-based format, not messages
+        let promptText = this.formatMessagesForClaude(messages);
+        
+        // If there are images, we need to reference them in the prompt
+        if (imageUrls.length > 0) {
+          promptText = `[Images attached: ${imageUrls.length}]\n\n${promptText}`;
+        }
 
         console.log(`[Replicate] Sending to Claude:`, JSON.stringify({
-          messages: formattedMessages,
+          prompt: promptText.substring(0, 200) + '...',
           max_tokens: 1000,
           temperature: 0.7,
           top_p: 0.9,
         }, null, 2));
 
+        const input: any = {
+          prompt: promptText,
+          max_tokens: 1000,
+          temperature: 0.7,
+          top_p: 0.9,
+        };
+        
+        // Add image URLs if available (some Replicate models support image_urls parameter)
+        if (imageUrls.length > 0) {
+          input.image_urls = imageUrls;
+        }
+
         output = await replicate.run("anthropic/claude-3-5-sonnet", {
-          input: {
-            messages: formattedMessages,
-            max_tokens: 1000,
-            temperature: 0.7,
-            top_p: 0.9,
-          },
+          input: input,
         });
       } else if (model === "claude-3-haiku-replicate") {
         // ✅ 3. Claude 3 Haiku via Replicate (faster, cheaper)

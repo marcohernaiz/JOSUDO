@@ -184,37 +184,41 @@ export class UserApiKeysService {
             return false;
           }
           
-          // Then test with actual API call
-          const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-              'x-api-key': trimmedApiKey,
-              'anthropic-version': '2023-06-01',
-              'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: 'claude-3-sonnet-20240229',
-              messages: [
-                {
-                  role: 'user',
-                  content: [
-                    {
-                      type: 'text',
-                      text: 'Hi'
-                    }
-                  ]
-                }
-              ],
-              max_tokens: 10
-            })
-          });
+          console.log(`[Anthropic] Testing API key format validated, making test API call...`);
           
-          if (!anthropicResponse.ok) {
-            const errorText = await anthropicResponse.text();
-            console.error(`Anthropic API test failed: ${anthropicResponse.status} ${anthropicResponse.statusText}`, errorText);
+          try {
+            // Then test with actual API call
+            const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: {
+                'x-api-key': trimmedApiKey,
+                'anthropic-version': '2023-06-01',
+                'content-type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'claude-3-5-sonnet-20241022',
+                messages: [
+                  {
+                    role: 'user',
+                    content: 'Hi'
+                  }
+                ],
+                max_tokens: 10
+              })
+            });
+            
+            if (!anthropicResponse.ok) {
+              const errorText = await anthropicResponse.text();
+              console.error(`Anthropic API test failed: ${anthropicResponse.status} ${anthropicResponse.statusText}`, errorText);
+              return false;
+            }
+            
+            console.log(`[Anthropic] API key test successful`);
+            return true;
+          } catch (error) {
+            console.error(`[Anthropic] API key test error:`, error);
+            return false;
           }
-          
-          return anthropicResponse.ok;
 
         case 'google':
           const googleResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
