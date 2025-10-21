@@ -439,10 +439,8 @@ What would you like to explore together?`;
         const base64Data = imageData.split(',')[1];
         const buffer = Buffer.from(base64Data, 'base64');
         
-        // Generate unique filename
-        const timestamp = Date.now();
-        const extension = imageName.split('.').pop() || 'png';
-        const filename = `temp_${timestamp}_${i}.${extension}`;
+        // Use original filename for easier debugging
+        const filename = imageName;
         const filepath = path.join(tempDir, filename);
         
         // Save image to temp directory
@@ -451,7 +449,7 @@ What would you like to explore together?`;
         console.log(`[Replicate] Image saved successfully, size: ${buffer.length} bytes`);
         
         // Generate public URL (assuming your server serves static files from temp-images)
-        const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+        const baseUrl = process.env.BASE_URL || 'https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev';
         const imageUrl = `${baseUrl}/temp-images/${filename}`;
         imageUrls.push(imageUrl);
         
