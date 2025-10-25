@@ -136,3 +136,4 @@ echo "  Connect to database: docker-compose -f $COMPOSE_FILE exec postgres psql 
 
 
 
+

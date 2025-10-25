@@ -155,7 +155,7 @@ class ReplicateService {
           input.image_urls = imageUrls;
         }
 
-        output = await replicate.run("anthropic/claude-3-5-sonnet", {
+        output = await replicate.run("anthropic/claude-3.5-sonnet", {
           input: input,
         });
       } else if (model === "claude-3-haiku-replicate") {

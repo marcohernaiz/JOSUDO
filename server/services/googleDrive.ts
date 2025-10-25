@@ -34,7 +34,7 @@ class GoogleDriveService {
       });
 
       if (existingFolders.data.files && existingFolders.data.files.length > 0) {
-        console.log("Found existing Josudo folder:", existingFolders.data.files[0].id);
+        //console.log("Found existing Josudo folder:", existingFolders.data.files[0].id);
         return existingFolders.data.files[0].id!;
       }
 
