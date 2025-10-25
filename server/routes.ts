@@ -1559,11 +1559,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             ) {
               // For images, check if the model supports vision
               const visionCapableModels = [
-                "gpt-4",
                 "gpt-4o",
                 "gpt-4.1",
                 "gpt-5",
                 "claude-3-5-sonnet",
+                "claude-3-5-sonnet-replicate",
                 "gemini-pro",
               ];
 
@@ -1575,7 +1575,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 );
               } else {
                 // For non-vision models, provide helpful message
-                content = `[Image file detected: ${file.name}]\n\nI can see that you've uploaded an image, but the current AI model (${model}) doesn't support image analysis. To analyze images, please use a model that supports vision capabilities like GPT-4, Claude 3.5 Sonnet, or Gemini Pro.\n\nFor now, I can only process text-based content. If you need image analysis, please describe the image in text or switch to a vision-capable model.`;
+                content = `[Image file detected: ${file.name}]\n\nI can see that you've uploaded an image, but the current AI model (${model}) doesn't support image analysis. To analyze images, please use a model that supports vision capabilities like GPT-4o, Claude 3.5 Sonnet, or Gemini Pro.\n\nFor now, I can only process text-based content. If you need image analysis, please describe the image in text or switch to a vision-capable model.`;
               }
             } else {
               // For text files, decode normally
