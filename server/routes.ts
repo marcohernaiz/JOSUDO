@@ -1622,14 +1622,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
           fileContents.substring(0, 200) + "...",
         );
 
-        // Check if total message is too large
-        if (enhancedMessage.length > 100000) {
+        // For vision-capable models using Replicate, don't truncate - images will be extracted and saved
+        const isReplicateVisionModel = model === "gpt-5" || model === "claude-3-5-sonnet-replicate";
+        
+        // Check if total message is too large (but allow full size for Replicate vision models)
+        if (!isReplicateVisionModel && enhancedMessage.length > 100000) {
           console.log(
             `⚠️ Total message too large (${enhancedMessage.length} chars), truncating`,
           );
           enhancedMessage =
             enhancedMessage.substring(0, 100000) +
             "\n\n[Message truncated due to size limit]";
+        } else if (isReplicateVisionModel && enhancedMessage.length > 100000) {
+          console.log(
+            `✅ Large message with images (${enhancedMessage.length} chars) - will be processed by Replicate service`,
+          );
         }
       }
 
