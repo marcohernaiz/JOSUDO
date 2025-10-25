@@ -493,9 +493,9 @@ What would you like to explore together?`;
 
   private async parseMessageWithImages(message: string): Promise<{ role: string; content: string; images?: string[] }> {
     // Check if message contains image data
-    // Updated regex to handle the "--- File: ... ---" wrapper format
-    // Pattern: [Image: filename]\n\nImage data: data:image/type;base64,<base64data>
-    const imageRegex = /\[Image: ([^\]]+)\]\s*\n\s*\n\s*Image data:\s*data:image\/([^;]+);base64,([A-Za-z0-9+/=\n\r]+?)(?=\n--- End of|\n\n---|\n\n\[Image:|$)/gs;
+    // Updated regex to handle flexible whitespace between [Image:] and Image data:
+    // Pattern: [Image: filename] + any whitespace + Image data: data:image/type;base64,<base64data>
+    const imageRegex = /\[Image:\s*([^\]]+?)\s*\]\s+Image data:\s*data:image\/([^;]+);base64,([A-Za-z0-9+/=\n\r]+?)(?=\n--- End of|\n\n---|\n\n\[Image:|$)/gs;
     const matches = Array.from(message.matchAll(imageRegex));
     
     console.log(`[Replicate] Parsing message for images. Found ${matches.length} images.`);
