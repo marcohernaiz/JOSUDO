@@ -128,10 +128,22 @@ class ReplicateService {
         console.log(`[Replicate] Claude API call with ${imageUrls.length} images`);
         console.log(`[Replicate] Image URLs:`, imageUrls);
         
-        // Format prompt from messages
-        let promptText = this.formatMessagesForClaude(messages);
+        // Clean messages by removing image data from content
+        // Since we're sending images via the "image" parameter, we don't want base64 data in the prompt
+        const cleanedMessages = messages.map(msg => {
+          // Remove image data patterns from message content
+          const cleanedContent = msg.content.replace(/\[Image: ([^\]]+)\]\n\nImage data: data:image\/[^;]+;base64,[A-Za-z0-9+/=\n\r]+/g, '[Image: $1]');
+          return {
+            ...msg,
+            content: cleanedContent
+          };
+        });
+        
+        // Format prompt from cleaned messages
+        let promptText = this.formatMessagesForClaude(cleanedMessages);
 
-        console.log(`[Replicate] Sending to Claude with prompt format`);
+        console.log(`[Replicate] Sending to Claude with prompt format (cleaned)`);
+        console.log(`[Replicate] Prompt length: ${promptText.length} characters`);
 
         const input: any = {
           prompt: promptText,
@@ -153,8 +165,8 @@ class ReplicateService {
         }
 
         console.log(`[Replicate] Final Claude input:`, JSON.stringify({
-          prompt: promptText.substring(0, 100) + '...',
-          image: input.image ? input.image.substring(0, 50) + '...' : undefined,
+          prompt: promptText.substring(0, 200) + '...',
+          image: input.image ? input.image.substring(0, 80) + '...' : undefined,
           max_tokens: input.max_tokens,
         }, null, 2));
 
