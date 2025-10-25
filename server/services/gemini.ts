@@ -274,7 +274,8 @@ class GeminiService {
 
   private parseMessageWithImages(message: string): string | { text: string; images?: string[] } {
     // Check if message contains image data
-    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
+    // Capture full base64 string (including potential newlines)
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:image\/[^;]+;base64,([A-Za-z0-9+/=\n\r]+?)(?=\n\n---|\n\n\[Image:|$))/gs;
     const matches = Array.from(message.matchAll(imageRegex));
     
     if (matches.length === 0) {
@@ -288,9 +289,11 @@ class GeminiService {
     const images: string[] = [];
 
     for (const match of matches) {
-      const [fullMatch, imageName, imageData] = match;
+      const [fullMatch, imageName, imageDataFull] = match;
+      // Clean base64 data (remove any whitespace/newlines)
+      const cleanedImageData = imageDataFull.replace(/[\s\n\r]/g, '');
       textContent = textContent.replace(fullMatch, `[Image: ${imageName}]`);
-      images.push(imageData);
+      images.push(cleanedImageData);
     }
 
     return {

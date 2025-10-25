@@ -478,11 +478,13 @@ What would you like to explore together?`;
 
   private async parseMessageWithImages(message: string): Promise<{ role: string; content: string; images?: string[] }> {
     // Check if message contains image data
-    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:image\/([^;]+);base64,([^\s]+))/g;
+    // Use a more flexible regex that captures everything until the end of base64 data
+    // Base64 can only contain A-Z, a-z, 0-9, +, /, and = (padding)
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: data:image\/([^;]+);base64,([A-Za-z0-9+/=\n\r]+?)(?=\n\n---|\n\n\[Image:|$)/gs;
     const matches = Array.from(message.matchAll(imageRegex));
     
     console.log(`[Replicate] Parsing message for images. Found ${matches.length} images.`);
-    console.log(`[Replicate] Message preview:`, message.substring(0, 200) + "...");
+    console.log(`[Replicate] Message length: ${message.length} characters`);
     
     if (matches.length === 0) {
       // No images, return simple text message
@@ -509,12 +511,16 @@ What would you like to explore together?`;
     }
     
     for (let i = 0; i < matches.length; i++) {
-      const [fullMatch, imageName, fullDataUrl, imageType, base64Data] = matches[i];
+      const [fullMatch, imageName, imageType, base64DataRaw] = matches[i];
       
       try {
         console.log(`[Replicate] Processing image ${i + 1}/${matches.length}: ${imageName}`);
         console.log(`[Replicate] Image type: ${imageType}`);
-        console.log(`[Replicate] Base64 data length: ${base64Data.length} characters`);
+        console.log(`[Replicate] Raw base64 data length: ${base64DataRaw.length} characters`);
+        
+        // Remove any whitespace (newlines, spaces, etc.) from base64 data
+        const base64Data = base64DataRaw.replace(/[\s\n\r]/g, '');
+        console.log(`[Replicate] Cleaned base64 data length: ${base64Data.length} characters`);
         
         // Decode base64 data
         const buffer = Buffer.from(base64Data, 'base64');

@@ -122,7 +122,8 @@ class UserOpenAIService {
 
   private parseMessageWithImages(message: string): { role: "user"; content: any } {
     // Check if message contains image data
-    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
+    // Capture full base64 string (including potential newlines)
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:image\/[^;]+;base64,([A-Za-z0-9+/=\n\r]+?)(?=\n\n---|\n\n\[Image:|$))/gs;
     const matches = Array.from(message.matchAll(imageRegex));
     
     console.log(`[UserOpenAI] Parsing message for images. Found ${matches.length} images.`);
@@ -142,7 +143,7 @@ class UserOpenAIService {
     let lastIndex = 0;
 
     for (const match of matches) {
-      const [fullMatch, imageName, imageData] = match;
+      const [fullMatch, imageName, imageDataFull, base64DataRaw] = match;
       const matchIndex = message.indexOf(fullMatch, lastIndex);
       
       // Add text before image
@@ -156,11 +157,14 @@ class UserOpenAIService {
         }
       }
 
+      // Clean base64 data (remove any whitespace/newlines)
+      const cleanedImageData = imageDataFull.replace(/[\s\n\r]/g, '');
+      
       // Add image
       content.push({
         type: "image_url",
         image_url: {
-          url: imageData.startsWith('data:') ? imageData : `data:image/jpeg;base64,${imageData}`,
+          url: cleanedImageData.startsWith('data:') ? cleanedImageData : `data:image/jpeg;base64,${cleanedImageData}`,
           detail: "high"
         },
       });

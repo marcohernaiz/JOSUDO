@@ -12,7 +12,8 @@ class AnthropicService {
 
   private parseMessageWithImages(message: string): { text: string; images: any[] } {
     // Check if message contains image data
-    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:image\/[^;]+;base64,([^\s]+))/g;
+    // Capture full base64 string (including potential newlines)
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:image\/([^;]+);base64,([A-Za-z0-9+/=\n\r]+?)(?=\n\n---|\n\n\[Image:|$))/gs;
     const matches = Array.from(message.matchAll(imageRegex));
     
     console.log(`[Anthropic] Parsing message for images. Found ${matches.length} images.`);
@@ -21,18 +22,19 @@ class AnthropicService {
     let text = message;
 
     for (const match of matches) {
-      const [fullMatch, imageName, imageDataUrl, base64Data] = match;
+      const [fullMatch, imageName, imageDataUrl, mediaType, base64DataRaw] = match;
       
-      // Extract media type from data URL
-      const mediaTypeMatch = imageDataUrl.match(/data:(image\/[^;]+);base64/);
-      const mediaType = mediaTypeMatch ? mediaTypeMatch[1] : 'image/jpeg';
+      // Clean base64 data (remove any whitespace/newlines)
+      const base64Data = base64DataRaw.replace(/[\s\n\r]/g, '');
+      
+      console.log(`[Anthropic] Image ${imageName}: type=${mediaType}, base64 length=${base64Data.length}`);
       
       // Add image in Claude's expected format
       images.push({
         type: 'image',
         source: {
           type: 'base64',
-          media_type: mediaType,
+          media_type: `image/${mediaType}`,
           data: base64Data
         }
       });
