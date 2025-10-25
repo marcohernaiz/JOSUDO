@@ -500,6 +500,9 @@ What would you like to explore together?`;
     
     console.log(`[Replicate] Parsing message for images. Found ${matches.length} images.`);
     console.log(`[Replicate] Message length: ${message.length} characters`);
+    console.log(`[Replicate] Message preview (first 500 chars):`, message.substring(0, 500));
+    console.log(`[Replicate] Message contains "[Image:"?`, message.includes('[Image:'));
+    console.log(`[Replicate] Message contains "Image data:"?`, message.includes('Image data:'));
     
     if (matches.length === 0) {
       // No images, return simple text message
