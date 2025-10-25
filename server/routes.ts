@@ -3586,28 +3586,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(avatarPath);
   });
 
+  // Debug endpoint to list temp images
+  app.get("/temp-images", (req, res) => {
+    try {
+      const tempDir = path.join(process.cwd(), "temp-images");
+      console.log(`[Temp Images] Listing directory: ${tempDir}`);
+      
+      if (!fs.existsSync(tempDir)) {
+        return res.json({ 
+          error: "Temp directory does not exist", 
+          path: tempDir,
+          exists: false 
+        });
+      }
+      
+      const files = fs.readdirSync(tempDir);
+      const fileDetails = files.map(file => {
+        const filepath = path.join(tempDir, file);
+        const stats = fs.statSync(filepath);
+        return {
+          name: file,
+          size: stats.size,
+          created: stats.birthtime,
+          url: `/temp-images/${file}`
+        };
+      });
+      
+      res.json({
+        directory: tempDir,
+        exists: true,
+        count: files.length,
+        files: fileDetails
+      });
+    } catch (error) {
+      console.error(`[Temp Images] Error listing directory:`, error);
+      res.status(500).json({ error: "Failed to list temp images" });
+    }
+  });
+
   // Temp images endpoint for Replicate models
   app.get("/temp-images/:filename", (req, res) => {
-    const { filename } = req.params;
-    const tempImagePath = path.join(process.cwd(), "temp-images", filename);
+    try {
+      const { filename } = req.params;
+      const tempImagePath = path.join(process.cwd(), "temp-images", filename);
 
-    // Check if file exists
-    if (!fs.existsSync(tempImagePath)) {
-      return res.status(404).json({ error: "Temp image not found" });
+      console.log(`[Temp Images] Request for: ${filename}`);
+      console.log(`[Temp Images] Full path: ${tempImagePath}`);
+
+      // Check if file exists
+      if (!fs.existsSync(tempImagePath)) {
+        console.error(`[Temp Images] File not found: ${tempImagePath}`);
+        return res.status(404).json({ error: "Temp image not found", path: tempImagePath });
+      }
+
+      // Get file stats
+      const stats = fs.statSync(tempImagePath);
+      console.log(`[Temp Images] File found! Size: ${stats.size} bytes`);
+
+      // Set appropriate content type
+      const ext = path.extname(filename).toLowerCase();
+      const contentType = {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".gif": "image/gif",
+        ".webp": "image/webp",
+        ".bmp": "image/bmp",
+      }[ext] || "application/octet-stream";
+
+      console.log(`[Temp Images] Content-Type: ${contentType}`);
+
+      // Set headers
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      
+      // Send file
+      res.sendFile(tempImagePath, (err) => {
+        if (err) {
+          console.error(`[Temp Images] Error sending file:`, err);
+          if (!res.headersSent) {
+            res.status(500).json({ error: "Failed to send image" });
+          }
+        } else {
+          console.log(`[Temp Images] ✅ File sent successfully: ${filename}`);
+        }
+      });
+    } catch (error) {
+      console.error(`[Temp Images] Error:`, error);
+      res.status(500).json({ error: "Internal server error" });
     }
-
-    // Set appropriate content type
-    const ext = path.extname(filename).toLowerCase();
-    const contentType = {
-      ".png": "image/png",
-      ".jpg": "image/jpeg",
-      ".jpeg": "image/jpeg",
-      ".gif": "image/gif",
-      ".webp": "image/webp",
-    }[ext] || "application/octet-stream";
-
-    res.setHeader("Content-Type", contentType);
-    res.sendFile(tempImagePath);
   });
 
   // Get list of available avatars

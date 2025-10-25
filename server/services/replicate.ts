@@ -15,10 +15,10 @@ class ReplicateService {
     setInterval(() => this.cleanupTempImages(), this.CLEANUP_INTERVAL);
   }
 
-  private generateRandomFilename(originalName: string): string {
+  private generateRandomFilename(originalName: string, forceExtension?: string): string {
     const timestamp = Date.now();
     const random = crypto.randomBytes(8).toString('hex');
-    const extension = path.extname(originalName);
+    const extension = forceExtension ? `.${forceExtension}` : path.extname(originalName);
     return `temp_${timestamp}_${random}${extension}`;
   }
 
@@ -478,7 +478,7 @@ What would you like to explore together?`;
 
   private async parseMessageWithImages(message: string): Promise<{ role: string; content: string; images?: string[] }> {
     // Check if message contains image data
-    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:[^;]+;base64,[^\s]+)/g;
+    const imageRegex = /\[Image: ([^\]]+)\]\n\nImage data: (data:image\/([^;]+);base64,([^\s]+))/g;
     const matches = Array.from(message.matchAll(imageRegex));
     
     console.log(`[Replicate] Parsing message for images. Found ${matches.length} images.`);
@@ -509,31 +509,43 @@ What would you like to explore together?`;
     }
     
     for (let i = 0; i < matches.length; i++) {
-      const [fullMatch, imageName, imageData] = matches[i];
+      const [fullMatch, imageName, fullDataUrl, imageType, base64Data] = matches[i];
       
       try {
-        // Extract base64 data
-        const base64Data = imageData.split(',')[1];
-        const buffer = Buffer.from(base64Data, 'base64');
+        console.log(`[Replicate] Processing image ${i + 1}/${matches.length}: ${imageName}`);
+        console.log(`[Replicate] Image type: ${imageType}`);
+        console.log(`[Replicate] Base64 data length: ${base64Data.length} characters`);
         
-        // Generate random filename to prevent collisions
-        const filename = this.generateRandomFilename(imageName);
+        // Decode base64 data
+        const buffer = Buffer.from(base64Data, 'base64');
+        console.log(`[Replicate] Buffer size: ${buffer.length} bytes`);
+        
+        // Generate filename with proper extension
+        const extension = imageType === 'jpeg' ? 'jpg' : imageType;
+        const filename = this.generateRandomFilename(imageName, extension);
         const filepath = path.join(tempDir, filename);
         
         // Save image to temp directory
         console.log(`[Replicate] Saving image to: ${filepath}`);
         fs.writeFileSync(filepath, buffer);
-        console.log(`[Replicate] Image saved successfully, size: ${buffer.length} bytes`);
         
-        // Generate public URL (assuming your server serves static files from temp-images)
-        const baseUrl = process.env.BASE_URL || 'https://8fdbab7c-95d5-4874-bfbd-1fd1ebf7f828-00-nad6e6v3p5fi.picard.replit.dev';
+        // Verify file was written
+        if (fs.existsSync(filepath)) {
+          const stats = fs.statSync(filepath);
+          console.log(`[Replicate] ✅ Image saved successfully! File size: ${stats.size} bytes`);
+        } else {
+          console.error(`[Replicate] ❌ File not found after writing: ${filepath}`);
+        }
+        
+        // Generate public URL
+        const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
         const imageUrl = `${baseUrl}/temp-images/${filename}`;
         imageUrls.push(imageUrl);
         
         // Replace image data with URL in message
         formattedContent = formattedContent.replace(fullMatch, `[Image: ${imageName} - ${imageUrl}]`);
         
-        console.log(`[Replicate] Saved image to: ${filepath}, URL: ${imageUrl}`);
+        console.log(`[Replicate] Image URL: ${imageUrl}`);
       } catch (error) {
         console.error(`[Replicate] Error processing image ${imageName}:`, error);
         // Fallback to description if image processing fails
