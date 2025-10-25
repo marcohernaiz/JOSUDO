@@ -128,20 +128,10 @@ class ReplicateService {
         console.log(`[Replicate] Claude API call with ${imageUrls.length} images`);
         console.log(`[Replicate] Image URLs:`, imageUrls);
         
-        // Replicate's Claude uses prompt-based format, not messages
+        // Format prompt from messages
         let promptText = this.formatMessagesForClaude(messages);
-        
-        // If there are images, we need to reference them in the prompt
-        if (imageUrls.length > 0) {
-          promptText = `[Images attached: ${imageUrls.length}]\n\n${promptText}`;
-        }
 
-        console.log(`[Replicate] Sending to Claude:`, JSON.stringify({
-          prompt: promptText.substring(0, 200) + '...',
-          max_tokens: 1000,
-          temperature: 0.7,
-          top_p: 0.9,
-        }, null, 2));
+        console.log(`[Replicate] Sending to Claude with prompt format`);
 
         const input: any = {
           prompt: promptText,
@@ -150,10 +140,23 @@ class ReplicateService {
           top_p: 0.9,
         };
         
-        // Add image URLs if available (some Replicate models support image_urls parameter)
+        // Replicate's Claude uses "image" parameter (singular) with a URL
+        // If multiple images, use the first one
         if (imageUrls.length > 0) {
-          input.image_urls = imageUrls;
+          input.image = imageUrls[0]; // Claude on Replicate only supports one image
+          input.max_image_resolution = 1.0; // Use full resolution
+          console.log(`[Replicate] Adding image to Claude request: ${imageUrls[0]}`);
+          
+          if (imageUrls.length > 1) {
+            console.warn(`[Replicate] Claude supports only 1 image, using first of ${imageUrls.length} images`);
+          }
         }
+
+        console.log(`[Replicate] Final Claude input:`, JSON.stringify({
+          prompt: promptText.substring(0, 100) + '...',
+          image: input.image ? input.image.substring(0, 50) + '...' : undefined,
+          max_tokens: input.max_tokens,
+        }, null, 2));
 
         output = await replicate.run("anthropic/claude-3.5-sonnet", {
           input: input,

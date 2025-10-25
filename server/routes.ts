@@ -1562,8 +1562,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 "gpt-4o",
                 "gpt-4.1",
                 "gpt-5",
-                "claude-3-5-sonnet",
-                "claude-3-5-sonnet-replicate",
+                "claude-3-5-sonnet", // Direct API with user's key
+                "claude-3-5-sonnet-replicate", // Replicate's Claude supports vision via "image" parameter
                 "gemini-pro",
               ];
 
