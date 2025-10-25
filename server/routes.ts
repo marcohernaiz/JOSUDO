@@ -1582,16 +1582,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
               content = Buffer.from(file.content, "base64").toString("utf-8");
             }
 
-            // Check if file content is too large (limit to 50KB per file)
-            if (content.length > 50000) {
+            // Check if file content is too large (limit to 50KB per file for TEXT files only)
+            // Images are base64 encoded and should not be truncated
+            const isImage = file.name.endsWith(".jpg") || 
+                           file.name.endsWith(".jpeg") || 
+                           file.name.endsWith(".png") || 
+                           file.name.endsWith(".gif") || 
+                           file.name.endsWith(".webp") || 
+                           file.name.endsWith(".bmp");
+            
+            if (!isImage && content.length > 50000) {
               console.log(
-                `⚠️ File ${file.name} is too large (${content.length} chars), truncating to 50KB`,
+                `⚠️ Text file ${file.name} is too large (${content.length} chars), truncating to 50KB`,
               );
               const truncatedContent =
                 content.substring(0, 50000) +
                 "\n\n[Content truncated due to size limit]";
               fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n${truncatedContent}\n--- End of ${file.name} ---\n`;
             } else {
+              if (isImage) {
+                console.log(
+                  `✅ Image ${file.name} included without truncation (${content.length} chars base64 data)`,
+                );
+              }
               fileContents += `\n\n--- File: ${file.name} (${file.type}) ---\n${content}\n--- End of ${file.name} ---\n`;
             }
           } catch (error) {
