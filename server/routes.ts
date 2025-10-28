@@ -2524,7 +2524,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
     } catch (error) {
-      res.status(500).json({ error: "Failed to create integration" });
+      console.error('Error creating integration:', error);
+      res.status(500).json({ 
+        error: "Failed to create integration",
+        details: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
