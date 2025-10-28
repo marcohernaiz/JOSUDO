@@ -1821,18 +1821,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
             case "gpt-4":
             case "gpt-4o":
             case "gpt-4.1":
+              // Check if user has their own OpenAI API key
               if (userId && integration) {
-                for await (const chunk of openaiService.sendMessageStream(
-                  enhancedMessage,
-                  userId,
-                  sessionId || userId.toString(),
-                  integration?.credentialsEncrypted || "",
-                )) {
-                  fullResponse += chunk.content;
-                  totalTokens = chunk.tokens || totalTokens;
-                  res.write(
-                    `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
-                  );
+                const userApiKey = await userApiKeysService.getApiKey(userId, 'openai');
+                if (userApiKey) {
+                  console.log(`[OpenAI] Using user's API key for ${model}`);
+                  // Use user's OpenAI API key
+                  for await (const chunk of userOpenAIService.sendMessageStream(
+                    enhancedMessage,
+                    model,
+                    conversationHistory,
+                    userApiKey,
+                    {
+                      maxTokens: thinkingMode === "research" ? 8192 : 4096,
+                      temperature: thinkingMode === "deep" ? 0.3 : 0.7,
+                    }
+                  )) {
+                    fullResponse += chunk.content;
+                    res.write(
+                      `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                    );
+                  }
+                } else {
+                  console.log(`[OpenAI] Using admin's API key (credits) for ${model}`);
+                  // Use admin's OpenAI API key (deduct credits)
+                  for await (const chunk of openaiService.sendMessageStream(
+                    enhancedMessage,
+                    userId,
+                    sessionId || userId.toString(),
+                    integration?.credentialsEncrypted || "",
+                  )) {
+                    fullResponse += chunk.content;
+                    totalTokens = chunk.tokens || totalTokens;
+                    res.write(
+                      `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                    );
+                  }
                 }
               } else {
                 // Fallback to DeepSeek for unauthenticated users
