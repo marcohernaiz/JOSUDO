@@ -127,6 +127,10 @@ class UserOpenAIService {
     const matches = Array.from(message.matchAll(imageRegex));
     
     console.log(`[UserOpenAI] Parsing message for images. Found ${matches.length} images.`);
+    console.log(`[UserOpenAI] Message length: ${message.length} characters`);
+    console.log(`[UserOpenAI] Message contains [Image:]: ${message.includes('[Image:')}`);
+    console.log(`[UserOpenAI] Message contains Image data:: ${message.includes('Image data:')}`);
+    console.log(`[UserOpenAI] First 500 chars: ${message.substring(0, 500)}`);
     
     if (matches.length === 0) {
       // No images, return simple text message

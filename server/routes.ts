@@ -1826,6 +1826,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 const userApiKey = await userApiKeysService.getApiKey(userId, 'openai');
                 if (userApiKey) {
                   console.log(`[OpenAI] Using user's API key for ${model}`);
+                  console.log(`[OpenAI] Enhanced message length: ${enhancedMessage.length}`);
+                  console.log(`[OpenAI] Enhanced message contains [Image:]: ${enhancedMessage.includes('[Image:')}`);
+                  console.log(`[OpenAI] Enhanced message first 500 chars: ${enhancedMessage.substring(0, 500)}`);
                   // Use user's OpenAI API key
                   for await (const chunk of userOpenAIService.sendMessageStream(
                     enhancedMessage,
