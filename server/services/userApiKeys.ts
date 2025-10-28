@@ -108,7 +108,21 @@ export class UserApiKeysService {
     }
 
     try {
-      return this.decryptApiKey(result[0].credentialsEncrypted);
+      const decrypted = this.decryptApiKey(result[0].credentialsEncrypted);
+      
+      // Parse the credentials if it's JSON (contains apiKey field)
+      try {
+        const parsed = JSON.parse(decrypted);
+        if (parsed.apiKey) {
+          console.log(`[getApiKey] Parsed JSON credentials for ${provider}`);
+          return parsed.apiKey;
+        }
+      } catch {
+        // Not JSON, return as is
+        console.log(`[getApiKey] Using raw API key for ${provider}`);
+      }
+      
+      return decrypted;
     } catch (error) {
       console.error('Failed to decrypt API key:', error);
       return null;
@@ -151,8 +165,21 @@ export class UserApiKeysService {
    */
   async testApiKey(provider: string, apiKey: string): Promise<boolean> {
     try {
+      // Parse the API key if it's JSON (from frontend)
+      let actualApiKey = apiKey;
+      try {
+        const parsed = JSON.parse(apiKey);
+        if (parsed.apiKey) {
+          actualApiKey = parsed.apiKey;
+          console.log(`[testApiKey] Parsed JSON credentials for ${provider}`);
+        }
+      } catch {
+        // Not JSON, use as is
+        console.log(`[testApiKey] Using raw API key for ${provider}`);
+      }
+      
       // Trim whitespace from API key
-      const trimmedApiKey = apiKey.trim();
+      const trimmedApiKey = actualApiKey.trim();
       
       console.log(`Testing API key for provider: ${provider}, key length: ${trimmedApiKey.length}`);
       
