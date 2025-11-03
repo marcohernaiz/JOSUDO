@@ -181,14 +181,27 @@ export class UserApiKeysService {
       // Trim whitespace from API key
       const trimmedApiKey = actualApiKey.trim();
       
-      console.log(`Testing API key for provider: ${provider}, key length: ${trimmedApiKey.length}`);
+      // Normalize provider names (gemini -> google for API compatibility)
+      const normalizedProvider = provider === 'gemini' ? 'google' : provider;
+      
+      console.log(`[testApiKey] Testing API key for provider: ${provider} (normalized: ${normalizedProvider})`);
+      console.log(`[testApiKey] Key length: ${trimmedApiKey.length}`);
+      console.log(`[testApiKey] Key preview: ${trimmedApiKey.substring(0, Math.min(10, trimmedApiKey.length))}...`);
       
       if (!trimmedApiKey) {
-        console.error(`Empty API key provided for ${provider}`);
+        console.error(`[testApiKey] Empty API key provided for ${provider}`);
         return false;
       }
       
-      switch (provider) {
+      // Validate Gemini API key format
+      if (normalizedProvider === 'google' && !trimmedApiKey.startsWith('AIza')) {
+        console.error(`[testApiKey] ❌ Invalid Gemini API key format!`);
+        console.error(`[testApiKey] Gemini keys should start with "AIza"`);
+        console.error(`[testApiKey] Make sure you're using a Google AI Studio key from: https://aistudio.google.com/app/apikey`);
+        return false;
+      }
+      
+      switch (normalizedProvider) {
         case 'openai':
           const openaiResponse = await fetch('https://api.openai.com/v1/models', {
             headers: {
@@ -250,34 +263,62 @@ export class UserApiKeysService {
         case 'google':
           // Test using the REST API directly (most reliable method)
           try {
-            console.log(`[Google/Gemini] Testing API key, key length: ${trimmedApiKey.length}`);
-            console.log(`[Google/Gemini] Key preview: ${trimmedApiKey.substring(0, 10)}...`);
+            console.log(`[Google/Gemini] Starting API key validation...`);
+            console.log(`[Google/Gemini] Key format check: ${trimmedApiKey.startsWith('AIza') ? '✅ Valid format' : '❌ Invalid format (should start with AIza)'}`);
+            
+            // URL encode the key to handle any special characters
+            const encodedKey = encodeURIComponent(trimmedApiKey);
+            const testUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodedKey}`;
+            
+            console.log(`[Google/Gemini] Making request to: ${testUrl.substring(0, 80)}...`);
             
             // First, test by listing models (free and quick)
-            const listResponse = await fetch(
-              `https://generativelanguage.googleapis.com/v1beta/models?key=${trimmedApiKey}`,
-              {
-                method: 'GET',
-                headers: {
-                  'Content-Type': 'application/json'
-                }
+            const listResponse = await fetch(testUrl, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json'
               }
-            );
+            });
+            
+            console.log(`[Google/Gemini] Response status: ${listResponse.status} ${listResponse.statusText}`);
             
             if (!listResponse.ok) {
               const errorText = await listResponse.text();
-              console.error(`[Google/Gemini] ❌ API key validation failed:`);
+              console.error(`[Google/Gemini] ❌ API key validation failed!`);
               console.error(`[Google/Gemini] Status: ${listResponse.status} ${listResponse.statusText}`);
-              console.error(`[Google/Gemini] Error:`, errorText);
+              console.error(`[Google/Gemini] Error response:`, errorText);
+              
+              // Provide helpful error messages
+              if (listResponse.status === 400) {
+                console.error(`[Google/Gemini] 💡 This usually means: Invalid API key or key not activated`);
+              } else if (listResponse.status === 403) {
+                console.error(`[Google/Gemini] 💡 This usually means: API restrictions enabled or billing not set up`);
+              } else if (listResponse.status === 401) {
+                console.error(`[Google/Gemini] 💡 This usually means: Invalid API key format`);
+              }
+              
               return false;
             }
             
             const data = await listResponse.json();
-            console.log(`[Google/Gemini] ✅ API key test successful! Found ${data.models?.length || 0} models`);
+            const modelCount = data.models?.length || 0;
+            console.log(`[Google/Gemini] ✅ API key test successful!`);
+            console.log(`[Google/Gemini] Found ${modelCount} available models`);
+            
+            if (modelCount > 0) {
+              const geminiModels = data.models
+                .filter((m: any) => m.name && m.name.includes('gemini'))
+                .map((m: any) => m.name.replace('models/', ''))
+                .slice(0, 5);
+              console.log(`[Google/Gemini] Available Gemini models: ${geminiModels.join(', ')}`);
+            }
+            
             return true;
           } catch (error: any) {
-            console.error(`[Google/Gemini] ❌ API test failed:`);
-            console.error(`[Google/Gemini] Error:`, error?.message || error);
+            console.error(`[Google/Gemini] ❌ API test failed with exception:`);
+            console.error(`[Google/Gemini] Error type: ${error?.constructor?.name || 'Unknown'}`);
+            console.error(`[Google/Gemini] Error message:`, error?.message || error);
+            console.error(`[Google/Gemini] Stack trace:`, error?.stack);
             return false;
           }
 
