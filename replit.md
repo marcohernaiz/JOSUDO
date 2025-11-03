@@ -51,6 +51,20 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
+- November 3, 2025. Implemented secure admin backend for platform management
+  - Created secure admin authentication system using environment variables (ADMIN_USERNAME, ADMIN_PASSWORD)
+  - Removed hardcoded credential fallbacks to prevent security vulnerabilities
+  - Implemented admin dashboard with three management tabs:
+    - Admin Users Management: Create, edit, delete admin accounts with bcrypt password hashing
+    - API Keys Management: Configure platform-wide API keys and settings (replacing hardcoded values)
+    - Persona Templates Management: Customize Digital Persona templates visible to all users
+  - Admin routes accessible at /admin/login and /admin/dashboard
+  - Added adminUsers database table with secure password storage
+  - Implemented session-based admin authentication separate from user sessions
+  - Admin panel features Material Design-inspired interface with Linear's minimalist clarity
+  - Application gracefully warns and disables admin features if environment variables are not set
+  - All admin operations require authentication and use middleware protection
+
 - September 30, 2025. Enhanced Digital Personas page with hover functionality
   - Added hover overlay on persona cards with "Use" and "Configure" action buttons
   - "Use" button sets the persona as active and navigates to main chat screen
