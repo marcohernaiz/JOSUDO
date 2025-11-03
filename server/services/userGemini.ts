@@ -104,14 +104,60 @@ class UserGeminiService {
       });
 
       for await (const chunk of response) {
-        const chunkText = chunk.response.text();
+        // Handle different possible chunk structures
+        let chunkText: string | undefined;
+        
+        try {
+          // Try different possible structures based on Google GenAI SDK
+          if (chunk.response && typeof chunk.response.text === 'function') {
+            chunkText = chunk.response.text();
+          } else if (chunk.text && typeof chunk.text === 'function') {
+            chunkText = chunk.text();
+          } else if (chunk.text && typeof chunk.text === 'string') {
+            chunkText = chunk.text;
+          } else if (chunk.candidates?.[0]?.content?.parts?.[0]?.text) {
+            chunkText = chunk.candidates[0].content.parts[0].text;
+          } else if (chunk.response?.text && typeof chunk.response.text === 'string') {
+            chunkText = chunk.response.text;
+          }
+          
+          // Debug logging for first chunk to understand structure
+          if (!chunkText && Object.keys(chunk).length > 0) {
+            console.log('[UserGemini] Chunk structure:', JSON.stringify(chunk, null, 2).substring(0, 500));
+          }
+        } catch (error) {
+          console.error('[UserGemini] Error extracting text from chunk:', error);
+          console.log('[UserGemini] Chunk keys:', Object.keys(chunk));
+        }
+        
         if (chunkText) {
           yield { content: chunkText };
         }
       }
     } catch (error) {
       console.error('User Gemini streaming error:', error);
-      throw new Error(`Gemini streaming error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      
+      // Fallback: use non-streaming API and simulate streaming
+      try {
+        console.log('[UserGemini] Falling back to non-streaming API with simulated streaming');
+        const nonStreamingResponse = await this.sendMessage(
+          message,
+          model,
+          conversationHistory,
+          userApiKey,
+          options
+        );
+        
+        // Simulate streaming by yielding words
+        const words = nonStreamingResponse.response.split(' ');
+        for (const word of words) {
+          yield { content: word + ' ' };
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+      } catch (fallbackError) {
+        console.error('User Gemini fallback error:', fallbackError);
+        throw new Error(`Gemini streaming error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
     }
   }
 

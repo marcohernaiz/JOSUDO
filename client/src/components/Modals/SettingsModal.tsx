@@ -124,14 +124,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, con
 
   const getIntegrationStatus = (serviceName: string) => {
     // Handle gemini/google name normalization (both are the same service)
-    const normalizedName = serviceName === 'gemini' ? 'google' : serviceName;
-    const alternateName = serviceName === 'google' ? 'gemini' : null;
-    
-    return integrations.find(i => {
-      const matches = i.serviceName === normalizedName || 
-                     (alternateName && i.serviceName === alternateName);
-      return matches && i.isActive;
+    // Check for both 'gemini' and 'google' regardless of which one is passed
+    const result = integrations.find(i => {
+      if (!i.isActive || i.serviceType !== 'ai_model') return false;
+      
+      // Direct match
+      if (i.serviceName === serviceName) return true;
+      
+      // Handle gemini/google normalization
+      if (serviceName === 'gemini' && i.serviceName === 'google') return true;
+      if (serviceName === 'google' && i.serviceName === 'gemini') return true;
+      
+      return false;
     });
+    
+    // Debug logging (remove after confirming it works)
+    if (serviceName === 'gemini') {
+      console.log('[Settings] Checking for gemini integration:', {
+        serviceName,
+        integrations: integrations.map(i => ({ 
+          serviceName: i.serviceName, 
+          serviceType: i.serviceType, 
+          isActive: i.isActive 
+        })),
+        found: !!result
+      });
+    }
+    
+    return result;
   };
 
   const toggleSection = (sectionName: string) => {
