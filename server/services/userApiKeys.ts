@@ -248,21 +248,38 @@ export class UserApiKeysService {
           }
 
         case 'google':
-          // Google Generative Language API expects the key as a query parameter
-          const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${trimmedApiKey}`, {
-            headers: {
-              'Content-Type': 'application/json'
+          // Test using the REST API directly (most reliable method)
+          try {
+            console.log(`[Google/Gemini] Testing API key, key length: ${trimmedApiKey.length}`);
+            console.log(`[Google/Gemini] Key preview: ${trimmedApiKey.substring(0, 10)}...`);
+            
+            // First, test by listing models (free and quick)
+            const listResponse = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models?key=${trimmedApiKey}`,
+              {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              }
+            );
+            
+            if (!listResponse.ok) {
+              const errorText = await listResponse.text();
+              console.error(`[Google/Gemini] ❌ API key validation failed:`);
+              console.error(`[Google/Gemini] Status: ${listResponse.status} ${listResponse.statusText}`);
+              console.error(`[Google/Gemini] Error:`, errorText);
+              return false;
             }
-          });
-          
-          if (!googleResponse.ok) {
-            const errorText = await googleResponse.text();
-            console.error(`Google/Gemini API test failed: ${googleResponse.status} ${googleResponse.statusText}`, errorText);
-          } else {
-            console.log(`[Google/Gemini] API key test successful`);
+            
+            const data = await listResponse.json();
+            console.log(`[Google/Gemini] ✅ API key test successful! Found ${data.models?.length || 0} models`);
+            return true;
+          } catch (error: any) {
+            console.error(`[Google/Gemini] ❌ API test failed:`);
+            console.error(`[Google/Gemini] Error:`, error?.message || error);
+            return false;
           }
-          
-          return googleResponse.ok;
 
         case 'xai':
           const xaiResponse = await fetch('https://api.x.ai/v1/models', {
