@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   User,
   Integration,
@@ -78,24 +78,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
+  const queryClient = useQueryClient();
+  
   const refreshIntegrations = async () => {
-    // Refresh integrations data
+    // Refresh integrations data by invalidating the query cache
     if (user) {
-      await apiRequest("GET", "/api/integrations");
+      await queryClient.invalidateQueries({ queryKey: ["/api/integrations"] });
     }
   };
 
   const refreshChatSessions = async () => {
-    // Refresh chat sessions data
+    // Refresh chat sessions data by invalidating the query cache
     if (user) {
-      await apiRequest("GET", "/api/chat-sessions");
+      await queryClient.invalidateQueries({ queryKey: ["/api/chat-sessions"] });
     }
   };
 
   const refreshBilling = async () => {
-    // Refresh billing data
+    // Refresh billing data by invalidating the query cache
     if (user) {
-      await apiRequest("GET", "/api/billing");
+      await queryClient.invalidateQueries({ queryKey: ["/api/billing"] });
     }
   };
 
