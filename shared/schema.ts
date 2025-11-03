@@ -138,6 +138,16 @@ export const appSettings = pgTable("app_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const adminUsers = pgTable("admin_users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  email: text("email"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Spaces tables
 export const spaces = pgTable("spaces", {
   id: serial("id").primaryKey(),
@@ -451,6 +461,12 @@ export const insertPersonaTemplateSchema = createInsertSchema(personaTemplates).
   updatedAt: true,
 });
 
+export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -484,3 +500,5 @@ export type DigitalPersona = typeof digitalPersonas.$inferSelect;
 export type InsertDigitalPersona = z.infer<typeof insertDigitalPersonaSchema>;
 export type PersonaTemplate = typeof personaTemplates.$inferSelect;
 export type InsertPersonaTemplate = z.infer<typeof insertPersonaTemplateSchema>;
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
