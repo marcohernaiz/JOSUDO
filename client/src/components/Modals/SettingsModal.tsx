@@ -123,7 +123,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, con
   };
 
   const getIntegrationStatus = (serviceName: string) => {
-    return integrations.find(i => i.serviceName === serviceName && i.isActive);
+    // Handle gemini/google name normalization (both are the same service)
+    const normalizedName = serviceName === 'gemini' ? 'google' : serviceName;
+    const alternateName = serviceName === 'google' ? 'gemini' : null;
+    
+    return integrations.find(i => {
+      const matches = i.serviceName === normalizedName || 
+                     (alternateName && i.serviceName === alternateName);
+      return matches && i.isActive;
+    });
   };
 
   const toggleSection = (sectionName: string) => {

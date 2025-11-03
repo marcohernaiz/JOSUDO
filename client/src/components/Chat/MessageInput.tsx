@@ -227,11 +227,16 @@ export const MessageInput: React.FC = () => {
     const provider = providerMap[modelId];
     if (!provider) return false;
     
-    return integrations.some(i => 
-      i.serviceType === 'ai_model' && 
-      i.serviceName === provider && 
-      i.isActive
-    );
+    // Handle gemini/google name normalization (both are the same service)
+    return integrations.some(i => {
+      if (i.serviceType !== 'ai_model' || !i.isActive) return false;
+      
+      // Check for exact match or gemini/google normalization
+      if (provider === 'google') {
+        return i.serviceName === 'google' || i.serviceName === 'gemini';
+      }
+      return i.serviceName === provider;
+    });
   };
 
   // Function to check if a model requires credits

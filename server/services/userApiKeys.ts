@@ -93,15 +93,33 @@ export class UserApiKeysService {
    * Get a user's API key for a specific provider
    */
   async getApiKey(userId: number, provider: string): Promise<string | null> {
-    const result = await db.select()
+    // Normalize provider names (gemini <-> google are the same)
+    const normalizedProvider = provider === 'gemini' ? 'google' : provider;
+    const alternateProvider = provider === 'google' ? 'gemini' : null;
+    
+    // Try to find with normalized provider first, then alternate if needed
+    let result = await db.select()
       .from(integrations)
       .where(and(
         eq(integrations.userId, userId),
         eq(integrations.serviceType, 'ai_model'),
-        eq(integrations.serviceName, provider),
+        eq(integrations.serviceName, normalizedProvider),
         eq(integrations.isActive, true)
       ))
       .limit(1);
+    
+    // If not found and we have an alternate provider, try that
+    if (result.length === 0 && alternateProvider) {
+      result = await db.select()
+        .from(integrations)
+        .where(and(
+          eq(integrations.userId, userId),
+          eq(integrations.serviceType, 'ai_model'),
+          eq(integrations.serviceName, alternateProvider),
+          eq(integrations.isActive, true)
+        ))
+        .limit(1);
+    }
 
     if (result.length === 0) {
       return null;
