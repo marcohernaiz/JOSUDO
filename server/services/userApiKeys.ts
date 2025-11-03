@@ -248,15 +248,18 @@ export class UserApiKeysService {
           }
 
         case 'google':
-          const googleResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
+          // Google Generative Language API expects the key as a query parameter
+          const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${trimmedApiKey}`, {
             headers: {
-              'x-goog-api-key': trimmedApiKey
+              'Content-Type': 'application/json'
             }
           });
           
           if (!googleResponse.ok) {
             const errorText = await googleResponse.text();
-            console.error(`Google API test failed: ${googleResponse.status} ${googleResponse.statusText}`, errorText);
+            console.error(`Google/Gemini API test failed: ${googleResponse.status} ${googleResponse.statusText}`, errorText);
+          } else {
+            console.log(`[Google/Gemini] API key test successful`);
           }
           
           return googleResponse.ok;
