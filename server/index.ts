@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import adminApp from "./admin";
+import { initializeAdminUser } from "./services/adminInit";
 
 const app = express();
 // Increase payload size limits for file uploads (base64 encoded files can be large)
@@ -42,6 +43,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Initialize admin user from environment variables
+  await initializeAdminUser();
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

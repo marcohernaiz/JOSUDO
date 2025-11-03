@@ -24,6 +24,7 @@ import { userGeminiService } from "./services/userGemini";
 import { userGrokService } from "./services/userGrok";
 import { userPerplexityService } from "./services/userPerplexity";
 import { perplexityService } from "./services/perplexity";
+import { registerAdminRoutes } from "./adminRoutes";
 
 // Model configuration for hybrid selection
 const MODEL_CONFIG = {
@@ -196,6 +197,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // Register admin routes
+  registerAdminRoutes(app);
 
   // Passport configuration (only if Google OAuth is available)
   if (hasGoogleAuth) {

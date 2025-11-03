@@ -11,6 +11,8 @@ import NotFound from "@/pages/not-found";
 import { PaymentSuccess } from "./pages/payment-success";
 import DigitalPersonas from "./pages/digital-personas";
 import PersonaAdmin from "./pages/persona-admin";
+import AdminLogin from "./pages/admin-login";
+import AdminDashboard from "./pages/admin-dashboard";
 
 function Router() {
   return (
@@ -19,6 +21,8 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/digital-personas" component={DigitalPersonas} />
       <Route path="/admin/personas" component={PersonaAdmin} />
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/auth" component={Auth} />
       <Route path="/payment-success" component={PaymentSuccess} />
       <Route component={NotFound} />
