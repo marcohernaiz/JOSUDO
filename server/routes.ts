@@ -1781,6 +1781,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
 
         if (serviceConfig.useUserKey) {
+          // Check for special model handling first
+          if (model === "gemini-nano-banana") {
+            // Image generation - handle separately
+            console.log('============================================');
+            console.log('🎨 NANO BANANA IMAGE GENERATION STARTED');
+            console.log('Model:', model);
+            console.log('Prompt:', enhancedMessage.substring(0, 100));
+            console.log('============================================');
+            
+            try {
+              const imageResult = await geminiImageService.generateImage(
+                enhancedMessage,
+                serviceConfig.userApiKey || "",
+                {
+                  aspectRatio: "1:1",
+                  safetySetting: "BLOCK_ONLY_HIGH",
+                  personGeneration: "ALLOW_ALL",
+                },
+              );
+
+              // Always return as base64 data URL
+              let imageDataUrl: string;
+              if (imageResult.mimeType === 'url') {
+                try {
+                  const imageResponse = await fetch(imageResult.imageBase64);
+                  if (imageResponse.ok) {
+                    const arrayBuffer = await imageResponse.arrayBuffer();
+                    const base64 = Buffer.from(arrayBuffer).toString('base64');
+                    const contentType = imageResponse.headers.get('content-type') || 'image/png';
+                    imageDataUrl = `data:${contentType};base64,${base64}`;
+                  } else {
+                    throw new Error('Failed to fetch image from URL');
+                  }
+                } catch (error) {
+                  console.error('[GeminiImage] Error fetching image from URL:', error);
+                  const urlWithKey = `${imageResult.imageBase64}${imageResult.imageBase64.includes('?') ? '&' : '?'}key=${encodeURIComponent(serviceConfig.userApiKey || '')}`;
+                  const imageResponse = await fetch(urlWithKey);
+                  if (imageResponse.ok) {
+                    const arrayBuffer = await imageResponse.arrayBuffer();
+                    const base64 = Buffer.from(arrayBuffer).toString('base64');
+                    const contentType = imageResponse.headers.get('content-type') || 'image/png';
+                    imageDataUrl = `data:${contentType};base64,${base64}`;
+                  } else {
+                    throw new Error('Failed to fetch image even with API key');
+                  }
+                }
+              } else {
+                imageDataUrl = `data:${imageResult.mimeType};base64,${imageResult.imageBase64}`;
+              }
+              
+              const imageMarkdown = `![Generated Image](${imageDataUrl})`;
+              
+              console.log('[Routes] Image markdown (first 200):', imageMarkdown.substring(0, 200));
+              
+              fullResponse = imageMarkdown;
+              res.write(
+                `data: ${JSON.stringify({ content: imageMarkdown, type: "chunk" })}\n\n`,
+              );
+
+              if (userId) {
+                try {
+                  const now = new Date();
+                  const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+                  const estimatedCost = 0.02;
+                  const estimatedTokens = Math.ceil(enhancedMessage.length / 4) + 1000;
+
+                  await storage.createUsageLog({
+                    userId,
+                    chatSessionId: null,
+                    modelUsed: model,
+                    tokensConsumed: estimatedTokens,
+                    creditsDeducted: Math.ceil(estimatedCost * 100),
+                    cost: estimatedCost.toString(),
+                    isPremiumAccount: false,
+                    status: "completed",
+                  });
+                } catch (billingError) {
+                  console.error("[Billing] Failed to log:", billingError);
+                }
+              }
+            } catch (error: any) {
+              console.error("Image generation error:", error);
+              res.write(
+                `data: ${JSON.stringify({ error: error.message, type: "error" })}\n\n`,
+              );
+            }
+          } else {
           // Use user's own API key for streaming
           switch (serviceConfig.provider) {
             case "openai":
@@ -1828,7 +1915,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               break;
 
             case "google":
-              console.log("Starting Gemini streaming with user key...");
+              console.log('============================================');
+              console.log('📝 GEMINI TEXT MODEL STARTED (NOT IMAGE)');
+              console.log('Model:', model);
+              console.log('Provider:', serviceConfig.provider);
+              console.log('============================================');
               for await (const chunk of userGeminiService.sendMessageStream(
                 enhancedMessage,
                 model,
@@ -1851,7 +1942,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             case "gemini-nano-banana":
               // Image generation doesn't stream, generate and return immediately
-              console.log("Starting Gemini Nano Banana image generation...");
+              console.log('============================================');
+              console.log('🎨 NANO BANANA IMAGE GENERATION STARTED');
+              console.log('Model:', model);
+              console.log('Provider:', serviceConfig.provider);
+              console.log('Prompt:', enhancedMessage.substring(0, 100));
+              console.log('============================================');
               try {
                 const imageResult = await geminiImageService.generateImage(
                   enhancedMessage,
@@ -1896,6 +1992,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 }
                 
                 const imageMarkdown = `![Generated Image](${imageDataUrl})`;
+                
+                console.log('[Routes] Image markdown being sent (first 200 chars):', imageMarkdown.substring(0, 200));
+                console.log('[Routes] Image data URL starts with:', imageDataUrl.substring(0, 50));
                 
                 // Send as a single chunk
                 fullResponse = imageMarkdown;
@@ -1942,6 +2041,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   `data: ${JSON.stringify({ content: "Error: " + errorMessage, type: "error" })}\n\n`,
                 );
               }
+              break;
+
+            case "gemini-nano-banana":
+              // This case is now handled before the switch statement
+              // Left here for backwards compatibility but should never be reached
+              throw new Error("Gemini Nano Banana should be handled before this switch");
               break;
 
             case "xai":
@@ -1993,6 +2098,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 `Unsupported provider for user key streaming: ${serviceConfig.provider}`,
               );
           }
+          } // Close else block for gemini-nano-banana check
         } else {
           // Use Replicate or our service for streaming
           switch (model) {

@@ -152,7 +152,12 @@ class GeminiImageService {
 
       const data = await response.json();
       
-      console.log('[GeminiImage] Full API response:', JSON.stringify(data, null, 2));
+      console.log('[GeminiImage] =============================================');
+      console.log('[GeminiImage] Model used:', modelName);
+      console.log('[GeminiImage] Response status:', response.status);
+      console.log('[GeminiImage] Full API response:');
+      console.log(JSON.stringify(data, null, 2));
+      console.log('[GeminiImage] =============================================');
 
       // Extract image from response
       // The response structure may vary, so we check multiple possible locations
