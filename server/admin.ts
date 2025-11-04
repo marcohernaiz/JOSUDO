@@ -10,22 +10,42 @@ const adminApp = express();
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'josudo2025!';
 
-// Encryption for secrets
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'josudo-default-key-32-characters!!';
+// Encryption for secrets - proper AES-256-CBC with random IV
 const ALGORITHM = 'aes-256-cbc';
 
+// Require ENCRYPTION_KEY to be set - no defaults for security
+if (!process.env.ENCRYPTION_KEY) {
+  console.error('FATAL: ENCRYPTION_KEY environment variable is required for secure encryption');
+  console.error('Please set a 32-character random string as ENCRYPTION_KEY');
+  process.exit(1);
+}
+
+const ENCRYPTION_KEY_RAW = process.env.ENCRYPTION_KEY;
+
+// Ensure key is exactly 32 bytes for AES-256
+if (ENCRYPTION_KEY_RAW.length !== 32) {
+  console.error('FATAL: ENCRYPTION_KEY must be exactly 32 characters for AES-256');
+  console.error(`Current length: ${ENCRYPTION_KEY_RAW.length}, required: 32`);
+  process.exit(1);
+}
+
+const ENCRYPTION_KEY = Buffer.from(ENCRYPTION_KEY_RAW, 'utf-8');
+
 export function encrypt(text: string): string {
-  const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipher(ALGORITHM, ENCRYPTION_KEY);
+  const iv = crypto.randomBytes(16); // Generate random IV
+  const cipher = crypto.createCipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
   let encrypted = cipher.update(text, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  return iv.toString('hex') + ':' + encrypted;
+  return iv.toString('hex') + ':' + encrypted; // Store IV with encrypted data
 }
 
 export function decrypt(text: string): string {
   const [ivHex, encryptedText] = text.split(':');
-  const iv = Buffer.from(ivHex, 'hex');
-  const decipher = crypto.createDecipher(ALGORITHM, ENCRYPTION_KEY);
+  if (!ivHex || !encryptedText) {
+    throw new Error('Invalid encrypted data format');
+  }
+  const iv = Buffer.from(ivHex, 'hex'); // Use stored IV
+  const decipher = crypto.createDecipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
   let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
   return decrypted;
