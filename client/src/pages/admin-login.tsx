@@ -73,7 +73,6 @@ export default function AdminLogin() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
-                required
                 className="mt-2"
                 data-testid="input-admin-username"
               />
@@ -89,7 +88,6 @@ export default function AdminLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                required
                 className="mt-2"
                 data-testid="input-admin-password"
               />

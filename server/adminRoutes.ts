@@ -63,8 +63,9 @@ export function registerAdminRoutes(app: Express) {
 
   // Check admin session
   app.get('/api/admin/session', (req: Request, res: Response) => {
+    // Check session-based admin authentication
     if (req.session.adminUserId) {
-      res.json({
+      return res.json({
         authenticated: true,
         admin: {
           id: req.session.adminUserId,
@@ -72,9 +73,21 @@ export function registerAdminRoutes(app: Express) {
           email: req.session.adminEmail,
         },
       });
-    } else {
-      res.json({ authenticated: false });
     }
+    
+    // Check OIDC-based admin authentication (for testing)
+    if (req.user && (req.user as any).isAdmin === true) {
+      return res.json({
+        authenticated: true,
+        admin: {
+          id: 0,
+          username: (req.user as any).email || (req.user as any).sub || 'oidc-admin',
+          email: (req.user as any).email,
+        },
+      });
+    }
+    
+    res.json({ authenticated: false });
   });
 
   // === ADMIN USERS MANAGEMENT ===
