@@ -51,16 +51,29 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
+- November 4, 2025. Replaced Groq with Replicate in LLM keys and made scrollbars always visible
+  - **LLM Provider Changes**: Removed Groq from LLM keys, keeping Replicate
+    - Removed GROQ_API_KEY from frontend LLM_KEYS array and backend seeding
+    - Deleted GROQ_API_KEY from database
+    - Added REPLICATE_API_TOKEN placeholder (r8_placeholder) to backend seeding
+    - Final LLM keys list (8 total): OpenAI, Anthropic, Google, Grok, Perplexity, DeepSeek, OpenRouter, Replicate
+  - **Visible Scrollbars**: Changed overflow-y-auto to overflow-y-scroll for always-visible scrollbars
+    - LLM Keys section: overflow-y-scroll with max-h-[50vh]
+    - Other Keys section: overflow-y-scroll with max-h-[50vh]
+    - Persona Templates: overflow-y-scroll with max-h-[70vh]
+    - Scrollbars now always visible regardless of content height
+  - **Database State**: 8 LLM API keys + other platform keys, 27 active persona templates
+  - **E2E Testing**: Verified 8 LLM keys without Groq, Replicate present, scrollbars visible on all tabs
+  - Modified files: ApiKeysTab.tsx, PersonaTemplatesTab.tsx, server/admin.ts
+
 - November 4, 2025. Completed admin dashboard with automatic LLM provider placeholder seeding
   - **Automatic Placeholder Seeding**: Updated seedPlatformKeys() to automatically insert placeholder values for missing LLM provider keys
-    - Placeholders created for: Anthropic (sk-ant-placeholder), Google (AIza-placeholder), Grok (xai-placeholder), Perplexity (pplx-placeholder), DeepSeek (sk-placeholder), Groq (gsk_placeholder)
+    - Placeholders created for: Anthropic (sk-ant-placeholder), Google (AIza-placeholder), Grok (xai-placeholder), Perplexity (pplx-placeholder), DeepSeek (sk-placeholder)
     - All placeholder keys stored unencrypted by default (isEncrypted: false)
     - Seeding runs on every app startup, ensuring keys always appear in admin UI
-  - **Database Verification**: 11 total API keys confirmed present (9 LLM providers + 2 other platform keys)
   - **Scrolling Improvements**: Both admin tabs now have proper scrollable containers with sticky headers
     - API Keys tab: max-h-[50vh] scrollable area with sticky table headers
     - Persona Templates tab: max-h-[70vh] scrollable area with sticky table headers
-  - **E2E Testing Verified**: All 9 LLM keys, 15 total keys, and 27 persona templates display correctly with full scrolling functionality
   - Backend seeding logic: server/admin.ts seedPlatformKeys() function
   - Frontend components: ApiKeysTab.tsx (LLM/Other sections), PersonaTemplatesTab.tsx
 
