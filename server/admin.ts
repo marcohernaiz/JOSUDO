@@ -70,6 +70,50 @@ async function setSetting(key: string, value: string, isEncrypted: boolean = tru
 // Cache for frequently accessed settings (still keep some in-memory for performance)
 let settingsCache: Record<string, string> = {};
 
+// Seed initial platform API keys into database
+async function seedPlatformKeys() {
+  try {
+    // Define platform keys to seed from environment
+    const platformKeys = [
+      'OPENAI_API_KEY',
+      'ANTHROPIC_API_KEY',
+      'GOOGLE_API_KEY',
+      'STRIPE_SECRET_KEY',
+      'STRIPE_PUBLIC_KEY',
+      'TESTING_STRIPE_SECRET_KEY',
+      'TESTING_VITE_STRIPE_PUBLIC_KEY',
+      'DATABASE_URL',
+      'SESSION_SECRET',
+      'ADMIN_USERNAME',
+      'ADMIN_PASSWORD',
+    ];
+
+    for (const key of platformKeys) {
+      const envValue = process.env[key];
+      if (!envValue) continue; // Skip if not set in environment
+
+      // Check if key already exists in database
+      const [existing] = await db
+        .select()
+        .from(appSettings)
+        .where(eq(appSettings.key, key))
+        .limit(1);
+
+      if (!existing) {
+        // Seed the key into database
+        await db.insert(appSettings).values({
+          key,
+          value: envValue,
+          isEncrypted: true,
+        });
+        console.log(`✓ Seeded platform key: ${key}`);
+      }
+    }
+  } catch (error) {
+    console.error('Error seeding platform keys:', error);
+  }
+}
+
 // Load settings into cache on startup
 async function loadSettings() {
   try {
@@ -87,8 +131,13 @@ async function loadSettings() {
   }
 }
 
-// Initialize settings cache
-loadSettings();
+// Initialize settings cache and seed platform keys
+async function initializeSettings() {
+  await seedPlatformKeys();
+  await loadSettings();
+}
+
+initializeSettings();
 
 adminApp.use(express.json({ limit: '50mb' }));
 adminApp.use(express.urlencoded({ extended: true, limit: '50mb' }));
