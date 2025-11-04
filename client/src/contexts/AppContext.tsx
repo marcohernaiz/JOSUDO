@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import {
   User,
   Integration,
@@ -24,6 +25,7 @@ export const useAppContext = () => {
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const [location] = useLocation();
   const [activeSession, setActiveSession] = useState<ChatSession | null>(null);
   // Add chat messages state
   const [messages, setMessages] = useState<import("../types").ChatMessage[]>(
@@ -46,11 +48,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     expandedSections?: Record<string, boolean>;
   } | null>(null);
 
-  // Query user authentication status
+  // Skip user authentication for admin routes
+  const isAdminRoute = location.startsWith('/admin/');
+
+  // Query user authentication status (skip for admin routes)
   const { data: user, isLoading: isUserLoading } = useQuery<User>({
     queryKey: ["/api/auth/user"],
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !isAdminRoute, // Don't fetch user data for admin pages
   });
 
   // Only fetch user-specific data if authenticated

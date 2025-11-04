@@ -211,7 +211,7 @@ export function registerAdminRoutes(app: Express) {
   // === API KEYS MANAGEMENT ===
 
   // Get environment variables (Replit Secrets)
-  app.get('/api/admin/env-vars', async (req: Request, res: Response) => {
+  app.get('/api/admin/env-vars', requireAdmin, async (req: Request, res: Response) => {
     try {
       // Return non-sensitive environment variables
       const envVars = Object.keys(process.env)
@@ -245,8 +245,8 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Get all API keys (authentication disabled for direct access)
-  app.get('/api/admin/api-keys', async (req: Request, res: Response) => {
+  // Get all API keys
+  app.get('/api/admin/api-keys', requireAdmin, async (req: Request, res: Response) => {
     try {
       const keys = await db.select().from(appSettings);
       res.json(keys);
@@ -256,8 +256,8 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Create or update API key (authentication disabled for direct access)
-  app.post('/api/admin/api-keys', async (req: Request, res: Response) => {
+  // Create or update API key
+  app.post('/api/admin/api-keys', requireAdmin, async (req: Request, res: Response) => {
     try {
       const { key, value, isEncrypted } = req.body;
 
@@ -307,8 +307,8 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Delete API key (authentication disabled for direct access)
-  app.delete('/api/admin/api-keys/:id', async (req: Request, res: Response) => {
+  // Delete API key
+  app.delete('/api/admin/api-keys/:id', requireAdmin, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       await db.delete(appSettings).where(eq(appSettings.id, id));
@@ -321,8 +321,8 @@ export function registerAdminRoutes(app: Express) {
 
   // === PERSONA TEMPLATES MANAGEMENT ===
 
-  // Get all persona templates (authentication disabled for direct access)
-  app.get('/api/admin/persona-templates-full', async (req: Request, res: Response) => {
+  // Get all persona templates
+  app.get('/api/admin/persona-templates-full', requireAdmin, async (req: Request, res: Response) => {
     try {
       const templates = await db.select().from(personaTemplates);
       res.json(templates);
@@ -332,8 +332,8 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Create persona template (authentication disabled for direct access)
-  app.post('/api/admin/persona-templates', async (req: Request, res: Response) => {
+  // Create persona template
+  app.post('/api/admin/persona-templates', requireAdmin, async (req: Request, res: Response) => {
     try {
       const templateData = req.body;
 
@@ -349,8 +349,8 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Update persona template (authentication disabled for direct access)
-  app.patch('/api/admin/persona-templates/:id', async (req: Request, res: Response) => {
+  // Update persona template
+  app.patch('/api/admin/persona-templates/:id', requireAdmin, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       const templateData = req.body;
@@ -375,8 +375,8 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Delete persona template (authentication disabled for direct access)
-  app.delete('/api/admin/persona-templates/:id', async (req: Request, res: Response) => {
+  // Delete persona template
+  app.delete('/api/admin/persona-templates/:id', requireAdmin, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       await db.delete(personaTemplates).where(eq(personaTemplates.id, id));

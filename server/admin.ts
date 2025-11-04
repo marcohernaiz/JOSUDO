@@ -159,8 +159,11 @@ adminApp.post('/admin/login', (req: any, res) => {
   }
 });
 
-// Dashboard
-adminApp.get('/admin/dashboard', requireAdminAuth, (req, res) => {
+// Old HTML Dashboard - DISABLED to allow React SPA to handle /admin/dashboard
+// The React-based admin dashboard is now the primary admin interface
+// This old HTML route is commented out to prevent conflicts with the React app
+/*
+adminApp.get('/admin/dashboard', (req, res) => {
   const hasOpenAI = !!settingsCache.OPENAI_API_KEY;
   const hasStripeSecret = !!settingsCache.STRIPE_SECRET_KEY;
   const hasStripePublic = !!settingsCache.VITE_STRIPE_PUBLIC_KEY;
@@ -254,8 +257,9 @@ adminApp.get('/admin/dashboard', requireAdminAuth, (req, res) => {
     </html>
   `);
 });
+*/
 
-// Update keys handler
+// Update keys handler (old HTML admin - keep authentication for security)
 adminApp.post('/admin/update-keys', requireAdminAuth, async (req: any, res) => {
   const { OPENAI_API_KEY, REPLICATE_API_TOKEN, STRIPE_SECRET_KEY, VITE_STRIPE_PUBLIC_KEY } = req.body;
   
