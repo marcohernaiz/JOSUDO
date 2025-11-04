@@ -51,19 +51,26 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
-- November 3, 2025. Implemented secure admin backend for platform management
+- November 4, 2025. Implemented secure admin backend for platform management
   - Created secure admin authentication system using environment variables (ADMIN_USERNAME, ADMIN_PASSWORD)
-  - Removed hardcoded credential fallbacks to prevent security vulnerabilities
+  - **Security Fix**: Removed hardcoded credential fallbacks to prevent security vulnerabilities
+  - Admin credentials now strictly required via environment variables - no default fallbacks
+  - Application gracefully warns and exits admin initialization if credentials not configured
+  - Implemented dual authentication support:
+    - Traditional username/password authentication with bcrypt hashing (production)
+    - OIDC claim-based authentication for testing (checks for isAdmin: true claim)
   - Implemented admin dashboard with three management tabs:
     - Admin Users Management: Create, edit, delete admin accounts with bcrypt password hashing
     - API Keys Management: Configure platform-wide API keys and settings (replacing hardcoded values)
     - Persona Templates Management: Customize Digital Persona templates visible to all users
   - Admin routes accessible at /admin/login and /admin/dashboard
-  - Added adminUsers database table with secure password storage
+  - Added adminUsers database table (admin_users) with secure password storage
   - Implemented session-based admin authentication separate from user sessions
+  - Admin middleware (requireAdmin) checks both session auth and OIDC claims
+  - Admin session endpoint supports both authentication methods
   - Admin panel features Material Design-inspired interface with Linear's minimalist clarity
-  - Application gracefully warns and disables admin features if environment variables are not set
   - All admin operations require authentication and use middleware protection
+  - Successfully tested with environment variable credentials
 
 - September 30, 2025. Enhanced Digital Personas page with hover functionality
   - Added hover overlay on persona cards with "Use" and "Configure" action buttons
