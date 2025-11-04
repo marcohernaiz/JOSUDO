@@ -49,6 +49,10 @@ export default function ApiKeysTab() {
     queryKey: ['/api/admin/api-keys'],
   });
 
+  const { data: envVars = [], isLoading: envLoading } = useQuery<any[]>({
+    queryKey: ['/api/admin/env-vars'],
+  });
+
   const createMutation = useMutation({
     mutationFn: (data: any) => apiRequest('/api/admin/api-keys', 'POST', data),
     onSuccess: () => {
@@ -120,21 +124,81 @@ export default function ApiKeysTab() {
     return value.substring(0, 4) + '••••••••' + value.substring(value.length - 4);
   };
 
-  if (isLoading) {
+  if (isLoading || envLoading) {
     return <div className="text-center py-8">Loading...</div>;
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900">API Keys & Settings</h2>
-        <Button onClick={() => setIsCreateOpen(true)} data-testid="button-create-api-key">
-          <Plus className="w-4 h-4 mr-2" />
-          Add API Key
-        </Button>
+    <div className="space-y-6">
+      {/* Environment Variables from Replit Secrets */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900">Platform Environment Variables</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Environment variables from Replit Secrets (read-only, manage via Secrets tab)
+            </p>
+          </div>
+        </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Variable Name</TableHead>
+              <TableHead>Value</TableHead>
+              <TableHead>Source</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {envVars.map((envVar: any) => (
+              <TableRow key={envVar.id}>
+                <TableCell className="font-medium font-mono text-sm">{envVar.key}</TableCell>
+                <TableCell className="font-mono text-sm">
+                  <div className="flex items-center space-x-2">
+                    <span>
+                      {visibleValues.has(envVar.id) ? envVar.value : maskValue(envVar.value)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleValueVisibility(envVar.id)}
+                      className="h-6 w-6 p-0"
+                    >
+                      {visibleValues.has(envVar.id) ? (
+                        <EyeOff className="w-3 h-3" />
+                      ) : (
+                        <Eye className="w-3 h-3" />
+                      )}
+                    </Button>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                    Replit Secrets
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
 
-      <Table>
+      {/* Database-stored API Keys */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900">Database-stored API Keys</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Application-specific API keys stored in the database
+            </p>
+          </div>
+          <Button onClick={() => setIsCreateOpen(true)} data-testid="button-create-api-key">
+            <Plus className="w-4 h-4 mr-2" />
+            Add API Key
+          </Button>
+        </div>
+
+        <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Key Name</TableHead>
@@ -192,10 +256,18 @@ export default function ApiKeysTab() {
               </TableCell>
             </TableRow>
           ))}
+          {apiKeys.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center text-gray-500 py-8">
+                No database-stored API keys yet. Click "Add API Key" to create one.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
+      </div>
 
-      {/* Create/Update Dialog */}
+{/* Create/Update Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent>
           <DialogHeader>
@@ -282,3 +354,4 @@ export default function ApiKeysTab() {
     </div>
   );
 }
+
