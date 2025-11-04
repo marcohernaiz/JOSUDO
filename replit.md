@@ -59,18 +59,19 @@ The application is structured into distinct service layers:
   - Implemented dual authentication support:
     - Traditional username/password authentication with bcrypt hashing (production)
     - OIDC claim-based authentication for testing (checks for isAdmin: true claim)
-  - Implemented admin dashboard with three management tabs:
-    - Admin Users Management: Create, edit, delete admin accounts with bcrypt password hashing
-    - API Keys Management: Configure platform-wide API keys and settings (replacing hardcoded values)
-    - Persona Templates Management: Customize Digital Persona templates visible to all users
+  - Simplified admin dashboard with 2 tabs:
+    - Platform API Keys: Displays both Replit environment variables (read-only) and database-stored API keys (editable)
+    - Digital Persona Templates: Create, edit, delete persona templates visible to all users
+  - **Security Architecture**:
+    - All admin API endpoints protected by requireAdmin middleware
+    - Middleware supports both session-based and OIDC-based authentication
+    - Direct dashboard access enabled for development (/admin/dashboard)
+    - Legacy HTML admin dashboard routes disabled to prevent conflicts with React SPA
+    - Frontend AppContext skips user auth checks on /admin/* routes
   - Admin routes accessible at /admin/login and /admin/dashboard
   - Added adminUsers database table (admin_users) with secure password storage
-  - Implemented session-based admin authentication separate from user sessions
-  - Admin middleware (requireAdmin) checks both session auth and OIDC claims
-  - Admin session endpoint supports both authentication methods
   - Admin panel features Material Design-inspired interface with Linear's minimalist clarity
-  - All admin operations require authentication and use middleware protection
-  - Successfully tested with environment variable credentials
+  - Successfully tested with OIDC authentication (isAdmin: true claim)
 
 - September 30, 2025. Enhanced Digital Personas page with hover functionality
   - Added hover overlay on persona cards with "Use" and "Configure" action buttons
