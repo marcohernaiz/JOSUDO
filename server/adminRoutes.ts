@@ -14,6 +14,8 @@ export function registerAdminRoutes(app: Express) {
     try {
       const { username, password } = req.body;
 
+      console.log('Login attempt - Username:', username);
+
       if (!username || !password) {
         return res.status(400).json({ error: 'Username and password required' });
       }
@@ -26,11 +28,15 @@ export function registerAdminRoutes(app: Express) {
         .limit(1);
 
       if (!adminUser || !adminUser.isActive) {
+        console.log('Admin user not found or inactive');
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
+      console.log('Admin user found, verifying password...');
       // Verify password
       const isValid = await bcrypt.compare(password, adminUser.passwordHash);
+      console.log('Password verification result:', isValid);
+      
       if (!isValid) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
