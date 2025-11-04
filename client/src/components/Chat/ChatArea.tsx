@@ -12,15 +12,20 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
   // Enhanced regex to detect various image URL formats
   const imageUrlRegex = /https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp|svg|bmp|tiff)(?:\?[^\s]*)?/gi;
   
-  // Markdown image pattern: ![alt](url)
-  const markdownImageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+  // Markdown image pattern: ![alt](url) - this should match data URLs too
+  // Updated to handle long base64 strings - use non-greedy but allow very long matches
+  // The regex will match until it finds the closing parenthesis, even with very long base64 strings
+  const markdownImageRegex = /!\[([^\]]*)\]\(([^)]+)\)/gs; // 's' flag allows . to match newlines if needed
   
   // Also detect common AI image generation patterns
   const aiImagePatterns = [
     /https?:\/\/[^\s]*(?:replicate|openai|midjourney|dalle|stablediffusion|huggingface)[^\s]*\.(?:png|jpg|jpeg|gif|webp)/gi,
     /https?:\/\/[^\s]*\/[^\s]*\.(?:png|jpg|jpeg|gif|webp)/gi,
-    /data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/gi
+    /data:image\/[^;]+;base64,[A-Za-z0-9+/=\s]+/gi // Allow whitespace in base64 (though it shouldn't have it)
   ];
+  
+  // Specifically detect data URLs (base64 images)
+  const dataUrlRegex = /data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/gi;
 
   const handleImageError = (url: string) => {
     setImageErrors(prev => new Set(Array.from(prev).concat(url)));
@@ -34,15 +39,30 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
     const allMatches: Array<{ url: string; index: number; length: number; alt?: string; isMarkdown?: boolean }> = [];
     
     // Check markdown images first (![alt](url))
+    // Reset regex lastIndex to avoid issues
+    markdownImageRegex.lastIndex = 0;
     let markdownMatch;
     while ((markdownMatch = markdownImageRegex.exec(text)) !== null) {
-      allMatches.push({
-        url: markdownMatch[2],
-        index: markdownMatch.index,
-        length: markdownMatch[0].length,
-        alt: markdownMatch[1],
-        isMarkdown: true
-      });
+      const url = markdownMatch[2];
+      // Check if it's a data URL (base64 image)
+      if (url.startsWith('data:image/')) {
+        allMatches.push({
+          url: url,
+          index: markdownMatch.index,
+          length: markdownMatch[0].length,
+          alt: markdownMatch[1],
+          isMarkdown: true
+        });
+      } else {
+        // Regular URL
+        allMatches.push({
+          url: url,
+          index: markdownMatch.index,
+          length: markdownMatch[0].length,
+          alt: markdownMatch[1],
+          isMarkdown: true
+        });
+      }
     }
     
     // Check main image regex

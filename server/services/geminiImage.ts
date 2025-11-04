@@ -25,8 +25,30 @@ class GeminiImageService {
   }> {
     try {
       // Use the Gemini 2.5 Flash Image model (Nano Banana)
-      // The model name is typically "gemini-2.5-flash-image-exp" or similar
-      const modelName = 'gemini-2.5-flash-image-exp';
+      // Try multiple possible model names
+      const possibleModelNames = [
+        'gemini-2.5-flash-image-exp',
+        'gemini-2.5-flash-image',
+        'gemini-2.5-flash-image-preview',
+        'gemini-2.0-flash-image-exp',
+        'gemini-exp-1206'
+      ];
+      
+      let modelName = possibleModelNames[0];
+      let lastError: Error | null = null;
+      
+      // Try each model name until one works
+      for (const name of possibleModelNames) {
+        try {
+          modelName = name;
+          console.log(`[GeminiImage] Trying model: ${name}`);
+          // We'll use this in the request below
+          break; // For now, use first one, but we can implement retry logic if needed
+        } catch (error) {
+          lastError = error as Error;
+          continue;
+        }
+      }
       
       const requestBody: any = {
         contents: [
@@ -76,7 +98,8 @@ class GeminiImageService {
         requestBody.generationConfig.personGeneration = options.personGeneration;
       }
 
-      const response = await fetch(
+      // Try the primary model first
+      let response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`,
         {
           method: 'POST',
@@ -86,6 +109,40 @@ class GeminiImageService {
           body: JSON.stringify(requestBody),
         }
       );
+      
+      // If the first model fails, try alternative endpoints
+      if (!response.ok && modelName === possibleModelNames[0]) {
+        console.log(`[GeminiImage] Model ${modelName} failed (${response.status}), trying alternatives...`);
+        const errorText = await response.text();
+        console.log(`[GeminiImage] Error:`, errorText);
+        
+        for (const altName of possibleModelNames.slice(1)) {
+          try {
+            console.log(`[GeminiImage] Trying alternative model: ${altName}`);
+            response = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${altName}:generateContent?key=${encodeURIComponent(apiKey)}`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+              }
+            );
+            if (response.ok) {
+              modelName = altName;
+              console.log(`[GeminiImage] ✅ Successfully using model: ${altName}`);
+              break;
+            } else {
+              const altError = await response.text();
+              console.log(`[GeminiImage] Model ${altName} also failed:`, altError.substring(0, 200));
+            }
+          } catch (error) {
+            console.log(`[GeminiImage] Model ${altName} threw error:`, error);
+            continue;
+          }
+        }
+      }
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -115,13 +172,26 @@ class GeminiImageService {
         mimeType = data.images[0].mimeType || 'image/png';
       }
       // Check for URL in text content or other fields
-      else if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        const text = data.candidates[0].content.parts[0].text;
-        // Try to extract URL from text
-        const urlMatch = text.match(/https?:\/\/[^\s]+/);
-        if (urlMatch) {
-          imageUrl = urlMatch[0];
-          console.log('[GeminiImage] Found URL in response text:', imageUrl);
+      // Also check all parts, not just the first one
+      if (!imageBase64 && data.candidates?.[0]?.content?.parts) {
+        for (const part of data.candidates[0].content.parts) {
+          if (part.text) {
+            const text = part.text;
+            // Try to extract URL from text (more comprehensive pattern)
+            const urlMatch = text.match(/https?:\/\/[^\s\)]+/);
+            if (urlMatch) {
+              imageUrl = urlMatch[0];
+              console.log('[GeminiImage] Found URL in response text:', imageUrl);
+              break;
+            }
+          }
+          // Also check for inlineData in any part
+          if (part.inlineData) {
+            imageBase64 = part.inlineData.data;
+            mimeType = part.inlineData.mimeType || 'image/png';
+            console.log('[GeminiImage] Found inlineData in part');
+            break;
+          }
         }
       }
 
@@ -129,18 +199,39 @@ class GeminiImageService {
       if (imageUrl && !imageBase64) {
         try {
           console.log('[GeminiImage] Fetching image from URL and converting to base64...');
-          const imageResponse = await fetch(imageUrl);
+          console.log('[GeminiImage] Image URL:', imageUrl);
+          
+          // First try without API key
+          let imageResponse = await fetch(imageUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0',
+            }
+          });
+          
+          // If that fails, try with API key
+          if (!imageResponse.ok) {
+            console.log('[GeminiImage] First fetch failed, trying with API key...');
+            const urlWithKey = `${imageUrl}${imageUrl.includes('?') ? '&' : '?'}key=${encodeURIComponent(apiKey)}`;
+            imageResponse = await fetch(urlWithKey, {
+              headers: {
+                'User-Agent': 'Mozilla/5.0',
+              }
+            });
+          }
+          
           if (imageResponse.ok) {
             const arrayBuffer = await imageResponse.arrayBuffer();
             imageBase64 = Buffer.from(arrayBuffer).toString('base64');
             mimeType = imageResponse.headers.get('content-type') || 'image/png';
-            console.log('[GeminiImage] Successfully converted URL to base64');
+            console.log('[GeminiImage] Successfully converted URL to base64, size:', imageBase64.length);
+          } else {
+            console.error('[GeminiImage] Failed to fetch image, status:', imageResponse.status);
+            throw new Error(`Failed to fetch image: ${imageResponse.status} ${imageResponse.statusText}`);
           }
-        } catch (fetchError) {
+        } catch (fetchError: any) {
           console.error('[GeminiImage] Failed to fetch image from URL:', fetchError);
-          // If fetch fails, try using the URL directly with the API key
-          // Some Gemini APIs return URLs that require authentication
-          imageUrl = `${imageUrl}${imageUrl.includes('?') ? '&' : '?'}key=${encodeURIComponent(apiKey)}`;
+          // Re-throw so the route handler can try again
+          throw new Error(`Failed to fetch image from URL: ${fetchError.message}`);
         }
       }
 
