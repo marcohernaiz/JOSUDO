@@ -25,6 +25,7 @@ import { userGrokService } from "./services/userGrok";
 import { userPerplexityService } from "./services/userPerplexity";
 import { perplexityService } from "./services/perplexity";
 import { geminiImageService } from "./services/geminiImage";
+import { registerAdminRoutes } from "./adminRoutes";
 
 // Model configuration for hybrid selection
 const MODEL_CONFIG = {
@@ -38,7 +39,7 @@ const MODEL_CONFIG = {
     allowUserKey: false,
     replicateModel: null,
   },
-  "josudo": {
+  josudo: {
     provider: "openrouter",
     allowUserKey: false,
     replicateModel: null,
@@ -203,6 +204,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Register admin routes
+  registerAdminRoutes(app);
+
   // Passport configuration (only if Google OAuth is available)
   if (hasGoogleAuth) {
     // Get the current domain for the callback URL
@@ -213,9 +217,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     };
 
     // Determine callback URL based on environment
-    const callbackURL = process.env.NODE_ENV === "production" 
-      ? (process.env.GOOGLE_CALLBACK_URL || "https://josudo.org/api/auth/google/callback")
-      : (process.env.GOOGLE_CALLBACK_URL || "http://localhost:5000/api/auth/google/callback");
+    const callbackURL =
+      process.env.NODE_ENV === "production"
+        ? process.env.GOOGLE_CALLBACK_URL ||
+          "https://josudo.org/api/auth/google/callback"
+        : process.env.GOOGLE_CALLBACK_URL ||
+          "http://localhost:5000/api/auth/google/callback";
 
     passport.use(
       new GoogleStrategy(
@@ -905,7 +912,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             case "claude-3-5-sonnet":
               // Check if user has their own Anthropic API key
               if (userId && integration) {
-                const userApiKey = await userApiKeysService.getApiKey(userId, 'anthropic');
+                const userApiKey = await userApiKeysService.getApiKey(
+                  userId,
+                  "anthropic",
+                );
                 if (userApiKey) {
                   serviceResponse = await anthropicService.sendMessage(
                     message,
@@ -915,7 +925,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     {
                       maxTokens: thinkingMode === "research" ? 8192 : 4096,
                       temperature: thinkingMode === "deep" ? 0.3 : 0.7,
-                    }
+                    },
                   );
                 } else {
                   // Use admin's key via claudeService
@@ -1079,11 +1089,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             case "gemini-nano-banana":
               // Check if user has API key
-              const geminiImageApiKey = await userApiKeysService.getApiKey(userId, 'google');
+              const geminiImageApiKey = await userApiKeysService.getApiKey(
+                userId,
+                "google",
+              );
               if (!geminiImageApiKey) {
                 return res.status(400).json({
                   error: "API key required",
-                  message: "Please add your Gemini API key in Settings > Integrations > AI Models",
+                  message:
+                    "Please add your Gemini API key in Settings > Integrations > AI Models",
                 });
               }
 
@@ -1093,22 +1107,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   message,
                   geminiImageApiKey,
                   {
-                    aspectRatio: '1:1', // Default square image
-                    safetySetting: 'BLOCK_ONLY_HIGH',
-                    personGeneration: 'ALLOW_ALL',
-                  }
+                    aspectRatio: "1:1", // Default square image
+                    safetySetting: "BLOCK_ONLY_HIGH",
+                    personGeneration: "ALLOW_ALL",
+                  },
                 );
 
                 // Return image as base64 data URL
                 const imageDataUrl = `data:${imageResult.mimeType};base64,${imageResult.imageBase64}`;
-                
+
                 response = {
-                  choices: [{
-                    message: {
-                      content: `![Generated Image](${imageDataUrl})`,
-                      role: "assistant",
-                    }
-                  }],
+                  choices: [
+                    {
+                      message: {
+                        content: `![Generated Image](${imageDataUrl})`,
+                        role: "assistant",
+                      },
+                    },
+                  ],
                 };
 
                 // Estimate tokens (rough calculation for image generation)
@@ -1145,7 +1161,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 console.error("Gemini Image generation error:", error);
                 return res.status(500).json({
                   error: "Image generation failed",
-                  message: error.message || "Failed to generate image. Please try again.",
+                  message:
+                    error.message ||
+                    "Failed to generate image. Please try again.",
                 });
               }
               break;
@@ -1663,13 +1681,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             // Check if file content is too large (limit to 50KB per file for TEXT files only)
             // Images are base64 encoded and should not be truncated
-            const isImage = file.name.endsWith(".jpg") || 
-                           file.name.endsWith(".jpeg") || 
-                           file.name.endsWith(".png") || 
-                           file.name.endsWith(".gif") || 
-                           file.name.endsWith(".webp") || 
-                           file.name.endsWith(".bmp");
-            
+            const isImage =
+              file.name.endsWith(".jpg") ||
+              file.name.endsWith(".jpeg") ||
+              file.name.endsWith(".png") ||
+              file.name.endsWith(".gif") ||
+              file.name.endsWith(".webp") ||
+              file.name.endsWith(".bmp");
+
             if (!isImage && content.length > 50000) {
               console.log(
                 `⚠️ Text file ${file.name} is too large (${content.length} chars), truncating to 50KB`,
@@ -1702,8 +1721,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
 
         // For vision-capable models using Replicate, don't truncate - images will be extracted and saved
-        const isReplicateVisionModel = model === "gpt-5" || model === "claude-3-5-sonnet-replicate";
-        
+        const isReplicateVisionModel =
+          model === "gpt-5" || model === "claude-3-5-sonnet-replicate";
+
         // Check if total message is too large (but allow full size for Replicate vision models)
         if (!isReplicateVisionModel && enhancedMessage.length > 100000) {
           console.log(
@@ -1808,15 +1828,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   enhancedMessage,
                   serviceConfig.userApiKey || "",
                   {
-                    aspectRatio: '1:1',
-                    safetySetting: 'BLOCK_ONLY_HIGH',
-                    personGeneration: 'ALLOW_ALL',
-                  }
+                    aspectRatio: "1:1",
+                    safetySetting: "BLOCK_ONLY_HIGH",
+                    personGeneration: "ALLOW_ALL",
+                  },
                 );
 
                 const imageDataUrl = `data:${imageResult.mimeType};base64,${imageResult.imageBase64}`;
                 const imageMarkdown = `![Generated Image](${imageDataUrl})`;
-                
+
                 // Send as a single chunk
                 fullResponse = imageMarkdown;
                 res.write(
@@ -1829,7 +1849,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     const now = new Date();
                     const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
                     const estimatedCost = 0.02;
-                    const estimatedTokens = Math.ceil(enhancedMessage.length / 4) + 1000;
+                    const estimatedTokens =
+                      Math.ceil(enhancedMessage.length / 4) + 1000;
 
                     await storage.createUsageLog({
                       userId,
@@ -1849,8 +1870,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   }
                 }
               } catch (error: any) {
-                console.error("Gemini Image generation error in stream:", error);
-                const errorMessage = error.message || "Failed to generate image. Please try again.";
+                console.error(
+                  "Gemini Image generation error in stream:",
+                  error,
+                );
+                const errorMessage =
+                  error.message ||
+                  "Failed to generate image. Please try again.";
                 fullResponse = `Error: ${errorMessage}`;
                 res.write(
                   `data: ${JSON.stringify({ content: "Error: " + errorMessage, type: "error" })}\n\n`,
@@ -1931,7 +1957,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             case "deepseek-v3":
             case "josudo":
-              console.log("Starting DeepSeek V3/Josudo streaming via OpenRouter...");
+              console.log(
+                "Starting DeepSeek V3/Josudo streaming via OpenRouter...",
+              );
               for await (const chunk of deepseekService.sendMessageStream(
                 enhancedMessage,
                 model,
@@ -1960,12 +1988,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             case "gpt-4.1":
               // Check if user has their own OpenAI API key
               if (userId && integration) {
-                const userApiKey = await userApiKeysService.getApiKey(userId, 'openai');
+                const userApiKey = await userApiKeysService.getApiKey(
+                  userId,
+                  "openai",
+                );
                 if (userApiKey) {
                   console.log(`[OpenAI] Using user's API key for ${model}`);
-                  console.log(`[OpenAI] Enhanced message length: ${enhancedMessage.length}`);
-                  console.log(`[OpenAI] Enhanced message contains [Image:]: ${enhancedMessage.includes('[Image:')}`);
-                  console.log(`[OpenAI] Enhanced message first 500 chars: ${enhancedMessage.substring(0, 500)}`);
+                  console.log(
+                    `[OpenAI] Enhanced message length: ${enhancedMessage.length}`,
+                  );
+                  console.log(
+                    `[OpenAI] Enhanced message contains [Image:]: ${enhancedMessage.includes("[Image:")}`,
+                  );
+                  console.log(
+                    `[OpenAI] Enhanced message first 500 chars: ${enhancedMessage.substring(0, 500)}`,
+                  );
                   // Use user's OpenAI API key
                   for await (const chunk of userOpenAIService.sendMessageStream(
                     enhancedMessage,
@@ -1975,7 +2012,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     {
                       maxTokens: thinkingMode === "research" ? 8192 : 4096,
                       temperature: thinkingMode === "deep" ? 0.3 : 0.7,
-                    }
+                    },
                   )) {
                     fullResponse += chunk.content;
                     res.write(
@@ -1983,7 +2020,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     );
                   }
                 } else {
-                  console.log(`[OpenAI] Using admin's API key (credits) for ${model}`);
+                  console.log(
+                    `[OpenAI] Using admin's API key (credits) for ${model}`,
+                  );
                   // Use admin's OpenAI API key (deduct credits)
                   for await (const chunk of openaiService.sendMessageStream(
                     enhancedMessage,
@@ -2017,7 +2056,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.log("Starting Claude streaming...");
               // Check if user has their own Anthropic API key
               if (userId && integration) {
-                const userApiKey = await userApiKeysService.getApiKey(userId, 'anthropic');
+                const userApiKey = await userApiKeysService.getApiKey(
+                  userId,
+                  "anthropic",
+                );
                 if (userApiKey) {
                   const stream = await anthropicService.sendMessageStream(
                     enhancedMessage,
@@ -2027,17 +2069,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     {
                       maxTokens: thinkingMode === "research" ? 8192 : 4096,
                       temperature: thinkingMode === "deep" ? 0.3 : 0.7,
-                    }
+                    },
                   );
-                  
+
                   // Convert stream to async iterable
                   const reader = stream.getReader();
                   const decoder = new TextDecoder();
-                  
+
                   while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    
+
                     const chunk = decoder.decode(value, { stream: true });
                     console.log("Received Anthropic chunk:", chunk);
                     fullResponse += chunk;
@@ -2664,10 +2706,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
     } catch (error) {
-      console.error('Error creating integration:', error);
-      res.status(500).json({ 
+      console.error("Error creating integration:", error);
+      res.status(500).json({
         error: "Failed to create integration",
-        details: error instanceof Error ? error.message : String(error)
+        details: error instanceof Error ? error.message : String(error),
       });
     }
   });
@@ -3779,32 +3821,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const tempDir = path.join(process.cwd(), "temp-images");
       console.log(`[Temp Images] Listing directory: ${tempDir}`);
-      
+
       if (!fs.existsSync(tempDir)) {
-        return res.json({ 
-          error: "Temp directory does not exist", 
+        return res.json({
+          error: "Temp directory does not exist",
           path: tempDir,
-          exists: false 
+          exists: false,
         });
       }
-      
+
       const files = fs.readdirSync(tempDir);
-      const fileDetails = files.map(file => {
+      const fileDetails = files.map((file) => {
         const filepath = path.join(tempDir, file);
         const stats = fs.statSync(filepath);
         return {
           name: file,
           size: stats.size,
           created: stats.birthtime,
-          url: `/temp-images/${file}`
+          url: `/temp-images/${file}`,
         };
       });
-      
+
       res.json({
         directory: tempDir,
         exists: true,
         count: files.length,
-        files: fileDetails
+        files: fileDetails,
       });
     } catch (error) {
       console.error(`[Temp Images] Error listing directory:`, error);
@@ -3824,7 +3866,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if file exists
       if (!fs.existsSync(tempImagePath)) {
         console.error(`[Temp Images] File not found: ${tempImagePath}`);
-        return res.status(404).json({ error: "Temp image not found", path: tempImagePath });
+        return res
+          .status(404)
+          .json({ error: "Temp image not found", path: tempImagePath });
       }
 
       // Get file stats
@@ -3833,14 +3877,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Set appropriate content type
       const ext = path.extname(filename).toLowerCase();
-      const contentType = {
-        ".png": "image/png",
-        ".jpg": "image/jpeg",
-        ".jpeg": "image/jpeg",
-        ".gif": "image/gif",
-        ".webp": "image/webp",
-        ".bmp": "image/bmp",
-      }[ext] || "application/octet-stream";
+      const contentType =
+        {
+          ".png": "image/png",
+          ".jpg": "image/jpeg",
+          ".jpeg": "image/jpeg",
+          ".gif": "image/gif",
+          ".webp": "image/webp",
+          ".bmp": "image/bmp",
+        }[ext] || "application/octet-stream";
 
       console.log(`[Temp Images] Content-Type: ${contentType}`);
 
@@ -3848,7 +3893,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.setHeader("Content-Type", contentType);
       res.setHeader("Access-Control-Allow-Origin", "*");
       res.setHeader("Cache-Control", "public, max-age=3600");
-      
+
       // Send file
       res.sendFile(tempImagePath, (err) => {
         if (err) {
