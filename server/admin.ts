@@ -109,7 +109,6 @@ async function seedPlatformKeys() {
       'DEEPSEEK_API_KEY',      // DeepSeek
       'OPENROUTER_API_KEY',    // OpenRouter
       'REPLICATE_API_TOKEN',   // Replicate
-      'GROQ_API_KEY',          // Groq
       // Other Platform Keys
       'STRIPE_SECRET_KEY',
       'STRIPE_PUBLIC_KEY',
@@ -128,7 +127,7 @@ async function seedPlatformKeys() {
       'GROK_API_KEY': 'xai-placeholder',
       'PERPLEXITY_API_KEY': 'pplx-placeholder',
       'DEEPSEEK_API_KEY': 'sk-placeholder',
-      'GROQ_API_KEY': 'gsk_placeholder',
+      'REPLICATE_API_TOKEN': 'r8_placeholder',
     };
 
     for (const key of platformKeys) {

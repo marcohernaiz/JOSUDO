@@ -165,7 +165,6 @@ export default function ApiKeysTab() {
     'DEEPSEEK_API_KEY',
     'OPENROUTER_API_KEY',
     'REPLICATE_API_TOKEN',
-    'GROQ_API_KEY',
   ];
 
   // Categorize API keys
@@ -274,7 +273,7 @@ export default function ApiKeysTab() {
           </Button>
         </div>
 
-        <div className="overflow-y-auto overflow-x-auto max-h-[50vh] border rounded-lg">
+        <div className="overflow-y-scroll overflow-x-auto max-h-[50vh] border rounded-lg">
           {renderKeyTable(llmKeys, 'No LLM keys yet. Click "Add API Key" to create one.')}
         </div>
       </div>
@@ -290,7 +289,7 @@ export default function ApiKeysTab() {
           </div>
         </div>
 
-        <div className="overflow-y-auto overflow-x-auto max-h-[50vh] border rounded-lg">
+        <div className="overflow-y-scroll overflow-x-auto max-h-[50vh] border rounded-lg">
           {renderKeyTable(otherKeys, 'No other keys yet.')}
         </div>
       </div>
