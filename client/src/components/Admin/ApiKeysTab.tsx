@@ -155,19 +155,117 @@ export default function ApiKeysTab() {
     return value.substring(0, 4) + '••••••••' + value.substring(value.length - 4);
   };
 
+  // Define LLM provider keys
+  const LLM_KEYS = [
+    'OPENAI_API_KEY',
+    'ANTHROPIC_API_KEY',
+    'GOOGLE_API_KEY',
+    'GROK_API_KEY',
+    'PERPLEXITY_API_KEY',
+    'DEEPSEEK_API_KEY',
+    'OPENROUTER_API_KEY',
+    'REPLICATE_API_TOKEN',
+    'GROQ_API_KEY',
+  ];
+
+  // Categorize API keys
+  const llmKeys = apiKeys.filter((key) => LLM_KEYS.includes(key.key));
+  const otherKeys = apiKeys.filter((key) => !LLM_KEYS.includes(key.key));
+
+  const renderKeyTable = (keys: ApiKey[], emptyMessage: string) => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Key Name</TableHead>
+          <TableHead>Value</TableHead>
+          <TableHead>Encrypted</TableHead>
+          <TableHead>Last Updated</TableHead>
+          <TableHead className="text-right">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {keys.map((apiKey) => (
+          <TableRow key={apiKey.id}>
+            <TableCell className="font-medium font-mono text-sm">{apiKey.key}</TableCell>
+            <TableCell className="font-mono text-sm">
+              <div className="flex items-center space-x-2">
+                <span>
+                  {visibleValues.has(apiKey.id) ? apiKey.value : maskValue(apiKey.value)}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleValueVisibility(apiKey.id)}
+                  className="h-6 w-6 p-0"
+                >
+                  {visibleValues.has(apiKey.id) ? (
+                    <EyeOff className="w-3 h-3" />
+                  ) : (
+                    <Eye className="w-3 h-3" />
+                  )}
+                </Button>
+              </div>
+            </TableCell>
+            <TableCell>
+              <span
+                className={`px-2 py-1 rounded-full text-xs ${
+                  apiKey.isEncrypted
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                }`}
+              >
+                {apiKey.isEncrypted ? 'Yes' : 'No'}
+              </span>
+            </TableCell>
+            <TableCell>{new Date(apiKey.updatedAt).toLocaleDateString()}</TableCell>
+            <TableCell className="text-right">
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openEditDialog(apiKey)}
+                  className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                  data-testid={`button-edit-api-key-${apiKey.id}`}
+                >
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openDeleteDialog(apiKey)}
+                  className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                  data-testid={`button-delete-api-key-${apiKey.id}`}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+        {keys.length === 0 && (
+          <TableRow>
+            <TableCell colSpan={5} className="text-center text-gray-500 py-8">
+              {emptyMessage}
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  );
+
   if (isLoading) {
     return <div className="text-center py-8">Loading...</div>;
   }
 
   return (
     <div className="space-y-6">
-      {/* Unified Platform API Keys */}
+      {/* LLM Keys Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900">Platform API Keys</h2>
+            <h2 className="text-2xl font-semibold text-gray-900">LLM Keys</h2>
             <p className="text-sm text-gray-500 mt-1">
-              All platform API keys and secrets stored in the database (editable)
+              API keys for AI language model providers (ChatGPT, Claude, Gemini, Grok, Perplexity, DeepSeek, OpenRouter, Replicate)
             </p>
           </div>
           <Button onClick={() => setIsCreateOpen(true)} data-testid="button-create-api-key">
@@ -177,85 +275,24 @@ export default function ApiKeysTab() {
         </div>
 
         <div className="overflow-auto max-h-[600px]">
-        <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Key Name</TableHead>
-            <TableHead>Value</TableHead>
-            <TableHead>Encrypted</TableHead>
-            <TableHead>Last Updated</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {apiKeys.map((apiKey) => (
-            <TableRow key={apiKey.id}>
-              <TableCell className="font-medium font-mono text-sm">{apiKey.key}</TableCell>
-              <TableCell className="font-mono text-sm">
-                <div className="flex items-center space-x-2">
-                  <span>
-                    {visibleValues.has(apiKey.id) ? apiKey.value : maskValue(apiKey.value)}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => toggleValueVisibility(apiKey.id)}
-                    className="h-6 w-6 p-0"
-                  >
-                    {visibleValues.has(apiKey.id) ? (
-                      <EyeOff className="w-3 h-3" />
-                    ) : (
-                      <Eye className="w-3 h-3" />
-                    )}
-                  </Button>
-                </div>
-              </TableCell>
-              <TableCell>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs ${
-                    apiKey.isEncrypted
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  {apiKey.isEncrypted ? 'Yes' : 'No'}
-                </span>
-              </TableCell>
-              <TableCell>{new Date(apiKey.updatedAt).toLocaleDateString()}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => openEditDialog(apiKey)}
-                    className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                    data-testid={`button-edit-api-key-${apiKey.id}`}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => openDeleteDialog(apiKey)}
-                    className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                    data-testid={`button-delete-api-key-${apiKey.id}`}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-          {apiKeys.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center text-gray-500 py-8">
-                No API keys yet. Click "Add API Key" to create one.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          {renderKeyTable(llmKeys, 'No LLM keys yet. Click "Add API Key" to create one.')}
+        </div>
       </div>
+
+      {/* Other Keys Section */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900">Other Keys</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Platform infrastructure keys (Stripe, Database, Admin credentials, etc.)
+            </p>
+          </div>
+        </div>
+
+        <div className="overflow-auto max-h-[600px]">
+          {renderKeyTable(otherKeys, 'No other keys yet.')}
+        </div>
       </div>
 
       {/* Create Dialog */}

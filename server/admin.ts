@@ -100,12 +100,17 @@ async function seedPlatformKeys() {
   try {
     // Define platform keys to seed from environment
     const platformKeys = [
-      'OPENAI_API_KEY',
-      'ANTHROPIC_API_KEY',
-      'DEEPSEEK_API_KEY',
-      'GOOGLE_API_KEY',
-      'GROQ_API_KEY',
-      'REPLICATE_API_TOKEN',
+      // LLM Provider API Keys
+      'OPENAI_API_KEY',        // ChatGPT
+      'ANTHROPIC_API_KEY',     // Claude
+      'GOOGLE_API_KEY',        // Gemini
+      'GROK_API_KEY',          // Grok
+      'PERPLEXITY_API_KEY',    // Perplexity
+      'DEEPSEEK_API_KEY',      // DeepSeek
+      'OPENROUTER_API_KEY',    // OpenRouter
+      'REPLICATE_API_TOKEN',   // Replicate
+      'GROQ_API_KEY',          // Groq
+      // Other Platform Keys
       'STRIPE_SECRET_KEY',
       'STRIPE_PUBLIC_KEY',
       'TESTING_STRIPE_SECRET_KEY',
@@ -147,7 +152,7 @@ async function loadSettings() {
   try {
     // Try to access the table, if it fails, it might not exist yet
     const settings = await db.select().from(appSettings);
-    settings.forEach(setting => {
+    settings.forEach((setting: { key: string; value: string; isEncrypted: boolean }) => {
       // Skip if value is null or undefined
       if (!setting.value) {
         console.warn(`Skipping setting ${setting.key} - value is null/undefined`);
