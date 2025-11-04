@@ -210,41 +210,6 @@ export function registerAdminRoutes(app: Express) {
 
   // === API KEYS MANAGEMENT ===
 
-  // Get environment variables (Replit Secrets)
-  app.get('/api/admin/env-vars', requireAdmin, async (req: Request, res: Response) => {
-    try {
-      // Return non-sensitive environment variables
-      const envVars = Object.keys(process.env)
-        .filter(key => {
-          // Include API keys and important config
-          return key.includes('API') || 
-                 key.includes('KEY') || 
-                 key.includes('SECRET') || 
-                 key.includes('CLIENT') ||
-                 key.includes('OPENAI') ||
-                 key.includes('ANTHROPIC') ||
-                 key.includes('GOOGLE') ||
-                 key.includes('STRIPE') ||
-                 key.includes('ADMIN') ||
-                 key === 'DATABASE_URL' ||
-                 key === 'NODE_ENV' ||
-                 key === 'SESSION_SECRET';
-        })
-        .map((key, index) => ({
-          id: index,
-          key,
-          value: process.env[key] || '',
-          source: 'environment',
-          readOnly: true
-        }));
-
-      res.json(envVars);
-    } catch (error) {
-      console.error('Error fetching environment variables:', error);
-      res.status(500).json({ error: 'Failed to fetch environment variables' });
-    }
-  });
-
   // Get all API keys
   app.get('/api/admin/api-keys', requireAdmin, async (req: Request, res: Response) => {
     try {
@@ -304,6 +269,37 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: 'Key already exists' });
       }
       res.status(500).json({ error: 'Failed to save API key' });
+    }
+  });
+
+  // Update API key
+  app.patch('/api/admin/api-keys/:id', requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { key, value, isEncrypted } = req.body;
+
+      if (!key || !value) {
+        return res.status(400).json({ error: 'Key and value required' });
+      }
+
+      const [updated] = await db
+        .update(appSettings)
+        .set({
+          key,
+          value,
+          isEncrypted: isEncrypted !== undefined ? isEncrypted : true,
+          updatedAt: new Date(),
+        })
+        .where(eq(appSettings.id, id))
+        .returning();
+
+      res.json(updated);
+    } catch (error: any) {
+      console.error('Error updating API key:', error);
+      if (error.code === '23505') {
+        return res.status(400).json({ error: 'Key name already exists' });
+      }
+      res.status(500).json({ error: 'Failed to update API key' });
     }
   });
 
