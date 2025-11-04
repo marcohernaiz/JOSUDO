@@ -59,33 +59,34 @@ The application is structured into distinct service layers:
   - Added data-testid="button-create-new-persona" for UI testing
   - Implementation preserves existing template-based and edit-existing-persona flows
 
-- November 4, 2025. Implemented secure admin backend for platform management
-  - Created secure admin authentication system using environment variables (ADMIN_USERNAME, ADMIN_PASSWORD)
-  - **Security Fix**: Removed hardcoded credential fallbacks to prevent security vulnerabilities
-  - Admin credentials now strictly required via environment variables - no default fallbacks
-  - Application gracefully warns and exits admin initialization if credentials not configured
-  - Implemented dual authentication support:
-    - Traditional username/password authentication with bcrypt hashing (production)
-    - OIDC claim-based authentication for testing (checks for isAdmin: true claim)
-    - Development mode bypass allows direct access (NODE_ENV=development)
-  - Simplified admin dashboard with 2 tabs:
-    - Platform API Keys: Displays both Replit environment variables (read-only) and database-stored API keys (editable)
-    - Digital Persona Templates: Create, edit, delete persona templates visible to all users
+- November 4, 2025. Implemented unified Platform API Keys management system with secure admin authentication
+  - **Unified API Keys System**: Merged environment variables and database-stored API keys into single editable list
+    - All platform API keys stored in database (appSettings table) with optional encryption
+    - Keys are **unencrypted by default** (isEncrypted: false) per user preference
+    - Platform keys auto-seeded from environment on startup: OpenAI, Anthropic, DeepSeek, Google, Groq, Replicate, Stripe, Database, Session Secret, Admin credentials
+    - Full CRUD operations: Create, Read, Update, Delete for all keys
+    - Single "Platform API Keys" tab in admin dashboard showing unified list
   - **Security Architecture**:
+    - Encryption is optional - requires 32-character ENCRYPTION_KEY environment variable if enabled
+    - Proper AES-256-CBC encryption with random IV when encryption is enabled
     - All admin API endpoints protected by requireAdmin middleware
-    - Middleware supports session-based, OIDC-based, and development mode authentication
-    - Direct dashboard access enabled for development (/admin/dashboard)
-    - Legacy HTML admin dashboard routes disabled to prevent conflicts with React SPA
-    - Frontend AppContext skips user auth checks on /admin/* routes
-  - **UI/UX Improvements**:
-    - Added scrolling to both admin tabs (600px max for personas, 300px each for API key sections)
-    - Fixed edit persona template functionality to preserve all database fields
-    - Fixed API request parameter order throughout admin components
-  - Admin routes accessible at /admin/login and /admin/dashboard
-  - Added adminUsers database table (admin_users) with secure password storage
-  - Admin panel features Material Design-inspired interface with Linear's minimalist clarity
-  - Successfully tested with OIDC authentication and development mode access
-  - All CRUD operations (Create, Read, Update, Delete) verified working for both API keys and persona templates
+    - **No development mode bypass** - authentication always enforced
+    - Session-based authentication with bcrypt password hashing
+    - OIDC claim-based authentication support for testing (isAdmin: true claim)
+  - **Authentication Flow**:
+    - /admin route redirects to /admin/login (no bypass to dashboard)
+    - Admin dashboard checks authentication via /api/admin/check-auth before rendering
+    - Admin credentials from environment variables (ADMIN_USERNAME, ADMIN_PASSWORD)
+    - Unauthenticated users receive 401 and redirect to login
+  - **Admin Dashboard Structure**:
+    - Platform API Keys tab: Single unified list of all platform keys with edit/delete functionality
+    - Digital Persona Templates tab: Create, edit, delete persona templates visible to all users
+    - Material Design-inspired interface with Linear's minimalist clarity
+  - **Database Schema**:
+    - appSettings table: id, key, value, is_encrypted (default: false), timestamps
+    - adminUsers table: secure password storage with bcrypt hashing
+  - Admin routes: /admin (redirect), /admin/login (public), /admin/dashboard (authenticated only)
+  - All CRUD operations verified working for both API keys and persona templates
 
 - September 30, 2025. Enhanced Digital Personas page with hover functionality
   - Added hover overlay on persona cards with "Use" and "Configure" action buttons
