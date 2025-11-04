@@ -24,14 +24,13 @@ class GeminiImageService {
     mimeType: string;
   }> {
     try {
-      // Use the Gemini 2.5 Flash Image model (Nano Banana)
-      // Try multiple possible model names
+      // Use the Gemini Flash models that support image generation
+      // Try multiple possible model names (updated list based on availability)
       const possibleModelNames = [
-        'gemini-2.5-flash-image-exp',
-        'gemini-2.5-flash-image',
-        'gemini-2.5-flash-image-preview',
-        'gemini-2.0-flash-image-exp',
-        'gemini-exp-1206'
+        'gemini-2.0-flash-exp',
+        'gemini-1.5-flash',
+        'gemini-1.5-pro',
+        'gemini-pro-vision'
       ];
       
       let modelName = possibleModelNames[0];
@@ -146,7 +145,32 @@ class GeminiImageService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`[GeminiImage] API error: ${response.status} ${response.statusText}`, errorText);
-        throw new Error(`Gemini Image API error: ${response.status} ${response.statusText} - ${errorText}`);
+        
+        // Parse error to extract user-friendly message
+        let userMessage = `Failed to generate image`;
+        try {
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.error?.message) {
+            userMessage = errorJson.error.message;
+            // Extract just the first line if it's a multi-line error
+            const firstLine = userMessage.split('\n')[0];
+            userMessage = firstLine;
+            
+            // Simplify common errors
+            if (response.status === 429) {
+              userMessage = "Gemini API quota exceeded. Please wait a moment and try again, or check your billing plan.";
+            } else if (response.status === 404) {
+              userMessage = "Image generation model not available. Please try again later.";
+            } else if (response.status === 400) {
+              userMessage = "Invalid request to Gemini API. Please try a different prompt.";
+            }
+          }
+        } catch (e) {
+          // If JSON parsing fails, use status text
+          userMessage = `Image generation failed: ${response.statusText}`;
+        }
+        
+        throw new Error(userMessage);
       }
 
       const data = await response.json();

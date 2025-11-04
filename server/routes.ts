@@ -1839,32 +1839,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 `data: ${JSON.stringify({ content: imageMarkdown, type: "chunk" })}\n\n`,
               );
 
-              if (userId) {
-                try {
-                  const now = new Date();
-                  const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
-                  const estimatedCost = 0.02;
-                  const estimatedTokens = Math.ceil(enhancedMessage.length / 4) + 1000;
-
-                  await storage.createUsageLog({
-                    userId,
-                    chatSessionId: null,
-                    modelUsed: model,
-                    tokensConsumed: estimatedTokens,
-                    creditsDeducted: Math.ceil(estimatedCost * 100),
-                    cost: estimatedCost.toString(),
-                    isPremiumAccount: false,
-                    status: "completed",
-                  });
-                } catch (billingError) {
-                  console.error("[Billing] Failed to log:", billingError);
-                }
-              }
+              // NO BILLING - User is using their own Gemini API key
+              console.log(`[Billing] ✅ No credits deducted - user is using their own API key for ${model}`);
             } catch (error: any) {
               console.error("Image generation error:", error);
-              fullResponse = `Error: ${error.message}`;
+              
+              // Extract clean error message
+              let cleanErrorMessage = "Failed to generate image. Please try again.";
+              if (error.message) {
+                cleanErrorMessage = error.message;
+                // Remove any JSON or technical details from the message
+                cleanErrorMessage = cleanErrorMessage.split(' - {')[0]; // Remove JSON part
+                cleanErrorMessage = cleanErrorMessage.replace(/^Error:\s*/i, ''); // Remove "Error:" prefix
+                cleanErrorMessage = cleanErrorMessage.split('\n')[0]; // Take only first line
+              }
+              
+              fullResponse = `⚠️ ${cleanErrorMessage}`;
               res.write(
-                `data: ${JSON.stringify({ error: error.message, type: "error" })}\n\n`,
+                `data: ${JSON.stringify({ content: fullResponse, type: "chunk" })}\n\n`,
               );
             }
             
@@ -2384,45 +2376,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const finalTokens = totalTokens || Math.floor(fullResponse.length / 4);
 
         // Calculate cost based on the actual model used
+        // BUT: If user is using their own API key, cost should be 0 (no credit deduction)
         let estimatedCost = 0;
-        switch (model) {
-          case "deepseek-v3":
-          case "josudo":
-            estimatedCost = replicateService.calculateCost(finalTokens, model);
-            break;
-          case "deepseek-chat":
-            estimatedCost = deepseekService.calculateCost(finalTokens);
-            break;
-          case "gpt-4":
-          case "gpt-4o":
-            estimatedCost = openaiService.calculateCost(finalTokens, model);
-            break;
-          case "gpt-5":
-            estimatedCost = replicateService.calculateCost(finalTokens, model);
-            break;
-          case "claude-3-5-sonnet":
-            estimatedCost = claudeService.calculateCost(finalTokens);
-            break;
-          case "claude-3-5-sonnet-replicate":
-          case "claude-3-haiku-replicate":
-            estimatedCost = replicateService.calculateCost(finalTokens, model);
-            break;
-          case "gemini-pro":
-            estimatedCost = geminiService.calculateCost(finalTokens);
-            break;
-          case "grok-beta":
-            estimatedCost = grokService.calculateCost(finalTokens);
-            break;
-          case "perplexity":
-            estimatedCost = perplexityService.calculateCost(finalTokens);
-            break;
-          case "llama-3":
-          case "llama-3.1-8b":
-            estimatedCost = llamaService.calculateCost(finalTokens);
-            break;
-          default:
-            // Very conservative fallback - $0.001 per 1K tokens
-            estimatedCost = (finalTokens / 1000) * 0.001;
+        
+        if (serviceConfig.useUserKey) {
+          // User is using their own API key - no platform cost
+          estimatedCost = 0;
+          console.log(`✅ [Streaming] User provided own API key for ${model} - no credits will be deducted`);
+        } else {
+          // Platform is paying - calculate cost
+          switch (model) {
+            case "deepseek-v3":
+            case "josudo":
+              estimatedCost = replicateService.calculateCost(finalTokens, model);
+              break;
+            case "deepseek-chat":
+              estimatedCost = deepseekService.calculateCost(finalTokens);
+              break;
+            case "gpt-4":
+            case "gpt-4o":
+              estimatedCost = openaiService.calculateCost(finalTokens, model);
+              break;
+            case "gpt-5":
+              estimatedCost = replicateService.calculateCost(finalTokens, model);
+              break;
+            case "claude-3-5-sonnet":
+              estimatedCost = claudeService.calculateCost(finalTokens);
+              break;
+            case "claude-3-5-sonnet-replicate":
+            case "claude-3-haiku-replicate":
+              estimatedCost = replicateService.calculateCost(finalTokens, model);
+              break;
+            case "gemini-pro":
+              estimatedCost = geminiService.calculateCost(finalTokens);
+              break;
+            case "grok-beta":
+              estimatedCost = grokService.calculateCost(finalTokens);
+              break;
+            case "perplexity":
+              estimatedCost = perplexityService.calculateCost(finalTokens);
+              break;
+            case "llama-3":
+            case "llama-3.1-8b":
+              estimatedCost = llamaService.calculateCost(finalTokens);
+              break;
+            default:
+              // Very conservative fallback - $0.001 per 1K tokens
+              estimatedCost = (finalTokens / 1000) * 0.001;
+          }
         }
 
         // Track usage for streaming responses (only if not using user's own API key)
