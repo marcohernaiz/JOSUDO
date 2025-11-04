@@ -51,6 +51,23 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
+- November 4, 2025. Enhanced admin backend with categorized LLM API keys management
+  - **LLM Provider Keys**: Added all requested LLM provider keys to seeding function
+    - ChatGPT (OPENAI_API_KEY), Claude (ANTHROPIC_API_KEY), Gemini (GOOGLE_API_KEY)
+    - Grok (GROK_API_KEY), Perplexity (PERPLEXITY_API_KEY), DeepSeek (DEEPSEEK_API_KEY)
+    - OpenRouter (OPENROUTER_API_KEY), Replicate (REPLICATE_API_TOKEN), Groq (GROQ_API_KEY)
+  - **Categorized API Keys Interface**: Updated ApiKeysTab to show two distinct sections
+    - "LLM Keys" section: displays all AI language model provider keys with descriptions
+    - "Other Keys" section: displays platform infrastructure keys (Stripe, Database, Admin, etc.)
+    - Both sections maintain full CRUD functionality (Create, Read, Update, Delete)
+    - Masked value display with eye icon toggle for security
+  - **Keys Storage**: All keys stored unencrypted by default (isEncrypted: false) for easy access
+  - **Platform Key Seeding**: Automatic seeding from environment variables on app startup
+  - **Admin Verification**: All 27 Digital Persona templates and API keys verified appearing correctly
+  - Admin credentials: username="admin", password="Josudo2025!" (from environment variables)
+  - Fixed TypeScript type error in loadSettings function (explicit type annotation)
+  - E2E testing verified full admin dashboard functionality working correctly
+
 - November 4, 2025. Enabled "Create New" button in Digital Personas menu
   - Added `handleCreateNew` click handler to create new personas from scratch
   - Users can now create custom digital personas without using templates
