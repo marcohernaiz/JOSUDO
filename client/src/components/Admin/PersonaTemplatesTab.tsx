@@ -176,9 +176,9 @@ export default function PersonaTemplatesTab() {
         </Button>
       </div>
 
-      <div className="overflow-auto max-h-[600px]">
+      <div className="overflow-y-auto overflow-x-auto max-h-[70vh] border rounded-lg">
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky top-0 bg-white z-10">
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Role</TableHead>

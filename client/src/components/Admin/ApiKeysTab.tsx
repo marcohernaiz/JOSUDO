@@ -174,7 +174,7 @@ export default function ApiKeysTab() {
 
   const renderKeyTable = (keys: ApiKey[], emptyMessage: string) => (
     <Table>
-      <TableHeader>
+      <TableHeader className="sticky top-0 bg-white z-10">
         <TableRow>
           <TableHead>Key Name</TableHead>
           <TableHead>Value</TableHead>
@@ -274,7 +274,7 @@ export default function ApiKeysTab() {
           </Button>
         </div>
 
-        <div className="overflow-auto max-h-[600px]">
+        <div className="overflow-y-auto overflow-x-auto max-h-[50vh] border rounded-lg">
           {renderKeyTable(llmKeys, 'No LLM keys yet. Click "Add API Key" to create one.')}
         </div>
       </div>
@@ -290,7 +290,7 @@ export default function ApiKeysTab() {
           </div>
         </div>
 
-        <div className="overflow-auto max-h-[600px]">
+        <div className="overflow-y-auto overflow-x-auto max-h-[50vh] border rounded-lg">
           {renderKeyTable(otherKeys, 'No other keys yet.')}
         </div>
       </div>

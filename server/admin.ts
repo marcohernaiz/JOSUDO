@@ -121,10 +121,19 @@ async function seedPlatformKeys() {
       'ADMIN_PASSWORD',
     ];
 
+    // LLM provider keys with placeholder values (for admin UI display)
+    const llmPlaceholders: Record<string, string> = {
+      'ANTHROPIC_API_KEY': 'sk-ant-placeholder',
+      'GOOGLE_API_KEY': 'AIza-placeholder',
+      'GROK_API_KEY': 'xai-placeholder',
+      'PERPLEXITY_API_KEY': 'pplx-placeholder',
+      'DEEPSEEK_API_KEY': 'sk-placeholder',
+      'GROQ_API_KEY': 'gsk_placeholder',
+    };
+
     for (const key of platformKeys) {
       const envValue = process.env[key];
-      if (!envValue) continue; // Skip if not set in environment
-
+      
       // Check if key already exists in database
       const [existing] = await db
         .select()
@@ -133,13 +142,18 @@ async function seedPlatformKeys() {
         .limit(1);
 
       if (!existing) {
-        // Seed the key into database UNENCRYPTED by default
-        await db.insert(appSettings).values({
-          key,
-          value: envValue,
-          isEncrypted: false,
-        });
-        console.log(`✓ Seeded platform key: ${key}`);
+        // Use environment value if available, otherwise use placeholder for LLM keys
+        const value = envValue || llmPlaceholders[key];
+        
+        if (value) {
+          // Seed the key into database UNENCRYPTED by default
+          await db.insert(appSettings).values({
+            key,
+            value,
+            isEncrypted: false,
+          });
+          console.log(`✓ Seeded ${envValue ? 'platform' : 'placeholder'} key: ${key}`);
+        }
       }
     }
   } catch (error) {
