@@ -51,6 +51,19 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
+- November 4, 2025. Completed admin dashboard with automatic LLM provider placeholder seeding
+  - **Automatic Placeholder Seeding**: Updated seedPlatformKeys() to automatically insert placeholder values for missing LLM provider keys
+    - Placeholders created for: Anthropic (sk-ant-placeholder), Google (AIza-placeholder), Grok (xai-placeholder), Perplexity (pplx-placeholder), DeepSeek (sk-placeholder), Groq (gsk_placeholder)
+    - All placeholder keys stored unencrypted by default (isEncrypted: false)
+    - Seeding runs on every app startup, ensuring keys always appear in admin UI
+  - **Database Verification**: 11 total API keys confirmed present (9 LLM providers + 2 other platform keys)
+  - **Scrolling Improvements**: Both admin tabs now have proper scrollable containers with sticky headers
+    - API Keys tab: max-h-[50vh] scrollable area with sticky table headers
+    - Persona Templates tab: max-h-[70vh] scrollable area with sticky table headers
+  - **E2E Testing Verified**: All 9 LLM keys, 15 total keys, and 27 persona templates display correctly with full scrolling functionality
+  - Backend seeding logic: server/admin.ts seedPlatformKeys() function
+  - Frontend components: ApiKeysTab.tsx (LLM/Other sections), PersonaTemplatesTab.tsx
+
 - November 4, 2025. Enhanced admin backend with categorized LLM API keys management
   - **LLM Provider Keys**: Added all requested LLM provider keys to seeding function
     - ChatGPT (OPENAI_API_KEY), Claude (ANTHROPIC_API_KEY), Gemini (GOOGLE_API_KEY)
