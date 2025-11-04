@@ -253,6 +253,12 @@ const DigitalPersonas: React.FC = () => {
     setSelectedPersonaType('existing');
   };
 
+  const handleCreateNew = () => {
+    // Open configuration with 'new' persona id to create from scratch
+    setSelectedPersona('new');
+    setSelectedPersonaType('template'); // Use template type to create new (not edit existing)
+  };
+
   // Show configuration if a persona is selected
   if (selectedPersona) {
     return (
@@ -301,7 +307,9 @@ const DigitalPersonas: React.FC = () => {
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={handleCreateNew}
               className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl p-3 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 aspect-square"
+              data-testid="button-create-new-persona"
             >
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
                 <Plus className="w-4 h-4 text-blue-600" />

@@ -51,6 +51,14 @@ The application is structured into distinct service layers:
 
 ## Recent Changes
 
+- November 4, 2025. Enabled "Create New" button in Digital Personas menu
+  - Added `handleCreateNew` click handler to create new personas from scratch
+  - Users can now create custom digital personas without using templates
+  - Create New button opens PersonaConfiguration in blank mode with empty fields
+  - New personas are saved to user's profile via POST /api/digital-personas
+  - Added data-testid="button-create-new-persona" for UI testing
+  - Implementation preserves existing template-based and edit-existing-persona flows
+
 - November 4, 2025. Implemented secure admin backend for platform management
   - Created secure admin authentication system using environment variables (ADMIN_USERNAME, ADMIN_PASSWORD)
   - **Security Fix**: Removed hardcoded credential fallbacks to prevent security vulnerabilities
