@@ -95,28 +95,74 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
         }
       }
       
-      // Add image
+      // Add image with click to fullscreen and download
       if (!imageErrors.has(match.url)) {
+        const isBase64 = match.url.startsWith('data:image/');
+        const handleImageClick = () => {
+          // Create fullscreen modal
+          const modal = document.createElement('div');
+          modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90';
+          modal.style.cursor = 'zoom-out';
+          modal.onclick = () => modal.remove();
+          
+          const img = document.createElement('img');
+          img.src = match.url;
+          img.className = 'max-w-full max-h-full object-contain';
+          img.style.cursor = 'zoom-out';
+          
+          const downloadBtn = document.createElement('button');
+          downloadBtn.className = 'absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700';
+          downloadBtn.textContent = 'Download';
+          downloadBtn.onclick = (e) => {
+            e.stopPropagation();
+            const a = document.createElement('a');
+            a.href = match.url;
+            a.download = `generated-image-${Date.now()}.${isBase64 ? 'png' : 'jpg'}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          };
+          
+          modal.appendChild(img);
+          modal.appendChild(downloadBtn);
+          document.body.appendChild(modal);
+        };
+        
         parts.push(
           <div key={`img-${i}`} className="my-3">
             <img
               src={match.url}
               alt={match.alt || "Generated image"}
-              className="max-w-full h-auto rounded-lg border border-slate-200 dark:border-slate-600 shadow-md"
+              className="max-w-full h-auto rounded-lg border border-slate-200 dark:border-slate-600 shadow-md cursor-pointer hover:opacity-90 transition-opacity"
               onError={() => handleImageError(match.url)}
+              onClick={handleImageClick}
               loading="lazy"
               style={{ maxHeight: '400px', objectFit: 'contain' }}
             />
             <div className="text-xs text-slate-500 mt-1 flex items-center justify-between">
               <span>{match.alt && `${match.alt} • `}AI Generated Image</span>
-              <a 
-                href={match.url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-blue-500 underline"
-              >
-                View full size
-              </a>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleImageClick}
+                  className="hover:text-blue-500 underline cursor-pointer"
+                >
+                  View fullscreen
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const a = document.createElement('a');
+                    a.href = match.url;
+                    a.download = `generated-image-${Date.now()}.${isBase64 ? 'png' : 'jpg'}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                  }}
+                  className="hover:text-blue-500 underline cursor-pointer ml-2"
+                >
+                  Download
+                </button>
+              </div>
             </div>
           </div>
         );

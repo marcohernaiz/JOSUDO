@@ -94,12 +94,16 @@ class GeminiImageService {
       }
 
       const data = await response.json();
+      
+      console.log('[GeminiImage] Full API response:', JSON.stringify(data, null, 2));
 
       // Extract image from response
       // The response structure may vary, so we check multiple possible locations
       let imageBase64: string | undefined;
       let mimeType: string = 'image/png';
+      let imageUrl: string | undefined;
 
+      // Check for inlineData (base64)
       if (data.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
         imageBase64 = data.candidates[0].content.parts[0].inlineData.data;
         mimeType = data.candidates[0].content.parts[0].inlineData.mimeType || 'image/png';
@@ -110,10 +114,49 @@ class GeminiImageService {
         imageBase64 = data.images[0].data;
         mimeType = data.images[0].mimeType || 'image/png';
       }
+      // Check for URL in text content or other fields
+      else if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        const text = data.candidates[0].content.parts[0].text;
+        // Try to extract URL from text
+        const urlMatch = text.match(/https?:\/\/[^\s]+/);
+        if (urlMatch) {
+          imageUrl = urlMatch[0];
+          console.log('[GeminiImage] Found URL in response text:', imageUrl);
+        }
+      }
 
-      if (!imageBase64) {
-        console.error('[GeminiImage] No image data found in response:', JSON.stringify(data, null, 2));
+      // If we have a URL but no base64, fetch the image and convert to base64
+      if (imageUrl && !imageBase64) {
+        try {
+          console.log('[GeminiImage] Fetching image from URL and converting to base64...');
+          const imageResponse = await fetch(imageUrl);
+          if (imageResponse.ok) {
+            const arrayBuffer = await imageResponse.arrayBuffer();
+            imageBase64 = Buffer.from(arrayBuffer).toString('base64');
+            mimeType = imageResponse.headers.get('content-type') || 'image/png';
+            console.log('[GeminiImage] Successfully converted URL to base64');
+          }
+        } catch (fetchError) {
+          console.error('[GeminiImage] Failed to fetch image from URL:', fetchError);
+          // If fetch fails, try using the URL directly with the API key
+          // Some Gemini APIs return URLs that require authentication
+          imageUrl = `${imageUrl}${imageUrl.includes('?') ? '&' : '?'}key=${encodeURIComponent(apiKey)}`;
+        }
+      }
+
+      if (!imageBase64 && !imageUrl) {
+        console.error('[GeminiImage] No image data or URL found in response:', JSON.stringify(data, null, 2));
         throw new Error('No image data returned from Gemini Image API');
+      }
+
+      // If we still only have URL, return it (frontend will handle it)
+      if (!imageBase64 && imageUrl) {
+        // Return URL as base64 data URL format so frontend can handle it
+        // Actually, let's return it as a special format
+        return {
+          imageBase64: imageUrl, // Store URL in base64 field for now
+          mimeType: 'url', // Special marker
+        };
       }
 
       return {

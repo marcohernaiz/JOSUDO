@@ -1113,9 +1113,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   },
                 );
 
-                // Return image as base64 data URL
-                const imageDataUrl = `data:${imageResult.mimeType};base64,${imageResult.imageBase64}`;
-
+                // Always return as base64 data URL (not URL)
+                let imageDataUrl: string;
+                if (imageResult.mimeType === 'url') {
+                  // If we got a URL, fetch it and convert to base64
+                  try {
+                    const imageResponse = await fetch(imageResult.imageBase64);
+                    if (imageResponse.ok) {
+                      const arrayBuffer = await imageResponse.arrayBuffer();
+                      const base64 = Buffer.from(arrayBuffer).toString('base64');
+                      const contentType = imageResponse.headers.get('content-type') || 'image/png';
+                      imageDataUrl = `data:${contentType};base64,${base64}`;
+                    } else {
+                      throw new Error('Failed to fetch image from URL');
+                    }
+                  } catch (error) {
+                    console.error('[GeminiImage] Error fetching image from URL:', error);
+                    // Try with API key appended
+                    const urlWithKey = `${imageResult.imageBase64}${imageResult.imageBase64.includes('?') ? '&' : '?'}key=${encodeURIComponent(geminiImageApiKey)}`;
+                    const imageResponse = await fetch(urlWithKey);
+                    if (imageResponse.ok) {
+                      const arrayBuffer = await imageResponse.arrayBuffer();
+                      const base64 = Buffer.from(arrayBuffer).toString('base64');
+                      const contentType = imageResponse.headers.get('content-type') || 'image/png';
+                      imageDataUrl = `data:${contentType};base64,${base64}`;
+                    } else {
+                      throw new Error('Failed to fetch image even with API key');
+                    }
+                  }
+                } else {
+                  imageDataUrl = `data:${imageResult.mimeType};base64,${imageResult.imageBase64}`;
+                }
+                
                 response = {
                   choices: [
                     {
@@ -1834,9 +1863,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   },
                 );
 
-                const imageDataUrl = `data:${imageResult.mimeType};base64,${imageResult.imageBase64}`;
+                // Always return as base64 data URL (not URL)
+                let imageDataUrl: string;
+                if (imageResult.mimeType === 'url') {
+                  // If we got a URL, fetch it and convert to base64
+                  try {
+                    const imageResponse = await fetch(imageResult.imageBase64);
+                    if (imageResponse.ok) {
+                      const arrayBuffer = await imageResponse.arrayBuffer();
+                      const base64 = Buffer.from(arrayBuffer).toString('base64');
+                      const contentType = imageResponse.headers.get('content-type') || 'image/png';
+                      imageDataUrl = `data:${contentType};base64,${base64}`;
+                    } else {
+                      throw new Error('Failed to fetch image from URL');
+                    }
+                  } catch (error) {
+                    console.error('[GeminiImage] Error fetching image from URL:', error);
+                    // Try with API key appended
+                    const urlWithKey = `${imageResult.imageBase64}${imageResult.imageBase64.includes('?') ? '&' : '?'}key=${encodeURIComponent(serviceConfig.userApiKey || '')}`;
+                    const imageResponse = await fetch(urlWithKey);
+                    if (imageResponse.ok) {
+                      const arrayBuffer = await imageResponse.arrayBuffer();
+                      const base64 = Buffer.from(arrayBuffer).toString('base64');
+                      const contentType = imageResponse.headers.get('content-type') || 'image/png';
+                      imageDataUrl = `data:${contentType};base64,${base64}`;
+                    } else {
+                      throw new Error('Failed to fetch image even with API key');
+                    }
+                  }
+                } else {
+                  imageDataUrl = `data:${imageResult.mimeType};base64,${imageResult.imageBase64}`;
+                }
+                
                 const imageMarkdown = `![Generated Image](${imageDataUrl})`;
-
+                
                 // Send as a single chunk
                 fullResponse = imageMarkdown;
                 res.write(
