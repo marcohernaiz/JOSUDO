@@ -62,7 +62,7 @@ export default function AdminLogin() {
             Admin Login
           </h1>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
             <div>
               <Label htmlFor="username" className="text-sm font-medium text-gray-700">
                 Username
@@ -74,6 +74,7 @@ export default function AdminLogin() {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your username"
                 className="mt-2"
+                autoComplete="off"
                 data-testid="input-admin-username"
               />
             </div>
@@ -89,6 +90,7 @@ export default function AdminLogin() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 className="mt-2"
+                autoComplete="new-password"
                 data-testid="input-admin-password"
               />
             </div>
