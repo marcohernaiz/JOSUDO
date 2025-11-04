@@ -68,11 +68,7 @@ class GeminiImageService {
         }
       };
 
-      // Add optional parameters
-      if (options.aspectRatio) {
-        requestBody.generationConfig.aspectRatio = options.aspectRatio;
-      }
-
+      // Add safety settings if provided
       if (options.safetySetting) {
         requestBody.safetySettings = [
           {
@@ -93,10 +89,9 @@ class GeminiImageService {
           }
         ];
       }
-
-      if (options.personGeneration) {
-        requestBody.generationConfig.personGeneration = options.personGeneration;
-      }
+      
+      // Note: aspectRatio and personGeneration are NOT supported in the API
+      // They were causing 400 errors
 
       // Try the primary model first
       let response = await fetch(
@@ -113,8 +108,10 @@ class GeminiImageService {
       // If the first model fails, try alternative endpoints
       if (!response.ok && modelName === possibleModelNames[0]) {
         console.log(`[GeminiImage] Model ${modelName} failed (${response.status}), trying alternatives...`);
-        const errorText = await response.text();
-        console.log(`[GeminiImage] Error:`, errorText);
+        // Clone the response before reading it
+        const errorResponse = response.clone();
+        const errorText = await errorResponse.text();
+        console.log(`[GeminiImage] Error:`, errorText.substring(0, 500));
         
         for (const altName of possibleModelNames.slice(1)) {
           try {
@@ -134,7 +131,9 @@ class GeminiImageService {
               console.log(`[GeminiImage] ✅ Successfully using model: ${altName}`);
               break;
             } else {
-              const altError = await response.text();
+              // Clone before reading
+              const altErrorResponse = response.clone();
+              const altError = await altErrorResponse.text();
               console.log(`[GeminiImage] Model ${altName} also failed:`, altError.substring(0, 200));
             }
           } catch (error) {

@@ -1795,9 +1795,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 enhancedMessage,
                 serviceConfig.userApiKey || "",
                 {
-                  aspectRatio: "1:1",
                   safetySetting: "BLOCK_ONLY_HIGH",
-                  personGeneration: "ALLOW_ALL",
+                  // Note: aspectRatio and personGeneration are not supported
                 },
               );
 
