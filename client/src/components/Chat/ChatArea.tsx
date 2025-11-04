@@ -195,6 +195,8 @@ const getModelDisplayName = (modelId: string) => {
       return "Claude (Anthropic Direct)";
     case "gemini-pro":
       return "Gemini (Google)";
+    case "gemini-nano-banana":
+      return "Gemini Nano Banana (Image Gen)";
     case "llama-3":
       return "Llama 3 (Meta)";
     case "grok-beta":

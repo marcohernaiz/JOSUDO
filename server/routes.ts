@@ -24,6 +24,7 @@ import { userGeminiService } from "./services/userGemini";
 import { userGrokService } from "./services/userGrok";
 import { userPerplexityService } from "./services/userPerplexity";
 import { perplexityService } from "./services/perplexity";
+import { geminiImageService } from "./services/geminiImage";
 
 // Model configuration for hybrid selection
 const MODEL_CONFIG = {
@@ -51,6 +52,11 @@ const MODEL_CONFIG = {
     replicateModel: null,
   },
   "gemini-pro": {
+    provider: "google",
+    allowUserKey: true,
+    replicateModel: null,
+  },
+  "gemini-nano-banana": {
     provider: "google",
     allowUserKey: true,
     replicateModel: null,
@@ -1071,6 +1077,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
               break;
 
+            case "gemini-nano-banana":
+              // Check if user has API key
+              const geminiImageApiKey = await userApiKeysService.getApiKey(userId, 'google');
+              if (!geminiImageApiKey) {
+                return res.status(400).json({
+                  error: "API key required",
+                  message: "Please add your Gemini API key in Settings > Integrations > AI Models",
+                });
+              }
+
+              try {
+                // Generate image using Nano Banana
+                const imageResult = await geminiImageService.generateImage(
+                  message,
+                  geminiImageApiKey,
+                  {
+                    aspectRatio: '1:1', // Default square image
+                    safetySetting: 'BLOCK_ONLY_HIGH',
+                    personGeneration: 'ALLOW_ALL',
+                  }
+                );
+
+                // Return image as base64 data URL
+                const imageDataUrl = `data:${imageResult.mimeType};base64,${imageResult.imageBase64}`;
+                
+                response = {
+                  choices: [{
+                    message: {
+                      content: `![Generated Image](${imageDataUrl})`,
+                      role: "assistant",
+                    }
+                  }],
+                };
+
+                // Estimate tokens (rough calculation for image generation)
+                tokensUsed = Math.ceil(message.length / 4) + 1000; // Rough estimate
+                cost = 0.02; // Estimated cost per image generation
+
+                // Track usage
+                if (userId) {
+                  try {
+                    const now = new Date();
+                    const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+
+                    await storage.createUsageLog({
+                      userId,
+                      chatSessionId: null,
+                      modelUsed: model,
+                      tokensConsumed: tokensUsed,
+                      creditsDeducted: Math.ceil(cost * 100),
+                      cost: cost.toString(),
+                      isPremiumAccount: false,
+                      billingPeriod,
+                      requestType: "image_generation",
+                    });
+
+                    await storage.updateMonthlyUsage(userId, cost);
+                    console.log(
+                      `Usage tracked for user ${userId}: Image generated, $${cost} for ${model}`,
+                    );
+                  } catch (error) {
+                    console.error("Failed to log Gemini Image usage:", error);
+                  }
+                }
+              } catch (error: any) {
+                console.error("Gemini Image generation error:", error);
+                return res.status(500).json({
+                  error: "Image generation failed",
+                  message: error.message || "Failed to generate image. Please try again.",
+                });
+              }
+              break;
+
             case "grok-beta":
               serviceResponse = await grokService.sendMessage(
                 message,
@@ -1717,6 +1796,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 fullResponse += chunk.content;
                 res.write(
                   `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
+                );
+              }
+              break;
+
+            case "gemini-nano-banana":
+              // Image generation doesn't stream, generate and return immediately
+              console.log("Starting Gemini Nano Banana image generation...");
+              try {
+                const imageResult = await geminiImageService.generateImage(
+                  enhancedMessage,
+                  serviceConfig.userApiKey || "",
+                  {
+                    aspectRatio: '1:1',
+                    safetySetting: 'BLOCK_ONLY_HIGH',
+                    personGeneration: 'ALLOW_ALL',
+                  }
+                );
+
+                const imageDataUrl = `data:${imageResult.mimeType};base64,${imageResult.imageBase64}`;
+                const imageMarkdown = `![Generated Image](${imageDataUrl})`;
+                
+                // Send as a single chunk
+                fullResponse = imageMarkdown;
+                res.write(
+                  `data: ${JSON.stringify({ content: imageMarkdown, type: "chunk" })}\n\n`,
+                );
+
+                // Track usage
+                if (userId) {
+                  try {
+                    const now = new Date();
+                    const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
+                    const estimatedCost = 0.02;
+                    const estimatedTokens = Math.ceil(enhancedMessage.length / 4) + 1000;
+
+                    await storage.createUsageLog({
+                      userId,
+                      chatSessionId: null,
+                      modelUsed: model,
+                      tokensConsumed: estimatedTokens,
+                      creditsDeducted: Math.ceil(estimatedCost * 100),
+                      cost: estimatedCost.toString(),
+                      isPremiumAccount: false,
+                      billingPeriod,
+                      requestType: "image_generation",
+                    });
+
+                    await storage.updateMonthlyUsage(userId, estimatedCost);
+                  } catch (error) {
+                    console.error("Failed to log Gemini Image usage:", error);
+                  }
+                }
+              } catch (error: any) {
+                console.error("Gemini Image generation error in stream:", error);
+                const errorMessage = error.message || "Failed to generate image. Please try again.";
+                fullResponse = `Error: ${errorMessage}`;
+                res.write(
+                  `data: ${JSON.stringify({ content: "Error: " + errorMessage, type: "error" })}\n\n`,
                 );
               }
               break;
