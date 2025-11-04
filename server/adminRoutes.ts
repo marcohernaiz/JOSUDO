@@ -4,6 +4,7 @@ import { db } from './db';
 import { adminUsers, appSettings, personaTemplates } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { requireAdmin } from './middleware/adminAuth';
+import { encrypt } from './admin';
 
 const SALT_ROUNDS = 10;
 
@@ -230,6 +231,9 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: 'Key and value required' });
       }
 
+      const shouldEncrypt = isEncrypted !== undefined ? isEncrypted : true;
+      const storedValue = shouldEncrypt ? encrypt(value) : value;
+
       // Check if key exists
       const [existing] = await db
         .select()
@@ -242,8 +246,8 @@ export function registerAdminRoutes(app: Express) {
         const [updated] = await db
           .update(appSettings)
           .set({
-            value,
-            isEncrypted: isEncrypted !== undefined ? isEncrypted : true,
+            value: storedValue,
+            isEncrypted: shouldEncrypt,
             updatedAt: new Date(),
           })
           .where(eq(appSettings.key, key))
@@ -256,8 +260,8 @@ export function registerAdminRoutes(app: Express) {
           .insert(appSettings)
           .values({
             key,
-            value,
-            isEncrypted: isEncrypted !== undefined ? isEncrypted : true,
+            value: storedValue,
+            isEncrypted: shouldEncrypt,
           })
           .returning();
 
@@ -282,12 +286,15 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: 'Key and value required' });
       }
 
+      const shouldEncrypt = isEncrypted !== undefined ? isEncrypted : true;
+      const storedValue = shouldEncrypt ? encrypt(value) : value;
+
       const [updated] = await db
         .update(appSettings)
         .set({
           key,
-          value,
-          isEncrypted: isEncrypted !== undefined ? isEncrypted : true,
+          value: storedValue,
+          isEncrypted: shouldEncrypt,
           updatedAt: new Date(),
         })
         .where(eq(appSettings.id, id))

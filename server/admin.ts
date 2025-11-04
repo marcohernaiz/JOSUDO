@@ -14,7 +14,7 @@ const ADMIN_PASSWORD = 'josudo2025!';
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'josudo-default-key-32-characters!!';
 const ALGORITHM = 'aes-256-cbc';
 
-function encrypt(text: string): string {
+export function encrypt(text: string): string {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipher(ALGORITHM, ENCRYPTION_KEY);
   let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -22,7 +22,7 @@ function encrypt(text: string): string {
   return iv.toString('hex') + ':' + encrypted;
 }
 
-function decrypt(text: string): string {
+export function decrypt(text: string): string {
   const [ivHex, encryptedText] = text.split(':');
   const iv = Buffer.from(ivHex, 'hex');
   const decipher = crypto.createDecipher(ALGORITHM, ENCRYPTION_KEY);
@@ -100,10 +100,11 @@ async function seedPlatformKeys() {
         .limit(1);
 
       if (!existing) {
-        // Seed the key into database
+        // Seed the key into database with encryption
+        const encryptedValue = encrypt(envValue);
         await db.insert(appSettings).values({
           key,
-          value: envValue,
+          value: encryptedValue,
           isEncrypted: true,
         });
         console.log(`✓ Seeded platform key: ${key}`);
@@ -120,9 +121,19 @@ async function loadSettings() {
     // Try to access the table, if it fails, it might not exist yet
     const settings = await db.select().from(appSettings);
     settings.forEach(setting => {
-      const value = setting.isEncrypted ? decrypt(setting.value) : setting.value;
-      settingsCache[setting.key] = value;
-      process.env[setting.key] = value; // Also set as env var for compatibility
+      // Skip if value is null or undefined
+      if (!setting.value) {
+        console.warn(`Skipping setting ${setting.key} - value is null/undefined`);
+        return;
+      }
+      
+      try {
+        const value = setting.isEncrypted ? decrypt(setting.value) : setting.value;
+        settingsCache[setting.key] = value;
+        process.env[setting.key] = value; // Also set as env var for compatibility
+      } catch (decryptError) {
+        console.error(`Error decrypting setting ${setting.key}:`, decryptError);
+      }
     });
     console.log('Loaded', settings.length, 'settings from database');
   } catch (error) {
