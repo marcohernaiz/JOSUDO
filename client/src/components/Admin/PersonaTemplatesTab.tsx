@@ -47,7 +47,7 @@ export default function PersonaTemplatesTab() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/admin/persona-templates', 'POST', data),
+    mutationFn: (data: any) => apiRequest('POST', '/api/admin/persona-templates', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/persona-templates-full'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/persona-templates'] });
@@ -66,7 +66,7 @@ export default function PersonaTemplatesTab() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) =>
-      apiRequest(`/api/admin/persona-templates/${id}`, 'PATCH', data),
+      apiRequest('PATCH', `/api/admin/persona-templates/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/persona-templates-full'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/persona-templates'] });
@@ -84,7 +84,7 @@ export default function PersonaTemplatesTab() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/admin/persona-templates/${id}`, 'DELETE'),
+    mutationFn: (id: number) => apiRequest('DELETE', `/api/admin/persona-templates/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/persona-templates-full'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/persona-templates'] });
@@ -125,8 +125,12 @@ export default function PersonaTemplatesTab() {
 
   const handleEdit = () => {
     if (selectedTemplate) {
+      // Preserve all existing fields and only update the ones from the form
+      // Exclude id, createdAt, updatedAt as these are managed by the database
+      const { id, createdAt, updatedAt, ...existingData } = selectedTemplate;
       const templateData = {
-        ...formData,
+        ...existingData, // Keep all existing fields except timestamps
+        ...formData, // Override with form data
         skills: formData.skills.split(',').map((s) => s.trim()).filter((s) => s),
       };
       updateMutation.mutate({ id: selectedTemplate.id, data: templateData });
@@ -172,6 +176,7 @@ export default function PersonaTemplatesTab() {
         </Button>
       </div>
 
+      <div className="overflow-auto max-h-[600px]">
       <Table>
         <TableHeader>
           <TableRow>
@@ -229,6 +234,7 @@ export default function PersonaTemplatesTab() {
           ))}
         </TableBody>
       </Table>
+      </div>
 
       {/* Create Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

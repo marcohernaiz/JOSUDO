@@ -54,7 +54,7 @@ export default function ApiKeysTab() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/admin/api-keys', 'POST', data),
+    mutationFn: (data: any) => apiRequest('POST', '/api/admin/api-keys', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/api-keys'] });
       toast({ title: 'Success', description: 'API key saved successfully' });
@@ -71,7 +71,7 @@ export default function ApiKeysTab() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/admin/api-keys/${id}`, 'DELETE'),
+    mutationFn: (id: number) => apiRequest('DELETE', `/api/admin/api-keys/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/api-keys'] });
       toast({ title: 'Success', description: 'API key deleted successfully' });
@@ -141,6 +141,7 @@ export default function ApiKeysTab() {
           </div>
         </div>
 
+        <div className="overflow-auto max-h-[300px]">
         <Table>
           <TableHeader>
             <TableRow>
@@ -181,6 +182,7 @@ export default function ApiKeysTab() {
             ))}
           </TableBody>
         </Table>
+        </div>
       </div>
 
       {/* Database-stored API Keys */}
@@ -198,6 +200,7 @@ export default function ApiKeysTab() {
           </Button>
         </div>
 
+        <div className="overflow-auto max-h-[300px]">
         <Table>
         <TableHeader>
           <TableRow>
@@ -266,8 +269,9 @@ export default function ApiKeysTab() {
         </TableBody>
       </Table>
       </div>
+      </div>
 
-{/* Create/Update Dialog */}
+      {/* Create/Update Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent>
           <DialogHeader>

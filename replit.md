@@ -59,19 +59,25 @@ The application is structured into distinct service layers:
   - Implemented dual authentication support:
     - Traditional username/password authentication with bcrypt hashing (production)
     - OIDC claim-based authentication for testing (checks for isAdmin: true claim)
+    - Development mode bypass allows direct access (NODE_ENV=development)
   - Simplified admin dashboard with 2 tabs:
     - Platform API Keys: Displays both Replit environment variables (read-only) and database-stored API keys (editable)
     - Digital Persona Templates: Create, edit, delete persona templates visible to all users
   - **Security Architecture**:
     - All admin API endpoints protected by requireAdmin middleware
-    - Middleware supports both session-based and OIDC-based authentication
+    - Middleware supports session-based, OIDC-based, and development mode authentication
     - Direct dashboard access enabled for development (/admin/dashboard)
     - Legacy HTML admin dashboard routes disabled to prevent conflicts with React SPA
     - Frontend AppContext skips user auth checks on /admin/* routes
+  - **UI/UX Improvements**:
+    - Added scrolling to both admin tabs (600px max for personas, 300px each for API key sections)
+    - Fixed edit persona template functionality to preserve all database fields
+    - Fixed API request parameter order throughout admin components
   - Admin routes accessible at /admin/login and /admin/dashboard
   - Added adminUsers database table (admin_users) with secure password storage
   - Admin panel features Material Design-inspired interface with Linear's minimalist clarity
-  - Successfully tested with OIDC authentication (isAdmin: true claim)
+  - Successfully tested with OIDC authentication and development mode access
+  - All CRUD operations (Create, Read, Update, Delete) verified working for both API keys and persona templates
 
 - September 30, 2025. Enhanced Digital Personas page with hover functionality
   - Added hover overlay on persona cards with "Use" and "Configure" action buttons
