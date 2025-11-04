@@ -22,15 +22,7 @@ declare global {
 }
 
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
-  // Development mode bypass - allow direct access without authentication
-  if (process.env.NODE_ENV === 'development') {
-    req.adminUser = {
-      id: 0,
-      username: 'dev-admin',
-      email: 'dev@admin.local',
-    };
-    return next();
-  }
+  // No development mode bypass - always require authentication
 
   // Check for admin session (username/password auth)
   if (req.session.adminUserId) {

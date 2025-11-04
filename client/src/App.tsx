@@ -14,12 +14,19 @@ import PersonaAdmin from "./pages/persona-admin";
 import AdminLogin from "./pages/admin-login";
 import AdminDashboard from "./pages/admin-dashboard";
 
+import { Redirect } from 'wouter';
+
+function AdminRedirect() {
+  return <Redirect to="/admin/login" />;
+}
+
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/digital-personas" component={DigitalPersonas} />
+      <Route path="/admin" component={AdminRedirect} />
       <Route path="/admin/personas" component={PersonaAdmin} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />

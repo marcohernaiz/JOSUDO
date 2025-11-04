@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,36 @@ import PersonaTemplatesTab from '@/components/Admin/PersonaTemplatesTab';
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Check admin authentication on mount
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/admin/check-auth');
+        if (!response.ok) {
+          setLocation('/admin/login');
+        } else {
+          setIsAuthenticated(true);
+        }
+      } catch {
+        setLocation('/admin/login');
+      }
+    };
+    checkAuth();
+  }, [setLocation]);
+
+  // Show loading while checking authentication
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <img src={josudoLogo} alt="JOSUDO" className="h-16 mx-auto mb-4" />
+          <p className="text-gray-600">Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleBackToSite = () => {
     setLocation('/');

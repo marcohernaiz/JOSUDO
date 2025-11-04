@@ -10,28 +10,30 @@ const adminApp = express();
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'josudo2025!';
 
-// Encryption for secrets - proper AES-256-CBC with random IV
+// Encryption for secrets - optional AES-256-CBC with random IV
 const ALGORITHM = 'aes-256-cbc';
 
-// Require ENCRYPTION_KEY to be set - no defaults for security
-if (!process.env.ENCRYPTION_KEY) {
-  console.error('FATAL: ENCRYPTION_KEY environment variable is required for secure encryption');
-  console.error('Please set a 32-character random string as ENCRYPTION_KEY');
-  process.exit(1);
-}
-
+// Get encryption key if provided (optional)
 const ENCRYPTION_KEY_RAW = process.env.ENCRYPTION_KEY;
+let ENCRYPTION_KEY: Buffer | null = null;
 
-// Ensure key is exactly 32 bytes for AES-256
-if (ENCRYPTION_KEY_RAW.length !== 32) {
-  console.error('FATAL: ENCRYPTION_KEY must be exactly 32 characters for AES-256');
-  console.error(`Current length: ${ENCRYPTION_KEY_RAW.length}, required: 32`);
-  process.exit(1);
+if (ENCRYPTION_KEY_RAW) {
+  // Validate key length if provided
+  if (ENCRYPTION_KEY_RAW.length !== 32) {
+    console.warn(`WARNING: ENCRYPTION_KEY should be exactly 32 characters for AES-256`);
+    console.warn(`Current length: ${ENCRYPTION_KEY_RAW.length}, required: 32`);
+  } else {
+    ENCRYPTION_KEY = Buffer.from(ENCRYPTION_KEY_RAW, 'utf-8');
+    console.log('✓ Encryption enabled for API keys');
+  }
+} else {
+  console.log('⚠ No ENCRYPTION_KEY set - API keys will be stored unencrypted');
 }
-
-const ENCRYPTION_KEY = Buffer.from(ENCRYPTION_KEY_RAW, 'utf-8');
 
 export function encrypt(text: string): string {
+  if (!ENCRYPTION_KEY) {
+    throw new Error('Encryption key not configured - cannot encrypt');
+  }
   const iv = crypto.randomBytes(16); // Generate random IV
   const cipher = crypto.createCipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
   let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -40,6 +42,9 @@ export function encrypt(text: string): string {
 }
 
 export function decrypt(text: string): string {
+  if (!ENCRYPTION_KEY) {
+    throw new Error('Encryption key not configured - cannot decrypt');
+  }
   const [ivHex, encryptedText] = text.split(':');
   if (!ivHex || !encryptedText) {
     throw new Error('Invalid encrypted data format');
@@ -90,14 +95,17 @@ async function setSetting(key: string, value: string, isEncrypted: boolean = tru
 // Cache for frequently accessed settings (still keep some in-memory for performance)
 let settingsCache: Record<string, string> = {};
 
-// Seed initial platform API keys into database
+// Seed initial platform API keys into database (unencrypted by default)
 async function seedPlatformKeys() {
   try {
     // Define platform keys to seed from environment
     const platformKeys = [
       'OPENAI_API_KEY',
       'ANTHROPIC_API_KEY',
+      'DEEPSEEK_API_KEY',
       'GOOGLE_API_KEY',
+      'GROQ_API_KEY',
+      'REPLICATE_API_TOKEN',
       'STRIPE_SECRET_KEY',
       'STRIPE_PUBLIC_KEY',
       'TESTING_STRIPE_SECRET_KEY',
@@ -120,12 +128,11 @@ async function seedPlatformKeys() {
         .limit(1);
 
       if (!existing) {
-        // Seed the key into database with encryption
-        const encryptedValue = encrypt(envValue);
+        // Seed the key into database UNENCRYPTED by default
         await db.insert(appSettings).values({
           key,
-          value: encryptedValue,
-          isEncrypted: true,
+          value: envValue,
+          isEncrypted: false,
         });
         console.log(`✓ Seeded platform key: ${key}`);
       }

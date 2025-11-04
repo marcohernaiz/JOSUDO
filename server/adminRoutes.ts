@@ -62,6 +62,11 @@ export function registerAdminRoutes(app: Express) {
     res.json({ success: true });
   });
 
+  // Check admin authentication (simple auth check for dashboard)
+  app.get('/api/admin/check-auth', requireAdmin, (req: Request, res: Response) => {
+    res.json({ authenticated: true });
+  });
+
   // Check admin session
   app.get('/api/admin/session', (req: Request, res: Response) => {
     // Check session-based admin authentication
@@ -231,7 +236,7 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: 'Key and value required' });
       }
 
-      const shouldEncrypt = isEncrypted !== undefined ? isEncrypted : true;
+      const shouldEncrypt = isEncrypted !== undefined ? isEncrypted : false;
       const storedValue = shouldEncrypt ? encrypt(value) : value;
 
       // Check if key exists
@@ -286,7 +291,7 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: 'Key and value required' });
       }
 
-      const shouldEncrypt = isEncrypted !== undefined ? isEncrypted : true;
+      const shouldEncrypt = isEncrypted !== undefined ? isEncrypted : false;
       const storedValue = shouldEncrypt ? encrypt(value) : value;
 
       const [updated] = await db
