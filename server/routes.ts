@@ -1863,10 +1863,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
             } catch (error: any) {
               console.error("Image generation error:", error);
+              fullResponse = `Error: ${error.message}`;
               res.write(
                 `data: ${JSON.stringify({ error: error.message, type: "error" })}\n\n`,
               );
             }
+            
+            // Send completion signal for nano banana
+            console.log('[Routes] Sending completion signal for Nano Banana');
+            res.write(
+              `data: ${JSON.stringify({ type: "complete", response: fullResponse, model: model })}\n\n`,
+            );
+            res.end();
+            console.log('[Routes] Response ended for Nano Banana');
+            return; // Exit early since we've handled everything
           } else {
           // Use user's own API key for streaming
           switch (serviceConfig.provider) {
@@ -1936,109 +1946,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 fullResponse += chunk.content;
                 res.write(
                   `data: ${JSON.stringify({ content: chunk.content, type: "chunk" })}\n\n`,
-                );
-              }
-              break;
-
-            case "gemini-nano-banana":
-              // Image generation doesn't stream, generate and return immediately
-              console.log('============================================');
-              console.log('🎨 NANO BANANA IMAGE GENERATION STARTED');
-              console.log('Model:', model);
-              console.log('Provider:', serviceConfig.provider);
-              console.log('Prompt:', enhancedMessage.substring(0, 100));
-              console.log('============================================');
-              try {
-                const imageResult = await geminiImageService.generateImage(
-                  enhancedMessage,
-                  serviceConfig.userApiKey || "",
-                  {
-                    aspectRatio: "1:1",
-                    safetySetting: "BLOCK_ONLY_HIGH",
-                    personGeneration: "ALLOW_ALL",
-                  },
-                );
-
-                // Always return as base64 data URL (not URL)
-                let imageDataUrl: string;
-                if (imageResult.mimeType === 'url') {
-                  // If we got a URL, fetch it and convert to base64
-                  try {
-                    const imageResponse = await fetch(imageResult.imageBase64);
-                    if (imageResponse.ok) {
-                      const arrayBuffer = await imageResponse.arrayBuffer();
-                      const base64 = Buffer.from(arrayBuffer).toString('base64');
-                      const contentType = imageResponse.headers.get('content-type') || 'image/png';
-                      imageDataUrl = `data:${contentType};base64,${base64}`;
-                    } else {
-                      throw new Error('Failed to fetch image from URL');
-                    }
-                  } catch (error) {
-                    console.error('[GeminiImage] Error fetching image from URL:', error);
-                    // Try with API key appended
-                    const urlWithKey = `${imageResult.imageBase64}${imageResult.imageBase64.includes('?') ? '&' : '?'}key=${encodeURIComponent(serviceConfig.userApiKey || '')}`;
-                    const imageResponse = await fetch(urlWithKey);
-                    if (imageResponse.ok) {
-                      const arrayBuffer = await imageResponse.arrayBuffer();
-                      const base64 = Buffer.from(arrayBuffer).toString('base64');
-                      const contentType = imageResponse.headers.get('content-type') || 'image/png';
-                      imageDataUrl = `data:${contentType};base64,${base64}`;
-                    } else {
-                      throw new Error('Failed to fetch image even with API key');
-                    }
-                  }
-                } else {
-                  imageDataUrl = `data:${imageResult.mimeType};base64,${imageResult.imageBase64}`;
-                }
-                
-                const imageMarkdown = `![Generated Image](${imageDataUrl})`;
-                
-                console.log('[Routes] Image markdown being sent (first 200 chars):', imageMarkdown.substring(0, 200));
-                console.log('[Routes] Image data URL starts with:', imageDataUrl.substring(0, 50));
-                
-                // Send as a single chunk
-                fullResponse = imageMarkdown;
-                res.write(
-                  `data: ${JSON.stringify({ content: imageMarkdown, type: "chunk" })}\n\n`,
-                );
-
-                // Track usage
-                if (userId) {
-                  try {
-                    const now = new Date();
-                    const billingPeriod = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
-                    const estimatedCost = 0.02;
-                    const estimatedTokens =
-                      Math.ceil(enhancedMessage.length / 4) + 1000;
-
-                    await storage.createUsageLog({
-                      userId,
-                      chatSessionId: null,
-                      modelUsed: model,
-                      tokensConsumed: estimatedTokens,
-                      creditsDeducted: Math.ceil(estimatedCost * 100),
-                      cost: estimatedCost.toString(),
-                      isPremiumAccount: false,
-                      billingPeriod,
-                      requestType: "image_generation",
-                    });
-
-                    await storage.updateMonthlyUsage(userId, estimatedCost);
-                  } catch (error) {
-                    console.error("Failed to log Gemini Image usage:", error);
-                  }
-                }
-              } catch (error: any) {
-                console.error(
-                  "Gemini Image generation error in stream:",
-                  error,
-                );
-                const errorMessage =
-                  error.message ||
-                  "Failed to generate image. Please try again.";
-                fullResponse = `Error: ${errorMessage}`;
-                res.write(
-                  `data: ${JSON.stringify({ content: "Error: " + errorMessage, type: "error" })}\n\n`,
                 );
               }
               break;
