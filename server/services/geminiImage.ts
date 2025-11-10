@@ -24,313 +24,286 @@ class GeminiImageService {
     mimeType: string;
   }> {
     try {
-      // Use the Gemini Flash models that support image generation
-      // Try multiple possible model names (updated list based on availability)
       const possibleModelNames = [
-        'gemini-2.0-flash-exp',
-        'gemini-1.5-flash',
-        'gemini-1.5-pro',
-        'gemini-pro-vision'
+        'gemini-2.0-flash-exp',      // Nano Banana
+        'gemini-2.0-flash',
+        'gemini-1.5-flash-latest',
+        'gemini-1.5-pro-latest',
       ];
-      
-      let modelName = possibleModelNames[0];
-      let lastError: Error | null = null;
-      
-      // Try each model name until one works
-      for (const name of possibleModelNames) {
-        try {
-          modelName = name;
-          console.log(`[GeminiImage] Trying model: ${name}`);
-          // We'll use this in the request below
-          break; // For now, use first one, but we can implement retry logic if needed
-        } catch (error) {
-          lastError = error as Error;
-          continue;
-        }
-      }
-      
-      const requestBody: any = {
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.4,
-          topK: 32,
-          topP: 1,
-          maxOutputTokens: 8192,
-        }
+
+      const personGenerationMap: Record<string, string> = {
+        ALLOW_ALL: 'ALLOW_ALL',
+        ALLOW_ADULT: 'ALLOW_ADULT',
+        ALLOW_NONE: 'DONT_ALLOW',
+        DONT_ALLOW: 'DONT_ALLOW',
       };
 
-      // Add safety settings if provided
-      // Use more permissive settings to avoid over-blocking innocent content
-      if (options.safetySetting) {
-        requestBody.safetySettings = [
-          {
-            category: 'HARM_CATEGORY_HATE_SPEECH',
-            threshold: options.safetySetting
-          },
-          {
-            category: 'HARM_CATEGORY_HARASSMENT',
-            threshold: options.safetySetting
-          },
-          {
-            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-            threshold: options.safetySetting
-          },
-          {
-            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-            threshold: options.safetySetting
-          },
-          {
-            category: 'HARM_CATEGORY_CIVIC_INTEGRITY',
-            threshold: options.safetySetting
-          }
-        ];
-      } else {
-        // Default to most permissive if not specified
-        requestBody.safetySettings = [
-          {
-            category: 'HARM_CATEGORY_HATE_SPEECH',
-            threshold: 'BLOCK_NONE'
-          },
-          {
-            category: 'HARM_CATEGORY_HARASSMENT',
-            threshold: 'BLOCK_NONE'
-          },
-          {
-            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-            threshold: 'BLOCK_NONE'
-          },
-          {
-            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-            threshold: 'BLOCK_NONE'
-          },
-          {
-            category: 'HARM_CATEGORY_CIVIC_INTEGRITY',
-            threshold: 'BLOCK_NONE'
-          }
-        ];
-      }
-      
-      // Note: aspectRatio and personGeneration are NOT supported in the API
-      // They were causing 400 errors
+      const defaultSafetyLevel = options.safetySetting || 'BLOCK_NONE';
+      const defaultPersonGeneration = options.personGeneration || 'ALLOW_NONE';
 
-      // Try the primary model first
-      let response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
+      let lastError: Error | null = null;
+      let lastResponse: globalThis.Response | null = null;
+      let lastResponseBody: any = null;
+
+      const buildPredictBody = () => {
+        const parameters: Record<string, any> = {
+          outputMimeType: 'image/png',
+          numberOfImages: 1,
+          safetyFilterLevel: defaultSafetyLevel,
+        };
+
+        if (options.aspectRatio) {
+          parameters.aspectRatio = options.aspectRatio;
         }
-      );
-      
-      // If the first model fails, try alternative endpoints
-      if (!response.ok && modelName === possibleModelNames[0]) {
-        console.log(`[GeminiImage] Model ${modelName} failed (${response.status}), trying alternatives...`);
-        // Clone the response before reading it
-        const errorResponse = response.clone();
-        const errorText = await errorResponse.text();
-        console.log(`[GeminiImage] Error:`, errorText.substring(0, 500));
-        
-        for (const altName of possibleModelNames.slice(1)) {
-          try {
-            console.log(`[GeminiImage] Trying alternative model: ${altName}`);
-            response = await fetch(
-              `https://generativelanguage.googleapis.com/v1beta/models/${altName}:generateContent?key=${encodeURIComponent(apiKey)}`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
+
+        if (defaultPersonGeneration) {
+          const mapped = personGenerationMap[defaultPersonGeneration] || defaultPersonGeneration;
+          parameters.personGeneration = mapped;
+        }
+
+        return {
+          instances: [
+            {
+              prompt,
+            },
+          ],
+          parameters,
+        };
+      };
+
+      const buildGenerateContentBody = () => {
+        const safetyThreshold = options.safetySetting || 'BLOCK_NONE';
+
+        return {
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                {
+                  text: `Generate an image with this description: ${prompt}`,
                 },
-                body: JSON.stringify(requestBody),
-              }
-            );
-            if (response.ok) {
-              modelName = altName;
-              console.log(`[GeminiImage] ✅ Successfully using model: ${altName}`);
-              break;
-            } else {
-              // Clone before reading
-              const altErrorResponse = response.clone();
-              const altError = await altErrorResponse.text();
-              console.log(`[GeminiImage] Model ${altName} also failed:`, altError.substring(0, 200));
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.4,
+            topK: 32,
+            topP: 1,
+            maxOutputTokens: 8192,
+            responseMimeType: 'image/png',
+            responseModalities: ['IMAGE'],
+            mediaResolution: 'MEDIA_RESOLUTION_HIGH',
+          },
+          safetySettings: [
+            'HARM_CATEGORY_HATE_SPEECH',
+            'HARM_CATEGORY_HARASSMENT',
+            'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+            'HARM_CATEGORY_DANGEROUS_CONTENT',
+            'HARM_CATEGORY_CIVIC_INTEGRITY',
+          ].map((category) => ({
+            category,
+            threshold: safetyThreshold,
+          })),
+        };
+      };
+
+      const extractImageFromPredict = (data: any) => {
+        const prediction = data?.predictions?.[0];
+        if (!prediction) {
+          return null;
+        }
+
+        if (prediction.bytesBase64Encoded) {
+          return {
+            imageBase64: prediction.bytesBase64Encoded,
+            mimeType: prediction.mimeType || 'image/png',
+          };
+        }
+
+        if (prediction.image?.bytesBase64Encoded) {
+          return {
+            imageBase64: prediction.image.bytesBase64Encoded,
+            mimeType: prediction.image.mimeType || prediction.mimeType || 'image/png',
+          };
+        }
+
+        if (prediction.image?.imageBytes) {
+          return {
+            imageBase64: prediction.image.imageBytes,
+            mimeType: prediction.image.mimeType || 'image/png',
+          };
+        }
+
+        return null;
+      };
+
+      const extractImageFromGenerateContent = (data: any) => {
+        if (data.candidates?.[0]?.content?.parts) {
+          for (const part of data.candidates[0].content.parts) {
+            if (part.inlineData?.data) {
+              return {
+                imageBase64: part.inlineData.data,
+                mimeType: part.inlineData.mimeType || 'image/png',
+              };
             }
+
+            if (part.text) {
+              const urlMatch = part.text.match(/https?:\/\/[^\s)]+/);
+              if (urlMatch) {
+                return {
+                  imageUrl: urlMatch[0],
+                  mimeType: 'url',
+                };
+              }
+            }
+          }
+        }
+
+        if (data.images?.[0]?.data) {
+          return {
+            imageBase64: data.images[0].data,
+            mimeType: data.images[0].mimeType || 'image/png',
+          };
+        }
+
+        return null;
+      };
+
+      for (const modelName of possibleModelNames) {
+        const endpointOrder = modelName.startsWith('gemini-2.0')
+          ? ['predict', 'generateContent']
+          : ['generateContent'];
+
+        for (const endpointType of endpointOrder) {
+          const apiVersion =
+            endpointType === 'predict'
+              ? 'v1beta'
+              : modelName.startsWith('gemini-2.0')
+                ? 'v1beta'
+                : 'v1';
+
+          const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${modelName}:${endpointType}?key=${encodeURIComponent(apiKey)}`;
+          const requestBody = endpointType === 'predict'
+            ? buildPredictBody()
+            : buildGenerateContentBody();
+
+          try {
+            console.log(`[GeminiImage] Trying model: ${modelName} via ${endpointType}`);
+
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+            });
+
+            lastResponse = response;
+            const responseJson = await response.json().catch(() => null);
+            lastResponseBody = responseJson;
+
+            if (!response.ok) {
+              const errorMessage =
+                responseJson?.error?.message ||
+                `${response.status} ${response.statusText}`;
+
+              console.log(`[GeminiImage] Model ${modelName} via ${endpointType} failed: ${errorMessage}`);
+              lastError = new Error(errorMessage);
+
+              // Try next endpoint/model
+              continue;
+            }
+
+            console.log('[GeminiImage] =============================================');
+            console.log('[GeminiImage] Model used:', modelName);
+            console.log('[GeminiImage] Endpoint:', endpointType);
+            console.log('[GeminiImage] Response status:', response.status);
+            console.log('[GeminiImage] Full API response:');
+            console.log(JSON.stringify(responseJson, null, 2));
+            console.log('[GeminiImage] =============================================');
+
+            let extractionResult: { imageBase64?: string; mimeType: string; imageUrl?: string } | null = null;
+
+            if (endpointType === 'predict') {
+              extractionResult = extractImageFromPredict(responseJson);
+            }
+
+            if (!extractionResult) {
+              extractionResult = extractImageFromGenerateContent(responseJson);
+            }
+
+            if (extractionResult?.imageBase64 || extractionResult?.imageUrl) {
+              if (extractionResult.imageUrl && !extractionResult.imageBase64) {
+                try {
+                  console.log('[GeminiImage] Fetching image from URL and converting to base64...');
+                  console.log('[GeminiImage] Image URL:', extractionResult.imageUrl);
+
+                  let imageResponse = await fetch(extractionResult.imageUrl, {
+                    headers: {
+                      'User-Agent': 'Mozilla/5.0',
+                    },
+                  });
+
+                  if (!imageResponse.ok) {
+                    const urlWithKey = `${extractionResult.imageUrl}${extractionResult.imageUrl.includes('?') ? '&' : '?'}key=${encodeURIComponent(apiKey)}`;
+                    imageResponse = await fetch(urlWithKey, {
+                      headers: {
+                        'User-Agent': 'Mozilla/5.0',
+                      },
+                    });
+                  }
+
+                  if (imageResponse.ok) {
+                    const arrayBuffer = await imageResponse.arrayBuffer();
+                    const imageBase64 = Buffer.from(arrayBuffer).toString('base64');
+                    const mimeType = imageResponse.headers.get('content-type') || 'image/png';
+
+                    return {
+                      imageBase64,
+                      mimeType,
+                    };
+                  }
+
+                  console.error('[GeminiImage] Failed to fetch image, status:', imageResponse.status);
+                  throw new Error(`Failed to fetch image: ${imageResponse.status} ${imageResponse.statusText}`);
+                } catch (fetchError: any) {
+                  console.error('[GeminiImage] Failed to fetch image from URL:', fetchError);
+                  throw new Error(`Failed to fetch image from URL: ${fetchError.message}`);
+                }
+              }
+
+              return {
+                imageBase64: extractionResult.imageBase64 || extractionResult.imageUrl || '',
+                mimeType: extractionResult.mimeType,
+              };
+            }
+
+            console.log('[GeminiImage] No image payload detected, trying next endpoint/model...');
           } catch (error) {
-            console.log(`[GeminiImage] Model ${altName} threw error:`, error);
+            console.log(`[GeminiImage] Error calling ${modelName} via ${endpointType}:`, error);
+            lastError = error as Error;
             continue;
           }
         }
       }
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`[GeminiImage] API error: ${response.status} ${response.statusText}`, errorText);
-        
-        // Parse error to extract user-friendly message
-        let userMessage = `Failed to generate image`;
-        try {
-          const errorJson = JSON.parse(errorText);
-          if (errorJson.error?.message) {
-            userMessage = errorJson.error.message;
-            // Extract just the first line if it's a multi-line error
-            const firstLine = userMessage.split('\n')[0];
-            userMessage = firstLine;
-            
-            // Simplify common errors
-            if (response.status === 429) {
-              userMessage = "Gemini API quota exceeded. Please wait a moment and try again, or check your billing plan.";
-            } else if (response.status === 404) {
-              userMessage = "Image generation model not available. Please try again later.";
-            } else if (response.status === 400) {
-              userMessage = "Invalid request to Gemini API. Please try a different prompt.";
-            }
-          }
-        } catch (e) {
-          // If JSON parsing fails, use status text
-          userMessage = `Image generation failed: ${response.statusText}`;
-        }
-        
-        throw new Error(userMessage);
+      if (lastResponseBody) {
+        console.error('[GeminiImage] Last response body:', JSON.stringify(lastResponseBody, null, 2));
       }
 
-      const data = await response.json();
-      
-      console.log('[GeminiImage] =============================================');
-      console.log('[GeminiImage] Model used:', modelName);
-      console.log('[GeminiImage] Response status:', response.status);
-      console.log('[GeminiImage] Full API response:');
-      console.log(JSON.stringify(data, null, 2));
-      console.log('[GeminiImage] =============================================');
-
-      // Extract image from response
-      // The response structure may vary, so we check multiple possible locations
-      let imageBase64: string | undefined;
-      let mimeType: string = 'image/png';
-      let imageUrl: string | undefined;
-
-      // Check for inlineData (base64)
-      if (data.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-        imageBase64 = data.candidates[0].content.parts[0].inlineData.data;
-        mimeType = data.candidates[0].content.parts[0].inlineData.mimeType || 'image/png';
-      } else if (data.response?.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-        imageBase64 = data.response.candidates[0].content.parts[0].inlineData.data;
-        mimeType = data.response.candidates[0].content.parts[0].inlineData.mimeType || 'image/png';
-      } else if (data.images?.[0]?.data) {
-        imageBase64 = data.images[0].data;
-        mimeType = data.images[0].mimeType || 'image/png';
-      }
-      // Check for URL in text content or other fields
-      // Also check all parts, not just the first one
-      if (!imageBase64 && data.candidates?.[0]?.content?.parts) {
-        for (const part of data.candidates[0].content.parts) {
-          if (part.text) {
-            const text = part.text;
-            // Try to extract URL from text (more comprehensive pattern)
-            const urlMatch = text.match(/https?:\/\/[^\s\)]+/);
-            if (urlMatch) {
-              imageUrl = urlMatch[0];
-              console.log('[GeminiImage] Found URL in response text:', imageUrl);
-              break;
-            }
-          }
-          // Also check for inlineData in any part
-          if (part.inlineData) {
-            imageBase64 = part.inlineData.data;
-            mimeType = part.inlineData.mimeType || 'image/png';
-            console.log('[GeminiImage] Found inlineData in part');
-            break;
-          }
-        }
+      if (lastResponse && lastResponse.status === 429) {
+        throw new Error("Gemini API quota exceeded. Please wait a moment and try again, or check your billing plan.");
       }
 
-      // If we have a URL but no base64, fetch the image and convert to base64
-      if (imageUrl && !imageBase64) {
-        try {
-          console.log('[GeminiImage] Fetching image from URL and converting to base64...');
-          console.log('[GeminiImage] Image URL:', imageUrl);
-          
-          // First try without API key
-          let imageResponse = await fetch(imageUrl, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0',
-            }
-          });
-          
-          // If that fails, try with API key
-          if (!imageResponse.ok) {
-            console.log('[GeminiImage] First fetch failed, trying with API key...');
-            const urlWithKey = `${imageUrl}${imageUrl.includes('?') ? '&' : '?'}key=${encodeURIComponent(apiKey)}`;
-            imageResponse = await fetch(urlWithKey, {
-              headers: {
-                'User-Agent': 'Mozilla/5.0',
-              }
-            });
-          }
-          
-          if (imageResponse.ok) {
-            const arrayBuffer = await imageResponse.arrayBuffer();
-            imageBase64 = Buffer.from(arrayBuffer).toString('base64');
-            mimeType = imageResponse.headers.get('content-type') || 'image/png';
-            console.log('[GeminiImage] Successfully converted URL to base64, size:', imageBase64.length);
-          } else {
-            console.error('[GeminiImage] Failed to fetch image, status:', imageResponse.status);
-            throw new Error(`Failed to fetch image: ${imageResponse.status} ${imageResponse.statusText}`);
-          }
-        } catch (fetchError: any) {
-          console.error('[GeminiImage] Failed to fetch image from URL:', fetchError);
-          // Re-throw so the route handler can try again
-          throw new Error(`Failed to fetch image from URL: ${fetchError.message}`);
-        }
+      if (lastResponse && lastResponse.status === 404) {
+        throw new Error("Image generation model not available. Please try again later.");
       }
 
-      // Check if the request was blocked by safety filters
-      if (data.candidates?.[0]?.finishReason === 'SAFETY') {
-        const safetyRatings = data.candidates[0].safetyRatings || [];
-        console.error('[GeminiImage] Content blocked by safety filter:', JSON.stringify(safetyRatings, null, 2));
-        
-        let safetyMessage = "Content was blocked by Gemini's safety filters. ";
-        
-        // Check which category blocked it
-        const blockedCategories = safetyRatings
-          .filter((rating: any) => rating.blocked)
-          .map((rating: any) => rating.category);
-        
-        if (blockedCategories.length > 0) {
-          safetyMessage += `Categories: ${blockedCategories.join(', ')}. `;
-        }
-        
-        safetyMessage += "Try rephrasing your prompt to be more specific and descriptive.";
-        throw new Error(safetyMessage);
-      }
-      
-      if (!imageBase64 && !imageUrl) {
-        console.error('[GeminiImage] No image data or URL found in response:', JSON.stringify(data, null, 2));
-        throw new Error('No image data returned from Gemini Image API');
+      if (lastError) {
+        throw lastError;
       }
 
-      // If we still only have URL, return it (frontend will handle it)
-      if (!imageBase64 && imageUrl) {
-        // Return URL as base64 data URL format so frontend can handle it
-        // Actually, let's return it as a special format
-        return {
-          imageBase64: imageUrl, // Store URL in base64 field for now
-          mimeType: 'url', // Special marker
-        };
-      }
-
-      return {
-        imageBase64,
-        mimeType,
-      };
+      throw new Error('No image data returned from Gemini Image API');
     } catch (error) {
       console.error('[GeminiImage] Error generating image:', error);
       throw error;
