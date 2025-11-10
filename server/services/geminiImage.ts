@@ -68,6 +68,7 @@ class GeminiImageService {
       };
 
       // Add safety settings if provided
+      // Use more permissive settings to avoid over-blocking innocent content
       if (options.safetySetting) {
         requestBody.safetySettings = [
           {
@@ -85,6 +86,34 @@ class GeminiImageService {
           {
             category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
             threshold: options.safetySetting
+          },
+          {
+            category: 'HARM_CATEGORY_CIVIC_INTEGRITY',
+            threshold: options.safetySetting
+          }
+        ];
+      } else {
+        // Default to most permissive if not specified
+        requestBody.safetySettings = [
+          {
+            category: 'HARM_CATEGORY_HATE_SPEECH',
+            threshold: 'BLOCK_NONE'
+          },
+          {
+            category: 'HARM_CATEGORY_HARASSMENT',
+            threshold: 'BLOCK_NONE'
+          },
+          {
+            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+            threshold: 'BLOCK_NONE'
+          },
+          {
+            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+            threshold: 'BLOCK_NONE'
+          },
+          {
+            category: 'HARM_CATEGORY_CIVIC_INTEGRITY',
+            threshold: 'BLOCK_NONE'
           }
         ];
       }
@@ -263,6 +292,26 @@ class GeminiImageService {
         }
       }
 
+      // Check if the request was blocked by safety filters
+      if (data.candidates?.[0]?.finishReason === 'SAFETY') {
+        const safetyRatings = data.candidates[0].safetyRatings || [];
+        console.error('[GeminiImage] Content blocked by safety filter:', JSON.stringify(safetyRatings, null, 2));
+        
+        let safetyMessage = "Content was blocked by Gemini's safety filters. ";
+        
+        // Check which category blocked it
+        const blockedCategories = safetyRatings
+          .filter((rating: any) => rating.blocked)
+          .map((rating: any) => rating.category);
+        
+        if (blockedCategories.length > 0) {
+          safetyMessage += `Categories: ${blockedCategories.join(', ')}. `;
+        }
+        
+        safetyMessage += "Try rephrasing your prompt to be more specific and descriptive.";
+        throw new Error(safetyMessage);
+      }
+      
       if (!imageBase64 && !imageUrl) {
         console.error('[GeminiImage] No image data or URL found in response:', JSON.stringify(data, null, 2));
         throw new Error('No image data returned from Gemini Image API');

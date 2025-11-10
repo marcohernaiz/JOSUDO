@@ -1795,7 +1795,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 enhancedMessage,
                 serviceConfig.userApiKey || "",
                 {
-                  safetySetting: "BLOCK_ONLY_HIGH",
+                  safetySetting: "BLOCK_NONE", // Most permissive - only blocks extreme content
                   // Note: aspectRatio and personGeneration are not supported
                 },
               );
