@@ -25,10 +25,9 @@ class GeminiImageService {
   }> {
     try {
       const possibleModelNames = [
-        'gemini-2.0-flash-exp',      // Nano Banana
-        'gemini-2.0-flash',
-        'gemini-1.5-flash-latest',
-        'gemini-1.5-pro-latest',
+        'gemini-2.5-flash-image',    // Gemini 2.5 Flash with image generation (Nano Banana)
+        'gemini-2.5-flash',          // Gemini 2.5 Flash (may support image gen)
+        'gemini-2.0-flash-exp',      // Fallback experimental model
       ];
 
       const personGenerationMap: Record<string, string> = {
@@ -80,7 +79,7 @@ class GeminiImageService {
               role: 'user',
               parts: [
                 {
-                  text: `Generate an image with this description: ${prompt}`,
+                  text: prompt,
                 },
               ],
             },
@@ -90,9 +89,7 @@ class GeminiImageService {
             topK: 32,
             topP: 1,
             maxOutputTokens: 8192,
-            responseMimeType: 'image/png',
             responseModalities: ['IMAGE'],
-            mediaResolution: 'MEDIA_RESOLUTION_HIGH',
           },
           safetySettings: [
             'HARM_CATEGORY_HATE_SPEECH',
@@ -170,17 +167,16 @@ class GeminiImageService {
       };
 
       for (const modelName of possibleModelNames) {
-        const endpointOrder = modelName.startsWith('gemini-2.0')
+        // Gemini 2.5 models use v1beta, try both predict and generateContent
+        const endpointOrder = modelName.startsWith('gemini-2.5') || modelName.startsWith('gemini-2.0')
           ? ['predict', 'generateContent']
           : ['generateContent'];
 
         for (const endpointType of endpointOrder) {
           const apiVersion =
-            endpointType === 'predict'
+            modelName.startsWith('gemini-2.5') || modelName.startsWith('gemini-2.0')
               ? 'v1beta'
-              : modelName.startsWith('gemini-2.0')
-                ? 'v1beta'
-                : 'v1';
+              : 'v1';
 
           const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${modelName}:${endpointType}?key=${encodeURIComponent(apiKey)}`;
           const requestBody = endpointType === 'predict'
