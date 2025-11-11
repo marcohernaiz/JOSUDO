@@ -39,24 +39,29 @@ class GeminiVideoService {
             prompt,
           },
         ],
-        parameters: {
-          numberOfVideos: 1,
-        }
       };
+
+      // Only add parameters if we have any to add
+      const parameters: any = {};
 
       // Add optional parameters
       if (options.aspectRatio) {
-        requestBody.parameters.aspectRatio = options.aspectRatio;
+        parameters.aspectRatio = options.aspectRatio;
       }
 
-      // Note: Veo 3.1 Fast doesn't support durationSeconds - always generates 8 seconds
+      // Note: Veo 3.1 Fast doesn't support durationSeconds or numberOfVideos
       // Only add if using a different model that supports it
       if (options.durationSeconds && model !== 'veo-3.1-fast-generate-preview') {
-        requestBody.parameters.durationSeconds = options.durationSeconds;
+        parameters.durationSeconds = options.durationSeconds;
       }
 
       if (options.resolution) {
-        requestBody.parameters.resolution = options.resolution;
+        parameters.resolution = options.resolution;
+      }
+
+      // Only add parameters object if we have parameters
+      if (Object.keys(parameters).length > 0) {
+        requestBody.parameters = parameters;
       }
 
       console.log('[GeminiVideo] Request body:', JSON.stringify(requestBody, null, 2));
