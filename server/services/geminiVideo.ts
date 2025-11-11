@@ -2,7 +2,7 @@ import { userApiKeysService } from './userApiKeys';
 
 /**
  * Service for Gemini Veo (Video Generation)
- * Uses direct API calls to Google's Generative Language API
+ * Uses the Gemini API's generateVideos endpoint (long-running operation)
  */
 class GeminiVideoService {
   /**
@@ -17,6 +17,7 @@ class GeminiVideoService {
     options: {
       aspectRatio?: '9:16' | '16:9' | '1:1';
       durationSeconds?: number;
+      resolution?: '720p' | '1080p';
     } = {}
   ): Promise<{
     videoBase64?: string;
@@ -24,222 +25,126 @@ class GeminiVideoService {
     mimeType: string;
   }> {
     try {
-      const possibleModelNames = [
-        'veo-002',                    // Veo 2 (latest)
-        'veo-001',                    // Veo 1
-        'gemini-2.5-flash-video',    // Gemini 2.5 Flash with video generation
-      ];
+      // Use Veo 3.1 Fast for quick generation (8 seconds max)
+      const model = 'veo-3.1-fast-generate-preview';
+      const baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
+      
+      console.log(`[GeminiVideo] Starting video generation with ${model}`);
+      console.log(`[GeminiVideo] Prompt: ${prompt.substring(0, 100)}...`);
 
-      let lastError: Error | null = null;
-      let lastResponse: globalThis.Response | null = null;
-      let lastResponseBody: any = null;
-
-      const buildPredictBody = () => {
-        const parameters: Record<string, any> = {
-          numberOfVideos: 1,
-        };
-
-        if (options.aspectRatio) {
-          parameters.aspectRatio = options.aspectRatio;
-        }
-
-        if (options.durationSeconds) {
-          parameters.durationSeconds = options.durationSeconds;
-        }
-
-        return {
-          instances: [
-            {
-              prompt,
-            },
-          ],
-          parameters,
-        };
-      };
-
-      const buildGenerateContentBody = () => {
-        return {
-          contents: [
-            {
-              role: 'user',
-              parts: [
-                {
-                  text: prompt,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.4,
-            responseModalities: ['VIDEO'],
+      // Build request body for Veo predictLongRunning endpoint
+      const requestBody: any = {
+        instances: [
+          {
+            prompt,
           },
-        };
+        ],
+        parameters: {
+          numberOfVideos: 1,
+        }
       };
 
-      const extractVideoFromPredict = (data: any) => {
-        const prediction = data?.predictions?.[0];
-        if (!prediction) {
-          return null;
+      // Add optional parameters
+      if (options.aspectRatio) {
+        requestBody.parameters.aspectRatio = options.aspectRatio;
+      }
+
+      if (options.durationSeconds) {
+        requestBody.parameters.durationSeconds = options.durationSeconds;
+      }
+
+      if (options.resolution) {
+        requestBody.parameters.resolution = options.resolution;
+      }
+
+      console.log('[GeminiVideo] Request body:', JSON.stringify(requestBody, null, 2));
+
+      // Step 1: Start the long-running video generation operation
+      const startUrl = `${baseUrl}/models/${model}:predictLongRunning?key=${encodeURIComponent(apiKey)}`;
+      
+      const startResponse = await fetch(startUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!startResponse.ok) {
+        const errorText = await startResponse.text();
+        console.error('[GeminiVideo] Failed to start operation:', errorText);
+        throw new Error(`Failed to start video generation: ${startResponse.status} ${startResponse.statusText}`);
+      }
+
+      const operationData = await startResponse.json();
+      const operationName = operationData.name;
+      
+      if (!operationName) {
+        console.error('[GeminiVideo] No operation name in response:', operationData);
+        throw new Error('No operation name returned from video generation request');
+      }
+
+      console.log('[GeminiVideo] Operation started:', operationName);
+      console.log('[GeminiVideo] Polling for completion (this may take 30-60 seconds)...');
+
+      // Step 2: Poll the operation until it's done
+      const pollUrl = `${baseUrl}/${operationName}?key=${encodeURIComponent(apiKey)}`;
+      const maxAttempts = 60; // 10 minutes max (10 second intervals)
+      let attempts = 0;
+      let isDone = false;
+      let finalResponse: any = null;
+
+      while (!isDone && attempts < maxAttempts) {
+        attempts++;
+        
+        // Wait 10 seconds between polls
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        
+        const pollResponse = await fetch(pollUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!pollResponse.ok) {
+          const errorText = await pollResponse.text();
+          console.error('[GeminiVideo] Polling failed:', errorText);
+          throw new Error(`Failed to poll operation: ${pollResponse.status} ${pollResponse.statusText}`);
         }
 
-        // Check for video in various possible locations
-        if (prediction.video?.videoUri) {
-          return {
-            videoUrl: prediction.video.videoUri,
-            mimeType: prediction.video.mimeType || 'video/mp4',
-          };
-        }
+        finalResponse = await pollResponse.json();
+        isDone = finalResponse.done === true;
 
-        if (prediction.video?.bytesBase64Encoded) {
-          return {
-            videoBase64: prediction.video.bytesBase64Encoded,
-            mimeType: prediction.video.mimeType || 'video/mp4',
-          };
-        }
-
-        if (prediction.videoUri) {
-          return {
-            videoUrl: prediction.videoUri,
-            mimeType: 'video/mp4',
-          };
-        }
-
-        return null;
-      };
-
-      const extractVideoFromGenerateContent = (data: any) => {
-        if (data.candidates?.[0]?.content?.parts) {
-          for (const part of data.candidates[0].content.parts) {
-            if (part.inlineData?.data && part.inlineData?.mimeType?.startsWith('video/')) {
-              return {
-                videoBase64: part.inlineData.data,
-                mimeType: part.inlineData.mimeType || 'video/mp4',
-              };
-            }
-
-            if (part.fileData?.fileUri) {
-              return {
-                videoUrl: part.fileData.fileUri,
-                mimeType: part.fileData.mimeType || 'video/mp4',
-              };
-            }
-
-            if (part.text) {
-              const urlMatch = part.text.match(/https?:\/\/[^\s)]+/);
-              if (urlMatch) {
-                return {
-                  videoUrl: urlMatch[0],
-                  mimeType: 'video/mp4',
-                };
-              }
-            }
-          }
-        }
-
-        return null;
-      };
-
-      for (const modelName of possibleModelNames) {
-        // Veo and Gemini 2.5 models use v1beta, try both predict and generateContent
-        const endpointOrder = ['predict', 'generateContent'];
-
-        for (const endpointType of endpointOrder) {
-          const apiVersion = 'v1beta';
-
-          const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${modelName}:${endpointType}?key=${encodeURIComponent(apiKey)}`;
-          const requestBody = endpointType === 'predict'
-            ? buildPredictBody()
-            : buildGenerateContentBody();
-
-          try {
-            console.log(`[GeminiVideo] Trying model: ${modelName} via ${endpointType}`);
-
-            const response = await fetch(url, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(requestBody),
-            });
-
-            lastResponse = response;
-            const responseJson = await response.json().catch(() => null);
-            lastResponseBody = responseJson;
-
-            if (!response.ok) {
-              const errorMessage =
-                responseJson?.error?.message ||
-                `${response.status} ${response.statusText}`;
-
-              console.log(`[GeminiVideo] Model ${modelName} via ${endpointType} failed: ${errorMessage}`);
-              lastError = new Error(errorMessage);
-
-              // Try next endpoint/model
-              continue;
-            }
-
-            console.log('[GeminiVideo] =============================================');
-            console.log('[GeminiVideo] Model used:', modelName);
-            console.log('[GeminiVideo] Endpoint:', endpointType);
-            console.log('[GeminiVideo] Response status:', response.status);
-            console.log('[GeminiVideo] Full API response:');
-            console.log(JSON.stringify(responseJson, null, 2));
-            console.log('[GeminiVideo] =============================================');
-
-            let extractionResult: { videoBase64?: string; videoUrl?: string; mimeType: string } | null = null;
-
-            if (endpointType === 'predict') {
-              extractionResult = extractVideoFromPredict(responseJson);
-            }
-
-            if (!extractionResult) {
-              extractionResult = extractVideoFromGenerateContent(responseJson);
-            }
-
-            if (extractionResult?.videoBase64 || extractionResult?.videoUrl) {
-              // If we have a URL, we might need to fetch it
-              if (extractionResult.videoUrl && !extractionResult.videoBase64) {
-                console.log('[GeminiVideo] Video URL returned:', extractionResult.videoUrl);
-                // For now, return the URL directly - frontend can handle it
-                // In the future, we could fetch and convert to base64 if needed
-              }
-
-              return {
-                videoBase64: extractionResult.videoBase64,
-                videoUrl: extractionResult.videoUrl,
-                mimeType: extractionResult.mimeType,
-              };
-            }
-
-            // If we got a successful response but no video, log and continue
-            console.log('[GeminiVideo] Response successful but no video data found');
-            lastError = new Error('No video data returned from API');
-          } catch (error) {
-            console.log(`[GeminiVideo] Model ${modelName} via ${endpointType} threw error:`, error);
-            lastError = error as Error;
-          }
+        if (isDone) {
+          console.log('[GeminiVideo] Operation complete!');
+          console.log('[GeminiVideo] Final response:', JSON.stringify(finalResponse, null, 2));
+        } else {
+          console.log(`[GeminiVideo] Still processing... (attempt ${attempts}/${maxAttempts})`);
         }
       }
 
-      // All models failed
-      console.log('[GeminiVideo] Last response body:', JSON.stringify(lastResponseBody, null, 2));
-
-      let userMessage = 'Failed to generate video';
-      if (lastResponse) {
-        if (lastResponse.status === 429) {
-          userMessage = "Gemini API quota exceeded. Please wait a moment and try again, or check your billing plan.";
-        } else if (lastResponse.status === 404) {
-          userMessage = "Video generation model not available. Please try again later.";
-        } else if (lastResponse.status === 400) {
-          userMessage = "Invalid request to Gemini API. Please try a different prompt.";
-        } else if (lastResponseBody?.error?.message) {
-          userMessage = lastResponseBody.error.message.split('\n')[0];
-        }
-      } else if (lastError) {
-        userMessage = lastError.message;
+      if (!isDone) {
+        throw new Error('Video generation timed out. Please try again.');
       }
 
-      throw new Error(userMessage);
+      // Step 3: Extract video URL from the response
+      const videoUri = finalResponse?.response?.generateVideoResponse?.generatedSamples?.[0]?.video?.uri;
+      
+      if (!videoUri) {
+        console.error('[GeminiVideo] No video URI in response:', finalResponse);
+        throw new Error('No video URL returned from Gemini API');
+      }
+
+      console.log('[GeminiVideo] Video URI:', videoUri);
+
+      // Return the video URL (with API key for download)
+      const videoUrlWithKey = `${videoUri}?key=${encodeURIComponent(apiKey)}`;
+      
+      return {
+        videoUrl: videoUrlWithKey,
+        mimeType: 'video/mp4',
+      };
     } catch (error) {
       console.error('[GeminiVideo] Error generating video:', error);
       throw error;
@@ -255,6 +160,7 @@ class GeminiVideoService {
     options?: {
       aspectRatio?: '9:16' | '16:9' | '1:1';
       durationSeconds?: number;
+      resolution?: '720p' | '1080p';
     }
   ): Promise<{
     videoBase64?: string;
