@@ -146,7 +146,11 @@ class GeminiVideoService {
       console.log('[GeminiVideo] Video URI:', videoUri);
 
       // Return the video URL (with API key for download)
-      const videoUrlWithKey = `${videoUri}?key=${encodeURIComponent(apiKey)}`;
+      // Check if URL already has query parameters
+      const separator = videoUri.includes('?') ? '&' : '?';
+      const videoUrlWithKey = `${videoUri}${separator}key=${encodeURIComponent(apiKey)}`;
+      
+      console.log('[GeminiVideo] Video URL with key:', videoUrlWithKey);
       
       return {
         videoUrl: videoUrlWithKey,
