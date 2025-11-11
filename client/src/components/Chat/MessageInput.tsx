@@ -148,7 +148,8 @@ const AI_MODELS = [
   { id: 'perplexity', name: 'Perplexity', icon: Brain },
   { id: 'grok-beta', name: 'Grok 4.0', icon: SiX },
   { id: 'gemini-pro', name: 'Gemini 2.5+', icon: SiGoogle },
-  { id: 'gemini-nano-banana', name: 'Gemini Nano Banana (Image Gen)', icon: SiGoogle },
+  { id: 'gemini-nano-banana', name: 'Nano Banana (Image Gen)', icon: SiGoogle },
+  { id: 'gemini-veo', name: 'Veo (Video Gen)', icon: SiGoogle },
   { id: 'claude-3-5-sonnet', name: 'Claude 3.5 Sonnet (API Key)', icon: SiAnthropic },
   { id: 'gpt-4.1', name: 'GPT-4o (API Key)', icon: SiOpenai },
   { id: 'gpt-5', name: 'GPT-5 Mini', icon: SiOpenai },
@@ -278,7 +279,7 @@ export const MessageInput: React.FC = () => {
     }
 
     // Check if model requires API key but user doesn't have one
-    const requiresApiKey = ['gpt-4.1', 'gpt-4', 'gpt-4o', 'claude-3-5-sonnet', 'gemini-pro', 'gemini-nano-banana', 'grok-beta', 'perplexity'].includes(modelId);
+    const requiresApiKey = ['gpt-4.1', 'gpt-4', 'gpt-4o', 'claude-3-5-sonnet', 'gemini-pro', 'gemini-nano-banana', 'gemini-veo', 'grok-beta', 'perplexity'].includes(modelId);
     if (requiresApiKey && !hasUserApiKey(modelId)) {
       const providerMap: { [key: string]: string } = {
         'gpt-4': 'OpenAI',

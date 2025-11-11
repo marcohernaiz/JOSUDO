@@ -262,7 +262,9 @@ const getModelDisplayName = (modelId: string) => {
     case "gemini-pro":
       return "Gemini (Google)";
     case "gemini-nano-banana":
-      return "Gemini Nano Banana (Image Gen)";
+      return "Nano Banana (Image Gen)";
+    case "gemini-veo":
+      return "Veo (Video Gen)";
     case "llama-3":
       return "Llama 3 (Meta)";
     case "grok-beta":

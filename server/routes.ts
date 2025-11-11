@@ -25,6 +25,7 @@ import { userGrokService } from "./services/userGrok";
 import { userPerplexityService } from "./services/userPerplexity";
 import { perplexityService } from "./services/perplexity";
 import { geminiImageService } from "./services/geminiImage";
+import { geminiVideoService } from "./services/geminiVideo";
 import { registerAdminRoutes } from "./adminRoutes";
 
 // Model configuration for hybrid selection
@@ -58,6 +59,11 @@ const MODEL_CONFIG = {
     replicateModel: null,
   },
   "gemini-nano-banana": {
+    provider: "google",
+    allowUserKey: true,
+    replicateModel: null,
+  },
+  "gemini-veo": {
     provider: "google",
     allowUserKey: true,
     replicateModel: null,
@@ -1868,7 +1874,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
             res.end();
             console.log('[Routes] Response ended for Nano Banana');
             return; // Exit early since we've handled everything
-          } else {
+          }
+
+          if (model === "gemini-veo") {
+            // Video generation - handle separately
+            console.log('============================================');
+            console.log('🎬 VEO VIDEO GENERATION STARTED');
+            console.log('Model:', model);
+            console.log('Prompt:', enhancedMessage.substring(0, 100));
+            console.log('============================================');
+            
+            try {
+              const videoResult = await geminiVideoService.generateVideo(
+                enhancedMessage,
+                serviceConfig.userApiKey || "",
+                {
+                  aspectRatio: "16:9",
+                  durationSeconds: 5,
+                },
+              );
+
+              // Handle video result
+              let videoMarkdown: string;
+              if (videoResult.videoUrl) {
+                // If we have a URL, embed it
+                videoMarkdown = `🎬 **Video Generated!**\n\n[Download Video](${videoResult.videoUrl})\n\n<video controls width="100%" src="${videoResult.videoUrl}"></video>`;
+              } else if (videoResult.videoBase64) {
+                // If we have base64, create data URL
+                const videoDataUrl = `data:${videoResult.mimeType};base64,${videoResult.videoBase64}`;
+                videoMarkdown = `🎬 **Video Generated!**\n\n<video controls width="100%" src="${videoDataUrl}"></video>`;
+              } else {
+                throw new Error('No video data returned');
+              }
+              
+              console.log('[Routes] Video markdown (first 200):', videoMarkdown.substring(0, 200));
+              
+              fullResponse = videoMarkdown;
+              res.write(
+                `data: ${JSON.stringify({ content: videoMarkdown, type: "chunk" })}\n\n`,
+              );
+
+              // NO BILLING - User is using their own Gemini API key
+              console.log(`[Billing] ✅ No credits deducted - user is using their own API key for ${model}`);
+            } catch (error: any) {
+              console.error("Video generation error:", error);
+              
+              // Extract clean error message
+              let cleanErrorMessage = "Failed to generate video. Please try again.";
+              if (error.message) {
+                cleanErrorMessage = error.message;
+                cleanErrorMessage = cleanErrorMessage.split(' - {')[0];
+                cleanErrorMessage = cleanErrorMessage.replace(/^Error:\s*/i, '');
+                cleanErrorMessage = cleanErrorMessage.split('\n')[0];
+              }
+              
+              fullResponse = `⚠️ ${cleanErrorMessage}`;
+              res.write(
+                `data: ${JSON.stringify({ content: fullResponse, type: "chunk" })}\n\n`,
+              );
+            }
+            
+            // Send completion signal for Veo
+            console.log('[Routes] Sending completion signal for Veo');
+            res.write(
+              `data: ${JSON.stringify({ type: "complete", response: fullResponse, model: model })}\n\n`,
+            );
+            res.end();
+            console.log('[Routes] Response ended for Veo');
+            return; // Exit early since we've handled everything
+          }
+
           // Use user's own API key for streaming
           switch (serviceConfig.provider) {
             case "openai":
