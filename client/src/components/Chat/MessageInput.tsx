@@ -223,6 +223,7 @@ export const MessageInput: React.FC = () => {
       'claude-3-5-sonnet': 'anthropic',
       'gemini-pro': 'google',
       'gemini-nano-banana': 'google',
+      'gemini-veo': 'google',
       'grok-beta': 'xai',
       'perplexity': 'perplexity'
     };
