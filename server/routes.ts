@@ -2071,7 +2071,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 `Unsupported provider for user key streaming: ${serviceConfig.provider}`,
               );
           }
-          } // Close else block for gemini-nano-banana check
         } else {
           // Use Replicate or our service for streaming
           switch (model) {
