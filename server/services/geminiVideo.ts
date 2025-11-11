@@ -49,7 +49,9 @@ class GeminiVideoService {
         requestBody.parameters.aspectRatio = options.aspectRatio;
       }
 
-      if (options.durationSeconds) {
+      // Note: Veo 3.1 Fast doesn't support durationSeconds - always generates 8 seconds
+      // Only add if using a different model that supports it
+      if (options.durationSeconds && model !== 'veo-3.1-fast-generate-preview') {
         requestBody.parameters.durationSeconds = options.durationSeconds;
       }
 

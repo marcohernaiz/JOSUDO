@@ -1890,7 +1890,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 serviceConfig.userApiKey || "",
                 {
                   aspectRatio: "16:9",
-                  durationSeconds: 5,
+                  // Note: Veo 3.1 Fast always generates 8-second videos
                 },
               );
 
