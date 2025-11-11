@@ -17,6 +17,9 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
   // The regex will match until it finds the closing parenthesis, even with very long base64 strings
   const markdownImageRegex = /!\[([^\]]*)\]\(([^)]+)\)/gs; // 's' flag allows . to match newlines if needed
   
+  // Video tag pattern: <video ...src="url"...></video>
+  const videoTagRegex = /<video[^>]*\ssrc=["']([^"']+)["'][^>]*>.*?<\/video>/gis;
+  
   // Also detect common AI image generation patterns
   const aiImagePatterns = [
     /https?:\/\/[^\s]*(?:replicate|openai|midjourney|dalle|stablediffusion|huggingface)[^\s]*\.(?:png|jpg|jpeg|gif|webp)/gi,
@@ -35,6 +38,24 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
     const parts: JSX.Element[] = [];
     let lastIndex = 0;
     
+    // First, extract and render videos
+    const videoMatches: Array<{ url: string; index: number; length: number }> = [];
+    videoTagRegex.lastIndex = 0;
+    let videoMatch;
+    while ((videoMatch = videoTagRegex.exec(text)) !== null) {
+      videoMatches.push({
+        url: videoMatch[1],
+        index: videoMatch.index,
+        length: videoMatch[0].length
+      });
+    }
+
+    // Remove video tags from text for image processing
+    let textWithoutVideos = text;
+    videoMatches.reverse().forEach(vm => {
+      textWithoutVideos = textWithoutVideos.slice(0, vm.index) + textWithoutVideos.slice(vm.index + vm.length);
+    });
+    
     // Find all image URLs
     const allMatches: Array<{ url: string; index: number; length: number; alt?: string; isMarkdown?: boolean }> = [];
     
@@ -42,7 +63,7 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
     // Reset regex lastIndex to avoid issues
     markdownImageRegex.lastIndex = 0;
     let markdownMatch;
-    while ((markdownMatch = markdownImageRegex.exec(text)) !== null) {
+    while ((markdownMatch = markdownImageRegex.exec(textWithoutVideos)) !== null) {
       const url = markdownMatch[2];
       // Check if it's a data URL (base64 image)
       if (url.startsWith('data:image/')) {
@@ -67,7 +88,7 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
     
     // Check main image regex
     let match: RegExpExecArray | null;
-    while ((match = imageUrlRegex.exec(text)) !== null) {
+    while ((match = imageUrlRegex.exec(textWithoutVideos)) !== null) {
       // Skip if this URL is already captured by markdown
       const isAlreadyCaptured = allMatches.some(m => m.url === match![0]);
       if (!isAlreadyCaptured) {
@@ -82,7 +103,7 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
     // Check AI image patterns
     aiImagePatterns.forEach(pattern => {
       let aiMatch: RegExpExecArray | null;
-      while ((aiMatch = pattern.exec(text)) !== null) {
+      while ((aiMatch = pattern.exec(textWithoutVideos)) !== null) {
         // Skip if this URL is already captured
         const isAlreadyCaptured = allMatches.some(m => m.url === aiMatch![0]);
         if (!isAlreadyCaptured) {
@@ -95,14 +116,60 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
       }
     });
     
-    // Sort matches by index and remove duplicates
-    const uniqueMatches = allMatches
-      .filter((match, index, arr) => 
-        arr.findIndex(m => m.url === match.url) === index
-      )
-      .sort((a, b) => a.index - b.index);
+    // Combine videos and images, sort by index
+    const allMedia: Array<{ type: 'video' | 'image'; url: string; index: number; length: number; alt?: string }> = [
+      ...videoMatches.map(v => ({ type: 'video' as const, ...v })),
+      ...allMatches.map(m => ({ type: 'image' as const, ...m }))
+    ].sort((a, b) => a.index - b.index);
     
-    uniqueMatches.forEach((match, i) => {
+    allMedia.forEach((media, i) => {
+      if (media.type === 'video') {
+        // Add text before video
+        if (media.index > lastIndex) {
+          const textBefore = text.slice(lastIndex, media.index);
+          if (textBefore.trim()) {
+            parts.push(
+              <span key={`text-video-${i}`} className="whitespace-pre-wrap">
+                {textBefore}
+              </span>
+            );
+          }
+        }
+
+        // Render video
+        parts.push(
+          <div key={`video-${i}`} className="my-3">
+            <video
+              controls
+              className="max-w-full h-auto rounded-lg border border-slate-200 dark:border-slate-600 shadow-md"
+              style={{ maxHeight: '500px', width: '100%' }}
+              src={media.url}
+            >
+              Your browser does not support the video tag.
+            </video>
+            <div className="text-xs text-slate-500 mt-1 flex items-center justify-between">
+              <span>🎬 AI Generated Video</span>
+              <button
+                onClick={() => {
+                  const a = document.createElement('a');
+                  a.href = media.url;
+                  a.download = `generated-video-${Date.now()}.mp4`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                }}
+                className="hover:text-blue-500 underline cursor-pointer"
+              >
+                Download
+              </button>
+            </div>
+          </div>
+        );
+
+        lastIndex = media.index + media.length;
+      } else {
+        // Image rendering (existing code)
+        const match = media;
       // Add text before image
       if (match.index > lastIndex) {
         const textBefore = text.slice(lastIndex, match.index);
@@ -203,6 +270,7 @@ const MessageContent: React.FC<{ content: string; isUser: boolean }> = ({ conten
       }
       
       lastIndex = match.index + match.length;
+      }
     });
     
     // Add remaining text
