@@ -28,19 +28,18 @@ class OpenAISoraService {
       console.log('[OpenAISora] Prompt:', prompt.substring(0, 100));
 
       // Build request body for Sora API
-      // Based on OpenAI API patterns, Sora likely uses a similar structure to DALL-E
+      // Based on OpenAI API patterns, Sora uses a simple structure
       const requestBody: any = {
-        model: 'sora', // Sora model name (may be 'sora', 'sora-1.0', or similar)
+        model: 'sora', // Sora model name
         prompt: prompt,
       };
 
-      // Add optional parameters (check OpenAI docs for exact parameter names)
+      // Add optional parameters (only include supported ones)
+      // Note: aspect_ratio is not supported by Sora API
+      // Duration might be supported, but let's start minimal
       if (options.duration) {
-        requestBody.duration_seconds = options.duration; // May be duration_seconds instead of duration
-      }
-
-      if (options.aspectRatio) {
-        requestBody.aspect_ratio = options.aspectRatio;
+        // Try duration_seconds or just duration - will be validated by API
+        requestBody.duration = options.duration;
       }
 
       console.log('[OpenAISora] Request body:', JSON.stringify(requestBody, null, 2));

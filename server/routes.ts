@@ -1959,7 +1959,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 enhancedMessage,
                 serviceConfig.userApiKey || "",
                 {
-                  aspectRatio: "16:9",
+                  // Note: Sora API doesn't support aspectRatio parameter
+                  // Duration can be added if needed
                 },
               );
 
