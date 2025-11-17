@@ -30,7 +30,7 @@ class OpenAISoraService {
       // Build request body for Sora API
       // Based on OpenAI API patterns, Sora uses a simple structure
       const requestBody: any = {
-        model: 'sora', // Sora model name
+        model: 'sora-2', // Sora model name
         prompt: prompt,
       };
 
