@@ -46,9 +46,10 @@ class OpenAISoraService {
       console.log('[OpenAISora] Request body:', JSON.stringify(requestBody, null, 2));
 
       // Try different possible endpoints for Sora
-      // Based on OpenAI's API structure, it's likely /v1/videos/generations
+      // User suggested: https://api.openai.com/v1/videos
       const possibleEndpoints = [
-        'https://api.openai.com/v1/videos/generations', // Most likely based on OpenAI patterns
+        'https://api.openai.com/v1/videos', // User's suggestion
+        'https://api.openai.com/v1/videos/generations', // Standard pattern
         'https://api.openai.com/v1/video/generations',
         'https://api.openai.com/v1/sora/generations',
       ];
@@ -80,13 +81,13 @@ class OpenAISoraService {
               body: JSON.stringify(bodyToSend),
             });
 
-            // If we get a 404 or "Invalid method", try next variation
+            // If we get a 404 or 405, try next variation
             if (response.status === 404 || response.status === 405) {
-              const errorText = await response.text().catch(() => '');
-              if (errorText.includes('Invalid method') || response.status === 405) {
-                console.log(`[OpenAISora] Endpoint ${endpoint} with model ${modelName || 'none'} returned ${response.status}, trying next...`);
-                continue;
-              }
+              // Clone response to read error without consuming body
+              const errorResponse = response.clone();
+              const errorText = await errorResponse.text().catch(() => '');
+              console.log(`[OpenAISora] Endpoint ${endpoint} with model ${modelName || 'none'} returned ${response.status}: ${errorText.substring(0, 200)}`);
+              continue;
             }
 
             // If we get any other response, break and process it
