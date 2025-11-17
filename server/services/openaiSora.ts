@@ -57,20 +57,17 @@ class OpenAISoraService {
       let response: globalThis.Response | null = null;
 
       // Try different model names and request formats
-      const modelVariations = ['sora', 'sora-1.0', null]; // null means no model parameter
+      // API supports: 'sora-2' and 'sora-2-pro'
+      const modelVariations = ['sora-2', 'sora-2-pro']; // Try both supported models
       
       for (const endpoint of possibleEndpoints) {
         for (const modelName of modelVariations) {
           try {
-            // Create request body with or without model
+            // Create request body with model
             const bodyToSend = { ...requestBody };
-            if (modelName) {
-              bodyToSend.model = modelName;
-            } else {
-              delete bodyToSend.model; // Some endpoints don't need model parameter
-            }
+            bodyToSend.model = modelName; // Always include model (required by API)
 
-            console.log(`[OpenAISora] Trying endpoint: ${endpoint}, model: ${modelName || 'none'}`);
+            console.log(`[OpenAISora] Trying endpoint: ${endpoint}, model: ${modelName}`);
             response = await fetch(endpoint, {
               method: 'POST',
               headers: {
@@ -85,14 +82,14 @@ class OpenAISoraService {
               // Clone response to read error without consuming body
               const errorResponse = response.clone();
               const errorText = await errorResponse.text().catch(() => '');
-              console.log(`[OpenAISora] Endpoint ${endpoint} with model ${modelName || 'none'} returned ${response.status}: ${errorText.substring(0, 200)}`);
+              console.log(`[OpenAISora] Endpoint ${endpoint} with model ${modelName} returned ${response.status}: ${errorText.substring(0, 200)}`);
               continue;
             }
 
             // If we get any other response, break and process it
             break;
           } catch (error) {
-            console.log(`[OpenAISora] Endpoint ${endpoint} with model ${modelName || 'none'} failed:`, error);
+            console.log(`[OpenAISora] Endpoint ${endpoint} with model ${modelName} failed:`, error);
             lastError = error as Error;
             continue;
           }
