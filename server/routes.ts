@@ -26,6 +26,7 @@ import { userPerplexityService } from "./services/userPerplexity";
 import { perplexityService } from "./services/perplexity";
 import { geminiImageService } from "./services/geminiImage";
 import { geminiVideoService } from "./services/geminiVideo";
+import { openaiSoraService } from "./services/openaiSora";
 import { registerAdminRoutes } from "./adminRoutes";
 
 // Model configuration for hybrid selection
@@ -48,6 +49,7 @@ const MODEL_CONFIG = {
   "gpt-4": { provider: "openai", allowUserKey: true, replicateModel: null },
   "gpt-4o": { provider: "openai", allowUserKey: true, replicateModel: null },
   "gpt-4.1": { provider: "openai", allowUserKey: true, replicateModel: null },
+  "openai-sora": { provider: "openai", allowUserKey: true, replicateModel: null },
   "claude-3-5-sonnet": {
     provider: "anthropic",
     allowUserKey: true,
@@ -1941,6 +1943,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
             );
             res.end();
             console.log('[Routes] Response ended for Veo');
+            return; // Exit early since we've handled everything
+          }
+
+          if (model === "openai-sora") {
+            // Video generation with OpenAI Sora - handle separately
+            console.log('============================================');
+            console.log('🎬 SORA VIDEO GENERATION STARTED');
+            console.log('Model:', model);
+            console.log('Prompt:', enhancedMessage.substring(0, 100));
+            console.log('============================================');
+            
+            try {
+              const videoResult = await openaiSoraService.generateVideo(
+                enhancedMessage,
+                serviceConfig.userApiKey || "",
+                {
+                  aspectRatio: "16:9",
+                },
+              );
+
+              // Handle video result
+              let videoMarkdown: string;
+              if (videoResult.videoUrl) {
+                // If we have a URL, embed it
+                videoMarkdown = `🎬 **Video Generated!**\n\n[Download Video](${videoResult.videoUrl})\n\n<video controls width="100%" src="${videoResult.videoUrl}"></video>`;
+              } else if (videoResult.videoBase64) {
+                // If we have base64, create data URL
+                const videoDataUrl = `data:${videoResult.mimeType};base64,${videoResult.videoBase64}`;
+                videoMarkdown = `🎬 **Video Generated!**\n\n<video controls width="100%" src="${videoDataUrl}"></video>`;
+              } else {
+                throw new Error('No video data returned');
+              }
+              
+              console.log('[Routes] Video markdown (first 200):', videoMarkdown.substring(0, 200));
+              
+              fullResponse = videoMarkdown;
+              res.write(
+                `data: ${JSON.stringify({ content: videoMarkdown, type: "chunk" })}\n\n`,
+              );
+
+              // NO BILLING - User is using their own OpenAI API key
+              console.log(`[Billing] ✅ No credits deducted - user is using their own API key for ${model}`);
+            } catch (error: any) {
+              console.error("Video generation error:", error);
+              
+              // Extract clean error message
+              let cleanErrorMessage = "Failed to generate video. Please try again.";
+              if (error.message) {
+                cleanErrorMessage = error.message;
+                cleanErrorMessage = cleanErrorMessage.split(' - {')[0];
+                cleanErrorMessage = cleanErrorMessage.replace(/^Error:\s*/i, '');
+                cleanErrorMessage = cleanErrorMessage.split('\n')[0];
+              }
+              
+              fullResponse = `⚠️ ${cleanErrorMessage}`;
+              res.write(
+                `data: ${JSON.stringify({ content: fullResponse, type: "chunk" })}\n\n`,
+              );
+            }
+            
+            // Send completion signal for Sora
+            console.log('[Routes] Sending completion signal for Sora');
+            res.write(
+              `data: ${JSON.stringify({ type: "complete", response: fullResponse, model: model })}\n\n`,
+            );
+            res.end();
+            console.log('[Routes] Response ended for Sora');
             return; // Exit early since we've handled everything
           }
 

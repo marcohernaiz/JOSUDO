@@ -333,6 +333,8 @@ const getModelDisplayName = (modelId: string) => {
       return "Nano Banana (Image Gen)";
     case "gemini-veo":
       return "Veo (Video Gen)";
+    case "openai-sora":
+      return "Sora (Video Gen)";
     case "llama-3":
       return "Llama 3 (Meta)";
     case "grok-beta":
