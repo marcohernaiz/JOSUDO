@@ -28,14 +28,15 @@ class OpenAISoraService {
       console.log('[OpenAISora] Prompt:', prompt.substring(0, 100));
 
       // Build request body for Sora API
+      // Based on OpenAI API patterns, Sora likely uses a similar structure to DALL-E
       const requestBody: any = {
-        model: 'sora-1.0', // Sora model name
+        model: 'sora', // Sora model name (may be 'sora', 'sora-1.0', or similar)
         prompt: prompt,
       };
 
-      // Add optional parameters
+      // Add optional parameters (check OpenAI docs for exact parameter names)
       if (options.duration) {
-        requestBody.duration = options.duration;
+        requestBody.duration_seconds = options.duration; // May be duration_seconds instead of duration
       }
 
       if (options.aspectRatio) {
@@ -44,15 +45,68 @@ class OpenAISoraService {
 
       console.log('[OpenAISora] Request body:', JSON.stringify(requestBody, null, 2));
 
-      // Call OpenAI Sora API
-      const response = await fetch('https://api.openai.com/v1/videos/generations', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+      // Try different possible endpoints for Sora
+      // Based on OpenAI's API structure, it's likely /v1/videos/generations
+      const possibleEndpoints = [
+        'https://api.openai.com/v1/videos/generations', // Most likely based on OpenAI patterns
+        'https://api.openai.com/v1/video/generations',
+        'https://api.openai.com/v1/sora/generations',
+      ];
+
+      let lastError: Error | null = null;
+      let response: globalThis.Response | null = null;
+
+      // Try different model names and request formats
+      const modelVariations = ['sora', 'sora-1.0', null]; // null means no model parameter
+      
+      for (const endpoint of possibleEndpoints) {
+        for (const modelName of modelVariations) {
+          try {
+            // Create request body with or without model
+            const bodyToSend = { ...requestBody };
+            if (modelName) {
+              bodyToSend.model = modelName;
+            } else {
+              delete bodyToSend.model; // Some endpoints don't need model parameter
+            }
+
+            console.log(`[OpenAISora] Trying endpoint: ${endpoint}, model: ${modelName || 'none'}`);
+            response = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(bodyToSend),
+            });
+
+            // If we get a 404 or "Invalid method", try next variation
+            if (response.status === 404 || response.status === 405) {
+              const errorText = await response.text().catch(() => '');
+              if (errorText.includes('Invalid method') || response.status === 405) {
+                console.log(`[OpenAISora] Endpoint ${endpoint} with model ${modelName || 'none'} returned ${response.status}, trying next...`);
+                continue;
+              }
+            }
+
+            // If we get any other response, break and process it
+            break;
+          } catch (error) {
+            console.log(`[OpenAISora] Endpoint ${endpoint} with model ${modelName || 'none'} failed:`, error);
+            lastError = error as Error;
+            continue;
+          }
+        }
+        
+        // If we got a valid response, break out of endpoint loop
+        if (response && response.status !== 404 && response.status !== 405) {
+          break;
+        }
+      }
+
+      if (!response) {
+        throw new Error('All Sora API endpoints failed. Sora may not be publicly available yet, or the API endpoint has changed.');
+      }
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -73,8 +127,8 @@ class OpenAISoraService {
           errorMessage = 'Invalid OpenAI API key. Please check your API key in Settings.';
         } else if (response.status === 429) {
           errorMessage = 'OpenAI API rate limit exceeded. Please wait a moment and try again.';
-        } else if (response.status === 404) {
-          errorMessage = 'Sora model not available. It may not be available in your region or account yet.';
+        } else if (response.status === 404 || errorMessage.includes('Invalid method')) {
+          errorMessage = 'Sora video generation is not yet publicly available via API. OpenAI has announced Sora but the API endpoint may not be live yet. Please check OpenAI\'s documentation for updates, or try using Gemini Veo for video generation in the meantime.';
         }
 
         throw new Error(errorMessage);
@@ -84,12 +138,18 @@ class OpenAISoraService {
       console.log('[OpenAISora] Response:', JSON.stringify(data, null, 2));
 
       // Extract video URL from response
-      // OpenAI Sora typically returns: { data: [{ url: "...", ... }] }
-      const videoUrl = data.data?.[0]?.url || data.url;
+      // OpenAI APIs typically return: { data: [{ url: "...", ... }] }
+      // Or might return: { url: "...", ... } directly
+      // Or might return: { video_url: "...", ... }
+      const videoUrl = data.data?.[0]?.url 
+        || data.data?.[0]?.video_url
+        || data.url 
+        || data.video_url
+        || data.video?.url;
 
       if (!videoUrl) {
         console.error('[OpenAISora] No video URL in response:', data);
-        throw new Error('No video URL returned from OpenAI API');
+        throw new Error('No video URL returned from OpenAI API. Response structure may be different than expected.');
       }
 
       console.log('[OpenAISora] Video URL:', videoUrl);
