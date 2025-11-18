@@ -153,6 +153,7 @@ const AI_MODELS = [
   { id: 'claude-3-5-sonnet', name: 'Claude 3.5 Sonnet (API Key)', icon: SiAnthropic },
   { id: 'gpt-4.1', name: 'GPT-4o (API Key)', icon: SiOpenai },
   { id: 'openai-sora', name: 'Sora (Video Gen)', icon: SiOpenai },
+  { id: 'sora-2-replicate', name: 'Sora 2 (Credits)', icon: SiOpenai },
   { id: 'gpt-5', name: 'GPT-5 Mini', icon: SiOpenai },
   { id: 'claude-3-5-sonnet-replicate', name: 'Claude 3.5 Sonnet (Credits)', icon: SiAnthropic },
 ];

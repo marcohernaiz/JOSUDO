@@ -335,6 +335,8 @@ const getModelDisplayName = (modelId: string) => {
       return "Veo (Video Gen)";
     case "openai-sora":
       return "Sora (Video Gen)";
+    case "sora-2-replicate":
+      return "Sora 2 (Credits)";
     case "llama-3":
       return "Llama 3 (Meta)";
     case "grok-beta":

@@ -50,6 +50,7 @@ const MODEL_CONFIG = {
   "gpt-4o": { provider: "openai", allowUserKey: true, replicateModel: null },
   "gpt-4.1": { provider: "openai", allowUserKey: true, replicateModel: null },
   "openai-sora": { provider: "openai", allowUserKey: true, replicateModel: null },
+  "sora-2-replicate": { provider: "replicate", allowUserKey: false, replicateModel: "openai/sora-2" },
   "claude-3-5-sonnet": {
     provider: "anthropic",
     allowUserKey: true,
@@ -1787,6 +1788,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(
           `[Streaming] Using ${serviceConfig.useUserKey ? "user API key" : "Replicate"} for model ${model}`,
         );
+
+        // Handle special video generation models (regardless of useUserKey)
+        if (model === "sora-2-replicate") {
+          // Video generation with Sora 2 via Replicate - handle separately
+          console.log('============================================');
+          console.log('🎬 SORA 2 (REPLICATE) VIDEO GENERATION STARTED');
+          console.log('Model:', model);
+          console.log('Prompt:', enhancedMessage.substring(0, 100));
+          console.log('============================================');
+          
+          try {
+            const videoResult = await replicateService.generateVideo(
+              enhancedMessage,
+              {
+                aspectRatio: "16:9",
+              },
+            );
+
+            // Handle video result
+            let videoMarkdown: string;
+            if (videoResult.videoUrl) {
+              // If we have a URL, embed it
+              videoMarkdown = `🎬 **Video Generated!**\n\n[Download Video](${videoResult.videoUrl})\n\n<video controls width="100%" src="${videoResult.videoUrl}"></video>`;
+            } else if (videoResult.videoBase64) {
+              // If we have base64, create data URL
+              const videoDataUrl = `data:${videoResult.mimeType};base64,${videoResult.videoBase64}`;
+              videoMarkdown = `🎬 **Video Generated!**\n\n<video controls width="100%" src="${videoDataUrl}"></video>`;
+            } else {
+              throw new Error('No video data returned');
+            }
+            
+            console.log('[Routes] Video markdown (first 200):', videoMarkdown.substring(0, 200));
+            
+            fullResponse = videoMarkdown;
+            res.write(
+              `data: ${JSON.stringify({ content: videoMarkdown, type: "chunk" })}\n\n`,
+            );
+
+            // Deduct credits for Replicate usage
+            if (userId) {
+              const cost = 0.01; // Estimated cost per video generation
+              await billingService.deductCredits(userId, cost);
+              console.log(`[Billing] Deducted ${cost} credits for Sora 2 Replicate video generation`);
+            }
+          } catch (error: any) {
+            console.error("Video generation error:", error);
+            
+            // Extract clean error message
+            let cleanErrorMessage = "Failed to generate video. Please try again.";
+            if (error.message) {
+              cleanErrorMessage = error.message;
+              cleanErrorMessage = cleanErrorMessage.split(' - {')[0];
+              cleanErrorMessage = cleanErrorMessage.replace(/^Error:\s*/i, '');
+              cleanErrorMessage = cleanErrorMessage.split('\n')[0];
+            }
+            
+            fullResponse = `⚠️ ${cleanErrorMessage}`;
+            res.write(
+              `data: ${JSON.stringify({ content: fullResponse, type: "chunk" })}\n\n`,
+            );
+          }
+          
+          // Send completion signal for Sora 2 Replicate
+          console.log('[Routes] Sending completion signal for Sora 2 Replicate');
+          res.write(
+            `data: ${JSON.stringify({ type: "complete", response: fullResponse, model: model })}\n\n`,
+          );
+          res.end();
+          console.log('[Routes] Response ended for Sora 2 Replicate');
+          return; // Exit early since we've handled everything
+        }
 
         if (serviceConfig.useUserKey) {
           // Check for special model handling first

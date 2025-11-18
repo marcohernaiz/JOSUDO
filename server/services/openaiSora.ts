@@ -122,6 +122,8 @@ class OpenAISoraService {
         // Handle specific error cases
         if (response.status === 401) {
           errorMessage = 'Invalid OpenAI API key. Please check your API key in Settings.';
+        } else if (response.status === 403 || errorMessage.toLowerCase().includes('organization') || errorMessage.toLowerCase().includes('verify')) {
+          errorMessage = 'Organization verification required. Please verify your OpenAI organization in the OpenAI dashboard (https://platform.openai.com/organizations). Sora may require organization verification or specific access permissions.';
         } else if (response.status === 429) {
           errorMessage = 'OpenAI API rate limit exceeded. Please wait a moment and try again.';
         } else if (response.status === 404 || errorMessage.includes('Invalid method')) {

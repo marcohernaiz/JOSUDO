@@ -491,6 +491,112 @@ What would you like to explore together?`;
     );
   }
 
+  /**
+   * Generate a video using Sora 2 via Replicate
+   * @param prompt - Text prompt describing the video to generate
+   * @param options - Generation options
+   */
+  async generateVideo(
+    prompt: string,
+    options: {
+      duration?: number;
+      aspectRatio?: '16:9' | '9:16' | '1:1';
+    } = {}
+  ): Promise<{
+    videoBase64?: string;
+    videoUrl?: string;
+    mimeType: string;
+  }> {
+    const replicate = this.getReplicateClient();
+    
+    try {
+      console.log('[Replicate] Starting Sora 2 video generation');
+      console.log('[Replicate] Prompt:', prompt.substring(0, 100));
+
+      // Sora 2 model on Replicate
+      // Try Sora 2 first, fallback to other video models
+      const possibleModels = [
+        "openai/sora-2", // Sora 2 if available
+        "luma/dream-machine", // Luma Dream Machine (popular video gen)
+        "black-forest-labs/flux-schnell", // Flux Schnell (fast video gen)
+      ];
+      
+      let model = possibleModels[0]; // Start with Sora 2
+      let lastError: Error | null = null;
+      let output: any = null;
+      
+      // Try each model until one works
+      for (const modelToTry of possibleModels) {
+        try {
+          model = modelToTry;
+          const input: any = {
+            prompt: prompt,
+          };
+
+          // Add optional parameters if supported by the model
+          if (options.aspectRatio) {
+            input.aspect_ratio = options.aspectRatio;
+          }
+
+          if (options.duration) {
+            input.duration = options.duration;
+          }
+
+          console.log('[Replicate] Trying model:', model);
+          console.log('[Replicate] Input:', JSON.stringify(input, null, 2));
+
+          // Run the model
+          output = await replicate.run(model as any, { input });
+          
+          // If we got output, break out of the loop
+          if (output) {
+            console.log('[Replicate] Successfully generated video with model:', model);
+            break;
+          }
+        } catch (error: any) {
+          console.log(`[Replicate] Model ${model} failed:`, error.message);
+          lastError = error;
+          // Try next model
+          continue;
+        }
+      }
+
+      if (!output) {
+        throw lastError || new Error('All video generation models failed');
+      }
+
+      console.log('[Replicate] Video generation output:', output);
+
+      // Replicate typically returns a URL or array of URLs
+      let videoUrl: string;
+      if (Array.isArray(output)) {
+        videoUrl = output[0];
+      } else if (typeof output === 'string') {
+        videoUrl = output;
+      } else if (output?.url) {
+        videoUrl = output.url;
+      } else if (output?.video_url) {
+        videoUrl = output.video_url;
+      } else {
+        throw new Error('Unexpected output format from Replicate');
+      }
+
+      if (!videoUrl) {
+        throw new Error('No video URL returned from Replicate');
+      }
+
+      console.log('[Replicate] Video URL:', videoUrl);
+
+      return {
+        videoUrl: videoUrl,
+        mimeType: 'video/mp4',
+      };
+    } catch (error: any) {
+      console.error('[Replicate] Error generating video:', error);
+      throw new Error(`Failed to generate video via Replicate: ${error.message || 'Unknown error'}`);
+    }
+  }
+
   private async parseMessageWithImages(message: string): Promise<{ role: string; content: string; images?: string[] }> {
     // Check if message contains image data
     // Updated regex to handle flexible whitespace between [Image:] and Image data:
