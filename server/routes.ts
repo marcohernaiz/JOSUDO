@@ -685,6 +685,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         // Determine which service to use (user key vs Replicate)
         const serviceConfig = await getServiceForModel(model, userId);
+
+        const sendProgressUpdate = (message: string) => {
+          res.write(
+            `data: ${JSON.stringify({ content: message, type: "chunk", isStatus: true })}\n\n`,
+          );
+        };
         console.log(
           `Using ${serviceConfig.useUserKey ? "user API key" : "Replicate"} for model ${model}`,
         );
@@ -1798,6 +1804,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('Prompt:', enhancedMessage.substring(0, 100));
           console.log('============================================');
           
+          sendProgressUpdate("⏳ Generating video… this may take up to a minute.");
+
           try {
             const videoResult = await replicateService.generateVideo(
               enhancedMessage,
@@ -1964,6 +1972,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log('Prompt:', enhancedMessage.substring(0, 100));
             console.log('============================================');
             
+            sendProgressUpdate("⏳ Generating video… this may take up to a minute.");
+
             try {
               const videoResult = await geminiVideoService.generateVideo(
                 enhancedMessage,
@@ -2032,6 +2042,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log('Prompt:', enhancedMessage.substring(0, 100));
             console.log('============================================');
             
+            sendProgressUpdate("⏳ Generating video… this may take up to a minute.");
+
             try {
               const videoResult = await openaiSoraService.generateVideo(
                 enhancedMessage,
