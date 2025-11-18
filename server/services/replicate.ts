@@ -533,9 +533,18 @@ What would you like to explore together?`;
             prompt: prompt,
           };
 
-          // Add optional parameters if supported by the model
+          // Normalize aspect ratio based on model requirements
+          let normalizedAspect: string | undefined;
           if (options.aspectRatio) {
-            input.aspect_ratio = options.aspectRatio;
+            if (model === "openai/sora-2") {
+              normalizedAspect = options.aspectRatio === '9:16' ? 'portrait' : 'landscape';
+            } else {
+              normalizedAspect = options.aspectRatio;
+            }
+          }
+
+          if (normalizedAspect) {
+            input.aspect_ratio = normalizedAspect;
           }
 
           if (options.duration) {

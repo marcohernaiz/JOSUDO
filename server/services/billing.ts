@@ -157,7 +157,13 @@ export class BillingService {
   /**
    * Deduct credits for AI usage
    */
-  async deductCredits(userId: number, tokensConsumed: number, modelUsed: string, chatSessionId?: number) {
+  async deductCredits(
+    userId: number,
+    tokensConsumed: number,
+    modelUsed: string,
+    chatSessionId?: number,
+    costOverride?: number,
+  ) {
     console.log(`🔍 deductCredits called: userId=${userId}, tokens=${tokensConsumed}, model=${modelUsed}`);
     // Skip deduction for free/default models (e.g., Josudo via OpenRouter DeepSeek Free)
     const isFreeDefaultModel =
@@ -189,19 +195,23 @@ export class BillingService {
 
     // Calculate credits to deduct based on cost (1 credit = $0.01)
     // We need to calculate the actual cost first, then convert to credits
-    let cost = 0;
+    let cost = typeof costOverride === 'number' ? costOverride : 0;
     
     // Calculate cost based on model (same logic as in routes)
-    if (modelUsed === "gpt-5") {
-      cost = (tokensConsumed / 1000) * 0.002; // $0.002 per 1K tokens
-    } else if (modelUsed === "deepseek-v3") {
-      cost = (tokensConsumed / 1000) * 0.0002; // $0.0002 per 1K tokens
-    } else if (modelUsed === "claude-3-5-sonnet-replicate") {
-      cost = (tokensConsumed / 1000) * 0.003; // $0.003 per 1K tokens
-    } else if (modelUsed === "claude-3-haiku-replicate") {
-      cost = (tokensConsumed / 1000) * 0.00025; // $0.00025 per 1K tokens
-    } else {
-      cost = (tokensConsumed / 1000) * 0.0002; // Default rate
+    if (costOverride === undefined) {
+      if (modelUsed === "gpt-5") {
+        cost = (tokensConsumed / 1000) * 0.002; // $0.002 per 1K tokens
+      } else if (modelUsed === "deepseek-v3") {
+        cost = (tokensConsumed / 1000) * 0.0002; // $0.0002 per 1K tokens
+      } else if (modelUsed === "claude-3-5-sonnet-replicate") {
+        cost = (tokensConsumed / 1000) * 0.003; // $0.003 per 1K tokens
+      } else if (modelUsed === "claude-3-haiku-replicate") {
+        cost = (tokensConsumed / 1000) * 0.00025; // $0.00025 per 1K tokens
+      } else if (modelUsed === "sora-2-replicate") {
+        cost = 0.05; // $0.05 per video generation
+      } else {
+        cost = (tokensConsumed / 1000) * 0.0002; // Default rate
+      }
     }
     
     const creditsToDeduct = Math.ceil(cost * 100); // Convert cost to credits (1 credit = $0.01)

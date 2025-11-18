@@ -1826,12 +1826,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
               `data: ${JSON.stringify({ content: videoMarkdown, type: "chunk" })}\n\n`,
             );
 
-            // Deduct credits for Replicate usage
-            if (userId) {
-              const cost = 0.01; // Estimated cost per video generation
-              await billingService.deductCredits(userId, cost);
-              console.log(`[Billing] Deducted ${cost} credits for Sora 2 Replicate video generation`);
-            }
+              // Deduct credits for Replicate usage
+              if (userId) {
+                const soraVideoCost = 0.05; // $0.05 per video generation
+                await billingService.deductCredits(
+                  userId,
+                  0,
+                  'sora-2-replicate',
+                  undefined,
+                  soraVideoCost,
+                );
+                console.log(`[Billing] Deducted $${soraVideoCost} worth of credits for Sora 2 Replicate video generation`);
+              }
           } catch (error: any) {
             console.error("Video generation error:", error);
             

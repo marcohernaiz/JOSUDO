@@ -56,6 +56,16 @@ export function decrypt(text: string): string {
   return decrypted;
 }
 
+// Placeholder values used when seeding defaults (shouldn't block env overrides)
+const PLACEHOLDER_VALUES = new Set([
+  'sk-ant-placeholder',
+  'AIza-placeholder',
+  'xai-placeholder',
+  'pplx-placeholder',
+  'sk-placeholder',
+  'r8_placeholder',
+]);
+
 // Database functions for settings
 async function getSetting(key: string): Promise<string | null> {
   try {
@@ -412,7 +422,19 @@ adminApp.get('/admin/logout', (req: any, res) => {
 });
 
 // Export secrets getter for main app
-export const getSecret = (key: string) => settingsCache[key] || process.env[key];
+export const getSecret = (key: string) => {
+  const cachedValue = settingsCache[key];
+  const envValue = process.env[key];
+
+  // If cached value is a placeholder but an env value is provided, prefer env
+  if (cachedValue && PLACEHOLDER_VALUES.has(cachedValue)) {
+    if (envValue && envValue !== cachedValue) {
+      return envValue;
+    }
+  }
+
+  return cachedValue || envValue;
+};
 export const setSecret = async (key: string, value: string) => {
   await setSetting(key, value);
   settingsCache[key] = value;
