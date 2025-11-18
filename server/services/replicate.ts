@@ -518,12 +518,11 @@ What would you like to explore together?`;
       const possibleModels = [
         "openai/sora-2", // Sora 2 if available
         "luma/dream-machine", // Luma Dream Machine (popular video gen)
-        "black-forest-labs/flux-schnell", // Flux Schnell (fast video gen)
       ];
       
       let model = possibleModels[0]; // Start with Sora 2
       let lastError: Error | null = null;
-      let output: any = null;
+      let videoData: { videoUrl?: string; videoBase64?: string; mimeType: string } | null = null;
       
       // Try each model until one works
       for (const modelToTry of possibleModels) {
@@ -555,13 +554,26 @@ What would you like to explore together?`;
           console.log('[Replicate] Input:', JSON.stringify(input, null, 2));
 
           // Run the model
-          output = await replicate.run(model as any, { input });
-          
-          // If we got output, break out of the loop
-          if (output) {
-            console.log('[Replicate] Successfully generated video with model:', model);
-            break;
+          const output = await replicate.run(model as any, { input });
+          console.log('[Replicate] Raw output:', output);
+
+          const extractedVideo = await this.extractVideoData(output);
+
+          if (!extractedVideo) {
+            lastError = new Error(`Model ${model} returned an unsupported output format`);
+            console.log(`[Replicate] Model ${model} returned unsupported output format, trying next...`);
+            continue;
           }
+
+          if (extractedVideo.mimeType.startsWith('image/')) {
+            lastError = new Error(`Model ${model} returned an image (${extractedVideo.mimeType}) instead of video`);
+            console.log(`[Replicate] Model ${model} returned ${extractedVideo.mimeType}, trying next model...`);
+            continue;
+          }
+
+          videoData = extractedVideo;
+          console.log('[Replicate] Successfully generated video with model:', model);
+          break;
         } catch (error: any) {
           console.log(`[Replicate] Model ${model} failed:`, error.message);
           lastError = error;
@@ -570,40 +582,169 @@ What would you like to explore together?`;
         }
       }
 
-      if (!output) {
+      if (!videoData) {
         throw lastError || new Error('All video generation models failed');
       }
 
-      console.log('[Replicate] Video generation output:', output);
-
-      // Replicate typically returns a URL or array of URLs
-      let videoUrl: string;
-      if (Array.isArray(output)) {
-        videoUrl = output[0];
-      } else if (typeof output === 'string') {
-        videoUrl = output;
-      } else if (output?.url) {
-        videoUrl = output.url;
-      } else if (output?.video_url) {
-        videoUrl = output.video_url;
-      } else {
-        throw new Error('Unexpected output format from Replicate');
-      }
-
-      if (!videoUrl) {
-        throw new Error('No video URL returned from Replicate');
-      }
-
-      console.log('[Replicate] Video URL:', videoUrl);
-
-      return {
-        videoUrl: videoUrl,
-        mimeType: 'video/mp4',
-      };
+      return videoData;
     } catch (error: any) {
       console.error('[Replicate] Error generating video:', error);
       throw new Error(`Failed to generate video via Replicate: ${error.message || 'Unknown error'}`);
     }
+  }
+
+  private inferMimeTypeFromUrl(url: string, defaultMime: string = 'video/mp4'): string {
+    const lower = url.toLowerCase();
+    if (lower.endsWith('.mp4')) return 'video/mp4';
+    if (lower.endsWith('.webm')) return 'video/webm';
+    if (lower.endsWith('.mov')) return 'video/quicktime';
+    if (lower.endsWith('.mkv')) return 'video/x-matroska';
+    if (lower.endsWith('.gif')) return 'image/gif';
+    if (lower.endsWith('.webp')) return 'image/webp';
+    if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+    return defaultMime;
+  }
+
+  private isReadableStream(value: any): value is ReadableStream<Uint8Array> {
+    return value && typeof value.getReader === 'function';
+  }
+
+  private async bufferFromUnknownStream(stream: any): Promise<Buffer> {
+    if (!stream) {
+      throw new Error('Stream is undefined');
+    }
+
+    if (this.isReadableStream(stream)) {
+      return this.streamToBuffer(stream);
+    }
+
+    if (typeof stream[Symbol.asyncIterator] === 'function') {
+      const chunks: Buffer[] = [];
+      for await (const chunk of stream) {
+        if (chunk) {
+          chunks.push(Buffer.from(chunk));
+        }
+      }
+      return Buffer.concat(chunks);
+    }
+
+    if (typeof stream.pipe === 'function') {
+      const chunks: Buffer[] = [];
+      for await (const chunk of stream) {
+        if (chunk) {
+          chunks.push(Buffer.from(chunk));
+        }
+      }
+      return Buffer.concat(chunks);
+    }
+
+    throw new Error('Unsupported stream type');
+  }
+
+  private async streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffer> {
+    const reader = stream.getReader();
+    const chunks: Buffer[] = [];
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      if (value) {
+        chunks.push(Buffer.from(value));
+      }
+    }
+    return Buffer.concat(chunks);
+  }
+
+  private async extractVideoData(
+    output: any,
+    defaultMime: string = 'video/mp4',
+  ): Promise<{ videoUrl?: string; videoBase64?: string; mimeType: string } | null> {
+    if (!output) {
+      return null;
+    }
+
+    if (typeof output === 'string') {
+      return { videoUrl: output, mimeType: this.inferMimeTypeFromUrl(output, defaultMime) };
+    }
+
+    if (Array.isArray(output)) {
+      for (const item of output) {
+        const result = await this.extractVideoData(item, defaultMime);
+        if (result) {
+          return result;
+        }
+      }
+      return null;
+    }
+
+    if (typeof output === 'object') {
+      // Nested output fields
+      if (output.output) {
+        const nested = await this.extractVideoData(output.output, defaultMime);
+        if (nested) return nested;
+      }
+
+      if (output.result) {
+        const nested = await this.extractVideoData(output.result, defaultMime);
+        if (nested) return nested;
+      }
+
+      const urlFields = ['video', 'video_url', 'videoUrl', 'url', 'path'];
+      for (const field of urlFields) {
+        const value = output[field];
+        if (typeof value === 'string') {
+          return { videoUrl: value, mimeType: this.inferMimeTypeFromUrl(value, defaultMime) };
+        }
+        if (value) {
+          const nested = await this.extractVideoData(value, defaultMime);
+          if (nested) return nested;
+        }
+      }
+
+      // Blob/File/Response-like outputs
+      if (typeof output.arrayBuffer === 'function') {
+        const buffer = Buffer.from(await output.arrayBuffer());
+        const mimeType = output.type || defaultMime;
+        return { videoBase64: buffer.toString('base64'), mimeType };
+      }
+
+      if (output.body && this.isReadableStream(output.body)) {
+        const buffer = await this.streamToBuffer(output.body);
+        const mimeType = output.headers?.get?.('content-type') || defaultMime;
+        return { videoBase64: buffer.toString('base64'), mimeType };
+      }
+
+      if (this.isReadableStream(output)) {
+        const buffer = await this.streamToBuffer(output);
+        return { videoBase64: buffer.toString('base64'), mimeType: defaultMime };
+      }
+
+      if (typeof Blob !== 'undefined' && output instanceof Blob) {
+        const buffer = Buffer.from(await output.arrayBuffer());
+        const mimeType = output.type || defaultMime;
+        return { videoBase64: buffer.toString('base64'), mimeType };
+      }
+
+      if (typeof File !== 'undefined' && output instanceof File) {
+        const buffer = Buffer.from(await output.arrayBuffer());
+        const mimeType = output.type || defaultMime;
+        return { videoBase64: buffer.toString('base64'), mimeType };
+      }
+
+      if (typeof Response !== 'undefined' && output instanceof Response) {
+        const buffer = Buffer.from(await output.arrayBuffer());
+        const mimeType = output.headers.get('content-type') || defaultMime;
+        return { videoBase64: buffer.toString('base64'), mimeType };
+      }
+
+      // Generic stream-like object
+      if (typeof output === 'object' && typeof output[Symbol.asyncIterator] === 'function') {
+        const buffer = await this.bufferFromUnknownStream(output);
+        return { videoBase64: buffer.toString('base64'), mimeType: defaultMime };
+      }
+    }
+
+    return null;
   }
 
   private async parseMessageWithImages(message: string): Promise<{ role: string; content: string; images?: string[] }> {
