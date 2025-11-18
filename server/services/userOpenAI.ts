@@ -2,6 +2,18 @@ import OpenAI from "openai";
 import { enhanceMessageForThinking, getModelParameters } from '../utils/messageEnhancement';
 
 class UserOpenAIService {
+  private usesCompletionTokenParam(model: string): boolean {
+    const lower = model.toLowerCase();
+    return lower.startsWith('gpt-5') || lower.startsWith('gpt-4.1');
+  }
+
+  private buildTokenParams(model: string, maxTokens: number) {
+    const key = this.usesCompletionTokenParam(model)
+      ? 'max_completion_tokens'
+      : 'max_tokens';
+    return { [key]: maxTokens };
+  }
+
   private createClient(apiKey: string): OpenAI {
     return new OpenAI({ apiKey });
   }
@@ -51,12 +63,13 @@ class UserOpenAIService {
       ];
 
       const actualModel = this.getActualModelName(model);
+      const tokenParams = this.buildTokenParams(actualModel, options.maxTokens || modelParams.maxTokens);
       const completion = await openai.chat.completions.create({
         model: actualModel,
         messages: messages as any,
-        max_tokens: options.maxTokens || modelParams.maxTokens,
         temperature: options.temperature || modelParams.temperature,
-      });
+        ...tokenParams,
+      } as OpenAI.Chat.ChatCompletionCreateParams);
 
       const responseText = completion.choices[0]?.message?.content || '';
       const tokens = completion.usage?.total_tokens || Math.ceil((enhancedMessage.length + responseText.length) / 4);
@@ -101,13 +114,14 @@ class UserOpenAIService {
       ];
 
       const actualModel = this.getActualModelName(model);
+      const tokenParams = this.buildTokenParams(actualModel, options.maxTokens || modelParams.maxTokens);
       const stream = await openai.chat.completions.create({
         model: actualModel,
         messages: messages as any,
-        max_tokens: options.maxTokens || modelParams.maxTokens,
         temperature: options.temperature || modelParams.temperature,
         stream: true,
-      });
+        ...tokenParams,
+      } as OpenAI.Chat.ChatCompletionCreateParamsStreaming);
 
       for await (const chunk of stream) {
         const content = chunk.choices[0]?.delta?.content || "";
