@@ -7,6 +7,18 @@ import { enhanceMessageForThinking, getModelParameters } from '../utils/messageE
 class OpenAIService {
   private static readonly DEFAULT_MODEL = "gpt-5.1";
 
+  private usesCompletionTokenParam(model: string): boolean {
+    const lower = model.toLowerCase();
+    return lower.startsWith("gpt-5") || lower.startsWith("gpt-4.1");
+  }
+
+  private buildTokenParams(model: string, maxTokens: number) {
+    const key = this.usesCompletionTokenParam(model)
+      ? "max_completion_tokens"
+      : "max_tokens";
+    return { [key]: maxTokens };
+  }
+
   private async getOpenAIClientForUser(userId: number) {
     // 1. Query the integration
     const integration = await storage.getIntegration(userId, "openai");
@@ -54,12 +66,13 @@ class OpenAIService {
       console.log("Sending messages to OpenAI:", messages);
 
       // ✅ 3. Send full chat history
+      const tokenParams = this.buildTokenParams(OpenAIService.DEFAULT_MODEL, 1000);
       const response = await openai.chat.completions.create({
         model: OpenAIService.DEFAULT_MODEL,
         messages,
-        max_tokens: 1000,
         temperature: 0.7,
-      });
+        ...tokenParams,
+      } as OpenAI.Chat.ChatCompletionCreateParams);
 
       return response;
     } catch (error) {
@@ -105,13 +118,14 @@ class OpenAIService {
       console.log("Sending streaming messages to OpenAI:", messages);
 
       // ✅ 3. Create streaming completion
+      const tokenParams = this.buildTokenParams(OpenAIService.DEFAULT_MODEL, 1000);
       const stream = await openai.chat.completions.create({
         model: OpenAIService.DEFAULT_MODEL,
         messages,
-        max_tokens: 1000,
         temperature: 0.7,
         stream: true,
-      });
+        ...tokenParams,
+      } as OpenAI.Chat.ChatCompletionCreateParamsStreaming);
 
       // ✅ 4. Yield streaming chunks
       for await (const chunk of stream) {
@@ -132,11 +146,12 @@ class OpenAIService {
   async testApiKey(userId: number): Promise<boolean> {
     try {
       const openai = await this.getOpenAIClientForUser(userId);
+      const tokenParams = this.buildTokenParams(OpenAIService.DEFAULT_MODEL, 1);
       await openai.chat.completions.create({
         model: OpenAIService.DEFAULT_MODEL,
         messages: [{ role: "user", content: "Hello" }],
-        max_tokens: 1,
-      });
+        ...tokenParams,
+      } as OpenAI.Chat.ChatCompletionCreateParams);
       return true;
     } catch (error) {
       return false;
