@@ -49,6 +49,7 @@ const MODEL_CONFIG = {
   "gpt-4": { provider: "openai", allowUserKey: true, replicateModel: null },
   "gpt-4o": { provider: "openai", allowUserKey: true, replicateModel: null },
   "gpt-4.1": { provider: "openai", allowUserKey: true, replicateModel: null },
+  "gpt-5.1": { provider: "openai", allowUserKey: true, replicateModel: null },
   "openai-sora": { provider: "openai", allowUserKey: true, replicateModel: null },
   "sora-2-replicate": { provider: "replicate", allowUserKey: false, replicateModel: "openai/sora-2" },
   "claude-3-5-sonnet": {
@@ -874,6 +875,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             case "gpt-4":
             case "gpt-4o":
             case "gpt-4.1":
+            case "gpt-5.1":
               // Use OpenAI with proper sessionId for context
               serviceResponse = await openaiService.sendMessage(
                 message,
@@ -1703,6 +1705,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 "gpt-4o",
                 "gpt-4.1",
                 "gpt-5",
+                "gpt-5.1",
                 "claude-3-5-sonnet", // Direct API with user's key
                 "claude-3-5-sonnet-replicate", // Replicate's Claude supports vision via "image" parameter
                 "gemini-pro",
@@ -2635,6 +2638,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               break;
             case "gpt-4":
             case "gpt-4o":
+            case "gpt-4.1":
+            case "gpt-5.1":
               estimatedCost = openaiService.calculateCost(finalTokens, model);
               break;
             case "gpt-5":
@@ -2903,7 +2908,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await userApiKeysService.getUserApiKeys(userId);
 
         // Convert AI model integrations to the expected format
-        const formattedAiIntegrations = aiModelIntegrations.map((key) => ({
+        const formattedAiIntegrations = aiModelIntegrations.map((key: any) => ({
           id: key.id,
           userId,
           serviceType: "ai_model",
@@ -2921,7 +2926,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const aiModelIntegrations =
           await userApiKeysService.getUserApiKeys(userId);
 
-        const formattedAiIntegrations = aiModelIntegrations.map((key) => ({
+        const formattedAiIntegrations = aiModelIntegrations.map((key: any) => ({
           id: key.id,
           userId,
           serviceType: "ai_model",
@@ -3043,7 +3048,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if it's an AI model integration
       const aiIntegration = aiModelIntegrations.find(
-        (integration) => integration.id === integrationId,
+        (integration: any) => integration.id === integrationId,
       );
       if (aiIntegration) {
         // Delete using our userApiKeysService
@@ -3054,7 +3059,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if it's a regular integration
       const regularIntegration = regularIntegrations.find(
-        (integration) => integration.id === integrationId,
+        (integration: any) => integration.id === integrationId,
       );
       if (regularIntegration) {
         // Delete using existing storage service

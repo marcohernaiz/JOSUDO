@@ -5,6 +5,8 @@ import { googleDriveService } from "./googleDrive";
 import { enhanceMessageForThinking, getModelParameters } from '../utils/messageEnhancement';
 
 class OpenAIService {
+  private static readonly DEFAULT_MODEL = "gpt-5.1";
+
   private async getOpenAIClientForUser(userId: number) {
     // 1. Query the integration
     const integration = await storage.getIntegration(userId, "openai");
@@ -53,7 +55,7 @@ class OpenAIService {
 
       // ✅ 3. Send full chat history
       const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: OpenAIService.DEFAULT_MODEL,
         messages,
         max_tokens: 1000,
         temperature: 0.7,
@@ -104,7 +106,7 @@ class OpenAIService {
 
       // ✅ 3. Create streaming completion
       const stream = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: OpenAIService.DEFAULT_MODEL,
         messages,
         max_tokens: 1000,
         temperature: 0.7,
@@ -131,7 +133,7 @@ class OpenAIService {
     try {
       const openai = await this.getOpenAIClientForUser(userId);
       await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: OpenAIService.DEFAULT_MODEL,
         messages: [{ role: "user", content: "Hello" }],
         max_tokens: 1,
       });
@@ -141,15 +143,17 @@ class OpenAIService {
     }
   }
 
-  calculateCost(tokens: number, model: string = "gpt-4o"): number {
+  calculateCost(tokens: number, model: string = OpenAIService.DEFAULT_MODEL): number {
     // Approximate costs per 1K tokens
     const costs: Record<string, number> = {
+      "gpt-5.1": 0.05,
       "gpt-4o": 0.03,
       "gpt-4": 0.06,
       "gpt-3.5-turbo": 0.002,
     };
 
-    return (tokens / 1000) * (costs[model] || costs["gpt-4o"]);
+    const costPerToken = costs[model] ?? costs[OpenAIService.DEFAULT_MODEL] ?? 0.03;
+    return (tokens / 1000) * costPerToken;
   }
 
   private parseMessageWithImages(message: string): { role: "user"; content: any } {

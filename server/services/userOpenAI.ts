@@ -9,17 +9,18 @@ class UserOpenAIService {
   private getActualModelName(modelId: string): string {
     // Map our model IDs to actual OpenAI model names
     const modelMap: { [key: string]: string } = {
-      'gpt-4.1': 'gpt-4o', // Map to gpt-4o (supports vision)
+      'gpt-5.1': 'gpt-5.1',
+      'gpt-5': 'gpt-5.1',
+      'gpt-4.1': 'gpt-4.1',
       'gpt-4': 'gpt-4',
-      'gpt-4o': 'gpt-4o', // GPT-4o is the actual model name for vision
-      'gpt-5': 'gpt-4o' // GPT-5 doesn't exist yet, use GPT-4o
+      'gpt-4o': 'gpt-4o',
     };
-    return modelMap[modelId] || 'gpt-4o';
+    return modelMap[modelId] || 'gpt-5.1';
   }
 
   async sendMessage(
     message: string,
-    model: string = "gpt-4o",
+    model: string = "gpt-5.1",
     conversationHistory: Array<{ role: string; content: string }> = [],
     userApiKey: string,
     options: {
@@ -73,7 +74,7 @@ class UserOpenAIService {
 
   async *sendMessageStream(
     message: string,
-    model: string = "gpt-4o",
+    model: string = "gpt-5.1",
     conversationHistory: Array<{ role: string; content: string }> = [],
     userApiKey: string,
     options: {
@@ -209,7 +210,7 @@ class UserOpenAIService {
     };
   }
 
-  calculateCost(tokens: number, model: string = "gpt-4o"): number {
+  calculateCost(tokens: number, model: string = "gpt-5.1"): number {
     // User pays directly, so no cost to us
     return 0;
   }
