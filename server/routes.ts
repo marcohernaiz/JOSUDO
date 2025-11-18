@@ -1795,6 +1795,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `[Streaming] Using ${serviceConfig.useUserKey ? "user API key" : "Replicate"} for model ${model}`,
         );
 
+        const sendProgressUpdate = (message: string) => {
+          res.write(
+            `data: ${JSON.stringify({ content: message, type: "chunk", isStatus: true })}\n\n`,
+          );
+        };
+
         // Handle special video generation models (regardless of useUserKey)
         if (model === "sora-2-replicate") {
           // Video generation with Sora 2 via Replicate - handle separately
