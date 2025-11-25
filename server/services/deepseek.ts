@@ -1,13 +1,37 @@
 import { getSecret } from '../admin';
 
 class DeepSeekService {
-  private apiKey: string;
-  private baseUrl: string;
+  private openrouterApiKey: string;
+  private deepseekApiKey: string;
+  private openrouterBaseUrl: string;
+  private deepseekBaseUrl: string;
 
   constructor() {
-    // Use OpenRouter for DeepSeek V3 access
-    this.apiKey = getSecret('OPENROUTER_API_KEY') || process.env.OPENROUTER_API_KEY || '';
-    this.baseUrl = 'https://openrouter.ai/api/v1';
+    this.openrouterApiKey = getSecret('OPENROUTER_API_KEY') || process.env.OPENROUTER_API_KEY || '';
+    this.deepseekApiKey = getSecret('DEEPSEEK_API_KEY') || process.env.DEEPSEEK_API_KEY || '';
+    this.openrouterBaseUrl = 'https://openrouter.ai/api/v1';
+    this.deepseekBaseUrl = 'https://api.deepseek.com/v1';
+  }
+
+  private getActiveProvider():
+    | { provider: 'openrouter'; apiKey: string; baseUrl: string }
+    | { provider: 'deepseek'; apiKey: string; baseUrl: string }
+    | null {
+    if (this.openrouterApiKey) {
+      return {
+        provider: 'openrouter',
+        apiKey: this.openrouterApiKey,
+        baseUrl: this.openrouterBaseUrl,
+      };
+    }
+    if (this.deepseekApiKey) {
+      return {
+        provider: 'deepseek',
+        apiKey: this.deepseekApiKey,
+        baseUrl: this.deepseekBaseUrl,
+      };
+    }
+    return null;
   }
 
   async sendMessage(
@@ -26,10 +50,12 @@ class DeepSeekService {
     cost: number; 
   }> {
     try {
-      const apiKey = this.apiKey;
-      if (!apiKey) {
+      const providerInfo = this.getActiveProvider();
+      if (!providerInfo) {
+        console.warn('[DeepSeek] No API key configured. Falling back to simulated response.');
         return this.simulateDeepSeekResponse(message, conversationHistory);
       }
+      const { provider, apiKey, baseUrl } = providerInfo;
 
       // Enhance message based on thinking mode
       const enhancedMessage = this.enhanceMessageForThinking(message, options);
@@ -62,37 +88,57 @@ You can add your own API keys in the settings to use these vision models. For no
         parsedMessage
       ];
 
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://josudo.org',
-          'X-Title': 'Josudo AI Platform'
-        },
-        body: JSON.stringify({
-          model: 'deepseek/deepseek-chat-v3.1:free',
-          messages,
-          max_tokens: options.maxTokens || (options.thinkingMode === 'research' ? 8192 : 4096),
-          temperature: options.temperature || (options.thinkingMode === 'deep' ? 0.3 : 0.7),
-          stream: false
-        })
-      });
+      const modelsToTry =
+        provider === 'openrouter'
+          ? ['deepseek/deepseek-chat-v3.1:free', 'deepseek/deepseek-chat']
+          : ['deepseek-chat'];
 
-      if (!response.ok) {
-        throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
+      let lastError: Error | null = null;
+
+      for (const candidateModel of modelsToTry) {
+        const response = await fetch(`${baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            ...(provider === 'openrouter'
+              ? {
+                  'HTTP-Referer': 'https://josudo.org',
+                  'X-Title': 'Josudo AI Platform',
+                }
+              : {}),
+          },
+          body: JSON.stringify({
+            model: candidateModel,
+            messages,
+            max_tokens: options.maxTokens || (options.thinkingMode === 'research' ? 8192 : 4096),
+            temperature: options.temperature || (options.thinkingMode === 'deep' ? 0.3 : 0.7),
+            stream: false,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          lastError = new Error(
+            `[DeepSeek] ${candidateModel} failed (${response.status}): ${errorText}`,
+          );
+          console.warn(lastError.message);
+          continue;
+        }
+
+        const data = await response.json();
+        const responseText = data.choices[0].message.content || '';
+        const tokens = data.usage?.total_tokens || 0;
+        const cost = this.calculateCost(tokens);
+
+        return {
+          response: responseText,
+          tokens,
+          cost,
+        };
       }
 
-      const data = await response.json();
-      const responseText = data.choices[0].message.content || '';
-      const tokens = data.usage?.total_tokens || 0;
-      const cost = this.calculateCost(tokens);
-
-      return {
-        response: responseText,
-        tokens,
-        cost
-      };
+      throw lastError || new Error('[DeepSeek] No usable provider/model combination found');
     } catch (error) {
       console.error('DeepSeek OpenRouter API error:', error);
       return this.simulateDeepSeekResponse(message, conversationHistory);
@@ -111,8 +157,9 @@ You can add your own API keys in the settings to use these vision models. For no
     } = {}
   ): AsyncGenerator<{ content: string; tokens?: number }, void, unknown> {
     try {
-      const apiKey = this.apiKey;
-      if (!apiKey) {
+      const providerInfo = this.getActiveProvider();
+      if (!providerInfo) {
+        console.warn('[DeepSeek] No API key configured. Falling back to simulated streaming response.');
         // Fallback to simulated streaming
         const response = await this.simulateDeepSeekResponse(message, conversationHistory);
         const words = response.content.split(' ');
@@ -162,60 +209,85 @@ You can add your own API keys in the settings to use these vision models. For no
         parsedMessage
       ];
 
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://josudo.org',
-          'X-Title': 'Josudo AI Platform'
-        },
-        body: JSON.stringify({
-          model: 'deepseek/deepseek-chat-v3.1:free',
-          messages,
-          max_tokens: options.maxTokens || (options.thinkingMode === 'research' ? 8192 : 4096),
-          temperature: options.temperature || (options.thinkingMode === 'deep' ? 0.3 : 0.7),
-          stream: true
-        })
-      });
+      const { provider, apiKey, baseUrl } = providerInfo;
+      const modelsToTry =
+        provider === 'openrouter'
+          ? ['deepseek/deepseek-chat-v3.1:free', 'deepseek/deepseek-chat']
+          : ['deepseek-chat'];
 
-      if (!response.ok) {
-        throw new Error(`OpenRouter API error: ${response.status} ${response.statusText}`);
-      }
+      let lastError: Error | null = null;
 
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('No response body reader available');
-      }
+      for (const candidateModel of modelsToTry) {
+        const response = await fetch(`${baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            ...(provider === 'openrouter'
+              ? {
+                  'HTTP-Referer': 'https://josudo.org',
+                  'X-Title': 'Josudo AI Platform',
+                }
+              : {}),
+          },
+          body: JSON.stringify({
+            model: candidateModel,
+            messages,
+            max_tokens: options.maxTokens || (options.thinkingMode === 'research' ? 8192 : 4096),
+            temperature: options.temperature || (options.thinkingMode === 'deep' ? 0.3 : 0.7),
+            stream: true,
+          }),
+        });
 
-      const decoder = new TextDecoder();
-      let buffer = '';
+        if (!response.ok) {
+          const errorText = await response.text();
+          lastError = new Error(
+            `[DeepSeek] ${candidateModel} streaming failed (${response.status}): ${errorText}`,
+          );
+          console.warn(lastError.message);
+          continue;
+        }
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        const reader = response.body?.getReader();
+        if (!reader) {
+          lastError = new Error('[DeepSeek] No response body reader available');
+          continue;
+        }
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+        const decoder = new TextDecoder();
+        let buffer = '';
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') continue;
-            
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.choices?.[0]?.delta?.content;
-              if (content) {
-                yield { content };
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') continue;
+              
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content;
+                if (content) {
+                  yield { content };
+                }
+              } catch (e) {
+                // Ignore parsing errors for incomplete chunks
               }
-            } catch (e) {
-              // Ignore parsing errors for incomplete chunks
             }
           }
         }
+
+        // successfully streamed from this model, exit generator
+        return;
       }
+
+      throw lastError || new Error('[DeepSeek] No usable provider/model combination found for streaming');
     } catch (error) {
       console.error('DeepSeek streaming error:', error);
       // Fallback to simulated streaming

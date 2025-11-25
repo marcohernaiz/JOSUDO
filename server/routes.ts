@@ -27,6 +27,7 @@ import { perplexityService } from "./services/perplexity";
 import { geminiImageService } from "./services/geminiImage";
 import { geminiVideoService } from "./services/geminiVideo";
 import { openaiSoraService } from "./services/openaiSora";
+import { openaiRealtimeService } from "./services/openaiRealtime";
 import { registerAdminRoutes } from "./adminRoutes";
 
 // Model configuration for hybrid selection
@@ -2781,6 +2782,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to process streaming chat" });
     }
   });
+
+  app.post(
+    "/api/voice/realtime-session",
+    authenticateUser,
+    async (req, res) => {
+      try {
+        const sessionData = req as any;
+        const userId =
+          sessionData.session?.passport?.user ||
+          sessionData.session?.userId ||
+          (req.user as any)?.id;
+
+        const { voice, model, instructions } = req.body || {};
+        let userApiKey: string | null = null;
+
+        if (userId) {
+          try {
+            userApiKey = await userApiKeysService.getApiKey(userId, "openai");
+            if (userApiKey) {
+              console.log(
+                `[VoiceMode] Using user-provided OpenAI key for user ${userId}`,
+              );
+            }
+          } catch (error) {
+            console.error(
+              `[VoiceMode] Failed to load user OpenAI key for user ${userId}:`,
+              error,
+            );
+          }
+        }
+
+        const session =
+          await openaiRealtimeService.createSession({
+            voice,
+            model,
+            instructions,
+            apiKey: userApiKey || undefined,
+          });
+
+        const clientSecret =
+          session?.client_secret?.value ||
+          session?.client_secret ||
+          session?.clientSecret;
+
+        if (!clientSecret) {
+          return res.status(500).json({
+            error: "Realtime session was created but no client secret was returned.",
+          });
+        }
+
+        res.json({
+          clientSecret,
+          model: session.model,
+          voice: session.voice || voice || "alloy",
+          expiresAt: session.expires_at || session.expiresAt || null,
+          usingUserKey: Boolean(userApiKey),
+        });
+      } catch (error) {
+        console.error("Failed to create OpenAI Realtime session:", error);
+        res.status(500).json({
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to create realtime voice session",
+        });
+      }
+    },
+  );
 
   // Test endpoint for debugging streaming
   app.get("/api/test/deepseek-streaming", async (req, res) => {

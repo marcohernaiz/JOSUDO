@@ -8,6 +8,7 @@ import josudoIcon from '@assets/JOSUDO logo icon_1752491258890.png';
 import voiceIcon from '@assets/voice-icon.svg';
 import { PersonaSelectionModal } from './PersonaSelectionModal';
 import { WarningModal } from '../Modals/WarningModal';
+import { VoiceModeModal } from './VoiceModeModal';
 
 // Import organized avatars for path resolution
 import executiveAssistantAvatar from '@assets/avatars/executive-assistant.gif';
@@ -180,6 +181,7 @@ export const MessageInput: React.FC = () => {
   const [showChatModeOptions, setShowChatModeOptions] = useState(false);
   const [showPersonaModal, setShowPersonaModal] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
   const [showAuthNotice, setShowAuthNotice] = useState(false);
   const [thinkingMode, setThinkingMode] = useState<'fast' | 'deep' | 'research'>('fast');
   const [webSearch, setWebSearch] = useState(false);
@@ -653,6 +655,7 @@ export const MessageInput: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => setIsVoiceModalOpen(true)}
                           className="h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
                         >
                           <img src={voiceIcon} alt="Voice conversation" className="h-7 w-7" />
@@ -959,6 +962,12 @@ export const MessageInput: React.FC = () => {
       <PersonaSelectionModal 
         isOpen={showPersonaModal} 
         onClose={() => setShowPersonaModal(false)} 
+      />
+      
+      {/* Voice Mode Modal */}
+      <VoiceModeModal 
+        open={isVoiceModalOpen} 
+        onClose={() => setIsVoiceModalOpen(false)} 
       />
       
       {/* Warning Modal */}
