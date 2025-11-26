@@ -8,7 +8,7 @@ interface CreateRealtimeSessionOptions {
 }
 
 class OpenAIRealtimeService {
-  private readonly defaultModel = "gpt-4o-realtime-preview-2024-12-18";
+  private readonly defaultModel = "gpt-4o-realtime-preview";
   private readonly defaultVoice = "alloy";
 
   private getDefaultApiKey(): string {

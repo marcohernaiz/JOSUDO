@@ -460,7 +460,7 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
       await waitForIceGatheringComplete(pc);
       console.log("[VoiceMode] ICE gathering complete");
 
-      const model = sessionData.model || "gpt-4o-realtime-preview-2024-12-18";
+      const model = sessionData.model || "gpt-4o-realtime-preview";
       console.log("[VoiceMode] Step 6: Sending SDP to OpenAI Realtime API...", { model });
       const sdpResponse = await fetch(
         `https://api.openai.com/v1/realtime?model=${encodeURIComponent(model)}`,
