@@ -2788,21 +2788,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     authenticateUser,
     async (req, res) => {
       try {
+        console.log("[VoiceMode] Received realtime session request");
         const sessionData = req as any;
         const userId =
           sessionData.session?.passport?.user ||
           sessionData.session?.userId ||
           (req.user as any)?.id;
 
+        console.log("[VoiceMode] User ID:", userId);
+
         const { voice, model, instructions } = req.body || {};
         let userApiKey: string | null = null;
 
         if (userId) {
           try {
+            console.log("[VoiceMode] Checking for user OpenAI key...");
             userApiKey = await userApiKeysService.getApiKey(userId, "openai");
             if (userApiKey) {
               console.log(
-                `[VoiceMode] Using user-provided OpenAI key for user ${userId}`,
+                `[VoiceMode] ✅ Using user-provided OpenAI key for user ${userId}`,
+              );
+            } else {
+              console.log(
+                `[VoiceMode] No user OpenAI key found, will use platform key`,
               );
             }
           } catch (error) {
@@ -2813,6 +2821,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
 
+        console.log("[VoiceMode] Creating OpenAI Realtime session...", {
+          voice,
+          model,
+          usingUserKey: !!userApiKey,
+        });
         const session =
           await openaiRealtimeService.createSession({
             voice,
@@ -2821,17 +2834,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
             apiKey: userApiKey || undefined,
           });
 
+        console.log("[VoiceMode] Session created:", {
+          hasClientSecret: !!(session?.client_secret?.value || session?.client_secret || session?.clientSecret),
+          model: session.model,
+          voice: session.voice,
+        });
+
         const clientSecret =
           session?.client_secret?.value ||
           session?.client_secret ||
           session?.clientSecret;
 
         if (!clientSecret) {
+          console.error("[VoiceMode] ❌ No client secret in session response:", session);
           return res.status(500).json({
             error: "Realtime session was created but no client secret was returned.",
           });
         }
 
+        console.log("[VoiceMode] ✅ Returning session data to client");
         res.json({
           clientSecret,
           model: session.model,
@@ -2840,7 +2861,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           usingUserKey: Boolean(userApiKey),
         });
       } catch (error) {
-        console.error("Failed to create OpenAI Realtime session:", error);
+        console.error("[VoiceMode] ❌ Failed to create OpenAI Realtime session:", error);
         res.status(500).json({
           error:
             error instanceof Error

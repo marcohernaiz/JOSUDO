@@ -188,13 +188,18 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
   );
 
   const startSession = useCallback(async () => {
-    if (status === "connecting") return;
+    if (status === "connecting") {
+      console.log("[VoiceMode] Already connecting, ignoring duplicate start");
+      return;
+    }
     if (!canUseMediaDevices) {
+      console.error("[VoiceMode] Media devices not supported");
       setError("Microphone access is not supported in this browser.");
       setStatus("error");
       return;
     }
 
+    console.log("[VoiceMode] Starting voice session...");
     setError(null);
     setStatus("connecting");
     setResponses([]);
@@ -202,14 +207,18 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
     partialResponseRef.current = "";
 
     try {
+      console.log("[VoiceMode] Step 1: Requesting session token from backend...");
       const tokenResponse = await fetch("/api/voice/realtime-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
 
+      console.log("[VoiceMode] Token response status:", tokenResponse.status);
+
       if (!tokenResponse.ok) {
         const errorPayload = await tokenResponse.json().catch(() => null);
+        console.error("[VoiceMode] Token request failed:", errorPayload);
         throw new Error(
           errorPayload?.error ||
             `Unable to create voice session (${tokenResponse.status})`,
@@ -217,6 +226,11 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
       }
 
       const sessionData: SessionResponse = await tokenResponse.json();
+      console.log("[VoiceMode] Session data received:", {
+        hasClientSecret: !!sessionData.clientSecret,
+        model: sessionData.model,
+        voice: sessionData.voice,
+      });
 
       if (!sessionData.clientSecret) {
         throw new Error(
@@ -226,24 +240,39 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
 
       setSessionInfo(sessionData);
 
+      console.log("[VoiceMode] Step 2: Creating RTCPeerConnection...");
       const pc = new RTCPeerConnection({
         iceServers: [{ urls: ["stun:stun.l.google.com:19302"] }],
       });
       peerConnectionRef.current = pc;
 
+      pc.oniceconnectionstatechange = () => {
+        console.log("[VoiceMode] ICE connection state:", pc.iceConnectionState);
+        if (pc.iceConnectionState === "failed" || pc.iceConnectionState === "disconnected") {
+          setError(`Connection ${pc.iceConnectionState}. Please try again.`);
+          setStatus("error");
+        }
+      };
+
       pc.ontrack = (event) => {
+        console.log("[VoiceMode] Received remote audio track");
         const stream = event.streams[0];
         if (stream && remoteAudioRef.current) {
           remoteAudioRef.current.srcObject = stream;
           remoteAudioRef.current.muted = isRemoteAudioMuted;
           remoteAudioRef.current
             .play()
-            .catch(() =>
-              console.warn("Autoplay blocked. User interaction may be required."),
-            );
+            .then(() => {
+              console.log("[VoiceMode] Remote audio playback started");
+            })
+            .catch((err) => {
+              console.error("[VoiceMode] Autoplay blocked:", err);
+              setError("Please click anywhere to enable audio playback.");
+            });
         }
       };
 
+      console.log("[VoiceMode] Step 3: Requesting microphone access...");
       const localStream = await navigator.mediaDevices.getUserMedia({
         audio: {
           channelCount: 1,
@@ -252,15 +281,21 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
           autoGainControl: true,
         },
       });
+      console.log("[VoiceMode] Microphone access granted");
       localStreamRef.current = localStream;
       localStream
         .getAudioTracks()
-        .forEach((track) => pc.addTrack(track, localStream));
+        .forEach((track) => {
+          console.log("[VoiceMode] Adding audio track to peer connection");
+          pc.addTrack(track, localStream);
+        });
 
+      console.log("[VoiceMode] Step 4: Creating data channel...");
       const dataChannel = pc.createDataChannel("oai-events");
       dataChannelRef.current = dataChannel;
       dataChannel.onmessage = handleDataChannelMessage;
       dataChannel.onopen = () => {
+        console.log("[VoiceMode] Data channel opened - connection established!");
         setStatus("connected");
         dataChannel.send(
           JSON.stringify({
@@ -272,19 +307,28 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
             },
           }),
         );
+        console.log("[VoiceMode] Sent response.create event");
       };
 
       dataChannel.onerror = (event) => {
-        console.error("Realtime data channel error", event);
+        console.error("[VoiceMode] Data channel error:", event);
         setError("Realtime data channel encountered an error.");
         setStatus("error");
       };
 
+      dataChannel.onclose = () => {
+        console.log("[VoiceMode] Data channel closed");
+      };
+
+      console.log("[VoiceMode] Step 5: Creating WebRTC offer...");
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
+      console.log("[VoiceMode] Waiting for ICE gathering...");
       await waitForIceGatheringComplete(pc);
+      console.log("[VoiceMode] ICE gathering complete");
 
       const model = sessionData.model || "gpt-4o-realtime-preview-2024-12-18";
+      console.log("[VoiceMode] Step 6: Sending SDP to OpenAI Realtime API...", { model });
       const sdpResponse = await fetch(
         `https://api.openai.com/v1/realtime?model=${encodeURIComponent(model)}`,
         {
@@ -297,16 +341,22 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
         },
       );
 
+      console.log("[VoiceMode] SDP response status:", sdpResponse.status);
+
       if (!sdpResponse.ok) {
+        const errorText = await sdpResponse.text();
+        console.error("[VoiceMode] SDP handshake failed:", errorText);
         throw new Error(
-          `Failed to complete WebRTC handshake (${sdpResponse.status})`,
+          `Failed to complete WebRTC handshake (${sdpResponse.status}): ${errorText}`,
         );
       }
 
       const answer = await sdpResponse.text();
+      console.log("[VoiceMode] Step 7: Setting remote description...");
       await pc.setRemoteDescription({ type: "answer", sdp: answer });
+      console.log("[VoiceMode] WebRTC connection established successfully!");
     } catch (err) {
-      console.error("Failed to start voice session", err);
+      console.error("[VoiceMode] Failed to start voice session:", err);
       setError(
         err instanceof Error ? err.message : "Failed to start voice session.",
       );
