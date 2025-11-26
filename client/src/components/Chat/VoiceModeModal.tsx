@@ -69,6 +69,7 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
   const localStreamRef = useRef<MediaStream | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
   const partialResponseRef = useRef("");
+  const partialTranscriptRef = useRef("");
 
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -94,6 +95,7 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
     setResponses([]);
     setPartialResponse("");
     partialResponseRef.current = "";
+    partialTranscriptRef.current = "";
     setSessionInfo(null);
     setIsMuted(false);
     setIsRemoteAudioMuted(false);
@@ -177,13 +179,20 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
             break;
           case "response.audio_transcript.delta":
             console.log("[VoiceMode] Audio transcript delta:", data.delta);
-            // Show what the AI heard
+            // Accumulate transcript deltas
             if (data.delta) {
-              appendResponseDelta(`[Heard: ${data.delta}] `);
+              partialTranscriptRef.current += data.delta;
             }
             break;
           case "response.audio_transcript.done":
             console.log("[VoiceMode] Audio transcript done:", data.transcript);
+            // Show the complete transcript when done
+            const fullTranscript = data.transcript || partialTranscriptRef.current;
+            if (fullTranscript) {
+              console.log("[VoiceMode] 📝 Complete transcript:", fullTranscript);
+              appendResponseDelta(`\n**You said:** ${fullTranscript}\n\n`);
+              partialTranscriptRef.current = "";
+            }
             break;
           case "response.audio.delta":
             console.log("[VoiceMode] Audio delta received");
@@ -239,7 +248,7 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
           case "conversation.item.input_audio_transcription.completed":
             console.log("[VoiceMode] 📝 Transcription completed:", data.transcript);
             if (data.transcript) {
-              appendResponseDelta(`[You said: ${data.transcript}] `);
+              appendResponseDelta(`\n**You said:** ${data.transcript}\n\n`);
             }
             break;
           case "conversation.item.created":
@@ -255,30 +264,30 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
                   console.log("[VoiceMode] Content part:", part);
                   if (part.type === "input_text" && part.text) {
                     console.log("[VoiceMode] 📝 Found transcription in array:", part.text);
-                    appendResponseDelta(`[You said: ${part.text}] `);
+                    appendResponseDelta(`\n**You said:** ${part.text}\n\n`);
                   } else if (part.type === "text" && part.text) {
                     console.log("[VoiceMode] 📝 Found text in array:", part.text);
-                    appendResponseDelta(`[You said: ${part.text}] `);
+                    appendResponseDelta(`\n**You said:** ${part.text}\n\n`);
                   }
                 });
               } else if (typeof content === "object") {
                 if (content.type === "input_text" && content.text) {
                   console.log("[VoiceMode] 📝 Found transcription:", content.text);
-                  appendResponseDelta(`[You said: ${content.text}] `);
+                  appendResponseDelta(`\n**You said:** ${content.text}\n\n`);
                 } else if (content.type === "text" && content.text) {
                   console.log("[VoiceMode] 📝 Found text:", content.text);
-                  appendResponseDelta(`[You said: ${content.text}] `);
+                  appendResponseDelta(`\n**You said:** ${content.text}\n\n`);
                 } else if (content.text) {
                   console.log("[VoiceMode] 📝 Found text in content:", content.text);
-                  appendResponseDelta(`[You said: ${content.text}] `);
+                  appendResponseDelta(`\n**You said:** ${content.text}\n\n`);
                 }
               } else if (typeof content === "string") {
                 console.log("[VoiceMode] 📝 Content is string:", content);
-                appendResponseDelta(`[You said: ${content}] `);
+                appendResponseDelta(`\n**You said:** ${content}\n\n`);
               }
             } else if (item?.type === "input_audio" && item?.transcript) {
               console.log("[VoiceMode] 📝 Found transcript in input_audio item:", item.transcript);
-              appendResponseDelta(`[You said: ${item.transcript}] `);
+              appendResponseDelta(`\n**You said:** ${item.transcript}\n\n`);
             }
             break;
           case "response.refusal.delta":
@@ -333,6 +342,7 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
     setResponses([]);
     setPartialResponse("");
     partialResponseRef.current = "";
+    partialTranscriptRef.current = "";
 
     try {
       console.log("[VoiceMode] Step 1: Requesting session token from backend...");
