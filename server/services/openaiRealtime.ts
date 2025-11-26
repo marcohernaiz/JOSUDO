@@ -41,7 +41,6 @@ class OpenAIRealtimeService {
         modalities: ["text", "audio"],
         input_audio_format: "pcm16",
         output_audio_format: "pcm16",
-        input_audio_transcription: true, // Enable transcription of input audio
         instructions:
           options?.instructions ||
           "You are Josudo's friendly voice companion. Keep responses clear, concise, and conversational.",
