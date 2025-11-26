@@ -198,6 +198,13 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
             break;
           case "response.created":
             console.log("[VoiceMode] Response created successfully");
+            console.log("[VoiceMode] Response details:", data.response);
+            // Check if response has transcription enabled
+            if (data.response?.input_audio_transcription) {
+              console.log("[VoiceMode] ✅ Input audio transcription is enabled in response");
+            } else {
+              console.log("[VoiceMode] ⚠️ Input audio transcription not enabled in response");
+            }
             break;
           case "response.audio_started":
             console.log("[VoiceMode] AI started speaking");
@@ -235,6 +242,24 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
               appendResponseDelta(`[You said: ${data.transcript}] `);
             }
             break;
+          case "conversation.item.created":
+            console.log("[VoiceMode] Conversation item created:", data.item);
+            // Check if this item contains transcription
+            if (data.item?.type === "message" && data.item?.content) {
+              const content = data.item.content;
+              if (Array.isArray(content)) {
+                content.forEach((part: any) => {
+                  if (part.type === "input_text" && part.text) {
+                    console.log("[VoiceMode] 📝 Found transcription in item:", part.text);
+                    appendResponseDelta(`[You said: ${part.text}] `);
+                  }
+                });
+              } else if (content.type === "input_text" && content.text) {
+                console.log("[VoiceMode] 📝 Found transcription:", content.text);
+                appendResponseDelta(`[You said: ${content.text}] `);
+              }
+            }
+            break;
           case "response.refusal.delta":
             console.log("[VoiceMode] Refusal delta:", data.delta);
             appendResponseDelta(data.delta || "");
@@ -246,8 +271,15 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
             );
             setStatus("error");
             break;
+          case "response.done":
+            console.log("[VoiceMode] Response done:", data.response);
+            setIsAIResponding(false);
+            break;
+          case "session.created":
+            console.log("[VoiceMode] Session created:", data.session);
+            break;
           default:
-            console.log("[VoiceMode] Unhandled event type:", data.type);
+            console.log("[VoiceMode] Unhandled event type:", data.type, data);
             break;
         }
       } catch (err) {
