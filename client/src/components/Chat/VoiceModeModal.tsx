@@ -273,6 +273,10 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
             break;
           case "response.done":
             console.log("[VoiceMode] Response done:", data.response);
+            if (data.response?.status === "failed") {
+              console.error("[VoiceMode] ❌ Response failed:", data.response.status_details);
+              setError(`Response failed: ${JSON.stringify(data.response.status_details)}`);
+            }
             setIsAIResponding(false);
             break;
           case "session.created":
@@ -403,7 +407,7 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
         setStatus("connected");
         
         // Create the response with proper configuration
-        // Note: With WebRTC, audio flows automatically, but we need to configure transcription
+        // Enable input audio transcription to see what the AI hears
         dataChannel.send(
           JSON.stringify({
             type: "response.create",
@@ -412,10 +416,13 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
                 "You are Josudo's real-time voice assistant. Respond naturally, keep answers concise, and wait for the user's voice before replying. When the user speaks, respond conversationally.",
               modalities: ["text", "audio"],
               voice: sessionData.voice || "alloy",
+              input_audio_transcription: {
+                model: "whisper-1"
+              },
             },
           }),
         );
-        console.log("[VoiceMode] Sent response.create event - AI should now be listening to your microphone");
+        console.log("[VoiceMode] Sent response.create event with transcription enabled - AI should now be listening to your microphone");
       };
 
       dataChannel.onerror = (event) => {
