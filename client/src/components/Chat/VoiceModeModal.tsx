@@ -243,21 +243,42 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
             }
             break;
           case "conversation.item.created":
-            console.log("[VoiceMode] Conversation item created:", data.item);
+            console.log("[VoiceMode] Conversation item created:", JSON.stringify(data.item, null, 2));
             // Check if this item contains transcription
-            if (data.item?.type === "message" && data.item?.content) {
-              const content = data.item.content;
+            const item = data.item;
+            if (item?.type === "message" && item?.content) {
+              const content = item.content;
+              console.log("[VoiceMode] Item content:", JSON.stringify(content, null, 2));
+              
               if (Array.isArray(content)) {
                 content.forEach((part: any) => {
+                  console.log("[VoiceMode] Content part:", part);
                   if (part.type === "input_text" && part.text) {
-                    console.log("[VoiceMode] 📝 Found transcription in item:", part.text);
+                    console.log("[VoiceMode] 📝 Found transcription in array:", part.text);
+                    appendResponseDelta(`[You said: ${part.text}] `);
+                  } else if (part.type === "text" && part.text) {
+                    console.log("[VoiceMode] 📝 Found text in array:", part.text);
                     appendResponseDelta(`[You said: ${part.text}] `);
                   }
                 });
-              } else if (content.type === "input_text" && content.text) {
-                console.log("[VoiceMode] 📝 Found transcription:", content.text);
-                appendResponseDelta(`[You said: ${content.text}] `);
+              } else if (typeof content === "object") {
+                if (content.type === "input_text" && content.text) {
+                  console.log("[VoiceMode] 📝 Found transcription:", content.text);
+                  appendResponseDelta(`[You said: ${content.text}] `);
+                } else if (content.type === "text" && content.text) {
+                  console.log("[VoiceMode] 📝 Found text:", content.text);
+                  appendResponseDelta(`[You said: ${content.text}] `);
+                } else if (content.text) {
+                  console.log("[VoiceMode] 📝 Found text in content:", content.text);
+                  appendResponseDelta(`[You said: ${content.text}] `);
+                }
+              } else if (typeof content === "string") {
+                console.log("[VoiceMode] 📝 Content is string:", content);
+                appendResponseDelta(`[You said: ${content}] `);
               }
+            } else if (item?.type === "input_audio" && item?.transcript) {
+              console.log("[VoiceMode] 📝 Found transcript in input_audio item:", item.transcript);
+              appendResponseDelta(`[You said: ${item.transcript}] `);
             }
             break;
           case "response.refusal.delta":
@@ -407,7 +428,7 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
         setStatus("connected");
         
         // Create the response with proper configuration
-        // Enable input audio transcription to see what the AI hears
+        // Transcription happens automatically when audio is processed
         dataChannel.send(
           JSON.stringify({
             type: "response.create",
@@ -416,13 +437,10 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
                 "You are Josudo's real-time voice assistant. Respond naturally, keep answers concise, and wait for the user's voice before replying. When the user speaks, respond conversationally.",
               modalities: ["text", "audio"],
               voice: sessionData.voice || "alloy",
-              input_audio_transcription: {
-                model: "whisper-1"
-              },
             },
           }),
         );
-        console.log("[VoiceMode] Sent response.create event with transcription enabled - AI should now be listening to your microphone");
+        console.log("[VoiceMode] Sent response.create event - AI should now be listening to your microphone");
       };
 
       dataChannel.onerror = (event) => {
