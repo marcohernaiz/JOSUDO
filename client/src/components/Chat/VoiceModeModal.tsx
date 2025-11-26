@@ -77,6 +77,8 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
   const [sessionInfo, setSessionInfo] = useState<SessionResponse | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isRemoteAudioMuted, setIsRemoteAudioMuted] = useState(false);
+  const [isUserSpeaking, setIsUserSpeaking] = useState(false);
+  const [isAIResponding, setIsAIResponding] = useState(false);
 
   const canUseMediaDevices = useMemo(
     () =>
@@ -95,6 +97,8 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
     setSessionInfo(null);
     setIsMuted(false);
     setIsRemoteAudioMuted(false);
+    setIsUserSpeaking(false);
+    setIsAIResponding(false);
   }, []);
 
   const cleanup = useCallback(() => {
@@ -159,29 +163,81 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
     (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data);
+        console.log("[VoiceMode] Received event:", data.type, data);
 
         switch (data.type) {
           case "response.output_text.delta":
+            console.log("[VoiceMode] Text delta:", data.delta);
             appendResponseDelta(data.delta || "");
             break;
           case "response.output_text.done":
-          case "response.completed":
+            console.log("[VoiceMode] Text done");
             finalizeResponse();
+            setIsAIResponding(false);
+            break;
+          case "response.audio_transcript.delta":
+            console.log("[VoiceMode] Audio transcript delta:", data.delta);
+            // Show what the AI heard
+            if (data.delta) {
+              appendResponseDelta(`[Heard: ${data.delta}] `);
+            }
+            break;
+          case "response.audio_transcript.done":
+            console.log("[VoiceMode] Audio transcript done:", data.transcript);
+            break;
+          case "response.audio.delta":
+            console.log("[VoiceMode] Audio delta received");
+            break;
+          case "response.audio.done":
+            console.log("[VoiceMode] Audio done");
+            break;
+          case "response.completed":
+            console.log("[VoiceMode] Response completed");
+            finalizeResponse();
+            setIsAIResponding(false);
+            break;
+          case "response.created":
+            console.log("[VoiceMode] Response created successfully");
+            break;
+          case "response.audio_started":
+            console.log("[VoiceMode] AI started speaking");
+            setIsAIResponding(true);
+            break;
+          case "response.audio_stopped":
+            console.log("[VoiceMode] AI stopped speaking");
+            setIsAIResponding(false);
+            break;
+          case "response.output_text.delta":
+            if (!isAIResponding) {
+              setIsAIResponding(true);
+            }
+            break;
+          case "input_audio_buffer.speech_started":
+            console.log("[VoiceMode] 🎤 User started speaking");
+            setIsUserSpeaking(true);
+            break;
+          case "input_audio_buffer.speech_stopped":
+            console.log("[VoiceMode] 🎤 User stopped speaking");
+            setIsUserSpeaking(false);
             break;
           case "response.refusal.delta":
+            console.log("[VoiceMode] Refusal delta:", data.delta);
             appendResponseDelta(data.delta || "");
             break;
           case "error":
+            console.error("[VoiceMode] Error event:", data.error);
             setError(
               data.error?.message || "Realtime session reported an error.",
             );
             setStatus("error");
             break;
           default:
+            console.log("[VoiceMode] Unhandled event type:", data.type);
             break;
         }
-      } catch {
+      } catch (err) {
         // Non-JSON messages are metadata we can ignore
+        console.log("[VoiceMode] Non-JSON message (ignored):", event.data);
       }
     },
     [appendResponseDelta, finalizeResponse],
@@ -297,17 +353,21 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
       dataChannel.onopen = () => {
         console.log("[VoiceMode] Data channel opened - connection established!");
         setStatus("connected");
+        
+        // Create the response with proper configuration
+        // The API will automatically listen to the audio stream once the response is created
         dataChannel.send(
           JSON.stringify({
             type: "response.create",
             response: {
               instructions:
-                "You are Josudo's real-time voice assistant. Respond naturally, keep answers concise, and wait for the user's voice before replying.",
+                "You are Josudo's real-time voice assistant. Respond naturally, keep answers concise, and wait for the user's voice before replying. When the user speaks, respond conversationally.",
               modalities: ["text", "audio"],
+              voice: sessionData.voice || "alloy",
             },
           }),
         );
-        console.log("[VoiceMode] Sent response.create event");
+        console.log("[VoiceMode] Sent response.create event - AI should now be listening to your microphone");
       };
 
       dataChannel.onerror = (event) => {
@@ -397,7 +457,13 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
       case "connecting":
         return "Connecting to OpenAI Realtime…";
       case "connected":
-        return "Live conversation is active.";
+        if (isUserSpeaking) {
+          return "🎤 You're speaking...";
+        } else if (isAIResponding) {
+          return "🤖 AI is responding...";
+        } else {
+          return "✅ Live conversation is active. Start speaking!";
+        }
       case "error":
         return "Something went wrong. Please try again.";
       default:
