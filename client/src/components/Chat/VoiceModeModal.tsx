@@ -219,6 +219,21 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
           case "input_audio_buffer.speech_stopped":
             console.log("[VoiceMode] 🎤 User stopped speaking");
             setIsUserSpeaking(false);
+            if (data.transcript) {
+              console.log("[VoiceMode] 📝 Detected transcript:", data.transcript);
+            }
+            break;
+          case "input_audio_buffer.committed":
+            console.log("[VoiceMode] Audio buffer committed:", data);
+            if (data.transcript) {
+              console.log("[VoiceMode] 📝 Committed transcript:", data.transcript);
+            }
+            break;
+          case "conversation.item.input_audio_transcription.completed":
+            console.log("[VoiceMode] 📝 Transcription completed:", data.transcript);
+            if (data.transcript) {
+              appendResponseDelta(`[You said: ${data.transcript}] `);
+            }
             break;
           case "response.refusal.delta":
             console.log("[VoiceMode] Refusal delta:", data.delta);
@@ -350,12 +365,13 @@ export const VoiceModeModal: React.FC<VoiceModeModalProps> = ({
       const dataChannel = pc.createDataChannel("oai-events");
       dataChannelRef.current = dataChannel;
       dataChannel.onmessage = handleDataChannelMessage;
+      
       dataChannel.onopen = () => {
         console.log("[VoiceMode] Data channel opened - connection established!");
         setStatus("connected");
         
         // Create the response with proper configuration
-        // The API will automatically listen to the audio stream once the response is created
+        // Note: With WebRTC, audio flows automatically, but we need to configure transcription
         dataChannel.send(
           JSON.stringify({
             type: "response.create",
